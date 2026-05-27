@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom Settings &amp; Custom Metadata Types — Salesforce Interview Prep</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; --red:#d85a5a; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:13px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:8px 12px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  table.dttable td.yes{color:var(--green);font-weight:600;text-align:center}
+  table.dttable td.no{color:var(--red);font-weight:600;text-align:center}
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+  .pill{background:var(--code-bg);border:1px solid var(--code-border);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted)}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Advanced Developer Fundamentals</a>
+    · Topic
+  </div>
+  <h1>Custom Settings &amp; Custom Metadata Types</h1>
+  <div class="sub">Given a scenario, identify best practices for various types of custom metadata and custom settings, and how to implement required solutions · Salesforce interview prep</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (55 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#overview">At-a-glance overview</a></li>
+    </ul>
+    <h3>Custom Settings</h3>
+    <ul>
+      <li><a href="#cs-overview-1">Data / usage / packages</a></li>
+      <li><a href="#cs-overview-2">Visibility &amp; cached data</a></li>
+      <li><a href="#cs-types">List vs Hierarchy</a></li>
+      <li><a href="#cs-note">CMT-preferred note</a></li>
+      <li><a href="#cs-fields">Field types supported</a></li>
+      <li><a href="#cs-using-1">Setup &amp; Manage</a></li>
+      <li><a href="#cs-using-2">API name format</a></li>
+      <li><a href="#cs-using-3">Formula &amp; Apex access</a></li>
+    </ul>
+    <h3>Custom Settings — Use Cases</h3>
+    <ul>
+      <li><a href="#cs-use-cases">Use cases</a></li>
+      <li><a href="#cs-examples-1">Country / Plans by Profile</a></li>
+      <li><a href="#cs-examples-2">Domains / Discounts by User</a></li>
+      <li><a href="#cs-setup-rvr">Run Validation Rules setup</a></li>
+      <li><a href="#cs-value-rvr">Run Validation Rules value</a></li>
+      <li><a href="#cs-postal">Postal code validation</a></li>
+      <li><a href="#cs-closedate">Close date validation</a></li>
+      <li><a href="#cs-trigger">Apex trigger validation</a></li>
+    </ul>
+    <h3>Custom Metadata Types</h3>
+    <ul>
+      <li><a href="#cmt-overview-1">Packages / fields / relationships</a></li>
+      <li><a href="#cmt-overview-2">Formula / migration / visibility</a></li>
+      <li><a href="#cmt-overview-3">Public / Protected types</a></li>
+      <li><a href="#cmt-field-priv">Field editing privileges</a></li>
+      <li><a href="#cmt-fields">Field types supported</a></li>
+      <li><a href="#cmt-using-1">Setup / config / population</a></li>
+      <li><a href="#cmt-using-2">Name format &amp; data access</a></li>
+      <li><a href="#cmt-methods-1">getAll / getInstance(recordId)</a></li>
+      <li><a href="#cmt-methods-2">getInstance(developerName / qualifiedApiName)</a></li>
+    </ul>
+    <h3>CMT — Use Cases</h3>
+    <ul>
+      <li><a href="#cmt-uc-1">Frequency / packaged / same value</a></li>
+      <li><a href="#cmt-uc-2">Custom field / linked settings / business rules</a></li>
+      <li><a href="#cmt-uc-3">Data mapping / formula / defaults</a></li>
+      <li><a href="#cmt-examples-1">ISO code migration / Bonus plans</a></li>
+      <li><a href="#cmt-examples-2">Product constants</a></li>
+      <li><a href="#cmt-area-code">Area Code → State mapping</a></li>
+      <li><a href="#cmt-visibility">Visibility options</a></li>
+      <li><a href="#cmt-field-manage">Field manageability</a></li>
+      <li><a href="#cmt-manage-records">Manage records</a></li>
+      <li><a href="#cmt-soql">Retrieve via SOQL</a></li>
+      <li><a href="#cmt-static">Retrieve via static methods</a></li>
+      <li><a href="#cmt-products">Product spec example</a></li>
+      <li><a href="#cmt-reference-formula">$CustomMetadata in formula</a></li>
+      <li><a href="#cmt-formula-field">Formula field example</a></li>
+      <li><a href="#cmt-default-values">Field default values</a></li>
+    </ul>
+    <h3>CS vs CMT</h3>
+    <ul>
+      <li><a href="#vs-table-1">Differences (1/2)</a></li>
+      <li><a href="#vs-table-2">Differences (2/2)</a></li>
+      <li><a href="#protecting">Protecting via Schema Settings</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#learn-more">Learn More</a></li>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover data modeling management custom metadata custom settings">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Data Modeling and Management</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario, identify best practices for various types of custom metadata and custom settings, and how to implement required solutions.</p>
+</section>
+
+<section class="slide" id="toc" data-search="table of contents custom settings custom metadata types use cases examples differences">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#cs-overview-1">Custom Settings</a></li>
+    <li><a class="toc-link" href="#cs-use-cases">Use Cases &amp; Examples (Custom Settings)</a></li>
+    <li><a class="toc-link" href="#cmt-overview-1">Custom Metadata Types</a></li>
+    <li><a class="toc-link" href="#cmt-uc-1">Use Cases &amp; Examples (Custom Metadata Types)</a></li>
+    <li><a class="toc-link" href="#vs-table-1">Custom Settings vs. Custom Metadata Types</a></li>
+  </ol>
+</section>
+
+<section class="slide" id="objectives" data-search="learning objectives types custom settings custom metadata benefits considerations limitations setup access apex declarative">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Explain the difference between the types of custom settings, and between custom settings vs. custom metadata.</li>
+    <li>Identify the <strong>benefits, considerations, and limitations</strong> of using custom settings and custom metadata.</li>
+    <li>Demonstrate how to set up and access custom metadata and custom settings in Apex and declarative solutions.</li>
+  </ul>
+</section>
+
+<section class="slide" id="intro" data-search="introduction custom settings custom metadata application cache soql limit data types business logic preferred over">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Custom settings and custom metadata types are used to <strong>store values which do not change frequently</strong> but need to be <strong>frequently referenced</strong>. The data is pulled into the <strong>application cache</strong> for efficient access and, in most cases, <strong>does not count toward the SOQL limit</strong>.</p>
+  <p>Both approaches support many data types. Referencing them in business logic makes customizations easier to maintain and read, and reduces the number of places where changes need to be made.</p>
+  <p><strong>Custom metadata types are a newer concept and are preferred over custom settings in many cases.</strong> However, there are scenarios in which custom settings are still the preferred approach.</p>
+</section>
+
+<section class="slide" id="overview" data-search="custom settings custom metadata types overview list hierarchy structure relationships api __c __mdt setup">
+  <div class="pgnum">Page 5 · At-a-glance overview</div>
+  <h2>Custom Settings vs Custom Metadata Types — at a glance</h2>
+  <div class="cards">
+    <div class="card"><h4>Custom Settings</h4><p><strong>List</strong> and <strong>Hierarchy</strong> Custom Settings can be used to create custom sets of data and associate them for an org, profile, or specific user.</p></div>
+    <div class="card"><h4>Use Cases of Custom Settings</h4><p>Use when data is referenced frequently but does not change frequently, or changes based on the logged-in user or their profile.</p></div>
+    <div class="card"><h4>Using Custom Settings</h4><p>Created in <em>Setup → Custom Settings</em>. API name ends with <code>__c</code>, similar to a custom object.</p></div>
+    <div class="card"><h4>Custom Metadata Types</h4><p>Define the structure of application metadata; records can be created and <strong>relationships</strong> can be defined.</p></div>
+    <div class="card"><h4>Use Cases of CMT</h4><p>Store mappings between configuration data, business rules, and configuration data linked by relationships.</p></div>
+    <div class="card"><h4>Using CMT</h4><p>Created in <em>Setup → Custom Metadata Types</em>. API name ends with <code>__mdt</code>.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="cs-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 6</div>
+  <h2>Custom Settings</h2>
+</section>
+
+<section class="slide" id="cs-overview-1" data-search="custom settings overview data usage packages formula validation flows apex soap api">
+  <div class="pgnum">Page 7 · Custom Settings — data / usage / packages</div>
+  <h2>Data / usage / packages</h2>
+  <p class="lede">Custom settings are similar to custom objects in which data can be referenced in <strong>declarative</strong> and <strong>programmatic</strong> customizations.</p>
+  <div class="cards">
+    <div class="card"><h4>Data</h4><p>Custom settings allow creation of custom sets of data which can be exposed in <strong>application cache</strong>.</p></div>
+    <div class="card"><h4>Usage</h4><p>Used by <strong>formula fields</strong>, <strong>validation rules</strong>, <strong>flows</strong>, <strong>Apex</strong>, and the <strong>SOAP API</strong>.</p></div>
+    <div class="card"><h4>Packages</h4><p>Can be included in packages, but <strong>the data will not be included</strong>. To include data, Apex code must be used.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-overview-2" data-search="custom settings overview visibility protected managed packages developer scratch orgs cached data soql governor limits">
+  <div class="pgnum">Page 8 · Custom Settings — visibility &amp; cached data</div>
+  <h2>Visibility &amp; cached data</h2>
+  <div class="cards">
+    <div class="card"><h4>Visibility</h4><p>To protect the value in managed packages, set <strong>Visibility to Protected</strong>. Changing the Visibility field is only allowed in <strong>Developer or Scratch orgs</strong>. This prevents the target org from editing the values or accessing them via Apex or API.</p></div>
+    <div class="card"><h4>Cached Data</h4><p>Custom settings can be used for quick and efficient access to cached custom data <strong>without using SOQL queries</strong> that count against the governor limits.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-types" data-search="custom settings two types list custom settings hierarchy reusable static data all users hierarchical logic profiles users">
+  <div class="pgnum">Page 9 · List vs Hierarchy</div>
+  <h2>Two types of custom settings</h2>
+  <div class="cards">
+    <div class="card"><h4>List Custom Settings</h4><p>Provides reusable static data that is the <strong>same for all users</strong> across the org.</p></div>
+    <div class="card"><h4>Hierarchy Custom Settings</h4><p>Uses built-in <strong>hierarchical logic</strong> to personalize settings based on specific <strong>Profiles</strong> or <strong>Users</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-note" data-search="custom settings note list preferred custom metadata types modern">
+  <div class="pgnum">Page 10 · CMT-preferred note</div>
+  <h2>Modern preference</h2>
+  <div class="note">For situations where <strong>List custom setting</strong> has been used in the past, <strong>Custom metadata types are now the preferred approach</strong>. Hierarchy custom settings, however, still have no CMT equivalent — keep using them for per-profile/per-user overrides.</div>
+</section>
+
+<section class="slide" id="cs-fields" data-search="field types supported custom settings checkbox currency date datetime email number percent phone text text area url">
+  <div class="pgnum">Page 11 · Field types supported</div>
+  <h2>Field types supported (Custom Settings)</h2>
+  <div class="pillrow">
+    <span class="pill">Checkbox</span>
+    <span class="pill">Currency</span>
+    <span class="pill">Date</span>
+    <span class="pill">Date/Time</span>
+    <span class="pill">Email</span>
+    <span class="pill">Number</span>
+    <span class="pill">Percent</span>
+    <span class="pill">Phone</span>
+    <span class="pill">Text</span>
+    <span class="pill">Text Area</span>
+    <span class="pill">URL</span>
+  </div>
+  <div class="note">No picklist, no long text area, no rich text — those are CMT-only.</div>
+</section>
+
+<section class="slide" id="cs-using-1" data-search="using custom settings setup menu manage button add edit delete values">
+  <div class="pgnum">Page 12 · Setup &amp; Manage</div>
+  <h2>Setup &amp; Manage button</h2>
+  <div class="cards">
+    <div class="card"><h4>Setup Menu</h4><p>Create custom settings by navigating to <em>"Custom Settings"</em> in Setup.</p></div>
+    <div class="card"><h4>Manage Button</h4><p>The <em>Manage</em> button can be used to add, edit, or delete values of a custom setting.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-using-2" data-search="custom settings name format api __c suffix country codes country_codes__c">
+  <div class="pgnum">Page 13 · API name format</div>
+  <h2>API name format</h2>
+  <div class="cards">
+    <div class="card"><h4>Name Format</h4><p>Same naming format as custom objects. The API name ends in <code>__c</code>.</p></div>
+    <div class="card"><h4>Example Name</h4><p>A Custom Setting named <em>"Country Codes"</em> would be named <code>Country_Codes__c</code> by default.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-using-3" data-search="custom settings formula reference $setup apex reference list hierarchy methods getinstance getall">
+  <div class="pgnum">Page 14 · Formula &amp; Apex access</div>
+  <h2>Formula &amp; Apex access</h2>
+  <div class="cards">
+    <div class="card"><h4>Formula Reference</h4><p>Prefix the API name with <code>$Setup</code> in validations or formulas (e.g. <code>$Setup.Run_Validation_Rules__c</code>).</p></div>
+    <div class="card"><h4>Apex Reference</h4><p>Accessed the <strong>same way</strong> as a normal Salesforce object. Then methods specific to the type (list or hierarchy) can be used.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Hierarchy custom settings have a built-in <code>getInstance()</code> that automatically resolves the org → profile → user hierarchy and returns the most-specific match for the running user. That's the magic that makes them irreplaceable.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="cs-uc-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 15</div>
+  <h2>Use Cases &amp; Examples (Custom Settings)</h2>
+</section>
+
+<section class="slide" id="cs-use-cases" data-search="use cases custom settings frequency user setting currency trigger control commonality org setting">
+  <div class="pgnum">Page 16 · Use cases of Custom Settings</div>
+  <h2>Use cases of Custom Settings</h2>
+  <div class="cards">
+    <div class="card"><h4>Frequency</h4><p>Data that does not change frequently but is referenced frequently.</p></div>
+    <div class="card"><h4>User Setting</h4><p>Value of the setting needs to change based on the <strong>logged-in user</strong> or the user's <strong>profile</strong>.</p></div>
+    <div class="card"><h4>Currency</h4><p>A common currency value is needed.</p></div>
+    <div class="card"><h4>Trigger Control</h4><p>Used to enable/disable (programmatically) an Apex trigger event.</p></div>
+    <div class="card"><h4>Commonality</h4><p>A common value needs to be used in formula or validation fields.</p></div>
+    <div class="card"><h4>Org Setting</h4><p>Specific value of the setting will differ for every org.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-examples-1" data-search="examples country data list iso country codes plans by profile hierarchy incentives bonus compensation">
+  <div class="pgnum">Page 17 · Country Data / Plans by Profile</div>
+  <h2>Examples — Country Data &amp; Plans by Profile</h2>
+  <div class="cards">
+    <div class="card"><h4>Country Data</h4><p>A <strong>list</strong> custom setting can store a list of countries and their <strong>ISO country codes</strong> used across the org.</p></div>
+    <div class="card"><h4>Plans by Profile</h4><p>A <strong>hierarchy</strong> custom setting can store <strong>different incentives</strong> and <strong>bonus plans</strong> for different user profiles for a compensation application.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-examples-2" data-search="examples domain names list incoming emails discounts by user hierarchy discount percentages sales users">
+  <div class="pgnum">Page 18 · Domains / Discounts by User</div>
+  <h2>Examples — Domains &amp; Discounts by User</h2>
+  <div class="cards">
+    <div class="card"><h4>Domain Names</h4><p>A <strong>list</strong> custom setting for storing domain names through which an org receives incoming emails.</p></div>
+    <div class="card"><h4>Discounts by User</h4><p>A <strong>hierarchy</strong> custom setting for different discount percentages offered by different sales users in the org.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-setup-rvr" data-search="custom settings setup run validation rules conditionally profile current user default organization level value overrides">
+  <div class="pgnum">Page 19 · Run Validation Rules setup</div>
+  <h2>Setup example — <em>Run Validation Rules</em></h2>
+  <p class="lede">A custom setting called <em>"Run Validation Rules"</em> is used to conditionally run a validation rule depending on the profile of the current user.</p>
+  <ul>
+    <li><strong>Default Organization Level Value:</strong> Location: <em>Focus on Force</em>, Run Validation: ✓</li>
+    <li><strong>Overrides for specific profiles/users:</strong>
+      <ul>
+        <li>Setup Owner: <em>Standard Platform User</em> · Location: Profile · Run Validation: ✓</li>
+        <li>Setup Owner: <em>Martin Gessner</em> · Location: User · Run Validation: ✗</li>
+      </ul>
+    </li>
+  </ul>
+</section>
+
+<section class="slide" id="cs-value-rvr" data-search="custom settings value run validation rules edit standard platform user profile checkbox enabled">
+  <div class="pgnum">Page 20 · Run Validation Rules value</div>
+  <h2>Value editor</h2>
+  <p>When defining a custom setting value, it can be associated with a profile or user. In this example, a <em>"Run Validation"</em> checkbox field is enabled for the selected profile.</p>
+<pre class="code">Location:        [Profile ▾] Standard Platform User
+Run Validation:  ☑</pre>
+</section>
+
+<section class="slide" id="cs-postal" data-search="postal code validation rule valid_canadian_postal_code billing country ca canada regex run_validation_rules__c $setup">
+  <div class="pgnum">Page 21 · Postal code validation rule</div>
+  <h2>Postal code validation rule</h2>
+  <p class="lede">The custom setting is referenced to conditionally <strong>bypass</strong> a validation rule for postal codes.</p>
+<pre class="code"><span class="c">// Rule Name: Valid_Canadian_Postal_Code</span>
+AND(
+  $Setup.Run_Validation_Rules__c.Run_Validation__c,
+  OR(BillingCountry = <span class="s">"CA"</span>, BillingCountry = <span class="s">"CAN"</span>, BillingCountry = <span class="s">"Canada"</span>),
+  NOT(REGEX(
+      BillingPostalCode, <span class="s">"((?i)[ABCEGHJKLMNPRSTVXY]\\d[A-Z]?\\s?\\d[A-Z]\\d)?"</span>
+  ))
+)</pre>
+  <div class="note">The validation only fires when the custom setting's <code>Run_Validation__c</code> field is <code>true</code> for the running user, giving admins a runtime kill-switch.</div>
+</section>
+
+<section class="slide" id="cs-closedate" data-search="close date validation rule opportunity admin_overrides closedate today past create save administrators">
+  <div class="pgnum">Page 22 · Close date validation rule</div>
+  <h2>Close date validation rule</h2>
+  <p class="lede">A custom setting allows administrators to create or save Opportunity records with close dates that are already in the past.</p>
+<pre class="code"><span class="c">// Rule Name: Close_Date_Not_in_the_Past</span>
+AND(
+  $Setup.Admin_Overrides__c.Run_Validation_Rule__c,
+  CloseDate &lt; TODAY()
+)</pre>
+</section>
+
+<section class="slide" id="cs-trigger" data-search="apex trigger validation accounttrigger before insert run_validation_rules__c getinstance hierarchy custom setting">
+  <div class="pgnum">Page 23 · Apex trigger validation</div>
+  <h2>Trigger control via Hierarchy Custom Setting</h2>
+<pre class="code"><span class="k">trigger</span> AccountTrigger <span class="k">on</span> Account (before insert) {
+
+  <span class="c">// retrieve the user-specific information of this hierarchy custom setting</span>
+  Run_Validation_Rules__c runVal = Run_Validation_Rules__c.getInstance();
+
+  <span class="k">if</span> (runVal.Run_Validation__c) {
+      <span class="c">// perform validation steps only if the Run Validation checkbox is set</span>
+  }
+}</pre>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the canonical "kill switch" pattern for Apex triggers: a Hierarchy Custom Setting that defaults to ON at the org level, but can be flipped OFF for specific users/profiles when you need to load data or troubleshoot.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="cmt-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 24</div>
+  <h2>Custom Metadata Types</h2>
+</section>
+
+<section class="slide" id="cmt-overview-1" data-search="custom metadata types overview packages structure custom fields relationships">
+  <div class="pgnum">Page 25 · Packages / fields / relationships</div>
+  <h2>CMT — packages, fields, relationships</h2>
+  <p class="lede">CMT can be used to easily <strong>customize</strong>, <strong>deploy</strong>, or <strong>update</strong> application metadata.</p>
+  <div class="cards">
+    <div class="card"><h4>Packages</h4><p>CMT allows the <strong>structure and actual record data</strong> to be included in a package.</p></div>
+    <div class="card"><h4>Custom Fields</h4><p>Like custom settings, a CMT consists of custom fields for storing attributes of metadata.</p></div>
+    <div class="card"><h4>Relationships</h4><p>Unlike custom settings, CMT allows creating <strong>relationships</strong> between related types.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-overview-2" data-search="cmt overview formula fields advanced migration change sets visibility developer scratch orgs">
+  <div class="pgnum">Page 26 · Formula / migration / visibility</div>
+  <h2>Formula / migration / visibility</h2>
+  <div class="cards">
+    <div class="card"><h4>Formula Fields</h4><p>Records of a CMT can be referenced in an <strong>advanced formula field</strong>.</p></div>
+    <div class="card"><h4>Migration</h4><p>CMT can be migrated by using <strong>change sets</strong>.</p></div>
+    <div class="card"><h4>Visibility</h4><p>Visibility settings can only be set in <strong>Developer</strong> or <strong>Scratch</strong> orgs.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-overview-3" data-search="cmt overview public type protected type protected record managed packages namespace add values">
+  <div class="pgnum">Page 27 · Public / Protected types &amp; records</div>
+  <h2>Protection levels in managed packages</h2>
+  <div class="cards">
+    <div class="card"><h4>Public Type</h4><p>Can be accessed by <strong>all Apex code</strong> in an org.</p></div>
+    <div class="card"><h4>Protected Type</h4><p>Can <strong>only</strong> be accessed by the package.</p></div>
+    <div class="card"><h4>Protected Record</h4><p>Can only be accessed by code in the <strong>same namespace</strong> as the record or its type.</p></div>
+    <div class="card"><h4>Add Values</h4><p>A combination of <strong>Public type</strong> + <strong>Protected record</strong> allows package subscribers to add their own values, but <strong>not</strong> modify the type structure.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-field-priv" data-search="custom metadata types field editing privileges package developer customize application none manageability">
+  <div class="pgnum">Page 28 · Field editing privileges</div>
+  <h2>Field editing privileges (3 levels)</h2>
+  <div class="cards">
+    <div class="card"><h4>Package Developer</h4><p>Only the package developer can edit the field via package upgrade.</p></div>
+    <div class="card"><h4>Customize Application</h4><p>Any user with the <strong>"Customize Application"</strong> permission can edit. <strong>Package upgrades will not override</strong> the value in this case.</p></div>
+    <div class="card"><h4>None</h4><p>No one can edit — not even the package developer.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-fields" data-search="field types supported custom metadata types metadata relationship checkbox date datetime email number percent phone picklist text text area long url">
+  <div class="pgnum">Page 29 · Field types supported (CMT)</div>
+  <h2>Field types supported (CMT)</h2>
+  <div class="pillrow">
+    <span class="pill">Metadata Relationship</span>
+    <span class="pill">Checkbox</span>
+    <span class="pill">Date</span>
+    <span class="pill">Date/Time</span>
+    <span class="pill">Email</span>
+    <span class="pill">Number</span>
+    <span class="pill">Percent</span>
+    <span class="pill">Phone</span>
+    <span class="pill">Picklist</span>
+    <span class="pill">Text</span>
+    <span class="pill">Text Area</span>
+    <span class="pill">Text Area (Long)</span>
+    <span class="pill">URL</span>
+  </div>
+  <div class="note">Notably <strong>no Currency</strong> — that's a Custom Settings-only field type. CMT does have <strong>Metadata Relationship</strong>, <strong>Picklist</strong>, and <strong>Long Text Area</strong> that Custom Settings don't.</div>
+</section>
+
+<section class="slide" id="cmt-using-1" data-search="using custom metadata types setup menu configuration data type fields data population custom metadata loader">
+  <div class="pgnum">Page 30 · Setup / config / population</div>
+  <h2>Setup, configuration, population</h2>
+  <div class="cards">
+    <div class="card"><h4>Setup Menu</h4><p>Create CMT by navigating to <em>"Custom Metadata Types"</em> in Setup.</p></div>
+    <div class="card"><h4>Configuration</h4><p>The data type has to be selected, the fields are added, and then the data can be added.</p></div>
+    <div class="card"><h4>Population</h4><p>Data can be created manually or loaded via the <strong>custom metadata loader</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-using-2" data-search="custom metadata types name format __mdt example country_codes__mdt data access apex formulas flows setup permissions">
+  <div class="pgnum">Page 31 · Name format &amp; data access</div>
+  <h2>Name format &amp; data access</h2>
+  <div class="cards">
+    <div class="card"><h4>Name Format</h4><p>CMT append <code>"__mdt"</code> to the API name instead of <code>"__c"</code>.</p></div>
+    <div class="card"><h4>Example Name</h4><p>A metadata type named <em>"Country Codes"</em> would be <code>Country_Codes__mdt</code> by default.</p></div>
+    <div class="card"><h4>Data Access</h4><p>CMT records can be accessed through <strong>Apex, formulas, or flows</strong>. To access records in Setup, additional permissions are required.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-methods-1" data-search="custom metadata type methods static getall getinstance recordid mycoolappsettings__mdt soql limit">
+  <div class="pgnum">Page 32 · getAll / getInstance(recordId)</div>
+  <h2><code>getAll</code> &amp; <code>getInstance(recordId)</code></h2>
+  <p class="lede">CMT provides static methods that retrieve records. These are <strong>faster</strong> than SOQL — they don't count against SOQL limits and return data directly.</p>
+  <table class="dttable">
+    <thead><tr><th>Static method</th><th>Use</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>getAll()</code></td><td>Retrieve a Map of <strong>all</strong> records of a specific CMT.</td><td><code>MyCoolAppSettings__mdt.getAll();</code></td></tr>
+      <tr><td><code>getInstance(recordId)</code></td><td>Retrieve a <strong>single</strong> record by its record ID.</td><td><code>MyCoolAppSettings__mdt.getInstance('m00000000000123');</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="cmt-methods-2" data-search="custom metadata type methods getinstance developername qualifiedapiname namespace prefix focusonforce enable_advanced_search">
+  <div class="pgnum">Page 33 · getInstance(developerName / qualifiedApiName)</div>
+  <h2><code>getInstance(developerName)</code> &amp; <code>getInstance(qualifiedApiName)</code></h2>
+  <table class="dttable">
+    <thead><tr><th>Static method</th><th>Use</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>getInstance(developerName)</code></td><td>Retrieve by the record's <code>DeveloperName</code>.</td><td><code>MyCoolAppSettings__mdt.getInstance('Enable_Advanced_Search');</code></td></tr>
+      <tr><td><code>getInstance(qualifiedApiName)</code></td><td>Retrieve by qualified API name — namespace prefix + DeveloperName.</td><td><code>MyCoolAppSettings__mdt.getInstance('FocusOnForce__Enable_Advanced_Search');</code></td></tr>
+    </tbody>
+  </table>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>For configuration lookups in production code, prefer <code>getInstance(developerName)</code> — the developer name is stable, the recordId isn't (it differs between orgs).</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="cmt-uc-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 34</div>
+  <h2>Use Cases &amp; Examples (Custom Metadata Types)</h2>
+</section>
+
+<section class="slide" id="cmt-uc-1" data-search="custom metadata types use cases frequency same value all users profiles packaged subscribing organization">
+  <div class="pgnum">Page 35 · Frequency / same value / packaged</div>
+  <h2>Use cases — basics</h2>
+  <div class="cards">
+    <div class="card"><h4>Frequency</h4><p>Data does not change frequently but needs to be referenced frequently.</p></div>
+    <div class="card"><h4>Same Value</h4><p>Value of the setting is the same for <strong>all users and profiles</strong>.</p></div>
+    <div class="card"><h4>Packaged</h4><p>Values are tied to a package and are the same for any subscribing org.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-uc-2" data-search="custom metadata types use cases custom field picklist long text area linked settings relationships business rules">
+  <div class="pgnum">Page 36 · Custom field / linked settings / business rules</div>
+  <h2>Use cases — structured data</h2>
+  <div class="cards">
+    <div class="card"><h4>Custom Field</h4><p>A common picklist or long text area is needed for a package.</p></div>
+    <div class="card"><h4>Linked Settings</h4><p>Configuration data is linked by relationships.</p></div>
+    <div class="card"><h4>Business Rules</h4><p>Business rules must be stored.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-uc-3" data-search="custom metadata types use cases data mapping configuration formula parameters default field values uniform">
+  <div class="pgnum">Page 37 · Data mapping / formula / defaults</div>
+  <h2>Use cases — mappings and defaults</h2>
+  <div class="cards">
+    <div class="card"><h4>Data Mapping</h4><p>Mappings between configuration data need to be stored.</p></div>
+    <div class="card"><h4>Formula Parameters</h4><p>Parameters used in formula fields can be stored in CMT.</p></div>
+    <div class="card"><h4>Default Field Values</h4><p>Default Field Values uniform to multiple fields can be set so there's no need to configure each field when changing the default.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-examples-1" data-search="custom metadata types examples iso code migration country codes change set production bonus salary plans metadata relationship">
+  <div class="pgnum">Page 38 · ISO Code Migration / Bonus Plans</div>
+  <h2>Examples — ISO codes &amp; bonus plans</h2>
+  <div class="cards">
+    <div class="card"><h4>ISO Code Migration</h4><p>A list of ISO country codes can be created as a CMT, then easily <strong>migrated</strong> to another environment such as <strong>Production</strong>, using a <strong>change set</strong>.</p></div>
+    <div class="card"><h4>Bonus/Salary Plans</h4><p>A CMT for <strong>employee bonus</strong> can be related to another CMT for <strong>salary plans</strong> using a <strong>metadata relationship</strong> field.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cmt-examples-2" data-search="custom metadata types examples product constants machines records formula fields calculations">
+  <div class="pgnum">Page 39 · Product constants</div>
+  <h2>Example — product constants</h2>
+  <div class="note">A CMT can be created to store information about <strong>products</strong> such as machines. Records can be used in <strong>formula fields</strong> to perform calculations based on the information.</div>
+</section>
+
+<section class="slide" id="cmt-area-code" data-search="area code to state mapping custom metadata type singular plural object name api name visibility public protection level standard fields created developername lookup user namespace prefix">
+  <div class="pgnum">Page 40 · Area Code → State mapping</div>
+  <h2>Area Code → State mapping example</h2>
+  <p class="lede">A CMT identifying state by area code or vice versa, accessible to all Apex code, APIs, and Setup.</p>
+  <table class="dttable">
+    <tbody>
+      <tr><td>Singular Label</td><td>Area Code to State Mapping</td></tr>
+      <tr><td>Plural Label</td><td>Area Code to State Mappings</td></tr>
+      <tr><td>Object Name</td><td>Area_Code_to_State_Mapping</td></tr>
+      <tr><td>API Name</td><td>Area_Code_to_State_Mapping__mdt</td></tr>
+      <tr><td>Visibility</td><td>Public</td></tr>
+      <tr><td>Record Size</td><td>269</td></tr>
+    </tbody>
+  </table>
+  <h3>Standard fields</h3>
+  <ul>
+    <li><code>CreatedBy</code> · Lookup(User)</li>
+    <li><code>DeveloperName</code> (Custom Metadata Record Name) · Text(40)</li>
+    <li><code>MasterLabel</code> (Label) · Text(40)</li>
+    <li><code>LastModifiedBy</code> · Lookup(User)</li>
+    <li><code>NamespacePrefix</code> · Text</li>
+    <li><code>IsProtected</code> (Protected Component) · Checkbox</li>
+  </ul>
+  <h3>Custom field</h3>
+  <p><code>State_Code__c</code> · Text(128) · Field Manageability: <strong>Upgradable</strong></p>
+</section>
+
+<section class="slide" id="cmt-visibility" data-search="visibility options custom metadata type information singular plural label object name description visibility all apex code same namespace managed package">
+  <div class="pgnum">Page 41 · Visibility options</div>
+  <h2>Visibility options when configuring a CMT</h2>
+  <ul>
+    <li><strong>All Apex code and APIs can use the type</strong>, and it's visible in Setup.</li>
+    <li>Only Apex code in the <strong>same namespace</strong> can see the type. The name of the type and the record are visible if they're referenced in a formula.</li>
+    <li>Only Apex code in the <strong>same managed package</strong> can see the type. The name of the type and the record are visible if they're referenced in a formula.</li>
+  </ul>
+  <div class="note">Visibility for custom metadata types can only be set in a <strong>developer, Sandbox, or scratch</strong> org. Protected custom metadata types aren't accessible by a subscriber's org; public custom metadata types are.</div>
+</section>
+
+<section class="slide" id="cmt-field-manage" data-search="field manageability options custom metadata type package developer customize application no one upgrade managed package override">
+  <div class="pgnum">Page 42 · Field manageability</div>
+  <h2>Field manageability options</h2>
+  <p class="lede">Who can change field values after records are installed via managed package?</p>
+  <ul>
+    <li><strong>Only the package developer</strong> (via package upgrade)</li>
+    <li><strong>Any user with the Customize Application permission</strong> (managed package upgrades won't overwrite the value)</li>
+    <li><strong>No one</strong></li>
+  </ul>
+</section>
+
+<section class="slide" id="cmt-manage-records" data-search="manage custom metadata type records button create update delete standard fields page layouts validation rules">
+  <div class="pgnum">Page 43 · Manage records</div>
+  <h2>Manage CMT records</h2>
+  <p>A <strong>Manage</strong> button is provided on the configuration page of the CMT to create, update, or delete records (e.g. <em>"Manage Area Code to State Mappings"</em>).</p>
+</section>
+
+<section class="slide" id="cmt-soql" data-search="retrieve custom metadata type records soql query area_code_to_state_mapping__mdt state_code__c va apex">
+  <div class="pgnum">Page 44 · Retrieve via SOQL</div>
+  <h2>Retrieve CMT records using SOQL</h2>
+<pre class="code"><span class="c">// retrieve a subset of metadata records</span>
+List&lt;Area_Code_to_State_Mapping__mdt&gt; vaCodes = [
+  SELECT Label, State_Code__c
+  FROM Area_Code_to_State_Mapping__mdt
+  WHERE State_Code__c = <span class="s">'VA'</span>
+];
+
+<span class="c">// iterate through returned records</span>
+<span class="k">for</span> (Area_Code_to_State_Mapping__mdt vaCode : vaCodes){
+  <span class="c">// perform processing</span>
+}</pre>
+  <div class="note">Note: CMT SOQL queries <strong>are exempt</strong> from the SOQL row governor limit — but they still count toward the 100-statement limit. Use static methods to avoid both.</div>
+</section>
+
+<section class="slide" id="cmt-static" data-search="retrieve custom metadata type records static methods getall values no soql state_code va">
+  <div class="pgnum">Page 45 · Retrieve via static methods</div>
+  <h2>Retrieve CMT records using static methods</h2>
+<pre class="code">List&lt;Area_Code_to_State_Mapping__mdt&gt; codes = Area_Code_to_State_Mapping__mdt.getAll().values();
+List&lt;Area_Code_to_State_Mapping__mdt&gt; vaCodes = <span class="k">new</span> List&lt;Area_Code_to_State_Mapping__mdt&gt;();
+
+<span class="k">for</span> (Area_Code_to_State_Mapping__mdt code : codes) {
+  <span class="k">if</span> (code.State_Code__c == <span class="s">'VA'</span>) { vaCodes.add(code); }
+}
+
+<span class="c">// iterate through list collection</span>
+<span class="k">for</span> (Area_Code_to_State_Mapping__mdt vaCode : vaCodes){
+  <span class="c">// perform processing</span>
+}</pre>
+</section>
+
+<section class="slide" id="cmt-products" data-search="storing product specifications machine custom metadata type rex beam v100 weight positioning speed operating range marking speed working area">
+  <div class="pgnum">Page 46 · Product spec example</div>
+  <h2>Storing product specifications</h2>
+  <p class="lede">A CMT stores product specifications related to machines. Example record:</p>
+  <ul>
+    <li><strong>Label:</strong> Rex Beam V100</li>
+    <li><strong>Machine Name:</strong> Rex_Beam_V100</li>
+    <li><strong>Weight (lbs):</strong> 200</li>
+    <li><strong>Positioning Speed (m/min):</strong> 10</li>
+    <li><strong>Operating Range (mm):</strong> 500</li>
+    <li><strong>Marking Speed (m/min):</strong> 50</li>
+    <li><strong>Working Area (sq. mm):</strong> 100</li>
+    <li><strong>Type:</strong> Beam Processing</li>
+  </ul>
+</section>
+
+<section class="slide" id="cmt-reference-formula" data-search="referencing custom metadata type record formula insert field $custommetadata machine rex beam v100 operating range">
+  <div class="pgnum">Page 47 · $CustomMetadata in formula</div>
+  <h2>Referencing CMT records in formulas</h2>
+  <p>A custom metadata record can be referenced in a formula by selecting the <code>$CustomMetadata</code> option when inserting a field:</p>
+<pre class="code">$CustomMetadata.Machine__mdt.Rex_Beam_V100.Operating_Range_mm__c</pre>
+</section>
+
+<section class="slide" id="cmt-formula-field" data-search="using custom metadata type record formula field machine working range mathematical operation operating range working area">
+  <div class="pgnum">Page 48 · Formula field example</div>
+  <h2>Using a CMT record in a formula field</h2>
+  <p class="lede">A mathematical operation using two field values of a custom metadata record:</p>
+<pre class="code"><span class="c">// Machine's Working Range (Number) =</span>
+$CustomMetadata.Machine__mdt.Rex_Beam_V100.Operating_Range_mm__c *
+$CustomMetadata.Machine__mdt.Rex_Beam_V100.Working_Area__c</pre>
+  <div class="note">Parameters stored in a CMT record can be used in a formula field.</div>
+</section>
+
+<section class="slide" id="cmt-default-values" data-search="using custom metadata type record field default values $custommetadata field default value mdt discount default value formula editor manual">
+  <div class="pgnum">Page 49 · Field default values</div>
+  <h2>Using CMT records in field default values</h2>
+  <p class="lede">CMT are supported in field default values, although the <code>$CustomMetadata</code> option is <strong>not available</strong> in the field type dropdown — must be entered manually.</p>
+<pre class="code">$CustomMetadata.Field_Default_Value__mdt.Discount.Default_Value__c
+<span class="c">//             [Custom Metadata Type API Name].[Record API Name].[Field API Name]</span></pre>
+  <div class="note">The formula editor does not include custom metadata field types and has to be defined in the Formula Editor manually.</div>
+</section>
+
+<section class="slide title-slide" id="vs-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 50</div>
+  <h2>Custom Settings vs. Custom Metadata Types</h2>
+</section>
+
+<section class="slide" id="vs-table-1" data-search="differences custom settings custom metadata types configuration deployable data visible test classes bulk loader relationships picklist">
+  <div class="pgnum">Page 51 · Differences (1/2)</div>
+  <h2>Differences (1/2)</h2>
+  <table class="dttable">
+    <thead><tr><th>Feature</th><th>Custom Settings</th><th>Custom Metadata Types</th></tr></thead>
+    <tbody>
+      <tr><td>Configuration deployable</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Configurable <strong>data</strong> deployable</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Visible in test classes</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Create/update in bulk metadata loader</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Supports relationships</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Can use picklist (except global)</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="vs-table-2" data-search="differences long text area currency soql limits hierarchy configuration apex formula fields">
+  <div class="pgnum">Page 52 · Differences (2/2)</div>
+  <h2>Differences (2/2)</h2>
+  <table class="dttable">
+    <thead><tr><th>Feature</th><th>Custom Settings</th><th>Custom Metadata Types</th></tr></thead>
+    <tbody>
+      <tr><td>Can use long text area</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Can use currency</td><td class="yes">✓</td><td class="no">✗</td></tr>
+      <tr><td>Exempt from SOQL limits</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Supports hierarchy configuration</td><td class="yes">✓</td><td class="no">✗</td></tr>
+      <tr><td>Create, read, update &amp; delete values via Apex</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Accessible by formula fields (hierarchy)</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+    </tbody>
+  </table>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The two single-fact decision criteria: <strong>do you need a hierarchy (per-user/profile overrides)?</strong> → Custom Settings. <strong>Do you need your config <em>data</em> to deploy with the package?</strong> → CMT. Almost everything else is a preference.</p>
+  </div>
+</section>
+
+<section class="slide" id="protecting" data-search="protecting custom settings custom metadata types schema settings restrict access customize application permission system mode soap api">
+  <div class="pgnum">Page 53 · Protecting via Schema Settings</div>
+  <h2>Protecting Custom Settings &amp; CMT</h2>
+  <p>To protect the data, <strong>Schema Settings</strong> should be configured so that Custom Settings &amp; CMT can be accessed only in <strong>Apex, flows, and formulas</strong>.</p>
+  <ul>
+    <li><strong>Restrict access to custom metadata types</strong> — Allow access only through granted permissions and when accessing in <strong>system mode</strong>, e.g. from Apex.</li>
+    <li><strong>Restrict access to custom settings</strong> — Allow access only through granted permissions and when accessing in system mode, e.g. from Apex.</li>
+  </ul>
+  <div class="note">When the settings are activated, users will be required to have the <strong>Customize Application</strong> permission in order to access the data. Also, <strong>SOAP API will be prevented access</strong>.</div>
+</section>
+
+<section class="slide" id="learn-more" data-search="learn more custom metadata types custom settings methods data sets implementation guide testing platform advanced formula fields">
+  <div class="pgnum">Pages 54–55 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Reference list from the deck. URLs not yet wired — paste the annotation-link JSON for pages 54–55 and I'll convert these to live links.</p>
+  <ul>
+    <li>Custom Metadata Types</li>
+    <li>Custom Metadata Types (CustomObject)</li>
+    <li>Custom Settings</li>
+    <li>Custom Settings Methods</li>
+    <li>Create Custom Data Sets</li>
+    <li>Access Custom Settings</li>
+    <li>Use Custom Metadata Types to Save Years of Development</li>
+    <li>Custom Metadata Types Implementation Guide</li>
+    <li>Testing Custom Metadata Types</li>
+    <li>Platform on the Platform</li>
+    <li>Custom Metadata Types and Advanced Formula Fields</li>
+  </ul>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet quick reference interview custom settings custom metadata types getinstance getall hierarchy list __c __mdt $setup $custommetadata">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>API name suffix</h3>
+  <ul>
+    <li><strong>Custom Settings</strong> → <code>Name__c</code> (just like a custom object).</li>
+    <li><strong>Custom Metadata Types</strong> → <code>Name__mdt</code>.</li>
+  </ul>
+
+  <h3>Where they live</h3>
+  <ul>
+    <li>Custom Settings → <em>Setup → Custom Code → Custom Settings</em>. Edit data via <strong>Manage</strong> button.</li>
+    <li>CMT → <em>Setup → Custom Code → Custom Metadata Types</em>. Edit data via <strong>Manage</strong> button on each type.</li>
+  </ul>
+
+  <h3>Formula access</h3>
+  <ul>
+    <li>Hierarchy Custom Setting: <code>$Setup.MySetting__c.MyField__c</code></li>
+    <li>CMT: <code>$CustomMetadata.MyType__mdt.RecordName.MyField__c</code> (type into Formula Editor manually for default-value fields)</li>
+  </ul>
+
+  <h3>Apex access</h3>
+  <ul>
+    <li><strong>Hierarchy CS:</strong> <code>MySetting__c.getInstance()</code> resolves org → profile → user automatically.</li>
+    <li><strong>List CS:</strong> <code>MySetting__c.getValues('MyKey')</code> for a single set; <code>getAll()</code> for everything.</li>
+    <li><strong>CMT:</strong>
+      <ul>
+        <li><code>MyType__mdt.getAll()</code> → <code>Map&lt;String, MyType__mdt&gt;</code> keyed by DeveloperName.</li>
+        <li><code>MyType__mdt.getInstance('DeveloperName')</code> → single record.</li>
+        <li><code>MyType__mdt.getInstance(recordId)</code> — works, but recordIds aren't stable across orgs.</li>
+        <li><code>MyType__mdt.getInstance('ns__DeveloperName')</code> — qualified API name from a packaged namespace.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>Decision flow</h3>
+  <ol>
+    <li>Need per-user / per-profile overrides? → <strong>Hierarchy Custom Setting</strong>. (The only thing that does this natively.)</li>
+    <li>Need configuration <em>data</em> to deploy/package? → <strong>Custom Metadata Type</strong>.</li>
+    <li>Need relationships between config rows, picklists, or long text area? → <strong>CMT</strong>.</li>
+    <li>Need currency type fields? → <strong>Custom Setting</strong> (CMT doesn't support Currency).</li>
+    <li>Otherwise → default to <strong>CMT</strong>. It's the modern preferred option.</li>
+  </ol>
+
+  <h3>Common patterns</h3>
+  <ul>
+    <li><strong>Trigger kill-switch</strong>: Hierarchy CS with a <code>Run_Validation__c</code> / <code>Disable_Trigger__c</code> checkbox + <code>getInstance()</code> early return.</li>
+    <li><strong>Configurable validation rule</strong>: reference Hierarchy CS field in the rule's <code>AND(...)</code> so admins can override per-profile.</li>
+    <li><strong>Lookup tables</strong> (country codes, area codes, ISO codes): <strong>CMT</strong> — survives sandbox refresh, ships in packages.</li>
+    <li><strong>Default field values from config</strong>: <code>$CustomMetadata.X__mdt.Y.Z__c</code> in field default — must be typed manually, won't show up in the picker.</li>
+  </ul>
+
+  <h3>Schema Settings (governance)</h3>
+  <ul>
+    <li><em>Restrict access to custom metadata types</em> + <em>Restrict access to custom settings</em> → require Customize Application permission, block SOAP API. Turn these on as a hardening step in regulated orgs.</li>
+  </ul>
+
+  <h3>Gotchas</h3>
+  <ul>
+    <li><strong>Custom Settings data doesn't ship in packages</strong> — only the structure. CMT data does.</li>
+    <li><strong>Visibility</strong> for both CS and CMT can only be changed in Developer/Scratch orgs.</li>
+    <li><strong>CMT does NOT support Currency</strong> — surprise constraint.</li>
+    <li><strong>Custom Settings cannot use Picklist, Long Text Area, or Metadata Relationships.</strong></li>
+    <li>Use <code>getInstance(developerName)</code> in code shipped to multiple orgs — not <code>getInstance(recordId)</code>.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

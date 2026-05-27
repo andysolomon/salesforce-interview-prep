@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Source-Driven Deployment — Salesforce Interview Prep</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Testing, Debugging, and Deployment</a>
+    · Topic
+  </div>
+  <h1>Source-Driven Deployment</h1>
+  <div class="sub">Given a scenario, formulate the deployment process, supporting tools, and mechanisms for source-driven development · Salesforce interview prep</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (85 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#tool-options">Deployment tool options</a></li>
+    </ul>
+    <h3>Deployment Process</h3>
+    <ul>
+      <li><a href="#process-phases">4 phases</a></li>
+      <li><a href="#process-models">3 development models</a></li>
+    </ul>
+    <h3>Change Set Model</h3>
+    <ul>
+      <li><a href="#cs-steps">5 steps</a></li>
+      <li><a href="#cs-considerations">Considerations</a></li>
+      <li><a href="#cs-using-1">Declarative / no files / related orgs</a></li>
+      <li><a href="#cs-using-2">Audit / targets / delete / VCS</a></li>
+    </ul>
+    <h3>Org Development Model</h3>
+    <ul>
+      <li><a href="#org-1">DX &amp; source control</a></li>
+      <li><a href="#org-2">Multiple orgs &amp; CLI</a></li>
+      <li><a href="#org-cm">Change management</a></li>
+      <li><a href="#org-phases">4 phases</a></li>
+      <li><a href="#org-flow">Sample flow</a></li>
+    </ul>
+    <h3>Package Development Model</h3>
+    <ul>
+      <li><a href="#pkg-1">Package / content / VCS</a></li>
+      <li><a href="#pkg-2">Repo / scratch / DX</a></li>
+      <li><a href="#pkg-3">Sync / CLI / unlocked</a></li>
+      <li><a href="#pkg-4">Version report &amp; coverage</a></li>
+      <li><a href="#pkg-flow">Sample flow</a></li>
+    </ul>
+    <h3>Salesforce DX</h3>
+    <ul>
+      <li><a href="#dx-1">Source-driven / dev tools</a></li>
+      <li><a href="#dx-2">CLI / scratch / editor</a></li>
+      <li><a href="#dx-pkg-1">1GP vs 2GP</a></li>
+      <li><a href="#dx-pkg-2">Managed 2GP &amp; unlocked</a></li>
+      <li><a href="#dx-env">Environment setup</a></li>
+      <li><a href="#dx-project-1">DX project structure</a></li>
+      <li><a href="#dx-project-2">DX project setup options</a></li>
+      <li><a href="#dx-project-3">Example directory</a></li>
+    </ul>
+    <h3>Visual Studio Code</h3>
+    <ul>
+      <li><a href="#vsc-1">Requirements</a></li>
+      <li><a href="#vsc-ext">Extension pack</a></li>
+      <li><a href="#vsc-2">Login / alias / pull</a></li>
+      <li><a href="#vsc-3">Pull / deploy / track</a></li>
+      <li><a href="#vsc-authorize">Authorize org</a></li>
+      <li><a href="#vsc-pull-repo">Pull from repo</a></li>
+      <li><a href="#vsc-deploy-1">Deploy commands</a></li>
+      <li><a href="#vsc-deploy-2">Right-click options</a></li>
+    </ul>
+    <h3>Code Builder</h3>
+    <ul>
+      <li><a href="#cb-intro">Intro</a></li>
+      <li><a href="#cb-launch">Launch</a></li>
+      <li><a href="#cb-connect">Connect</a></li>
+      <li><a href="#cb-browser">Org Browser</a></li>
+      <li><a href="#cb-explorer">Explorer panel</a></li>
+      <li><a href="#cb-ext">Extensions</a></li>
+    </ul>
+    <h3>Local Dev</h3>
+    <ul>
+      <li><a href="#ld-enable">Enable real-time preview</a></li>
+      <li><a href="#ld-launch">Launch preview mode</a></li>
+      <li><a href="#ld-example">Example</a></li>
+      <li><a href="#ld-limits">Limitations</a></li>
+    </ul>
+    <h3>Scratch Orgs</h3>
+    <ul>
+      <li><a href="#scr-uc">Use cases</a></li>
+      <li><a href="#scr-config">Configuration</a></li>
+      <li><a href="#scr-vs-sb-1">vs sandboxes — basics</a></li>
+      <li><a href="#scr-vs-sb-2">vs sandboxes — roles</a></li>
+    </ul>
+    <h3>Salesforce CLI</h3>
+    <ul>
+      <li><a href="#cli-uses">Uses</a></li>
+      <li><a href="#cli-apis">APIs covered</a></li>
+      <li><a href="#cli-1">Metadata / commands / login</a></li>
+      <li><a href="#cli-2">Not stored / firewall</a></li>
+      <li><a href="#cli-cmds-1">Common commands (1)</a></li>
+      <li><a href="#cli-cmds-2">Common commands (2)</a></li>
+      <li><a href="#cli-help">sf help output</a></li>
+      <li><a href="#cli-env">Example dev env</a></li>
+    </ul>
+    <h3>AppExchange / Packaging</h3>
+    <ul>
+      <li><a href="#partner-tools">Partner tools</a></li>
+      <li><a href="#packaging-considerations">App packaging</a></li>
+    </ul>
+    <h3>DevOps Center</h3>
+    <ul>
+      <li><a href="#devops-1">Intro</a></li>
+      <li><a href="#devops-2">Connected App</a></li>
+      <li><a href="#devops-3">GitHub auth</a></li>
+      <li><a href="#devops-4">Pipeline</a></li>
+    </ul>
+    <h3>Scenarios</h3>
+    <ul>
+      <li><a href="#sc-scratch">Scratch orgs</a></li>
+      <li><a href="#sc-vcs">Version control</a></li>
+      <li><a href="#sc-sandbox">Sandbox dev</a></li>
+      <li><a href="#sc-mdapi">mdapi:deploy to prod</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#learn-more">Learn More</a></li>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover testing debugging deployment source driven">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Testing, Debugging, and Deployment</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario, formulate the deployment process, supporting tools, and mechanisms for source-driven development.</p>
+</section>
+
+<section class="slide" id="toc" data-search="table of contents deployment process change set org package salesforce dx visual studio code code builder local dev scratch orgs cli partners appexchange devops center scenarios">
+  <div class="pgnum">Pages 2–3 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#process-phases">Deployment Process</a></li>
+    <li><a class="toc-link" href="#cs-steps">Change Set Development Model</a></li>
+    <li><a class="toc-link" href="#org-1">Org Development Model</a></li>
+    <li><a class="toc-link" href="#pkg-1">Package Development Model</a></li>
+    <li><a class="toc-link" href="#dx-1">Salesforce DX Concepts</a></li>
+    <li><a class="toc-link" href="#vsc-1">Visual Studio Code</a></li>
+    <li><a class="toc-link" href="#cb-intro">Code Builder</a></li>
+    <li><a class="toc-link" href="#ld-enable">Local Dev</a></li>
+    <li><a class="toc-link" href="#scr-uc">Scratch Orgs</a></li>
+    <li><a class="toc-link" href="#cli-uses">Salesforce CLI</a></li>
+    <li><a class="toc-link" href="#partner-tools">Partners, Packaging, AppExchange</a></li>
+    <li><a class="toc-link" href="#devops-1">DevOps Center</a></li>
+    <li><a class="toc-link" href="#sc-scratch">Scenarios and Solutions</a></li>
+  </ol>
+</section>
+
+<section class="slide" id="objectives" data-search="learning objectives development models deployment tools metadata source-driven scenario">
+  <div class="pgnum">Page 4 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Identify different development models and deployment tools used for migrating metadata.</li>
+    <li>Describe concepts related to source-driven development and tools to support the process.</li>
+    <li>Identify the appropriate deployment tool for different deployment scenarios.</li>
+  </ul>
+</section>
+
+<section class="slide" id="intro" data-search="introduction tools deploy changes phases deployment process supporting tools">
+  <div class="pgnum">Page 5 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Salesforce provides tools that allow developers to deploy changes from one environment to another. Depending on the scenario, or phase in the deployment process, a particular tool is needed to perform a certain task.</p>
+</section>
+
+<section class="slide" id="tool-options" data-search="deployment tool options salesforce extensions visual studio code change sets developer console code builder salesforce cli">
+  <div class="pgnum">Page 6 · Deployment tool options</div>
+  <h2>Deployment tool options</h2>
+  <div class="cards">
+    <div class="card"><h4>Salesforce Extensions for VS Code</h4><p>Visual Studio Code extensions that empower the editor for Salesforce development and deployment of metadata to any org.</p></div>
+    <div class="card"><h4>Change Sets</h4><p>Deployment tool used for migrating metadata between <strong>related orgs</strong> such as a sandbox and production.</p></div>
+    <div class="card"><h4>Developer Console</h4><p>Native IDE for developing and deploying metadata to its associated org.</p></div>
+    <div class="card"><h4>Code Builder</h4><p>Web-based IDE optimized for development; no installation required.</p></div>
+    <div class="card"><h4>Salesforce CLI</h4><p>Command-line interface that uses the metadata API for development, deployment, and other lifecycle tasks.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="process-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 7</div>
+  <h2>Deployment Process</h2>
+</section>
+
+<section class="slide" id="process-phases" data-search="deployment process phases develop test integrate test test release deploy release separate development shared sandbox production">
+  <div class="pgnum">Page 8 · The 4 phases</div>
+  <h2>The 4 phases of a typical deployment</h2>
+  <div class="cards">
+    <div class="card"><h4>1. Develop &amp; Test</h4><p>Changes made in a <strong>separate development environment</strong>.</p></div>
+    <div class="card"><h4>2. Integrate &amp; Test</h4><p>Changes deployed to a <strong>shared development environment</strong> for integration testing.</p></div>
+    <div class="card"><h4>3. Test Release</h4><p>Changes deployed to a <strong>full sandbox</strong> environment for user-acceptance testing.</p></div>
+    <div class="card"><h4>4. Deploy Release</h4><p>Changes deployed to a <strong>production</strong> environment.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="process-models" data-search="deployment process change set development org development package development models">
+  <div class="pgnum">Page 9 · 3 development models</div>
+  <h2>3 development models</h2>
+  <div class="cards">
+    <div class="card"><h4>Change Set</h4><p>UI-driven, between related orgs.</p></div>
+    <div class="card"><h4>Org Development</h4><p>Salesforce DX + source control, sandboxes/scratch orgs.</p></div>
+    <div class="card"><h4>Package Development</h4><p>Source-of-truth in a repo, packages as release artifacts.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="cs-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 10</div>
+  <h2>Change Set Development Model</h2>
+</section>
+
+<section class="slide" id="cs-steps" data-search="change set development model steps development sandboxes integration testing developer pro user acceptance testing full sandbox production release">
+  <div class="pgnum">Page 11 · 5 steps</div>
+  <h2>5 steps</h2>
+  <div class="cards">
+    <div class="card"><h4>1. Development Sandboxes</h4><p>A separate Developer sandbox per developer keeps changes isolated until the team is ready to integrate.</p></div>
+    <div class="card"><h4>2. Develop and Test</h4><p>Developers use their Developer sandboxes to create and test customizations. Sandboxes do not contain production data.</p></div>
+    <div class="card"><h4>3. Integration Testing</h4><p>Change sets migrate customizations from Developer sandboxes to a shared <strong>Developer Pro</strong> sandbox.</p></div>
+    <div class="card"><h4>4. User-Acceptance Testing</h4><p>Change sets migrate to a <strong>full sandbox</strong>, which contains all the production data.</p></div>
+    <div class="card"><h4>5. Production Release</h4><p>Customizations are migrated to production using change sets. The full sandbox can be used for end-user training.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-considerations" data-search="change set development model considerations tracking changes tools manual configuration metadata coverage report not supported">
+  <div class="pgnum">Page 12 · Considerations</div>
+  <h2>Change Set Model — considerations</h2>
+  <div class="cards">
+    <div class="card"><h4>Tracking Changes</h4><p>A change-tracking method must be established — especially for changes requiring manual migration.</p></div>
+    <div class="card"><h4>Use Tracking Tools</h4><p>A custom or third-party tool can be used to log changes made by each developer.</p></div>
+    <div class="card"><h4>Manual Configuration</h4><p>Configurations involving metadata <strong>not supported</strong> by the Metadata API require recreating manually in the destination org.</p></div>
+    <div class="card"><h4>Metadata Coverage Report</h4><p>Shows which metadata types are supported in the Metadata API and other channels.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Every change-set shop has a "manual deployment checklist" — the list of items the API can't migrate (profile FLS for some objects, dashboard owners, etc). Knowing the Metadata Coverage Report exists is the give-away that you've done this for real.</p>
+  </div>
+</section>
+
+<section class="slide" id="cs-using-1" data-search="using change sets declarative tool ui no local files related orgs sandbox production">
+  <div class="pgnum">Page 13 · Using Change Sets — basics</div>
+  <h2>Using Change Sets — basics</h2>
+  <div class="cards">
+    <div class="card"><h4>Declarative Tool</h4><p>Change sets utilize an easy-to-use UI in Salesforce for small deployments.</p></div>
+    <div class="card"><h4>No Local Files</h4><p>Allow change management <strong>without using a local file system</strong>.</p></div>
+    <div class="card"><h4>Related Orgs</h4><p>Metadata deploys <strong>between related sandbox/production orgs</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cs-using-2" data-search="using change sets audit changes multiple targets delete rename not possible version control unsupported">
+  <div class="pgnum">Page 14 · Using Change Sets — gotchas</div>
+  <h2>Using Change Sets — gotchas</h2>
+  <div class="cards">
+    <div class="card"><h4>Audit Changes</h4><p>Previously deployed changes can be audited.</p></div>
+    <div class="card"><h4>Multiple Targets</h4><p>The same component can be deployed to multiple orgs.</p></div>
+    <div class="card"><h4>Delete / Rename</h4><p><strong>Not possible</strong> to delete or rename components using change sets.</p></div>
+    <div class="card"><h4>Version Control</h4><p>Change sets <strong>do not support</strong> version control systems.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="org-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 15</div>
+  <h2>Org Development Model</h2>
+</section>
+
+<section class="slide" id="org-1" data-search="org development model salesforce dx source code metadata files source control merge track">
+  <div class="pgnum">Page 16 · DX &amp; source control</div>
+  <h2>DX &amp; source control</h2>
+  <div class="cards">
+    <div class="card"><h4>Salesforce DX</h4><p>A Salesforce DX project is created to contain <strong>source code and metadata files</strong>.</p></div>
+    <div class="card"><h4>Source Control</h4><p>A source control system manages, merges, and tracks changes in a code repository.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="org-2" data-search="org development multiple orgs different phases lifecycle salesforce cli retrieve source deploy changes">
+  <div class="pgnum">Page 17 · Multiple orgs &amp; CLI</div>
+  <h2>Multiple orgs &amp; CLI</h2>
+  <div class="cards">
+    <div class="card"><h4>Multiple Orgs</h4><p>Multiple environments handle the different phases of the application development life cycle.</p></div>
+    <div class="card"><h4>Salesforce CLI</h4><p>Used in each phase such as <strong>retrieving source files</strong> from an org or <strong>deploying changes</strong> to a target org.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="org-cm" data-search="change management mechanisms change list deployment run list project management tools agile accelerator jira">
+  <div class="pgnum">Page 18 · Change management mechanisms</div>
+  <h2>Change management mechanisms</h2>
+  <div class="cards">
+    <div class="card"><h4>Change List</h4><p>A list, table, or spreadsheet tracks changes made in the org to determine which customizations to externalize.</p></div>
+    <div class="card"><h4>Deployment Run List</h4><p>Tracks changes that need to be deployed manually — e.g. profiles and permission sets.</p></div>
+    <div class="card"><h4>Project Management Tools</h4><p><strong>Agile Accelerator</strong>, Jira, etc. facilitate agile development processes to manage lifecycles efficiently.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="org-phases" data-search="org development model develop test build release test release deploy release sandbox production">
+  <div class="pgnum">Page 19 · 4 phases</div>
+  <h2>4 phases</h2>
+  <div class="cards">
+    <div class="card"><h4>1. Develop and Test</h4><p>Changes made in a <strong>separate development environment</strong> such as a Developer sandbox with no production data.</p></div>
+    <div class="card"><h4>2. Build Release</h4><p>Changes deployed to a shared development environment for integration testing.</p></div>
+    <div class="card"><h4>3. Test Release</h4><p>Changes deployed to a sandbox environment for user acceptance testing.</p></div>
+    <div class="card"><h4>4. Deploy Release</h4><p>Changes deployed to a <strong>production</strong> environment.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="org-flow" data-search="sample flow org development model scratch org partial sandbox full copy sandbox production visual studio code salesforce cli version control system">
+  <div class="pgnum">Page 20 · Sample flow</div>
+  <h2>Sample flow</h2>
+  <p>Develop &amp; test in <strong>Scratch Orgs</strong> via <strong>Visual Studio Code</strong> → Build release (integration) in a Scratch Org → Test release (UAT) in a <strong>Partial Sandbox</strong> → Release (training &amp; production) in a <strong>Full Copy Sandbox</strong> + <strong>Production Org</strong>.</p>
+  <p>Throughout: <strong>Salesforce CLI</strong> moves metadata between local repo and orgs; <strong>Version Control System</strong> is the source of truth.</p>
+</section>
+
+<section class="slide title-slide" id="pkg-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 21</div>
+  <h2>Package Development Model</h2>
+</section>
+
+<section class="slide" id="pkg-1" data-search="package development model release artifact related code customizations source metadata version control">
+  <div class="pgnum">Page 22 · Package / content / VCS</div>
+  <h2>Package / content / VCS</h2>
+  <div class="cards">
+    <div class="card"><h4>Package</h4><p>A package is a <strong>release artifact</strong> that contains a group of related code and customizations.</p></div>
+    <div class="card"><h4>Package Content</h4><p>Source and metadata are organized into a package.</p></div>
+    <div class="card"><h4>Version Control</h4><p>Versioning helps with change management. A VCS plays an integral role in the package development life cycle.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="pkg-2" data-search="package development model code repository scratch orgs salesforce dx source of truth test build release">
+  <div class="pgnum">Page 23 · Repo / scratch / DX</div>
+  <h2>Repo / scratch / DX</h2>
+  <div class="cards">
+    <div class="card"><h4>Code Repository</h4><p>A source-control repository stores the source for the packages and maintains the <strong>source of truth</strong>.</p></div>
+    <div class="card"><h4>Scratch Orgs</h4><p>Scratch (development) orgs can be built from the source in the repository to work specifically on the package.</p></div>
+    <div class="card"><h4>Salesforce DX</h4><p>Used to test, build, and release packages. A Salesforce DX project organizes the source into a package directory.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="pkg-3" data-search="package development model synchronization change tracking salesforce cli automated testing continuous integration delivery unlocked packages enterprise edition">
+  <div class="pgnum">Page 24 · Sync / CLI / unlocked</div>
+  <h2>Sync / CLI / unlocked</h2>
+  <div class="cards">
+    <div class="card"><h4>Synchronization</h4><p>Synchronization of the VCS is improved through <strong>change tracking</strong> of Setup features.</p></div>
+    <div class="card"><h4>Salesforce CLI</h4><p>Automated testing, CI, and CD are typically utilized in the package lifecycle. Salesforce CLI can be used throughout.</p></div>
+    <div class="card"><h4>Unlocked Packages</h4><p><strong>Enterprise edition</strong> customers can utilize unlocked packages to develop internal business apps.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="pkg-4" data-search="package development model version report force:package:version:report verbose flag code coverage managed 2gp unlocked package">
+  <div class="pgnum">Page 25 · Version report &amp; coverage</div>
+  <h2>Version report &amp; coverage</h2>
+  <div class="cards">
+    <div class="card"><h4>Version Report</h4><p>The CLI command <code>force:package:version:report</code> retrieves details of a specific version of a <strong>managed 2GP</strong> or <strong>unlocked package</strong>.</p></div>
+    <div class="card"><h4>Code Coverage</h4><p>Adding the <code>--verbose</code> flag includes the code coverage percentage of each Apex class in the output.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="pkg-flow" data-search="sample flow package development scratch orgs develop unit tests compile run tests dev pro sandbox partial sandbox full sandbox production">
+  <div class="pgnum">Page 26 · Sample flow</div>
+  <h2>Sample flow</h2>
+  <p>Develop &amp; build unit tests in <strong>Scratch Orgs</strong> → Compile &amp; run tests in a Scratch Org → Build &amp; run on staging/UAT in <strong>Dev Pro Sandbox</strong> + <strong>Partial Sandbox</strong> → Release for training &amp; production in <strong>Full Sandbox</strong> + <strong>Production Org</strong>. Salesforce CLI drives the moves; VCS is source of truth.</p>
+  <div class="note"><strong>Activities related to source development are performed in scratch orgs</strong>, whereas <strong>release and deployment testing</strong> activities are performed in <strong>sandbox</strong> orgs.</div>
+</section>
+
+<section class="slide title-slide" id="dx-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 27</div>
+  <h2>Salesforce DX Concepts</h2>
+</section>
+
+<section class="slide" id="dx-1" data-search="what is salesforce dx source-driven team collaboration custom app development agility developer tools ant ide source of truth git version control">
+  <div class="pgnum">Page 28 · Source-driven / dev tools / source of truth</div>
+  <h2>What is Salesforce DX</h2>
+  <p class="lede">Salesforce DX (Developer Experience) introduces a new way of developing and managing applications on the Lightning Platform throughout the entire life cycle of an application.</p>
+  <div class="cards">
+    <div class="card"><h4>Source-Driven</h4><p>Promotes source-driven development, team collaboration, and custom app development agility.</p></div>
+    <div class="card"><h4>Developer Tools</h4><p>Tools developers are already familiar with — such as ANT or third-party IDEs — can be used.</p></div>
+    <div class="card"><h4>Source of Truth</h4><p>Source code and metadata is stored <strong>outside the org</strong> and managed using a VCS such as <strong>Git</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="dx-2" data-search="salesforce dx cli scratch orgs code editor editor plugin salesforce extensions vs code apex lightning components visualforce">
+  <div class="pgnum">Page 29 · CLI / scratch / editor</div>
+  <h2>What is Salesforce DX — CLI / scratch / editor</h2>
+  <div class="cards">
+    <div class="card"><h4>Salesforce CLI</h4><p>Command-line interface used for development, continuous integration, and delivery.</p></div>
+    <div class="card"><h4>Scratch Orgs</h4><p>Used for development and help facilitate <strong>automated testing</strong> and <strong>continuous integration</strong>.</p></div>
+    <div class="card"><h4>Code Editor</h4><p>Enables <strong>any IDE</strong> or text editor to work with Salesforce CLI and VCS.</p></div>
+    <div class="card"><h4>Editor Plugin</h4><p>Salesforce Extensions for VS Code is used for development and working with scratch orgs, Apex, Lightning components, and Visualforce.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="dx-pkg-1" data-search="salesforce dx packaging first-generation packaging 1gp managed unmanaged created deployed from org second-generation 2gp local machine repository">
+  <div class="pgnum">Page 30 · 1GP vs 2GP</div>
+  <h2>1GP vs 2GP</h2>
+  <div class="cards">
+    <div class="card"><h4>1st-Generation (1GP)</h4><p>Managed and unmanaged packages are <strong>created and deployed from an org</strong>.</p></div>
+    <div class="card"><h4>2nd-Generation (2GP)</h4><p>Managed 2G packages and unlocked packages are <strong>created and deployed from a local machine or repository</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="dx-pkg-2" data-search="salesforce dx packaging managed 2gp appexchange unlocked packages version upgrades downgrades destructive changes">
+  <div class="pgnum">Page 31 · Managed 2GP &amp; unlocked</div>
+  <h2>Managed 2GP &amp; unlocked — note</h2>
+  <div class="note"><strong>Managed 2GPs</strong> are used for distributing apps on AppExchange. <strong>Unlocked packages</strong> provide more features compared to unmanaged packages such as version upgrades/downgrades, destructive changes, and more.</div>
+</section>
+
+<section class="slide" id="dx-env" data-search="environment setup salesforce dx enable dev hub add users 2gp packaging install salesforce cli developer edition track scratch orgs">
+  <div class="pgnum">Page 32 · Environment setup</div>
+  <h2>Environment setup for Salesforce DX</h2>
+  <div class="cards">
+    <div class="card"><h4>Enable Dev Hub</h4><p>Enable the Developer Hub in the org (requires Production or Developer Edition) to track the number and status of scratch orgs.</p></div>
+    <div class="card"><h4>Add Users in Dev Hub</h4><p>Create additional users to allow team members to generate scratch orgs.</p></div>
+    <div class="card"><h4>Enable 2GP Packaging</h4><p>Enable Second-Generation Packaging in the org to develop 2GP managed packages.</p></div>
+    <div class="card"><h4>Install Salesforce CLI</h4><p>Required in the local development machine to create environments, synchronize code, and execute tests.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="dx-project-1" data-search="salesforce dx project structure metadata templates sample data tests source format local directory">
+  <div class="pgnum">Page 33 · DX project structure</div>
+  <h2>Salesforce DX Project</h2>
+  <p class="lede">Salesforce DX implements a new project structure to contain org metadata, templates, sample data, and tests. A Salesforce DX project is a local directory structure of metadata in <strong>source format</strong>.</p>
+  <ul>
+    <li>Configuration files for creating scratch orgs</li>
+    <li>Data to be loaded into orgs for development or testing</li>
+    <li>Tests created to validate a package</li>
+  </ul>
+  <div class="note">Project files should be stored in a VCS and retrieved during development.</div>
+</section>
+
+<section class="slide" id="dx-project-2" data-search="salesforce dx project sample github repo existing source fresh project starting point">
+  <div class="pgnum">Page 34 · DX project setup options</div>
+  <h2>DX project setup options</h2>
+  <ul>
+    <li><strong>Use the sample repository on GitHub</strong> — clone the sample GitHub repo provided by Salesforce as a starting point.</li>
+    <li><strong>Create a Salesforce DX Project from existing source</strong> — start with an existing Salesforce app to create a DX project and retrieve existing source code.</li>
+    <li><strong>Set up a fresh Salesforce DX Project</strong> — create an app on the Lightning Platform from scratch using a DX project.</li>
+  </ul>
+</section>
+
+<section class="slide" id="dx-project-3" data-search="example salesforce dx project directory force-app main default aura classes components contentassets flexipages layouts lwc objects pages permissionsets staticresources tabs triggers package.xml manifest">
+  <div class="pgnum">Page 35 · Example directory</div>
+  <h2>Example DX project directory</h2>
+<pre class="code">.sfdx/
+.vscode/
+config/
+force-app/
+└── main/
+    └── default/
+        ├── applications/
+        ├── aura/              <span class="c">← Custom Aura Components</span>
+        ├── classes/           <span class="c">← Apex Classes</span>
+        ├── components/
+        ├── contentassets/
+        ├── flexipages/
+        ├── layouts/
+        ├── lwc/               <span class="c">← Custom Lightning Web Components</span>
+        ├── objects/           <span class="c">← Object Metadata</span>
+        ├── pages/
+        ├── permissionsets/
+        ├── staticresources/   <span class="c">← Static Resources</span>
+        ├── tabs/
+        └── triggers/          <span class="c">← Apex Triggers</span>
+manifest/
+└── package.xml</pre>
+</section>
+
+<section class="slide title-slide" id="vsc-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 36</div>
+  <h2>Visual Studio Code</h2>
+</section>
+
+<section class="slide" id="vsc-1" data-search="visual studio code source code editor development testing deployment salesforce extension pack requirements">
+  <div class="pgnum">Page 37 · Requirements</div>
+  <h2>VS Code — requirements</h2>
+  <div class="cards">
+    <div class="card"><h4>Requirements</h4><p>VS Code requires <strong>Salesforce CLI</strong> and the <strong>Salesforce Extension Pack</strong> on the local machine.</p></div>
+    <div class="card"><h4>Salesforce DX</h4><p>VS Code can be used to build and test applications using Salesforce DX projects.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="vsc-ext" data-search="salesforce extensions visual studio code apex language aura components lightning web components visualforce apex replay debugger salesforce cli">
+  <div class="pgnum">Page 38 · Extension pack</div>
+  <h2>Salesforce Extensions for VS Code</h2>
+  <p class="lede">The Salesforce Extension pack is built on top of Salesforce CLI and VS Code, transforming the editor into an IDE for custom development.</p>
+  <div class="cards">
+    <div class="card"><h4>Salesforce CLI</h4><p>Provides integration with Salesforce CLI.</p></div>
+    <div class="card"><h4>Apex Language</h4><p>Code-editing features for the Apex programming language.</p></div>
+    <div class="card"><h4>Aura Components</h4><p>Code-editing features for Aura Components.</p></div>
+    <div class="card"><h4>Apex Replay Debugger</h4><p>Replay Apex execution from Apex Debug Log.</p></div>
+    <div class="card"><h4>Lightning Web Components</h4><p>Code-editing features for LWC.</p></div>
+    <div class="card"><h4>Visualforce</h4><p>Syntax highlighting for Visualforce framework.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="vsc-2" data-search="visual studio code login org alias pull from repo authorize target org command palette sfdx">
+  <div class="pgnum">Page 39 · Login / alias / pull</div>
+  <h2>VS Code — login / alias / pull</h2>
+  <div class="cards">
+    <div class="card"><h4>Login</h4><p>Logging in establishes a connection between VS Code and a target org. Use <em>'SFDX: Authorize an Org'</em> from the command palette.</p></div>
+    <div class="card"><h4>Org Alias</h4><p>An alias is created for each org with which VS Code has established a connection.</p></div>
+    <div class="card"><h4>Pull from Repo</h4><p>Code can be pulled from a git repository to update the code base on the local machine.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="vsc-3" data-search="visual studio code pull from org sfdx retrieve source deploy force:source:deploy force:mdapi:deploy track changes source:status enable source tracking developer pro">
+  <div class="pgnum">Page 40 · Pull / deploy / track</div>
+  <h2>VS Code — pull / deploy / track</h2>
+  <div class="cards">
+    <div class="card"><h4>Pull from Org</h4><p>Code can be pulled from an org using <em>'SFDX: Retrieve Source from Org'</em>.</p></div>
+    <div class="card"><h4>Deploy to Org</h4><p>Deploy using <code>force:source:deploy</code> (<em>'SFDX: Deploy Source to Org'</em>) or <code>force:mdapi:deploy</code>.</p></div>
+    <div class="card"><h4>Track Changes</h4><p>Changes between a local project and sandbox can be determined using <code>force:source:status</code>. Requires <strong>'Enable Source Tracking in this Sandbox'</strong>. Source tracking is only supported in <strong>Developer</strong> and <strong>Developer Pro</strong> sandboxes.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="vsc-authorize" data-search="authorizing an org sfdx command palette visual studio code authorize default scratch org dev hub">
+  <div class="pgnum">Page 41 · Authorize an Org</div>
+  <h2>Authorize an Org</h2>
+  <p>The command to log in or authorize a connection with an org can be selected from the command palette in VS Code. Useful commands: <em>SFDX: Authorize an Org</em>, <em>SFDX: Authorize a Dev Hub</em>, <em>SFDX: Create a Default Scratch Org</em>, <em>SFDX: Display Org Details</em>, <em>SFDX: Set a Default Org</em>, <em>SFDX: List All Aliases</em>, <em>SFDX: Create Project</em>, <em>SFDX: Create Project with Manifest</em>.</p>
+</section>
+
+<section class="slide" id="vsc-pull-repo" data-search="pull files from repository source control git visual studio code metadata remote repository">
+  <div class="pgnum">Page 42 · Pull from repo</div>
+  <h2>Pull files from a repository</h2>
+  <p>Salesforce metadata and source code can be pulled from a remote code repository into the local machine using VS Code's Source Control panel (Views, Pull, Push, Clone, Checkout to, Commit, Changes, Pull Push, Branch, Remote, Stash).</p>
+</section>
+
+<section class="slide" id="vsc-deploy-1" data-search="deploy retrieve metadata force:source:deploy force:mdapi:deploy development deployment convert source sfdx force:source:convert sandbox integration staging production">
+  <div class="pgnum">Page 43 · Deploy or Retrieve — commands</div>
+  <h2>Deploy or retrieve metadata — commands</h2>
+  <div class="cards">
+    <div class="card"><h4>Development</h4><p><code>force:source:deploy</code> is intended for working with a sandbox org for development or local testing.</p></div>
+    <div class="card"><h4>Deployment</h4><p><code>force:mdapi:deploy</code> is intended for deploying code for <strong>integration testing</strong>, <strong>staging</strong>, or <strong>production</strong>.</p></div>
+    <div class="card"><h4>Convert Source</h4><p><code>force:mdapi:deploy</code> requires the source code to be converted to <strong>metadata format</strong> using <code>sfdx force:source:convert</code>.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Critical distinction: <code>force:source:deploy</code> is for incremental sandbox iteration; <code>force:mdapi:deploy</code> is for production. The latter <strong>rolls back the entire deployment</strong> if any component errors, preserving the integrity of the target.</p>
+  </div>
+</section>
+
+<section class="slide" id="vsc-deploy-2" data-search="deploy retrieve metadata right click options sfdx deploy source diff preview component locally retrieve source delete project org">
+  <div class="pgnum">Page 44 · Right-click options</div>
+  <h2>Right-click options</h2>
+  <p>Right-clicking a file in a DX project displays options for retrieving or deploying:</p>
+  <ul>
+    <li><strong>SFDX: Deploy Source to Org</strong></li>
+    <li><strong>SFDX: Retrieve Source from Org</strong></li>
+    <li><strong>SFDX: Diff File Against Org</strong></li>
+    <li><strong>SFDX: Preview Component Locally</strong></li>
+    <li><strong>SFDX: Delete from Project and Org</strong></li>
+  </ul>
+</section>
+
+<section class="slide title-slide" id="cb-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 45</div>
+  <h2>Code Builder</h2>
+</section>
+
+<section class="slide" id="cb-intro" data-search="code builder integrated development environment web browser visual studio code salesforce extensions enable production org install package">
+  <div class="pgnum">Page 46 · Intro</div>
+  <h2>Code Builder — intro</h2>
+  <p class="lede">Code Builder is an IDE that runs entirely in the web browser and inherits all the capabilities of <strong>Visual Studio Code</strong>, <strong>Salesforce Extensions for VS Code</strong>, and <strong>Salesforce CLI</strong>.</p>
+  <div class="note">Enable in <em>Setup → Code Builder</em>, then install the Code Builder managed package.</div>
+</section>
+
+<section class="slide" id="cb-launch" data-search="launch code builder app launcher codebuildergroup permission set group org">
+  <div class="pgnum">Page 47 · Launch</div>
+  <h2>Launching Code Builder</h2>
+  <p>After the Code Builder package is installed in the org, the <strong>Code Builder app</strong> for launching the IDE can be accessed from the <strong>App Launcher</strong>. Click the <strong>Launch</strong> button to open the IDE.</p>
+  <div class="note">To allow other users in the org to access Code Builder, they must be assigned the <strong>CodeBuilderGroup</strong> permission set group.</div>
+</section>
+
+<section class="slide" id="cb-connect" data-search="connect code builder connect an org authorize access salesforce">
+  <div class="pgnum">Page 48 · Connect</div>
+  <h2>Connect Code Builder</h2>
+  <p>After Code Builder is first launched, a <strong>Connect an Org</strong> button is provided for authorizing access to any Salesforce org.</p>
+</section>
+
+<section class="slide" id="cb-browser" data-search="code builder org browser panel browse download metadata without manifest file activity bar refresh">
+  <div class="pgnum">Page 49 · Org Browser</div>
+  <h2>Org Browser panel</h2>
+  <p>The Org Browser panel in Code Builder can be used to <strong>browse and download metadata</strong> into the Code Builder project from the connected org <strong>without using a manifest file</strong>.</p>
+  <ul>
+    <li>Hovering on a directory shows options to <strong>download or refresh</strong> the contents.</li>
+    <li>Hovering on a file shows options to <strong>open</strong> or <strong>download</strong> the current file.</li>
+  </ul>
+</section>
+
+<section class="slide" id="cb-explorer" data-search="code builder explorer panel creating updating deleting deploying source files connected org terminal commands menu">
+  <div class="pgnum">Page 50 · Explorer panel</div>
+  <h2>Explorer panel</h2>
+  <p>The Explorer panel provides options for working with metadata such as creating, updating, deleting, or deploying source files to the connected org. Commands can be performed via point-and-click in the menu, or directly from the terminal.</p>
+</section>
+
+<section class="slide" id="cb-ext" data-search="code builder extensions managed package no installation marketplace open vsx microsoft marketplace cannot access">
+  <div class="pgnum">Page 51 · Extensions</div>
+  <h2>Code Builder extensions</h2>
+  <div class="cards">
+    <div class="card"><h4>Package</h4><p>Code Builder is installed as a <strong>managed package</strong> and comes with everything needed for Salesforce development. No local installation. Salesforce maintains and automatically updates the pre-installed extensions.</p></div>
+    <div class="card"><h4>Marketplace</h4><p>The Microsoft Marketplace <strong>cannot be accessed</strong> from Code Builder. Extensions can be installed from <strong>Open VSX</strong>. Available extensions may differ.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="ld-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 52</div>
+  <h2>Local Dev</h2>
+</section>
+
+<section class="slide" id="ld-enable" data-search="enable real-time preview lightning web components salesforce cli plugin-lightning-dev local dev plugin enable setup">
+  <div class="pgnum">Page 53 · Enable real-time preview</div>
+  <h2>Enable real-time preview</h2>
+  <p class="lede">When developing Lightning web components, Salesforce allows real-time preview of changes without needing to deploy code to the org.</p>
+  <h3>Requirements</h3>
+  <ul>
+    <li><strong>Salesforce CLI</strong> installed in the local machine.</li>
+    <li>The <strong>Local Dev plugin</strong> (<code>@salesforce/plugin-lightning-dev</code>) installed locally.</li>
+    <li>Local Dev settings enabled in the target org: <em>Setup → Local Dev → Enable Local Dev</em>.</li>
+  </ul>
+  <div class="note">If real-time preview is not working, you may need to enable Lightning web security and clear the browser cache for desktop previews.</div>
+</section>
+
+<section class="slide" id="ld-launch" data-search="sf lightning dev app command desktop mobile android ios lightning experience app tools service journey policy center">
+  <div class="pgnum">Page 54 · Launch preview mode</div>
+  <h2>Launch preview mode</h2>
+  <p>Run <code>sf lightning dev app</code> from the command line. It asks for the <strong>device</strong> (Desktop / Mobile - Android / Mobile - iOS) and which Lightning Experience app to load. Choosing the app launches the browser automatically and opens the app in preview mode.</p>
+</section>
+
+<section class="slide" id="ld-example" data-search="real-time preview lightning web component study guide upload tools lightning experience app sandbox saved locally automatically reflected">
+  <div class="pgnum">Page 55 · Example</div>
+  <h2>Real-time preview example</h2>
+  <p>An LWC called "Study Guide Upload" is added as a navigation tab to a Lightning Experience App called "Tools". Changes saved locally are automatically reflected in the "preview mode" browser tab.</p>
+</section>
+
+<section class="slide" id="ld-limits" data-search="real-time preview limitations supported changes basic html new reference component basic css import css component javascript public api">
+  <div class="pgnum">Page 56 · Limitations</div>
+  <h2>Limitations</h2>
+  <p class="lede">Real-time preview is <strong>not supported for all types of changes</strong>. Only the following are automatically reflected:</p>
+  <ul>
+    <li>Basic HTML revisions (changing attributes, adjusting layout, etc.)</li>
+    <li>New reference to a component (e.g. adding <code>&lt;lightning-card&gt;</code>)</li>
+    <li>Basic CSS revisions (font-size, colors, etc.)</li>
+    <li>Importing a new CSS-only component (e.g. <code>@import 'c/myAdditionalStyles';</code>)</li>
+    <li>JavaScript changes in component methods that <strong>don't affect the component's public API</strong></li>
+  </ul>
+</section>
+
+<section class="slide title-slide" id="scr-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 57</div>
+  <h2>Scratch Orgs</h2>
+</section>
+
+<section class="slide" id="scr-uc" data-search="what are scratch orgs temporary configurable salesforce environments salesforce cli personal development new project feature branch automated testing">
+  <div class="pgnum">Page 58 · Use cases</div>
+  <h2>What are scratch orgs</h2>
+  <p class="lede">Scratch orgs are temporary configurable Salesforce environments that can be quickly generated using Salesforce CLI to be used as a personal development environment.</p>
+  <h3>Use cases</h3>
+  <ul>
+    <li>Starting a new project</li>
+    <li>Starting a new feature branch</li>
+    <li>Starting automated testing</li>
+    <li>Testing a new feature</li>
+    <li>Performing development tasks directly in an org</li>
+    <li>Starting from "scratch" with a fresh new org</li>
+  </ul>
+</section>
+
+<section class="slide" id="scr-config" data-search="scratch org configuration edition features definition file shareable org snapshots point-in-time replicate">
+  <div class="pgnum">Page 59 · Configuration</div>
+  <h2>Scratch org configuration</h2>
+  <div class="cards">
+    <div class="card"><h4>Edition / Features</h4><p>Scratch orgs can be customized with various Salesforce editions and tailored to include only the necessary features and preferences.</p></div>
+    <div class="card"><h4>Definition File</h4><p>Configuration can be <strong>shared</strong> to allow developers to replicate each other's scratch orgs, ensuring the team is working on the "same" environment.</p></div>
+    <div class="card"><h4>Org Snapshots</h4><p>A snapshot of a scratch org's configuration can be captured. A snapshot is a <strong>point-in-time copy</strong> usable to replicate the org.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="scr-vs-sb-1" data-search="scratch orgs vs sandbox orgs limited storage size life span purpose not designed replace sandboxes">
+  <div class="pgnum">Page 60 · vs sandboxes — basics</div>
+  <h2>Scratch orgs vs sandbox orgs — basics</h2>
+  <div class="cards">
+    <div class="card"><h4>Limited</h4><p>Scratch orgs have <strong>limited storage size</strong> and a <strong>short life span</strong>.</p></div>
+    <div class="card"><h4>Purpose</h4><p>Scratch orgs are <strong>not designed to replace</strong> sandbox orgs.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="scr-vs-sb-2" data-search="scratch orgs vs sandbox orgs development modules packages testing individual module package user acceptance testing staging environment continuous delivery testing">
+  <div class="pgnum">Page 61 · vs sandboxes — roles</div>
+  <h2>Scratch orgs vs sandbox orgs — roles</h2>
+  <div class="cards">
+    <div class="card"><h4>Development</h4><p>Scratch orgs are intended for <strong>developing customizations</strong> in modules or packages.</p></div>
+    <div class="card"><h4>Testing</h4><p>Scratch orgs are designed for <strong>testing an individual module or package</strong>.</p></div>
+    <div class="card"><h4>Use Cases (Sandbox)</h4><p>Sandbox orgs are used for <strong>user acceptance testing</strong>, as a <strong>staging environment</strong>, and for <strong>continuous delivery testing</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="cli-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 62</div>
+  <h2>Salesforce CLI</h2>
+</section>
+
+<section class="slide" id="cli-uses" data-search="salesforce cli command-line interface metadata api authorizing sandboxes dx projects test data deploying metadata running tests">
+  <div class="pgnum">Page 63 · Uses</div>
+  <h2>Salesforce CLI — what it does</h2>
+  <p class="lede">A CLI built on top of the metadata API used for performing tasks throughout the different phases of an application development lifecycle.</p>
+  <ul>
+    <li>Authorizing sandboxes</li>
+    <li>Creating and managing DX projects</li>
+    <li>Importing and exporting test data</li>
+    <li>Retrieving and deploying metadata</li>
+    <li>Running and automating tests</li>
+  </ul>
+</section>
+
+<section class="slide" id="cli-apis" data-search="salesforce cli capabilities apis metadata api tooling api data soap api one place">
+  <div class="pgnum">Page 64 · APIs covered</div>
+  <h2>APIs covered</h2>
+  <p>Salesforce CLI combines capabilities <strong>across several Salesforce APIs and tools</strong>:</p>
+  <ul>
+    <li><strong>Metadata API</strong></li>
+    <li><strong>Tooling API</strong></li>
+    <li><strong>Data (SOAP) API</strong></li>
+  </ul>
+</section>
+
+<section class="slide" id="cli-1" data-search="salesforce cli metadata exported imported commands tasks scripted automated interactive login standard salesforce login page authorize">
+  <div class="pgnum">Page 65 · Metadata / commands / login</div>
+  <h2>Metadata / commands / login</h2>
+  <div class="cards">
+    <div class="card"><h4>Metadata</h4><p>Metadata can be exported and imported.</p></div>
+    <div class="card"><h4>Commands &amp; Tasks</h4><p>Deployments using scripted commands and automated tasks.</p></div>
+    <div class="card"><h4>Interactive Login</h4><p>When connecting an org, the CLI opens the standard Salesforce login page for the user to log in and authorize the connection.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cli-2" data-search="salesforce cli not stored file system firewall difficult login credentials">
+  <div class="pgnum">Page 66 · Not stored / firewall</div>
+  <h2>Not stored / firewall</h2>
+  <div class="cards">
+    <div class="card"><h4>Not Stored</h4><p>No username/password is stored in the file system.</p></div>
+    <div class="card"><h4>Firewall</h4><p>Logging in behind a firewall can be difficult.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="cli-cmds-1" data-search="salesforce cli commands sf org login web dev hub alias sf org create scratch sf lightning generate component sf apex run test sf org open">
+  <div class="pgnum">Page 67 · Common commands (1)</div>
+  <h2>Common <code>sf</code> commands (1)</h2>
+<pre class="code"><span class="c"># Authorize a default Dev Hub org and assign an alias</span>
+sf org login web --set-default-dev-hub --alias my-dev-hub
+
+<span class="c"># Create a scratch org using a definition file</span>
+sf org create scratch --definition-file config/project-scratch-def.json --alias MyScratchOrg
+
+<span class="c"># Generate a Lightning web component</span>
+sf lightning generate component --type lwc --name myApp --output-dir force-app/main/default/lwc
+
+<span class="c"># Run Apex tests</span>
+sf apex run test --result-format human
+
+<span class="c"># Open the scratch org and view the pushed metadata</span>
+sf org open</pre>
+</section>
+
+<section class="slide" id="cli-cmds-2" data-search="salesforce cli commands sf project generate manifest sf project retrieve start source-dir target-org sf project deploy start preview retrieve">
+  <div class="pgnum">Page 68 · Common commands (2)</div>
+  <h2>Common <code>sf</code> commands (2)</h2>
+<pre class="code"><span class="c"># Generate a project with a default manifest (package.xml) file</span>
+sf project generate --name myProject --manifest
+
+<span class="c"># Retrieve metadata in source format from an org</span>
+sf project retrieve start --source-dir path/to/source --target-org myOrg
+
+<span class="c"># Deploy files in the force-app directory to a specified org</span>
+sf project deploy start --source-dir path/to/source --target-org myOrg
+
+<span class="c"># Preview a deployment to determine any conflicts or issues</span>
+sf project deploy preview --source-dir force-app
+
+<span class="c"># Preview a retrieve to determine any conflicts or issues</span>
+sf project retrieve preview</pre>
+</section>
+
+<section class="slide" id="cli-help" data-search="salesforce cli sf help sfdx commands alias analytics apex cmdt community config data deploy dev env">
+  <div class="pgnum">Page 69 · sf help output</div>
+  <h2><code>sf help</code> output</h2>
+  <p>Commands start with <code>sf</code> (or <code>sfdx</code>). Top-level topics include: <strong>alias</strong>, <strong>analytics</strong>, <strong>apex</strong>, <strong>cmdt</strong>, <strong>community</strong>, <strong>config</strong>, <strong>data</strong>, <strong>deploy</strong>, <strong>dev</strong>, <strong>env</strong>.</p>
+  <div class="note">Salesforce Extensions for Visual Studio Code and Code Builder use Salesforce CLI to interact with the org.</div>
+</section>
+
+<section class="slide" id="cli-env" data-search="example development environment salesforce dx remote repository local machine sfdx dev hub org scratch org sandbox org code editor">
+  <div class="pgnum">Page 70 · Example dev env</div>
+  <h2>Example development environment</h2>
+  <p>In source-driven development, the <strong>code/metadata repository serves as the source of truth</strong>. The local machine runs <strong>Salesforce CLI</strong> + a <strong>code editor</strong>. The CLI connects to a <strong>Dev Hub org</strong> (required for scratch orgs), creates <strong>scratch orgs</strong>, and deploys/retrieves to/from <strong>sandbox orgs</strong> for staging or UAT.</p>
+</section>
+
+<section class="slide title-slide" id="partners-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 71</div>
+  <h2>Partners, Packaging, and AppExchange</h2>
+</section>
+
+<section class="slide" id="partner-tools" data-search="appexchange partner tools environment hub license management app lma checkout management app cma channel order app coa isv">
+  <div class="pgnum">Page 72 · Partner tools</div>
+  <h2>AppExchange partner tools</h2>
+  <p class="lede">For AppExchange partners (ISVs), Salesforce provides tools for packaging, managing, and deploying solutions on the AppExchange platform.</p>
+  <div class="cards">
+    <div class="card"><h4>Environment Hub</h4><p>Allows partners to view, connect, create, and log in to multiple Salesforce orgs from a single location.</p></div>
+    <div class="card"><h4>License Management App (LMA)</h4><p>Manage leads and licenses for custom solutions distributed and sold on the AppExchange platform.</p></div>
+    <div class="card"><h4>Checkout Management App (CMA)</h4><p>Dashboard displaying AppExchange Checkout data such as revenues and subscriptions.</p></div>
+    <div class="card"><h4>Channel Order App (COA)</h4><p>Enables partners to create, submit, and track orders of customers — product purchases, user additions, contract renewals.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="packaging-considerations" data-search="app packaging considerations package manager managed packages unmanaged packages security review product security team lightning ready paid free">
+  <div class="pgnum">Page 73 · App packaging considerations</div>
+  <h2>App packaging considerations</h2>
+  <div class="cards">
+    <div class="card"><h4>Package Manager</h4><p>Used in Setup to create <strong>managed</strong> as well as <strong>unmanaged packages</strong>.</p></div>
+    <div class="card"><h4>Security Review</h4><p>Each product must be reviewed by a <strong>Product Security team</strong> in Salesforce and pass before it can be published on the AppExchange.</p></div>
+    <div class="card"><h4>Lightning Ready</h4><p>New apps (paid or free) to be published in AppExchange should be <strong>Lightning Ready</strong> in order to go through the security review.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="devops-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 74</div>
+  <h2>DevOps Center</h2>
+</section>
+
+<section class="slide" id="devops-1" data-search="devops center declarative tool manage deploy changes between orgs track changes setup enable devopscenter package install">
+  <div class="pgnum">Page 75 · Intro</div>
+  <h2>DevOps Center — intro</h2>
+  <p class="lede">The DevOps Center is a declarative tool that can be used to not only manage and deploy changes between orgs but also <strong>track changes</strong>.</p>
+  <p>DevOps Center can be enabled in Setup. After enabling, the <strong>DevOpsCenter package</strong> should be installed.</p>
+</section>
+
+<section class="slide" id="devops-2" data-search="devops center connected app app launcher additional permissions sales home leads accounts contacts">
+  <div class="pgnum">Page 76 · Connected App</div>
+  <h2>Connected App</h2>
+  <p>DevOps Center requires creating a <strong>Connected App</strong> to make the DevOps Center app available in the <strong>App Launcher</strong>. Access to the DevOps Center app requires additional permissions.</p>
+</section>
+
+<section class="slide" id="devops-3" data-search="devops center github account repository stored managed tracked salesforce integration application authorize project create">
+  <div class="pgnum">Page 77 · GitHub authorization</div>
+  <h2>GitHub authorization</h2>
+  <p>DevOps Center users are required to have a <strong>GitHub account</strong> and access to the GitHub repository where Salesforce metadata are stored, managed, and tracked. When creating a new project in the DevOps Center, <strong>authorization to access the GitHub repository is required</strong> (via the <em>Salesforce Integration Application</em>).</p>
+</section>
+
+<section class="slide" id="devops-4" data-search="devops center pipeline environments release process development orgs source tracking enabled validate-only deployment uat production">
+  <div class="pgnum">Page 78 · Pipeline</div>
+  <h2>DevOps Center Pipeline</h2>
+  <p>The Pipeline manages environments used in the release process. Development orgs are required to have <strong>source tracking enabled</strong>. Environments can be easily connected, disconnected, removed, and even swapped.</p>
+  <div class="note">Similar to change sets validation, a <strong>validate-only deployment</strong> can be performed to determine any potential issues that will be encountered in the actual deployment.</div>
+</section>
+
+<section class="slide title-slide" id="scenarios-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 79</div>
+  <h2>Scenarios and Solutions</h2>
+</section>
+
+<section class="slide" id="sc-scratch" data-search="scenario solutions scratch orgs temporary personal development environment salesforce cli configuration file pre-configured metadata">
+  <div class="pgnum">Page 80 · Scratch orgs</div>
+  <h2>Scenario — temporary personal environments</h2>
+  <div class="scenario"><h4>Scenario</h4><p>Developers want to automatically create and use temporary orgs as personal development environments based on specific configurations.</p></div>
+  <div class="sln"><h4>Solution</h4><p>Scratch orgs — short-lived orgs generated automatically using Salesforce CLI for developing and testing applications. A configuration file can be shared to build scratch orgs with pre-configured metadata.</p></div>
+</section>
+
+<section class="slide" id="sc-vcs" data-search="scenario solutions version control system spreadsheets lightning components visualforce pages track changes salesforce cli dx project code repository">
+  <div class="pgnum">Page 81 · Version control</div>
+  <h2>Scenario — spreadsheets are not change tracking</h2>
+  <div class="scenario"><h4>Scenario</h4><p>Developers have been using spreadsheets to track changes made to Lightning components and Visualforce pages and need an efficient change tracking solution.</p></div>
+  <div class="sln"><h4>Solution</h4><p>A <strong>version control system</strong> should track and manage org metadata. Typically Salesforce CLI is used to retrieve org metadata into a Salesforce DX project. A code repository containing the project stores files and tracks changes.</p></div>
+</section>
+
+<section class="slide" id="sc-sandbox" data-search="scenario solutions sandbox dev separate development sandbox salesforce cli salesforce extensions vs code">
+  <div class="pgnum">Page 82 · Sandbox dev</div>
+  <h2>Scenario — sandbox development</h2>
+  <div class="scenario"><h4>Scenario</h4><p>A developer is assigned a separate development sandbox for building a new feature. The developer needs to retrieve source from the sandbox as well as deploy to it.</p></div>
+  <div class="sln"><h4>Solution</h4><p>Salesforce CLI can be used to interact with sandbox orgs for development and local testing. Using Salesforce Extensions for VS Code or Salesforce CLI directly, metadata can be conveniently deployed or retrieved between the org and local machine.</p></div>
+</section>
+
+<section class="slide" id="sc-mdapi" data-search="scenario solutions force:mdapi:deploy integration staging production rolls back deployment error force:source:deploy">
+  <div class="pgnum">Page 83 · mdapi:deploy to production</div>
+  <h2>Scenario — deploying to production</h2>
+  <div class="scenario"><h4>Scenario</h4><p>A developer has worked on an update and tested it in a development org to fix a bug encountered in production. It is ready to go through integration testing and staging, then deployment to production.</p></div>
+  <div class="sln"><h4>Solution</h4><p>For deploying changes to <strong>integration</strong>, <strong>staging</strong>, and <strong>production</strong> orgs, perform the deployment using <code>force:mdapi:deploy</code>. Unlike <code>force:source:deploy</code>, this command <strong>rolls back the entire deployment when any component has an error</strong>, and helps maintain the integrity of the target environments.</p></div>
+</section>
+
+<section class="slide" id="learn-more" data-search="learn more change set package org development salesforce dx vs code scratch orgs deployment best practices force.com migration cli">
+  <div class="pgnum">Pages 84–85 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Reference list from the deck. URLs not yet wired — paste the annotation-link JSON for pages 84–85 and I'll convert these to live links.</p>
+  <ul>
+    <li>Change Set Development Model</li>
+    <li>Package Development Model</li>
+    <li>Org Development Model</li>
+    <li>How Salesforce DX Changes the Way You Work</li>
+    <li>Increase Productivity with Integrated Tools</li>
+    <li>Salesforce Extensions for Visual Studio Code</li>
+    <li>Salesforce DX and Source Driven Development</li>
+    <li>Getting Started With Scratch Orgs</li>
+    <li>Keep Your Org in Tip-Top Shape with Deployment Best Practices</li>
+    <li>Force.com Migration Tool</li>
+    <li>Force.com CLI</li>
+  </ul>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet quick reference interview change set org development package development salesforce dx vs code code builder scratch orgs salesforce cli devops center force:source:deploy force:mdapi:deploy">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>The three development models</h3>
+  <ul>
+    <li><strong>Change Set</strong> — UI-only, between <em>related</em> orgs, no VCS, no delete/rename. Best for small admin-style orgs.</li>
+    <li><strong>Org Development</strong> — Salesforce DX + VCS + sandboxes. Source-driven, but the sandbox is still the workspace.</li>
+    <li><strong>Package Development</strong> — VCS is source of truth; scratch orgs come and go; releases are <em>packages</em> (managed 2GP or unlocked). Best for modular, modern source-driven work.</li>
+  </ul>
+
+  <h3>The two deploy commands</h3>
+  <ul>
+    <li><code>force:source:deploy</code> / <code>sf project deploy start</code> — incremental, source-format, partial-success allowed. Use for sandbox iteration.</li>
+    <li><code>force:mdapi:deploy</code> — metadata-format, <strong>atomic / rolls back the whole deployment on any error</strong>. Use for integration / staging / production.</li>
+    <li>Convert source → metadata format with <code>sfdx force:source:convert</code> before <code>force:mdapi:deploy</code>.</li>
+  </ul>
+
+  <h3>Scratch vs sandbox — when to pick which</h3>
+  <ul>
+    <li><strong>Scratch</strong> — temporary, configured from a definition file, ideal for module/package development &amp; CI. Storage and lifespan limits.</li>
+    <li><strong>Developer / Developer Pro sandbox</strong> — long-lived, supports <em>source tracking</em>, ideal for SFDX with Org Development Model.</li>
+    <li><strong>Partial sandbox</strong> — staging / UAT with a sample of production data.</li>
+    <li><strong>Full sandbox</strong> — exact prod copy. UAT, training, performance testing.</li>
+  </ul>
+
+  <h3>Required setup for Salesforce DX</h3>
+  <ol>
+    <li><strong>Enable Dev Hub</strong> in a Production or Developer Edition org.</li>
+    <li>Add users to the Dev Hub if multiple developers need to spawn scratch orgs.</li>
+    <li>Enable <strong>Second-Generation Packaging</strong> if shipping managed 2GP.</li>
+    <li>Install <strong>Salesforce CLI</strong> locally.</li>
+  </ol>
+
+  <h3>Key CLI commands (sf v2 syntax)</h3>
+  <ul>
+    <li><code>sf org login web --set-default-dev-hub --alias my-dev-hub</code></li>
+    <li><code>sf org create scratch --definition-file config/project-scratch-def.json --alias MyScratchOrg</code></li>
+    <li><code>sf project deploy start --source-dir force-app --target-org myOrg</code></li>
+    <li><code>sf project retrieve start --source-dir force-app --target-org myOrg</code></li>
+    <li><code>sf project deploy preview --source-dir force-app</code> (validate-only dry run)</li>
+    <li><code>sf apex run test --result-format human</code></li>
+    <li><code>sf lightning dev app</code> (Local Dev real-time preview)</li>
+    <li><code>sf force:package:version:report -p &lt;versionId&gt; --verbose</code> (per-class coverage in a package)</li>
+  </ul>
+
+  <h3>Editor / IDE landscape</h3>
+  <ul>
+    <li><strong>VS Code + Salesforce Extension Pack</strong> — local install, full DX experience.</li>
+    <li><strong>Code Builder</strong> — same experience but in-browser. Installed as a managed package; users need the <strong>CodeBuilderGroup</strong> permission set group. Extensions come from <strong>Open VSX</strong>, <em>not</em> Microsoft Marketplace.</li>
+    <li><strong>Developer Console</strong> — native to the org, deploys only to that org. Mostly legacy for debugging.</li>
+  </ul>
+
+  <h3>Source tracking gotcha</h3>
+  <p>Source tracking (<code>force:source:status</code> / <code>sf project deploy preview</code>) only works in <strong>Developer</strong> and <strong>Developer Pro</strong> sandboxes — and requires <em>Enable Source Tracking in this Sandbox</em>. Full / Partial sandboxes don't have it.</p>
+
+  <h3>DevOps Center vs Change Sets</h3>
+  <ul>
+    <li>Both are declarative/UI deployment tools.</li>
+    <li>Change Sets: limited to related orgs, no VCS, no delete/rename, no version control history.</li>
+    <li>DevOps Center: GitHub-backed (the repo is the source of truth), pipelines with named environments, validate-only deployments. Requires GitHub auth + the DevOps Center managed package.</li>
+  </ul>
+
+  <h3>Local Dev limits to memorize</h3>
+  <p>Real-time LWC preview supports: HTML edits, new component references, basic CSS edits, CSS-only imports, and JS changes that <strong>don't alter the component's public API</strong>. Everything else still needs a redeploy.</p>
+
+  <h3>Two scenario tells</h3>
+  <ul>
+    <li>"Spreadsheet to track changes" → switch to <strong>VCS + SFDX</strong>.</li>
+    <li>"Deploying to production / partial deploys are dangerous" → use <strong>force:mdapi:deploy</strong> for atomic rollback.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

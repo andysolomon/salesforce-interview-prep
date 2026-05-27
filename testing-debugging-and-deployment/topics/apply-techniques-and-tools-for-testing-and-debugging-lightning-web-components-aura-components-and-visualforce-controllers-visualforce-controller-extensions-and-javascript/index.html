@@ -1,0 +1,1381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LWC / Aura / Visualforce Testing &amp; JavaScript — Salesforce Interview Prep</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --ink: #1a2233;
+    --muted: #5b6b80;
+    --navy: #22344c;
+    --navy-dark: #16243a;
+    --accent: #1589ee;
+    --accent-2: #00a3e0;
+    --green: #4bca81;
+    --orange: #f4a261;
+    --code-bg: #f1f5fb;
+    --code-border: #d6e0ee;
+    --highlight: #fff7d6;
+    --rule: #e3e8f0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  header.topbar {
+    background: var(--navy);
+    color: white;
+    padding: 14px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+  }
+  header.topbar h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  header.topbar .sub {
+    font-size: 12px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 80px);
+  }
+  aside.sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--rule);
+    padding: 20px 0;
+    overflow-y: auto;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+  }
+  .search {
+    margin: 0 16px 16px;
+  }
+  .search input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 13px;
+    background: var(--bg);
+  }
+  .search input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    background: white;
+  }
+  nav.toc h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin: 16px 16px 6px;
+    font-weight: 600;
+  }
+  nav.toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px;
+  }
+  nav.toc li a {
+    display: block;
+    padding: 5px 16px 5px 22px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+  }
+  nav.toc li a:hover {
+    background: var(--code-bg);
+    color: var(--accent);
+  }
+  nav.toc li a.active {
+    border-left-color: var(--accent);
+    background: var(--code-bg);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  main {
+    padding: 28px 40px 80px;
+    max-width: 920px;
+    width: 100%;
+  }
+  section.slide {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 22px 28px;
+    margin-bottom: 24px;
+    scroll-margin-top: 100px;
+  }
+  section.slide.title-slide {
+    background: var(--navy);
+    color: white;
+    text-align: center;
+    padding: 56px 28px;
+  }
+  section.slide.title-slide h2 {
+    color: white;
+    margin: 0;
+    font-size: 32px;
+    border: none;
+  }
+  .pgnum {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  section.slide h2 {
+    margin: 4px 0 14px;
+    font-size: 22px;
+    color: var(--navy);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 6px;
+    display: inline-block;
+  }
+  section.slide .lede {
+    font-size: 14.5px;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+  section.slide h3 {
+    color: var(--navy);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 18px 0 6px;
+  }
+  section.slide ul, section.slide ol {
+    margin: 8px 0 12px;
+    padding-left: 22px;
+  }
+  section.slide li {
+    margin: 4px 0;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 10px 0 14px;
+  }
+  .card {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .card h4 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--accent);
+  }
+  .card p { margin: 0; font-size: 13.5px; }
+  pre.code {
+    background: #fbfcfe;
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font: 12.5px/1.5 "SF Mono", Menlo, Consolas, monospace;
+    margin: 10px 0 12px;
+    color: #1a2233;
+  }
+  pre.code .c { color: #6a8b8c; font-style: italic; }
+  pre.code .k { color: #1a64c7; font-weight: 600; }
+  pre.code .s { color: #c14a4a; }
+  pre.code .a { color: #b14b7d; }
+  pre.code .t { color: #1a8b8d; }
+  .twocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 8px 0 12px;
+  }
+  @media (max-width: 740px) {
+    .twocol { grid-template-columns: 1fr; }
+  }
+  .note {
+    background: var(--highlight);
+    border-left: 3px solid #e6c548;
+    padding: 8px 12px;
+    margin: 8px 0 12px;
+    font-size: 13.5px;
+  }
+  .interview {
+    background: #eaf6ff;
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    margin: 14px 0 4px;
+    border-radius: 0 6px 6px 0;
+  }
+  .interview h4 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--accent);
+    letter-spacing: 0.8px;
+  }
+  .interview p { margin: 0; font-size: 13.5px; }
+  a.toc-link {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  a.toc-link:hover { text-decoration: underline; }
+  .pillrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 12px;
+  }
+  .pill {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  table.dttable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 14px;
+    font-size: 13.5px;
+  }
+  table.dttable th, table.dttable td {
+    border: 1px solid var(--code-border);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table.dttable th {
+    background: var(--code-bg);
+    color: var(--navy);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  table.dttable td code {
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside.sidebar { position: static; height: auto; }
+    main { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Testing, Debugging, and Deployment</a>
+    · Topic
+  </div>
+  <h1>Testing &amp; debugging LWC, Aura, Visualforce controllers/extensions, and JavaScript</h1>
+  <div class="sub">Apply techniques and tools for testing and debugging Lightning Web Components, Aura Components, and Visualforce controllers, Visualforce controller extensions, and JavaScript · Salesforce interview prep</div>
+  <div style="margin-top:8px;font-size:12px;"><a href="slides.pdf" target="_blank" rel="noopener" style="color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;">Download original PDF (67 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#controllers-overview">Controllers &amp; Extensions overview</a></li>
+      <li><a href="#lightning-overview">Lightning Components overview</a></li>
+    </ul>
+
+    <h3>Visualforce Testing</h3>
+    <ul>
+      <li><a href="#vf-unit-tests">Unit-test characteristics</a></li>
+      <li><a href="#vf-setup">Setting up a test</a></li>
+      <li><a href="#vf-edge">Assertions &amp; edge cases</a></li>
+      <li><a href="#vf-ex-page">Controller — VF page</a></li>
+      <li><a href="#vf-ex-controller">Controller — Apex code</a></li>
+      <li><a href="#vf-ex-test">Controller — test class</a></li>
+      <li><a href="#vf-ext-page">Extension — VF page</a></li>
+      <li><a href="#vf-ext-class">Extension — Apex code</a></li>
+      <li><a href="#vf-ext-test-1">Extension — test class (1)</a></li>
+      <li><a href="#vf-ext-test-2">Extension — test class (2)</a></li>
+    </ul>
+
+    <h3>Lightning Web Components</h3>
+    <ul>
+      <li><a href="#lwc-jest">Jest for LWC</a></li>
+      <li><a href="#lwc-steps">Setup steps</a></li>
+      <li><a href="#lwc-write-1">Writing Jest tests — import &amp; describe</a></li>
+      <li><a href="#lwc-write-2">DOM resets &amp; test block</a></li>
+      <li><a href="#lwc-write-3">createElement instance</a></li>
+      <li><a href="#lwc-full">Full Jest test example</a></li>
+      <li><a href="#lwc-run">Running Jest tests</a></li>
+      <li><a href="#lwc-considerations-1">shadowRoot &amp; promises</a></li>
+      <li><a href="#lwc-considerations-2">Wire / JSON / watch</a></li>
+    </ul>
+
+    <h3>Debugging</h3>
+    <ul>
+      <li><a href="#debug-component">Component to debug</a></li>
+      <li><a href="#debug-dollar0">$0 in DevTools</a></li>
+    </ul>
+
+    <h3>Testing with UTAM</h3>
+    <ul>
+      <li><a href="#utam-intro">What is UTAM</a></li>
+      <li><a href="#utam-example">UTAM example</a></li>
+      <li><a href="#utam-generator">UTAM Generator</a></li>
+    </ul>
+
+    <h3>JavaScript characteristics</h3>
+    <ul>
+      <li><a href="#case-scenario">Case Sensitivity — scenario</a></li>
+      <li><a href="#case-example">Case Sensitivity — example</a></li>
+      <li><a href="#case-solution">Case Sensitivity — solution</a></li>
+      <li><a href="#coercion-scenario">Implicit Coercion — scenario</a></li>
+      <li><a href="#coercion-example">Implicit Coercion — example</a></li>
+      <li><a href="#coercion-solution">Implicit Coercion — solution</a></li>
+      <li><a href="#truthy-falsy">Truthy &amp; Falsy</a></li>
+      <li><a href="#truthy-conditionals">Truthy/Falsy in conditionals</a></li>
+      <li><a href="#mutable-table">var / let / const table</a></li>
+      <li><a href="#mutable-scenario">Mutable — scenario</a></li>
+      <li><a href="#mutable-example">Mutable — example</a></li>
+      <li><a href="#mutable-const-obj">const objects</a></li>
+      <li><a href="#mutable-const-x">const object example</a></li>
+      <li><a href="#scope-scenario">Scope — scenario</a></li>
+      <li><a href="#scope-example">Scope — var example</a></li>
+      <li><a href="#scope-solution">Scope — solution</a></li>
+      <li><a href="#scope-let">Scope — let example</a></li>
+      <li><a href="#obj-scenario">Object Notation — scenario</a></li>
+      <li><a href="#obj-literal">Object literal</a></li>
+      <li><a href="#obj-solution">Object Notation — solution</a></li>
+      <li><a href="#obj-constructor">Object Constructor</a></li>
+      <li><a href="#trycatch-blocks">try/catch/finally blocks</a></li>
+      <li><a href="#trycatch-syntax">try/catch/finally syntax</a></li>
+      <li><a href="#trycatch-example">try/catch example</a></li>
+    </ul>
+
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#learn-more">Learn More</a></li>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover lwc aura visualforce javascript">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Testing, Debugging, and Deployment</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Apply techniques and tools for testing and debugging Lightning Web Components, Aura Components, and Visualforce controllers, Visualforce controller extensions, and JavaScript.</p>
+</section>
+
+<section class="slide" id="toc" data-search="table of contents toc">
+  <div class="pgnum">Pages 2–3 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#vf-unit-tests">Testing Visualforce Controllers and Extensions</a></li>
+    <li><a class="toc-link" href="#lwc-jest">Testing Lightning Web Components</a></li>
+    <li><a class="toc-link" href="#debug-component">Viewing Debug Information</a></li>
+    <li><a class="toc-link" href="#utam-intro">Testing With UTAM</a></li>
+    <li><a class="toc-link" href="#case-scenario">Case Sensitivity in JavaScript</a></li>
+    <li><a class="toc-link" href="#coercion-scenario">Implicit Coercion in JavaScript</a></li>
+    <li><a class="toc-link" href="#truthy-falsy">Truthy and Falsy in JavaScript</a></li>
+    <li><a class="toc-link" href="#mutable-table">Mutable Assignment in JavaScript</a></li>
+    <li><a class="toc-link" href="#scope-scenario">Variable Scope in JavaScript</a></li>
+    <li><a class="toc-link" href="#obj-scenario">Object Notation in JavaScript</a></li>
+    <li><a class="toc-link" href="#trycatch-blocks">Try…Catch Statement in JavaScript</a></li>
+  </ol>
+</section>
+
+<section class="slide" id="objectives" data-search="learning objectives goals visualforce controller aura lightning javascript">
+  <div class="pgnum">Page 4 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the considerations for creating unit tests for <strong>Visualforce controllers</strong> and <strong>controller extensions</strong>.</li>
+    <li>Identify the steps for setting up unit tests for a Visualforce controller or controller extension.</li>
+    <li>Describe how to test <strong>Aura components</strong> and <strong>Lightning web components</strong> using available tools.</li>
+    <li>Identify important <strong>JavaScript characteristics</strong> and the considerations when writing or debugging.</li>
+  </ul>
+</section>
+
+<section class="slide" id="intro" data-search="introduction visualforce controllers extensions apex jest utam jasmine mocha selenium webdriverio">
+  <div class="pgnum">Page 5 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Since <strong>Visualforce controllers</strong> and <strong>controller extensions</strong> are Apex classes, their tests should have code coverage that meets requirements. When testing controllers and extensions, the unit test involves writing code that <strong>simulates user input</strong> from the Visualforce page.</p>
+  <p>The <strong>Jest</strong> testing framework is recommended for testing <strong>Lightning web components</strong>. For Aura components, several tools are available in addition to Jest such as <strong>UTAM</strong>, <strong>Jasmine</strong>, <strong>Mocha</strong>, <strong>Selenium</strong>, and <strong>WebdriverIO</strong>.</p>
+  <p>This topic also covers JavaScript characteristics — case sensitivity, type coercion, scope, mutability — to help when writing or debugging JavaScript code.</p>
+</section>
+
+<section class="slide" id="controllers-overview" data-search="testing controllers extensions pagereference test.setcurrentpage action methods url parameters instantiation">
+  <div class="pgnum">Page 6 · Testing Controllers &amp; Controller Extensions</div>
+  <h2>Testing Controllers &amp; Controller Extensions</h2>
+  <div class="cards">
+    <div class="card"><h4>PageReference</h4><p>In a test method, the <code>PageReference</code> for the Visualforce page is created.</p></div>
+    <div class="card"><h4>Test.setCurrentPage()</h4><p>The PageReference variable is passed to <code>Test.setCurrentPage()</code>.</p></div>
+    <div class="card"><h4>Instantiation</h4><p>The controller and controller extension for the page are instantiated.</p></div>
+    <div class="card"><h4>URL Parameters</h4><p>URL parameter's name and value can be passed to the controller.</p></div>
+    <div class="card"><h4>Action Methods</h4><p>Controller's action methods can be called for testing user action.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="lightning-overview" data-search="testing lightning components jest aura utam jasmine mocha selenium webdriverio test suites unit tests describe it">
+  <div class="pgnum">Page 7 · Testing Lightning Components</div>
+  <h2>Testing Lightning Components</h2>
+  <div class="cards">
+    <div class="card"><h4>Jest Framework</h4><p>Jest is used for <strong>Lightning web components</strong>. Tests can be run from the command line or the IDE.</p></div>
+    <div class="card"><h4>Testing Aura components</h4><p>Available frameworks: Jest, UTAM, Jasmine, Mocha, Selenium, WebdriverIO.</p></div>
+    <div class="card"><h4>Test Suites</h4><p>A <code>describe</code> block creates a test suite that contains multiple unit tests for a particular component.</p></div>
+    <div class="card"><h4>Unit Tests</h4><p>An <code>it</code> or <code>test</code> block defines a single functional unit test that tests a particular behavior in an Aura or Lightning web component.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="vf-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 8</div>
+  <h2>Testing Visualforce Controllers and Extensions</h2>
+</section>
+
+<section class="slide" id="vf-unit-tests" data-search="visualforce controllers extensions unit tests class methods no arguments no commit istest annotation">
+  <div class="pgnum">Page 9 · Testing Visualforce Controllers and Controller Extensions</div>
+  <h2>Unit-test characteristics</h2>
+  <p class="lede">Like all Apex code, custom controllers and controller extensions should be covered by unit tests.</p>
+  <div class="cards">
+    <div class="card"><h4>Class Methods</h4><p>Unit tests are class methods written to test the <strong>business logic</strong> and verify code functions as expected.</p></div>
+    <div class="card"><h4>No Arguments</h4><p>Unit tests <strong>do not accept</strong> any arguments or method parameters.</p></div>
+    <div class="card"><h4>No Commit</h4><p>Unit tests <strong>do not commit</strong> any data to the database.</p></div>
+    <div class="card"><h4>Annotation</h4><p>Unit test methods are annotated with <code>@isTest</code>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="vf-setup" data-search="setting up test apex class page reference current page controller extension parameters apexpages getparameters put paramname paramvalue">
+  <div class="pgnum">Page 10 · Setting up a Visualforce test</div>
+  <h2>Setting up a Visualforce test</h2>
+  <p class="lede">High-level code steps for setting up a test of a Visualforce controller or extension:</p>
+  <div class="cards">
+    <div class="card"><h4>Apex Class</h4><p>Create a test class with a test method using the <code>@isTest</code> annotation.</p></div>
+    <div class="card"><h4>Page Reference</h4><p>Create a <code>PageReference</code> to the Visualforce page.</p></div>
+    <div class="card"><h4>Current Page</h4><p>Pass the PageReference instance to <code>Test.setCurrentPage()</code> to set the current PageReference.</p></div>
+    <div class="card"><h4>Controller</h4><p>Instantiate the controller for the Visualforce page.</p></div>
+    <div class="card"><h4>Extension</h4><p>If needed, instantiate an extension by passing the controller variable as a parameter to the extension constructor.</p></div>
+    <div class="card"><h4>Parameters</h4><p>If needed, pass URL parameters to the controller using:<br><code>ApexPages.currentPage().getParameters().put('paramName', 'paramValue');</code></p></div>
+  </div>
+</section>
+
+<section class="slide" id="vf-edge" data-search="simulate input click assert results setter methods action methods class name page redirect geturl">
+  <div class="pgnum">Page 11 · Assertions &amp; edge cases</div>
+  <h2>Assertions &amp; edge cases</h2>
+  <div class="cards">
+    <div class="card"><h4>Simulate Input</h4><p>If needed, use the controller's <strong>setter methods</strong> to simulate user input for data fields.</p></div>
+    <div class="card"><h4>Simulate Click</h4><p>Call the controller's <strong>action methods</strong> to simulate a user clicking a button.</p></div>
+    <div class="card"><h4>Assert Results</h4><p>Assertion methods are used to validate or invalidate business logic output.</p></div>
+  </div>
+  <div class="note">
+    <strong>Class name gotcha:</strong> A test class <strong>cannot be named <code>Test</code></strong>. Doing this generates: <em>"Method does not exist or incorrect signature: Test.setCurrentPage(System.PageReference)"</em>
+  </div>
+  <div class="note">
+    <strong>Page redirect:</strong> If the controller redirects to another page based on user input, the resulting page name can be checked by calling the <code>getUrl()</code> method of the resulting <code>PageReference</code> variable.
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Salesforce loves "what happens if you name your test class <code>Test</code>?" — the answer is that <code>Test.setCurrentPage</code> resolves to your local class, not <code>System.Test</code>, breaking your test.</p>
+  </div>
+</section>
+
+<section class="slide" id="vf-ex-page" data-search="accpage apex:page customcontroller account name rating type industry savevf">
+  <div class="pgnum">Page 12 · Example of Testing a Visualforce Controller — VF page</div>
+  <h2>VF page (AccPage)</h2>
+  <p class="lede">A Visualforce page titled <em>AccPage</em> that allows <strong>receiving and saving account</strong>:</p>
+<pre class="code">&lt;apex:page controller=<span class="s">"CustomController"</span> tabStyle=<span class="s">"Account"</span>&gt;
+&lt;apex:form&gt;
+   &lt;apex:pageBlock title=<span class="s">"Account Page"</span>&gt;
+       &lt;apex:pageBlockSection&gt;
+       &lt;apex:inputField value=<span class="s">"{!account.Name}"</span>/&gt;
+       &lt;apex:inputField value=<span class="s">"{!account.Rating}"</span>/&gt;
+       &lt;apex:inputField value=<span class="s">"{!account.Type}"</span>/&gt;
+       &lt;apex:inputField value=<span class="s">"{!account.Industry}"</span>/&gt;
+       &lt;apex:commandButton action=<span class="s">"{!save}"</span> value=<span class="s">"save"</span>/&gt;
+       &lt;/apex:pageBlockSection&gt;
+   &lt;/apex:pageBlock&gt;
+&lt;/apex:form&gt;
+&lt;/apex:page&gt;</pre>
+</section>
+
+<section class="slide" id="vf-ex-controller" data-search="customcontroller apexpages currentpage getparameters id account soql save pagereference">
+  <div class="pgnum">Page 13 · Example of Testing a Visualforce Controller — Apex code</div>
+  <h2>Custom controller</h2>
+<pre class="code"><span class="k">public class</span> CustomController {
+
+  <span class="k">public final</span> Account account;
+
+  <span class="k">public</span> CustomController() {
+      account = [SELECT Id, Name, Rating, Type, Industry FROM Account
+                 WHERE Id = :ApexPages.currentPage().getParameters().get(<span class="s">'id'</span>)];
+  }
+
+  <span class="k">public</span> Account getAccount() {
+      <span class="k">return</span> account;
+  }
+
+  <span class="k">public</span> PageReference save() {
+      update account;
+      <span class="k">return null</span>;
+  }
+}</pre>
+</section>
+
+<section class="slide" id="vf-ex-test" data-search="customcontrollertest insert account pagereference test.setcurrentpage page.accpage apexpages getparameters put id assertequals">
+  <div class="pgnum">Page 14 · Example of Testing a Visualforce Controller — test class</div>
+  <h2>Test class</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> CustomControllerTest {
+  <span class="a">@isTest</span>
+  <span class="k">public static void</span> testMethod1() {
+      Account a = <span class="k">new</span> Account(); <span class="c">// A test account is created with the required field values</span>
+      a.Name = <span class="s">'Test'</span>;
+      insert a;
+      a.Rating = <span class="s">'Hot'</span>;
+      a.Type = <span class="s">'Customer'</span>;
+      a.Industry = <span class="s">'Healthcare'</span>;
+
+      PageReference testPage = Page.AccPage;                <span class="c">// A page reference for the Visualforce page is created</span>
+      Test.setCurrentPage(testPage);                        <span class="c">// A method is used to set the current page reference</span>
+      ApexPages.currentPage().getParameters().put(<span class="s">'id'</span>, a.Id); <span class="c">// Query parameters can be set and used in the test</span>
+      CustomController cc = <span class="k">new</span> CustomController();      <span class="c">// The custom controller is instantiated</span>
+      PageReference pageRef = cc.save();                    <span class="c">// The methods in the custom controller are called</span>
+      Account b = cc.getAccount();
+      <span class="c">// Check if controller worked on the same record</span>
+      System.assertEquals(b.Id, a.Id);
+  }
+}</pre>
+</section>
+
+<section class="slide" id="vf-ext-page" data-search="custompage standardcontroller account extensions controllerextension outputtext details outputfield">
+  <div class="pgnum">Page 15 · Example of Testing a Visualforce Controller Extension — VF page</div>
+  <h2>VF page (CustomPage) using a standard controller + extension</h2>
+<pre class="code">&lt;apex:page standardController=<span class="s">"Account"</span> extensions=<span class="s">"ControllerExtension"</span>&gt;
+   &lt;apex:form&gt;
+     &lt;apex:pageBlock&gt;
+         &lt;apex:pageBlockSection&gt;
+             &lt;p&gt;Account Name: {!account.Name}&lt;/p&gt;
+             &lt;p&gt;&lt;apex:outputText value=<span class="s">"{!details}"</span>/&gt;&lt;/p&gt;
+             &lt;apex:outputField rendered=<span class="s">"false"</span> value=<span class="s">"{!account.Type}"</span>/&gt;
+             &lt;apex:outputField rendered=<span class="s">"false"</span> value=<span class="s">"{!account.Industry}"</span>/&gt;
+         &lt;/apex:pageBlockSection&gt;
+     &lt;/apex:pageBlock&gt;
+   &lt;/apex:form&gt;
+&lt;/apex:page&gt;</pre>
+</section>
+
+<section class="slide" id="vf-ext-class" data-search="controllerextension apexpages standardcontroller stdcontroller getrecord getdetails account type industry">
+  <div class="pgnum">Page 16 · Example of Testing a Visualforce Controller Extension — Apex code</div>
+  <h2>Controller extension</h2>
+<pre class="code"><span class="k">public class</span> ControllerExtension {
+
+  <span class="k">public final</span> Account account;
+
+  <span class="k">public</span> ControllerExtension(ApexPages.StandardController stdController) {
+      <span class="k">this</span>.account = (Account)stdController.getRecord();
+  }
+
+  <span class="k">public</span> String getDetails() {
+      <span class="k">return</span> <span class="s">'Account Type and Industry are '</span> + account.Type + <span class="s">' and '</span> + account.Industry;
+  }
+}</pre>
+</section>
+
+<section class="slide" id="vf-ext-test-1" data-search="controllerextensiontest pagereference custompage test.setcurrentpage account customer healthcare">
+  <div class="pgnum">Page 17 · Example of Testing a Visualforce Controller Extension — test class (1)</div>
+  <h2>Test class — setup</h2>
+<pre class="code"><span class="c">//Test class for the controller extension named 'ControllerExtension'</span>
+<span class="a">@isTest</span>
+<span class="k">public class</span> ControllerExtensionTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">public static void</span> testMethod1() {
+
+      <span class="c">//A test account is created with the required field values</span>
+      Account a = <span class="k">new</span> Account();
+      a.Name = <span class="s">'Test'</span>;
+      a.Type = <span class="s">'Customer'</span>;
+      a.Industry = <span class="s">'Healthcare'</span>;
+      insert a;
+
+      <span class="c">// A page reference for the Visualforce page is created</span>
+      PageReference testPage = Page.CustomPage;
+
+      <span class="c">//A method is used to set the current page reference</span>
+      Test.setCurrentPage(testPage);
+      <span class="c">// Continued…</span></pre>
+</section>
+
+<section class="slide" id="vf-ext-test-2" data-search="controllerextensiontest apexpages currentpage put id standardcontroller getdetails assertequals">
+  <div class="pgnum">Page 18 · Example of Testing a Visualforce Controller Extension — test class (2)</div>
+  <h2>Test class — continued</h2>
+<pre class="code">      <span class="c">// Query parameters can be set and used in the test</span>
+      ApexPages.currentPage().getParameters().put(<span class="s">'id'</span>, a.Id);
+
+      <span class="c">// The standard controller for the page is instantiated</span>
+      ApexPages.StandardController sc = <span class="k">new</span> ApexPages.StandardController(a);
+
+      <span class="c">// ControllerExtension is instantiated by passing the standard controller variable</span>
+      ControllerExtension ce = <span class="k">new</span> ControllerExtension(sc);
+
+      <span class="c">// The getDetails() method of the ControllerExtension class is called</span>
+      String str = ce.getDetails();
+
+      <span class="c">// A System.assert statement is used to verify that the getDetails() method returns the correct string</span>
+      System.assertEquals(<span class="s">'Account Type and Industry are Customer and Healthcare'</span>, str);
+  }
+}</pre>
+</section>
+
+<section class="slide title-slide" id="lwc-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 19</div>
+  <h2>Testing Lightning Web Components</h2>
+</section>
+
+<section class="slide" id="lwc-jest" data-search="testing lightning web components jest framework run tests command line ide test cases shadow dom output verification firing events">
+  <div class="pgnum">Page 20 · Testing Lightning Web Components</div>
+  <h2>Jest for LWC</h2>
+  <p class="lede">The <strong>Jest framework</strong> can be used to write <strong>unit tests</strong> for Lightning web components.</p>
+  <div class="cards">
+    <div class="card"><h4>Run Tests</h4><p>Jest tests can be run in the <strong>command line</strong> or the <strong>IDE</strong>.</p></div>
+    <div class="card"><h4>Test Cases</h4><p>Jest tests can be written to test a <strong>component in isolation</strong>, its <strong>public API</strong>, basic <strong>user interaction</strong>, <strong>DOM output verification</strong>, <strong>firing of events</strong>, etc.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="lwc-steps" data-search="salesforce dx sfdx-lwc-jest node.js npm sf force lightning lwc test setup create run __tests__">
+  <div class="pgnum">Page 21 · Setup steps for Jest</div>
+  <h2>Setup steps for Jest</h2>
+  <div class="cards">
+    <div class="card"><h4>Step 1: Salesforce DX</h4><p>Create a Salesforce DX project and install <code>sfdx-lwc-jest</code> and its dependencies (after installing Node.js and npm). Use:<br><code>sf force lightning lwc test setup</code></p></div>
+    <div class="card"><h4>Step 2: Test files</h4><p>Write Jest tests in local JavaScript files. Use:<br><code>sf force lightning lwc test create</code><br>to create a <code>__tests__</code> directory and a boilerplate test file. Test files should end in <code>.test.js</code>.</p></div>
+    <div class="card"><h4>Step 3: Test command</h4><p>Run Jest from VS Code or the command line:<br><code>sf force lightning lwc test run</code></p></div>
+  </div>
+</section>
+
+<section class="slide" id="lwc-write-1" data-search="writing jest tests import component createelement lwc describe block test suite">
+  <div class="pgnum">Page 22 · Writing Jest tests — imports &amp; describe</div>
+  <h2>Imports &amp; describe block</h2>
+  <div class="cards">
+    <div class="card"><h4>Import Component</h4><p>Each test file must import both the component to test and the <code>createElement</code> method from <code>'lwc'</code>.</p></div>
+    <div class="card"><h4>Describe Block</h4><p>A <code>describe</code> block creates a <strong>test suite</strong> within the test file.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="lwc-write-2" data-search="dom resets jsdom aftereach test block it expect tobe matcher assertion">
+  <div class="pgnum">Page 23 · Writing Jest tests — DOM resets &amp; test block</div>
+  <h2>DOM resets &amp; test block</h2>
+  <div class="cards">
+    <div class="card"><h4>DOM Resets</h4><p>A single instance of <strong>jsdom</strong> is shared across all test cases in a file, so the DOM should be reset at the end of each unit test using <code>afterEach()</code>.</p></div>
+    <div class="card"><h4>Test Block</h4><p>An <code>it</code> or <code>test</code> block defines a single functional unit test. First argument is a description; second is the test function. <code>expect</code> + a matcher like <code>toBe</code> is used for assertions.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="lwc-write-3" data-search="create instance createelement appendchild document.body">
+  <div class="pgnum">Page 24 · Writing Jest tests — createElement instance</div>
+  <h2>Create instance</h2>
+  <p>Inside the unit test, the imported <code>createElement</code> method is used to create an <strong>instance</strong> of the component for testing. It should be appended to the body of the document using <code>appendChild()</code>.</p>
+</section>
+
+<section class="slide" id="lwc-full" data-search="lwc test demo full example createelement appendchild shadowroot queryselector h1 customer details ashley james email">
+  <div class="pgnum">Page 25 · Writing a Jest Test — full example</div>
+  <h2>Full Jest test example</h2>
+  <p class="lede">An LWC component named <em>lwcTestDemo</em> + a Jest test verifying the expected heading, name, and email.</p>
+  <h3>LWC markup (lwcTestDemo.html)</h3>
+<pre class="code">&lt;template&gt;
+    &lt;h1&gt;Customer Details&lt;/h1&gt;
+    &lt;p class=<span class="s">"name"</span>&gt;Name: Ashley James&lt;/p&gt;
+    &lt;p class=<span class="s">"email"</span>&gt;Email: ashley@united.com&lt;/p&gt;
+&lt;/template&gt;</pre>
+  <h3>Jest test (lwcTestDemo.test.js)</h3>
+<pre class="code"><span class="k">import</span> { createElement } <span class="k">from</span> <span class="s">'lwc'</span>;
+<span class="k">import</span> LwcTestDemo <span class="k">from</span> <span class="s">'c/lwcTestDemo'</span>;
+
+describe(<span class="s">'c-lwc-test-demo'</span>, () =&gt; {
+
+    afterEach(() =&gt; {
+        <span class="c">// The DOM should be reset after each test.</span>
+        <span class="k">while</span> (document.body.firstChild) {
+            document.body.removeChild(document.body.firstChild);
+        }
+    });
+
+    <span class="c">// The 'it' or 'test' keyword can be used to create a unit test block.</span>
+    it(<span class="s">'displays heading, name, and email'</span>, () =&gt; {
+        <span class="k">const</span> element = createElement(<span class="s">'c-lwc-test-demo'</span>, { is: LwcTestDemo });
+        document.body.appendChild(element);
+
+        <span class="k">const</span> heading = element.shadowRoot.querySelector(<span class="s">'h1'</span>).textContent;
+        <span class="k">const</span> name    = element.shadowRoot.querySelector(<span class="s">'.name'</span>).textContent;
+        <span class="k">const</span> email   = element.shadowRoot.querySelector(<span class="s">'.email'</span>).textContent;
+
+        expect(heading).toBe(<span class="s">'Customer Details'</span>); <span class="c">// 'expect' and 'toBe' for assertions</span>
+        expect(name).toBe(<span class="s">'Name: Ashley James'</span>);
+        expect(email).toBe(<span class="s">'Email: ashley@united.com'</span>);
+    });
+});</pre>
+</section>
+
+<section class="slide" id="lwc-run" data-search="running jest tests npm run test:unit sfdx-lwc-jest pass force-app test suites passed">
+  <div class="pgnum">Page 26 · Running Jest tests</div>
+  <h2>Running Jest tests</h2>
+<pre class="code">PS C:\dev\test-lwc&gt; npm run test:unit
+
+&gt; salesforce-app@1.0.0 test:unit C:\dev\test-lwc
+&gt; sfdx-lwc-jest
+
+PASS force-app/main/default/lwc/lwcTestDemo/__tests__/lwcTestDemo.test.js
+  c-lwc-test-demo
+    √ displays heading, name, and email (34ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        3.057s
+Ran all test suites.</pre>
+</section>
+
+<section class="slide" id="lwc-considerations-1" data-search="considerations testing lightning web components shadowroot queryselector promise asynchronous dom updates">
+  <div class="pgnum">Page 27 · LWC test considerations — shadowRoot &amp; promises</div>
+  <h2>shadowRoot &amp; promises</h2>
+  <div class="cards">
+    <div class="card"><h4>shadowRoot</h4><p>Use <code>shadowRoot</code> on the element under test to access the shadow tree. E.g. <code>element.shadowRoot.querySelector('h1')</code>.</p></div>
+    <div class="card"><h4>Use Promises</h4><p><strong>Asynchronous DOM updates</strong> (like property change) can be tested by returning a <code>Promise</code> in the unit test.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="lwc-considerations-2" data-search="wire service @salesforce/sfdx-lwc-jest json file watch mode npm run test:unit:watch">
+  <div class="pgnum">Page 28 · LWC test considerations — Wire / JSON / Watch</div>
+  <h2>Wire / JSON / Watch mode</h2>
+  <div class="cards">
+    <div class="card"><h4>Wire Service</h4><p>Use the <code>@salesforce/sfdx-lwc-jest</code> test utility to test the wire service.</p></div>
+    <div class="card"><h4>JSON File</h4><p>A JSON file can be created to define the Salesforce data expected by a component.</p></div>
+    <div class="card"><h4>Watch Mode</h4><p>Use <code>npm run test:unit:watch</code> to run tests continuously during development.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="debug-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 29</div>
+  <h2>Viewing Debug Information</h2>
+</section>
+
+<section class="slide" id="debug-component" data-search="contact.js lightningelement getcontacts contactcontroller getall connectedcallback contacts name email phone title">
+  <div class="pgnum">Page 30 · Component to debug</div>
+  <h2>Component to debug</h2>
+  <p class="lede">Example Lightning web component that displays contact information:</p>
+<pre class="code"><span class="c">// contact.js</span>
+<span class="k">import</span> { LightningElement } <span class="k">from</span> <span class="s">'lwc'</span>;
+<span class="k">import</span> getContacts <span class="k">from</span> <span class="s">'@salesforce/apex/ContactController.getAll'</span>;
+
+<span class="k">export default class</span> Contact <span class="k">extends</span> LightningElement {
+
+  contacts;
+  contact;
+  name;
+  email;
+  phone;
+  title;
+
+  connectedCallback() {
+      getContacts().then(results =&gt; <span class="k">this</span>.contacts = results);
+  }
+  ...
+}</pre>
+  <div class="note">When a user enters a name in an input field that matches an existing contact, the <em>contact</em>, <em>name</em>, <em>email</em>, <em>phone</em>, and <em>title</em> properties are updated to render that contact. <code>connectedCallback</code> queries contacts and stores them in a <em>contacts</em> property upon loading.</div>
+</section>
+
+<section class="slide" id="debug-dollar0" data-search="elements tab chrome devtools console $0 component debug wired properties accessible">
+  <div class="pgnum">Page 31 · $0 in DevTools</div>
+  <h2>$0 in Chrome DevTools</h2>
+  <p>In the <strong>Elements</strong> tab in Chrome DevTools, the component should be selected. Then, in the <strong>Console</strong> tab, <code>$0</code> is entered to display the debug information of the Lightning web component.</p>
+  <div class="note"><strong>@wired properties are also accessible</strong> in this debug information.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>"<code>$0</code> in the Console" is a generic DevTools feature — it references the currently selected node in the Elements panel. For LWC, this gives you the component instance, including reactive @wired data — handy for live state inspection.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="utam-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 32</div>
+  <h2>Testing With UTAM</h2>
+</section>
+
+<section class="slide" id="utam-intro" data-search="utam ui test automation model open source salesforce javascript java page object json webdriverio selenium typescript">
+  <div class="pgnum">Page 33 · UI Test Automation Model (UTAM)</div>
+  <h2>What is UTAM</h2>
+  <p class="lede">UTAM is an <strong>open-source tool</strong> built by Salesforce that tests <strong>any web page</strong> and is ideally suited for writing <strong>JavaScript or Java UI tests for Lightning web components</strong>.</p>
+  <p>Page DOM elements are represented and referenced as <strong>JSON Page Objects</strong>. UTAM compiles each JSON Page Object into JavaScript (or TypeScript or Java), which contains properties and methods used in writing tests.</p>
+  <div class="note">UTAM <strong>does not include a test runner</strong> but integrates with any testing automation framework. Currently it supports <strong>WebdriverIO</strong> for JavaScript tests and <strong>Selenium</strong> for Java.</div>
+</section>
+
+<section class="slide" id="utam-example" data-search="utam json page object color css selector compiled getcolor element load colorcheckroot assert">
+  <div class="pgnum">Page 34 · UTAM example</div>
+  <h2>UTAM example</h2>
+  <p class="lede">Page Object JSON declares CSS selectors and element names; UTAM compiles it into a JavaScript module exposing typed accessor methods.</p>
+  <div class="twocol">
+<pre class="code"><span class="c">// Sample JSON Page Object created based on HTML below</span>
+{
+  <span class="s">"root"</span>: <span class="k">true</span>,
+  <span class="s">"selector"</span>: {
+      <span class="s">"css"</span>: <span class="s">"body"</span>
+  },
+  <span class="s">"elements"</span>: [
+      {
+          <span class="s">"selector"</span>: {
+              <span class="s">"css"</span>: <span class="s">".color"</span>
+          },
+          <span class="s">"name"</span>: <span class="s">"color"</span>,
+          <span class="s">"public"</span>: <span class="k">true</span>
+      }
+  ]
+}
+
+&lt;!-- Rendered HTML being tested --&gt;
+&lt;body&gt;
+   &lt;div class=<span class="s">"main"</span>&gt;
+       &lt;h3&gt;Your favorite color is
+           &lt;span class=<span class="s">"color"</span>&gt;blue&lt;/span&gt;
+       &lt;/h3&gt;
+   &lt;/div&gt;
+&lt;/body&gt;</pre>
+<pre class="code"><span class="c">// Sample compiled Page Object (JavaScript)</span>
+async getColor() {
+   <span class="k">const</span> driver = <span class="k">this</span>.driver;
+   <span class="k">const</span> root = <span class="k">await this</span>.getRootElement();
+   <span class="k">const</span> BaseUtamElement = _createUtamMixinCtor();
+   <span class="k">let</span> element = <span class="k">await</span> _utam_get_color(driver, root);
+   element = <span class="k">new</span> BaseUtamElement(driver, element);
+   <span class="k">return</span> element;
+}
+
+<span class="c">// Sample JavaScript test</span>
+<span class="k">const</span> colorCheckRoot = <span class="k">await</span> utam.load(ColorCheckRoot);
+assert.ok(colorCheckRoot <span class="k">instanceof</span> ColorCheckRoot);
+
+<span class="k">const</span> color = <span class="k">await</span> colorCheckRoot.getColor();
+assert.ok(color); <span class="c">// verify if the element exists on the page</span>
+
+<span class="k">const</span> colorName = <span class="k">await</span> color.getText();
+assert.strictEqual(colorName, <span class="s">'blue'</span>);</pre>
+  </div>
+</section>
+
+<section class="slide" id="utam-generator" data-search="utam generator playground npm package utam.dev json page objects from html">
+  <div class="pgnum">Page 35 · UTAM Generator</div>
+  <h2>UTAM Generator</h2>
+  <p>A <strong>generator playground</strong> can be used to generate UTAM page objects from HTML code. The generator can be found at <a class="toc-link" href="https://utam.dev" target="_blank" rel="noopener">utam.dev</a>.</p>
+  <div class="note">A <strong>UTAM Generator npm package</strong> can also be used to automatically generate JSON page objects from HTML files.</div>
+</section>
+
+<section class="slide title-slide" id="case-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 36</div>
+  <h2>Case Sensitivity in JavaScript</h2>
+</section>
+
+<section class="slide" id="case-scenario" data-search="case sensitivity javascript apex soql case-sensitive scenario apex developer learning">
+  <div class="pgnum">Page 37 · Case Sensitivity — scenario</div>
+  <h2>Scenario</h2>
+  <p>Unlike Apex or SOQL, <strong>JavaScript is case-sensitive</strong>.</p>
+  <p>An Apex developer who recently started learning JavaScript has written a sample JavaScript function that accepts a parameter and logs a string in the browser console based on the passed value. However, when the function was called, an error was encountered.</p>
+</section>
+
+<section class="slide" id="case-example" data-search="areyouawesome function status reference error not defined uncaught">
+  <div class="pgnum">Page 38 · Case Sensitivity — example</div>
+  <h2>The function</h2>
+<pre class="code">function areYouAwesome(status) {
+
+   <span class="k">if</span> (Status == <span class="k">true</span>) {
+       console.log(<span class="s">'Stay awesome.'</span>);
+   } <span class="k">else</span> {
+       console.log(<span class="s">'You are still awesome.'</span>);
+   }
+}
+areYouAwesome(<span class="k">true</span>);</pre>
+  <div class="note"><strong>Console error:</strong> <code>Uncaught ReferenceError: Status is not defined</code></div>
+</section>
+
+<section class="slide" id="case-solution" data-search="case sensitivity solution status variable match case function parameter definition">
+  <div class="pgnum">Page 39 · Case Sensitivity — solution</div>
+  <h2>Solution</h2>
+  <p>Unlike Apex or SOQL, JavaScript is case-sensitive. The variable name in the <em>if</em> statement should be <code>status</code>, not <code>Status</code>, to match the case in the function parameter definition.</p>
+  <p>Therefore, change to: <code>if (status == true)</code>. Alternatively the parameter in the function definition can be updated instead to match the case.</p>
+</section>
+
+<section class="slide title-slide" id="coercion-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 40</div>
+  <h2>Implicit Coercion in JavaScript</h2>
+</section>
+
+<section class="slide" id="coercion-scenario" data-search="implicit type coercion javascript invalid valid types === !== strict equality scenario">
+  <div class="pgnum">Page 41 · Implicit Type Coercion — scenario</div>
+  <h2>Scenario</h2>
+  <p>JavaScript converts <strong>invalid types</strong> to <strong>valid types</strong>. The <code>===</code> and <code>!==</code> operators should be used to compare both the <strong>value</strong> and <strong>data type</strong>.</p>
+  <p>A developer is performing a series of operations and comparisons to determine how JavaScript variables behave based on the operator and operands. However, the results do not seem to make sense.</p>
+</section>
+
+<section class="slide" id="coercion-example" data-search="implicit coercion example variable1 variable2 typeof string number false 0 string equal array typeof console.log">
+  <div class="pgnum">Page 42 · Implicit Type Coercion — example</div>
+  <h2>Example</h2>
+<pre class="code"><span class="k">let</span> variable1 = <span class="t">10</span> * <span class="s">"30"</span>;
+console.log(variable1);          <span class="c">// 300</span>
+console.log(<span class="k">typeof</span> variable1);   <span class="c">// number</span>
+
+<span class="k">let</span> variable2 = <span class="t">10</span> + <span class="s">"30"</span>;
+console.log(variable2);          <span class="c">// "1030"</span>
+console.log(<span class="k">typeof</span> variable2);   <span class="c">// string</span>
+
+console.log(<span class="k">false</span> == <span class="s">""</span>);   <span class="c">// returns true</span>
+console.log(<span class="k">false</span> == <span class="s">"0"</span>);  <span class="c">// returns true</span>
+console.log(<span class="s">""</span> == <span class="s">"0"</span>);     <span class="c">// returns false</span>
+console.log([<span class="t">0</span>] == <span class="t">0</span>);    <span class="c">// returns true</span></pre>
+</section>
+
+<section class="slide" id="coercion-solution" data-search="implicit coercion solution strict comparison === !== best practice value data type same">
+  <div class="pgnum">Page 43 · Implicit Type Coercion — solution</div>
+  <h2>Solution</h2>
+  <p>This behavior is called <strong>implicit type coercion</strong>. In a single expression with operands of different data types, JavaScript automatically converts an "invalid" data type to a "valid" type. It is best <strong>not to use implicit type coercion</strong>, to avoid confusion.</p>
+  <p>To determine whether two variables are equal, use the <strong>strict comparison operator (<code>===</code>)</strong>. It returns true only if both the value and the data type are the same. <code>!==</code> returns true if either value or type differ.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Memorize a few classic gotchas: <code>[] == ![]</code> is <code>true</code>, <code>null == undefined</code> is <code>true</code> but <code>null === undefined</code> is <code>false</code>, <code>NaN !== NaN</code>. Always use <code>===</code> in production code.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="truthy-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 44</div>
+  <h2>Truthy and Falsy in JavaScript</h2>
+</section>
+
+<section class="slide" id="truthy-falsy" data-search="truthy falsy boolean context evaluates true false bigint empty string null undefined nan">
+  <div class="pgnum">Page 45 · Truthy and Falsy</div>
+  <h2>Truthy and Falsy</h2>
+  <p class="lede">A <strong>truthy</strong> is any value that evaluates to <strong>true</strong> in a Boolean context. A <strong>falsy</strong> evaluates to a Boolean <strong>false</strong> value.</p>
+  <div class="cards">
+    <div class="card"><h4>Truthy</h4><p>Any other value (except <code>false</code>) is coerced as <code>true</code>.</p></div>
+    <div class="card"><h4>Falsy values</h4>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px;">
+        <li><code>0</code>, <code>-0</code>, or <code>0n</code> (BigInt)</li>
+        <li><code>""</code> or <code>''</code> (empty string)</li>
+        <li><code>null</code></li>
+        <li><code>undefined</code></li>
+        <li><code>NaN</code> (not a number)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="truthy-conditionals" data-search="conditional statements boolean truthiness falsiness if else array null branch boolean function">
+  <div class="pgnum">Page 46 · Truthy/Falsy in conditionals</div>
+  <h2>Truthy/Falsy in conditionals</h2>
+  <p class="lede">Conditional statements do not require actual Boolean values and operate based on truthiness/falsiness of any data type.</p>
+<pre class="code"><span class="k">var</span> a = <span class="k">null</span>; <span class="c">// falsy value</span>
+<span class="k">if</span> (a) {
+   console.log(<span class="s">'branch 1'</span>);
+} <span class="k">else</span> {
+   console.log(<span class="s">'branch 2'</span>);
+}
+
+<span class="k">var</span> b = [<span class="t">0</span>]; <span class="c">// truthy value</span>
+<span class="k">if</span> (b) {
+   console.log(<span class="s">'branch 3'</span>);
+} <span class="k">else</span> {
+   console.log(<span class="s">'branch 4'</span>);
+}
+<span class="c">// output: branch 2, branch 3</span></pre>
+  <div class="note"><strong>Watch out:</strong> the <code>Boolean</code> function determines a value's truthiness. Surprisingly, <code>Boolean('false')</code> is truthy — non-empty strings are always truthy regardless of content.</div>
+</section>
+
+<section class="slide title-slide" id="mutable-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 47</div>
+  <h2>Mutable Assignment in JavaScript</h2>
+</section>
+
+<section class="slide" id="mutable-table" data-search="mutable assignment var let const function scope block scope reassign mutable">
+  <div class="pgnum">Page 48 · Mutable Assignment</div>
+  <h2>var / let / const</h2>
+  <table class="dttable">
+    <thead><tr><th>Keyword</th><th>Mutable</th><th>Scope</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>var</code></td>
+        <td>Yes</td>
+        <td>function</td>
+        <td>Variable is mutable — can be reassigned as many times as needed. Lives within the <strong>function</strong> scope.</td>
+      </tr>
+      <tr>
+        <td><code>let</code></td>
+        <td>Yes</td>
+        <td>block</td>
+        <td>Variable is mutable — can be reassigned as many times as needed. Lives within the <strong>block</strong> scope.</td>
+      </tr>
+      <tr>
+        <td><code>const</code></td>
+        <td>No</td>
+        <td>block</td>
+        <td>Variable is <strong>not</strong> mutable — can be assigned a value only once. Reassigning throws an error. Lives within the <strong>block</strong> scope.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="mutable-scenario" data-search="mutable assignment scenario type variable assignment to constant variable error">
+  <div class="pgnum">Page 49 · Mutable Assignment — scenario</div>
+  <h2>Scenario</h2>
+  <p>The code snippet on the next slide contains multiple variable assignments. When the code is executed, the last line (type variable reassignment) throws an <em>"Assignment to constant variable"</em> error. The developer needs to determine why this happens for the <em>type</em> variable but not for the others.</p>
+</section>
+
+<section class="slide" id="mutable-example" data-search="primitive value assignments var color silver let topSpeed const type sedan reassignment hatchback uncaught typeerror constant variable">
+  <div class="pgnum">Page 50 · Mutable Assignment — example</div>
+  <h2>Example</h2>
+<pre class="code"><span class="c">// primitive value assignments</span>
+<span class="k">var</span> color = <span class="s">"silver"</span>;
+<span class="k">let</span> topSpeed = <span class="t">300</span>;
+<span class="k">const</span> type = <span class="s">"sedan"</span>;
+
+<span class="c">// reassignment</span>
+color = <span class="s">"black"</span>;
+topSpeed = <span class="t">320</span>;
+type = <span class="s">"hatchback"</span>; <span class="c">// oops!</span>
+<span class="c">// Uncaught TypeError: Assignment to constant variable.</span></pre>
+  <div class="note">The <em>type</em> variable is a constant which is assigned a value during its declaration. Reassigning a value to it is not allowed.</div>
+</section>
+
+<section class="slide" id="mutable-const-obj" data-search="const objects mutable extendable reassign properties methods added">
+  <div class="pgnum">Page 51 · const objects</div>
+  <h2>const objects</h2>
+  <p class="lede">JavaScript objects are <strong>mutable</strong>. An object declared with <code>const</code> has the following characteristics:</p>
+  <div class="cards">
+    <div class="card"><h4>Mutable</h4><p>Properties of a JavaScript constant object are mutable.</p></div>
+    <div class="card"><h4>Extendible</h4><p>Properties or methods can still be added after declaration or initialization.</p></div>
+    <div class="card"><h4>Reassign</h4><p>However, reassignment of the constant variable <strong>throws an error</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="mutable-const-x" data-search="const x object skill talking function hello error identifier already declared">
+  <div class="pgnum">Page 52 · const object example</div>
+  <h2>const object example</h2>
+<pre class="code"><span class="k">const</span> x = {};
+
+<span class="c">// add a new property</span>
+x.skill = <span class="s">'talking'</span>;
+
+<span class="c">// add a new function</span>
+x.talk = <span class="k">function</span>(){
+   console.log(<span class="s">'hello'</span>);
+};
+x.talk(); <span class="c">// prints "hello"</span>
+
+<span class="c">// but...</span>
+x = {};      <span class="c">// error!</span>
+x = <span class="k">true</span>;    <span class="c">// error!</span>
+<span class="c">// Uncaught SyntaxError: Identifier 'x' has already been declared</span></pre>
+</section>
+
+<section class="slide title-slide" id="scope-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 53</div>
+  <h2>Variable Scope in JavaScript</h2>
+</section>
+
+<section class="slide" id="scope-scenario" data-search="function scope block scope scenario var let const i am 16 years old">
+  <div class="pgnum">Page 54 · Function Scope vs Block Scope — scenario</div>
+  <h2>Scenario</h2>
+  <p>The <strong>keyword</strong> (<code>var</code>, <code>let</code>, or <code>const</code>) used to declare a variable impacts the <strong>variable scope</strong>.</p>
+  <p>When the next code snippet is executed, the developer expects to see <em>"I am 16 years old!"</em>. However, after running the code, the output was not what was expected.</p>
+</section>
+
+<section class="slide" id="scope-example" data-search="howoldami function var num 16 for loop hoisted overwritten i am 3 years old">
+  <div class="pgnum">Page 55 · Function Scope vs Block Scope — var example</div>
+  <h2>The <code>var</code> trap</h2>
+<pre class="code"><span class="k">let</span> howOldAmI = <span class="k">function</span>() {
+   <span class="k">var</span> num = <span class="t">16</span>;
+
+   <span class="k">for</span> (<span class="k">var</span> num = <span class="t">0</span>; num &lt; <span class="t">3</span>; num++){
+       <span class="c">// do something cool</span>
+   }
+
+   console.log(<span class="s">'I am '</span> + num + <span class="s">' years old!'</span>);
+};
+
+howOldAmI();
+<span class="c">// I am 3 years old!</span></pre>
+</section>
+
+<section class="slide" id="scope-solution" data-search="solution declaration var keyword hoisted function scope overwritten num for loop">
+  <div class="pgnum">Page 56 · Function Scope vs Block Scope — solution</div>
+  <h2>Solution</h2>
+  <p>The code prints <em>"I am 3 years old!"</em> because of the <strong>declaration of <code>num</code> using <code>var</code></strong> in the <em>for</em> loop. When declared with <code>var</code>, its scope is <strong>hoisted</strong> to the function scope where the former <code>num</code> is declared. Hence the former <code>num</code> is <strong>overwritten</strong> in each loop iteration. Improper use of <code>var</code> causes confusion and accidental overwrites.</p>
+</section>
+
+<section class="slide" id="scope-let" data-search="let keyword for loop block scope inaccessible outside i am 16 years old const block">
+  <div class="pgnum">Page 57 · Function Scope vs Block Scope — let example</div>
+  <h2>Using <code>let</code> instead</h2>
+<pre class="code"><span class="k">let</span> howOldAmI = <span class="k">function</span>() {
+   <span class="k">var</span> num = <span class="t">16</span>;
+
+   <span class="k">for</span> (<span class="k">let</span> num = <span class="t">0</span>; num &lt; <span class="t">3</span>; num++){
+       <span class="c">// do something cool</span>
+   }
+
+   console.log(<span class="s">'I am '</span> + num + <span class="s">' years old!'</span>);
+};
+
+howOldAmI();
+<span class="c">// I am 16 years old!</span></pre>
+  <div class="note"><code>const</code> variables also operate within the <strong>block</strong> scope.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>"Why use <code>let</code> over <code>var</code>?" — Block scoping prevents accidental hoisting and reassignment across blocks. Even if you never reassign, the predictability is worth it.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="obj-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 58</div>
+  <h2>Object Notation in JavaScript</h2>
+</section>
+
+<section class="slide" id="obj-scenario" data-search="object notation literal constructor scenario vehicle variable limitations">
+  <div class="pgnum">Page 59 · Object Notation — scenario</div>
+  <h2>Scenario</h2>
+  <p>Objects can be created using an <strong>object literal</strong> or an <strong>object constructor notation</strong>.</p>
+  <p>A developer has written JavaScript code to create an object called <em>Vehicle</em> and would like to determine any limitations of the object when declaring the variable in this manner.</p>
+</section>
+
+<section class="slide" id="obj-literal" data-search="object literal notation vehicle topspeed state move function status moving stopped this.state">
+  <div class="pgnum">Page 60 · Object literal</div>
+  <h2>Object literal example</h2>
+<pre class="code"><span class="k">let</span> Vehicle = {
+   topSpeed: <span class="t">300</span>,
+   state: <span class="s">''</span>,
+   move: <span class="k">function</span>(status) {
+       <span class="k">if</span> (status === <span class="k">true</span>) {
+           <span class="k">this</span>.state = <span class="s">'moving'</span>;
+       } <span class="k">else</span> {
+           <span class="k">this</span>.state = <span class="s">'stopped'</span>;
+       }
+   }
+}
+
+Vehicle.move(<span class="k">true</span>);
+console.log(Vehicle.state); <span class="c">// prints "moving"</span></pre>
+</section>
+
+<section class="slide" id="obj-solution" data-search="object notation solution two methods create object literal constructor only one instance modern javascript">
+  <div class="pgnum">Page 61 · Object Notation — solution</div>
+  <h2>Solution</h2>
+  <p>JavaScript provides two methods to create an object:</p>
+  <ul>
+    <li>Object Literal Notation</li>
+    <li>Object Constructor Notation</li>
+  </ul>
+  <p>The Vehicle object above is declared using Object Literal Notation. The <strong>limitation</strong> is that there can only be <strong>one instance</strong> of the object. Object Literal Notation is <strong>not</strong> a recommended practice in modern JavaScript — object literals may be used for encapsulating <strong>data</strong>, but defining <strong>functions</strong> within it should be avoided.</p>
+</section>
+
+<section class="slide" id="obj-constructor" data-search="object constructor notation vehicle function prototype move mycar yourcar new instance multiple instances">
+  <div class="pgnum">Page 62 · Object Constructor</div>
+  <h2>Object Constructor Notation</h2>
+<pre class="code"><span class="k">function</span> Vehicle(topSpeed, state) {
+  <span class="k">this</span>.topSpeed = topSpeed;
+  <span class="k">this</span>.state = state;
+}
+
+Vehicle.prototype.move = <span class="k">function</span> (status) {
+  <span class="k">if</span> (status === <span class="k">true</span>) {
+      <span class="k">this</span>.state = <span class="s">"moving"</span>;
+  } <span class="k">else this</span>.state = <span class="s">"stopped"</span>;
+};
+
+myCar = <span class="k">new</span> Vehicle(<span class="t">300</span>);
+myCar.move(<span class="k">true</span>);
+console.log(myCar.state); <span class="c">// prints "moving"</span>
+
+yourCar = <span class="k">new</span> Vehicle(<span class="t">250</span>);
+yourCar.move(<span class="k">false</span>);
+console.log(yourCar.state); <span class="c">// prints "stopped"</span></pre>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Modern JS prefers ES6 <code>class</code> syntax (sugar over prototypes) for multi-instance objects. Be ready to write the same Vehicle as <code>class Vehicle { constructor… move… }</code>.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="trycatch-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 63</div>
+  <h2>Try…Catch Statement in JavaScript</h2>
+</section>
+
+<section class="slide" id="trycatch-blocks" data-search="try catch finally javascript blocks error handle gracefully exception">
+  <div class="pgnum">Page 64 · try / catch / finally</div>
+  <h2>try / catch / finally</h2>
+  <p class="lede">JavaScript supports the <code>try…catch</code> statement to catch and handle errors gracefully.</p>
+  <div class="cards">
+    <div class="card"><h4>Try</h4><p>If an error occurs in the try block, code execution ceases and the <strong>catch</strong> block is executed.</p></div>
+    <div class="card"><h4>Catch</h4><p>Receives an <strong>object</strong> with information about the error. Only available in the scope of the catch block.</p></div>
+    <div class="card"><h4>Finally</h4><p>Executed after the try block <strong>regardless</strong> of whether an exception was thrown.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="trycatch-syntax" data-search="try catch finally syntax forms at least one catch block finally block valid forms">
+  <div class="pgnum">Page 65 · Syntax forms</div>
+  <h2>Valid syntax forms</h2>
+  <p class="lede">A <code>try</code> statement must have <strong>at least</strong> one catch-block or finally-block.</p>
+<pre class="code">try {
+   <span class="c">// try block logic</span>
+} catch (exception_object) {
+   <span class="c">// catch block logic</span>
+} finally {
+   <span class="c">// finally block logic</span>
+}
+
+try {
+   <span class="c">// try block logic</span>
+} catch (exception_object) {
+   <span class="c">// catch block logic</span>
+}
+
+try {
+   <span class="c">// try block logic</span>
+} finally {
+   <span class="c">// finally block logic</span>
+}</pre>
+</section>
+
+<section class="slide" id="trycatch-example" data-search="try catch example updateamount lockrecord writerecord unlockrecord error catch block details">
+  <div class="pgnum">Page 66 · try/catch example</div>
+  <h2>Example</h2>
+  <p class="lede">Code that may cause errors should be placed inside a <em>try</em> block. When an error occurs, the <em>catch</em> block executes instead of terminating the transaction.</p>
+<pre class="code"><span class="c">// in this example, a function is used to update a record.</span>
+<span class="c">// Should an error occur, the catch block executes and prints any details of the error</span>
+<span class="k">function</span> updateAmount(data) {
+
+  try {
+      lockRecord(data.id); <span class="c">// lock record</span>
+      writeRecord(data);   <span class="c">// update record</span>
+  } catch (error) {
+      console.log(<span class="s">'Error occurred when writing to record: '</span> + error);
+  } finally {
+      unlockRecord();      <span class="c">// unlock record whether an error was thrown or not</span>
+  }
+}
+
+updateAmount({ id: <span class="s">'a043i00000ApNUQAA3'</span>, amount: <span class="t">10000</span>, currency: <span class="s">'usd'</span> });</pre>
+  <div class="note">The <strong>error object</strong> in the catch block contains details of the error.</div>
+</section>
+
+<section class="slide" id="learn-more" data-search="learn more lwc aura visualforce javascript utam trailhead">
+  <div class="pgnum">Page 67 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Reference list from the deck. URLs not yet wired — paste the annotation-link JSON for page 67 (using the same DevTools snippet from before, but with <code>['67']</code>) and I'll convert these to live links.</p>
+  <ul>
+    <li>Testing Custom Controllers and Controller Extensions</li>
+    <li>Test Lightning Web Components</li>
+    <li>Testing Components</li>
+    <li>UI Test Automation Model</li>
+    <li>Trailhead — JavaScript Skills for Salesforce Developers <span class="pill">Trailhead</span></li>
+    <li>Trailhead — Modern JavaScript Development <span class="pill">Trailhead</span></li>
+  </ul>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet quick reference interview visualforce lwc jest utam javascript truthy falsy var let const try catch">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>Visualforce controller testing</h3>
+  <ul>
+    <li><code>PageReference p = Page.SomePage;</code> then <code>Test.setCurrentPage(p);</code></li>
+    <li><code>ApexPages.currentPage().getParameters().put('id', a.Id);</code> for URL params.</li>
+    <li>Standard controller + extension: <code>new ApexPages.StandardController(record)</code>, pass into the extension constructor.</li>
+    <li>Use <strong>setter methods</strong> to simulate input, <strong>action methods</strong> to simulate clicks.</li>
+    <li><strong>Never</strong> name your test class <code>Test</code> — collides with <code>System.Test</code>.</li>
+  </ul>
+
+  <h3>LWC + Jest essentials</h3>
+  <ul>
+    <li><code>import { createElement } from 'lwc'; import Cmp from 'c/cmp';</code></li>
+    <li><code>describe</code> = suite, <code>it</code>/<code>test</code> = single test, <code>expect(...).toBe(...)</code> = assertion.</li>
+    <li>Always reset the DOM in <code>afterEach()</code> — jsdom is shared across tests.</li>
+    <li>Access shadow DOM via <code>element.shadowRoot.querySelector(...)</code>.</li>
+    <li>Async UI: return a <code>Promise</code> from your test.</li>
+    <li>CLI: <code>sf force lightning lwc test setup | create | run</code>, plus <code>npm run test:unit</code> and <code>npm run test:unit:watch</code>.</li>
+  </ul>
+
+  <h3>Aura / cross-component tooling</h3>
+  <ul>
+    <li>Aura testing options: Jest, <strong>UTAM</strong>, Jasmine, Mocha, Selenium, WebdriverIO.</li>
+    <li>UTAM = JSON page objects compiled to JS/TS/Java; bring your own runner (WebdriverIO for JS, Selenium for Java).</li>
+    <li>Live debugging: select component in Elements panel → type <code>$0</code> in Console to inspect — works for @wired data too.</li>
+  </ul>
+
+  <h3>JavaScript foot-guns (in priority order)</h3>
+  <ol>
+    <li><strong>Case sensitivity</strong> — <code>status</code> ≠ <code>Status</code>. ReferenceError if you mix.</li>
+    <li><strong>Implicit coercion</strong> — always use <code>===</code> / <code>!==</code>. Memorize: <code>10 + "30" === "1030"</code> (string), <code>10 * "30" === 300</code> (number), <code>[0] == 0 === true</code>.</li>
+    <li><strong>Falsy set</strong> — exactly six: <code>0</code>, <code>-0</code>, <code>0n</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>. Everything else (including <code>'false'</code>, <code>[]</code>, <code>{}</code>) is truthy.</li>
+    <li><strong>var hoists to function scope</strong> — re-declaring <code>var num</code> inside a <code>for</code> overwrites the outer <code>num</code>. Use <code>let</code>.</li>
+    <li><strong>const objects are still mutable</strong> — you can add/change properties; you just can't reassign the binding.</li>
+    <li><strong>Object literal vs constructor</strong> — literal = singleton; constructor (or ES6 <code>class</code>) for multiple instances.</li>
+    <li><strong>try/catch/finally</strong> — must have at least one of catch or finally; <code>finally</code> runs no matter what.</li>
+  </ol>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) {
+      allSections.forEach(s => s.style.display = '');
+      links.forEach(l => l.style.display = '');
+      return;
+    }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

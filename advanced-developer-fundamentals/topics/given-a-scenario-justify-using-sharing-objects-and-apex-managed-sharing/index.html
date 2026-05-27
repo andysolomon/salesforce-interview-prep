@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sharing Objects &amp; Apex Managed Sharing — Salesforce Interview Prep</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Advanced Developer Fundamentals</a>
+    · Topic
+  </div>
+  <h1>Sharing Objects &amp; Apex Managed Sharing</h1>
+  <div class="sub">Given a scenario, justify using sharing objects and Apex managed sharing · Salesforce interview prep</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (34 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#overview">Apex Managed Sharing overview</a></li>
+    </ul>
+    <h3>Share Objects</h3>
+    <ul>
+      <li><a href="#sharing-setting">Sharing setting</a></li>
+      <li><a href="#standard-custom">Standard / custom shares</a></li>
+      <li><a href="#sharing-types">Sharing types</a></li>
+      <li><a href="#sharing-objects-amg">Apex managed reasons</a></li>
+      <li><a href="#share-fields">Share object fields</a></li>
+      <li><a href="#share-records">Share records query</a></li>
+      <li><a href="#sharing-records-note">Implicit shares note</a></li>
+    </ul>
+    <h3>Apex Managed Sharing</h3>
+    <ul>
+      <li><a href="#amg-overview">Overview</a></li>
+      <li><a href="#user-managed">User managed via Apex</a></li>
+      <li><a href="#using-amg-1">Sharing reason &amp; setup</a></li>
+      <li><a href="#using-amg-2">Label/name &amp; RowCause type</a></li>
+      <li><a href="#setup-ui">Setup UI</a></li>
+      <li><a href="#amg-example">Apex code example</a></li>
+      <li><a href="#when-amg">When to use Apex managed sharing</a></li>
+    </ul>
+    <h3>Recalculation</h3>
+    <ul>
+      <li><a href="#recalc-1">Recalculation triggers</a></li>
+      <li><a href="#recalc-2">Recalc class &amp; object association</a></li>
+      <li><a href="#considerations-1">Most permissive rule</a></li>
+      <li><a href="#considerations-2">Owner changes / Modify All Data / multi-reason</a></li>
+    </ul>
+    <h3>Scenarios &amp; Solutions</h3>
+    <ul>
+      <li><a href="#uc-job">Job → hiring manager</a></li>
+      <li><a href="#uc-expense">Expense custom object</a></li>
+      <li><a href="#uc-warehouse">Warehouse — Apex Sharing Reasons</a></li>
+      <li><a href="#uc-lead">Lead → Opportunity</a></li>
+      <li><a href="#uc-promotion">Promotion__c — scenario</a></li>
+      <li><a href="#uc-promotion-sln">Promotion__c — solution</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#learn-more">Learn More</a></li>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover sharing objects apex managed sharing">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Advanced Developer Fundamentals</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario, justify using sharing objects and Apex managed sharing.</p>
+</section>
+
+<section class="slide" id="toc" data-search="table of contents share objects apex managed sharing recalculation scenarios">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#sharing-setting">Share Objects</a></li>
+    <li><a class="toc-link" href="#amg-overview">Apex Managed Sharing</a></li>
+    <li><a class="toc-link" href="#recalc-1">Apex Managed Sharing Recalculation</a></li>
+    <li><a class="toc-link" href="#uc-job">Scenarios and Solutions</a></li>
+  </ol>
+</section>
+
+<section class="slide" id="objectives" data-search="learning objectives apex managed sharing share objects programmatically considerations reasons use cases">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe what <strong>Apex Managed Sharing</strong> is used for in Salesforce.</li>
+    <li>Explain the role of <strong>share objects</strong> in Apex Managed Sharing.</li>
+    <li>Describe how to set up Apex Managed Sharing for sharing records <strong>programmatically</strong>.</li>
+    <li>Describe the considerations associated with Apex Managed Sharing and its <strong>recalculation</strong>.</li>
+    <li>Identify the reasons and use cases associated with the use of Apex Managed Sharing.</li>
+  </ul>
+</section>
+
+<section class="slide" id="intro" data-search="introduction apex managed sharing three capabilities user managed manual record ownership role hierarchy sharing rules sophisticated dynamic">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p><strong>Apex managed sharing</strong> is one of three sharing capabilities in Salesforce.</p>
+  <ul>
+    <li><strong>Managed sharing</strong>: access granted by the system based on <em>record ownership, role hierarchy, and sharing rules</em>.</li>
+    <li><strong>User managed sharing</strong> (a.k.a. <em>manual sharing</em>): the record owner — or any user with Full Access — shares the record with a user or group of users.</li>
+    <li><strong>Apex managed sharing</strong>: use Apex code to build <strong>sophisticated and dynamic sharing settings</strong> that are not otherwise possible. Use when neither Managed nor User-managed sharing is suitable.</li>
+  </ul>
+</section>
+
+<section class="slide" id="overview" data-search="apex managed sharing share objects sharing reasons rowcause recalculation use cases custom objects complex">
+  <div class="pgnum">Page 5 · Apex Managed Sharing overview</div>
+  <h2>Apex Managed Sharing — at a glance</h2>
+  <div class="cards">
+    <div class="card"><h4>Share Objects</h4><p>A share object exists for a Salesforce object if the org-wide default sharing setting of the object is <strong>Private</strong> or <strong>Public Read Only</strong>.</p></div>
+    <div class="card"><h4>Sharing Reasons</h4><p>Apex Sharing Reasons can be defined <strong>for custom objects</strong>; <code>RowCause</code> is used to specify the sharing reason in Apex code.</p></div>
+    <div class="card"><h4>Recalculation</h4><p>Apex Managed Sharing is recalculated <strong>automatically</strong> when the org-wide default sharing setting of a custom object is updated.</p></div>
+    <div class="card"><h4>Use Cases</h4><p>Use when sharing logic is too complex, or depends on field values across multiple objects.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="share-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 6</div>
+  <h2>Share Objects</h2>
+</section>
+
+<section class="slide" id="sharing-setting" data-search="share objects sharing setting organization-wide default public read only private public read write no other sharing policy">
+  <div class="pgnum">Page 7 · Sharing setting</div>
+  <h2>Share objects &amp; the OWD setting</h2>
+  <p class="lede">Share objects are used to create sharing and track records that are being shared in an org.</p>
+  <div class="note">A Share object <strong>only exists</strong> for an object if the Organization-Wide Default is <strong>Public Read Only</strong> or <strong>Private</strong>. If the object access policy is <strong>Public Read/Write</strong>, no other sharing policy is necessary.</div>
+</section>
+
+<section class="slide" id="standard-custom" data-search="share objects standard custom accountshare mycustomobject__share apex sharing reasons recalculation only custom objects">
+  <div class="pgnum">Page 8 · Standard / custom shares</div>
+  <h2>Standard vs custom share objects</h2>
+  <div class="cards">
+    <div class="card"><h4>Standard Shares</h4><p>Append <code>'Share'</code> to the object name. The Share object for <em>Account</em> is <code>AccountShare</code>.</p></div>
+    <div class="card"><h4>Custom Shares</h4><p>Append <code>'__Share'</code> to the object name. The Share object for <em>MyCustomObject</em> is <code>MyCustomObject__Share</code>.</p></div>
+    <div class="card"><h4>Custom Objects</h4><p>Although Share objects exist for both standard and custom objects, <strong>Apex sharing reasons</strong> and <strong>Apex managed sharing recalculation</strong> are <strong>only available for custom objects</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="sharing-types" data-search="sharing objects user managed sharing manual all custom objects standard account contact opportunity case sharing object existence private public read only">
+  <div class="pgnum">Page 9 · Sharing types &amp; object existence</div>
+  <h2>Sharing types &amp; object existence</h2>
+  <div class="cards">
+    <div class="card"><h4>User Managed Sharing</h4><p>Manually sharing records using Apex is supported by <strong>all custom objects</strong>, but only by a few standard objects: <strong>Account, Contact, Opportunity, Case</strong>.</p></div>
+    <div class="card"><h4>Sharing Object Existence</h4><p>A Sharing object only exists for an object if the Organization-Wide Default is <strong>Public Read Only</strong> or <strong>Private</strong>. If the object access policy is Public Read/Write, no other sharing policy is necessary.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="sharing-objects-amg" data-search="sharing objects apex managed sharing reason custom objects rowcause dynamic recalculation custom-only">
+  <div class="pgnum">Page 10 · Apex Managed &amp; recalculation reasons</div>
+  <h2>Apex Managed Sharing's custom-object territory</h2>
+  <div class="cards">
+    <div class="card"><h4>Apex Managed Sharing</h4><p>Uses <strong>Apex sharing reason</strong>, which is only supported in <strong>custom objects</strong>, to build sophisticated and dynamic sharing settings that are otherwise not possible.</p></div>
+    <div class="card"><h4>Reasons and Recalculation</h4><p>Apex sharing reasons and Apex managed sharing recalculation are <strong>only available for custom objects</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="share-fields" data-search="share object definition parentid userorgroupid accesslevel read edit rowcause reason granted">
+  <div class="pgnum">Page 11 · Share object fields</div>
+  <h2>Share object fields (custom object)</h2>
+  <p class="lede">When writing Apex code for sharing a record, these <strong>Share object fields</strong> for a custom object must be defined:</p>
+  <div class="cards">
+    <div class="card"><h4>ParentId</h4><p>The ID of the <strong>record</strong> being shared.</p></div>
+    <div class="card"><h4>UserOrGroupId</h4><p>The ID of the user or public group being granted access.</p></div>
+    <div class="card"><h4>AccessLevel</h4><p>Either <code>'Read'</code> or <code>'Edit'</code>. Defines the access level.</p></div>
+    <div class="card"><h4>RowCause</h4><p>Specifies the <strong>reason why</strong> the user or public group is being granted access.</p></div>
+  </div>
+  <div class="note"><code>AccessLevel</code> can also be <code>'All'</code> — but <code>All</code> is an <strong>internal value and cannot be granted</strong> in Apex. Only <code>Read</code> and <code>Edit</code> are valid values to set.</div>
+</section>
+
+<section class="slide" id="share-records" data-search="share records example accountshare query accountid rowcause accountaccesslevel contactaccesslevel caseaccesslevel opportunityaccesslevel userorgroupid owner manual">
+  <div class="pgnum">Page 12 · Share records query</div>
+  <h2>Share records query example</h2>
+<pre class="code">SELECT AccountId, RowCause, AccountAccessLevel, ContactAccessLevel,
+       CaseAccessLevel, OpportunityAccessLevel, UserOrGroupId
+FROM AccountShare</pre>
+  <table class="dttable">
+    <thead><tr><th>AccountId</th><th>RowCause</th><th>AccountAccessLevel</th><th>ContactAccessLevel</th><th>CaseAccessLevel</th><th>OpportunityAccessLevel</th><th>UserOrGroupId</th></tr></thead>
+    <tbody>
+      <tr><td>0012v00002RVfY3AAL</td><td>Owner</td><td>All</td><td>Edit</td><td>Edit</td><td>Edit</td><td>0052v00000Z2QwQAAV</td></tr>
+      <tr><td>0012v00002RUViPAAX</td><td>Manual</td><td>Read</td><td>Read</td><td>Read</td><td>Read</td><td>00G2v000003gYOoEAM</td></tr>
+      <tr><td>0012v00002RUViPAAX</td><td>Manual</td><td>Edit</td><td>None</td><td>None</td><td>None</td><td>00G2v000004W2Q6EAK</td></tr>
+    </tbody>
+  </table>
+  <div class="note">A single record can have multiple share rows — one per <code>RowCause</code> per grantee. Owner rows always exist; <code>Manual</code> rows correspond to user-managed sharing.</div>
+</section>
+
+<section class="slide" id="sharing-records-note" data-search="sharing records implicit share cases contacts opportunities accounts faster ownership calculations">
+  <div class="pgnum">Page 13 · Implicit shares note</div>
+  <h2>Implicit shares note</h2>
+  <div class="note">Salesforce allows for <strong>skipping Implicit Share records</strong> for Cases, Contacts, and Opportunities associated with Accounts, resulting in <strong>faster ownership and sharing rule calculations</strong> for account-related data.</div>
+</section>
+
+<section class="slide title-slide" id="amg-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 14</div>
+  <h2>Apex Managed Sharing</h2>
+</section>
+
+<section class="slide" id="amg-overview" data-search="apex managed sharing overview sharing reason custom object sharing setting private public read only share objects">
+  <div class="pgnum">Page 15 · Overview</div>
+  <h2>Apex Managed Sharing overview</h2>
+  <div class="cards">
+    <div class="card"><h4>Sharing Reason</h4><p>Apex Managed Sharing is programmatic sharing that allows defining a <strong>custom sharing reason</strong> for the programmatic share.</p></div>
+    <div class="card"><h4>Custom Object</h4><p>Custom sharing reasons can <strong>only be defined for shares written to custom objects</strong>.</p></div>
+    <div class="card"><h4>Sharing Setting</h4><p>Objects with a default sharing setting of <strong>Private</strong> or <strong>Public Read Only</strong> have a related <code>__Share</code> object.</p></div>
+    <div class="card"><h4>Share Objects</h4><p>A share object includes records supporting <strong>managed</strong>, <strong>user managed</strong>, and <strong>Apex managed</strong> sharing.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="user-managed" data-search="user managed sharing apex manual sharing custom objects account contact opportunity case owner changes automatically deleted">
+  <div class="pgnum">Page 16 · User managed sharing via Apex</div>
+  <h2>User managed sharing via Apex</h2>
+  <p class="lede">User managed sharing (manual sharing) can also be performed <strong>programmatically</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Manual Sharing</h4><p>Apex can perform manual sharing on <strong>custom objects</strong> and a few standard objects: <strong>Account, Contact, Opportunity, Case</strong>.</p></div>
+    <div class="card"><h4>Owner Changes</h4><p>The <code>RowCause</code> defined is <code>"Manual"</code>, and shares using this type of sharing are <strong>automatically deleted when the record owner is changed</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="using-amg-1" data-search="using apex managed sharing apex sharing reason custom object salesforce classic apex sharing reasons related list">
+  <div class="pgnum">Page 17 · Sharing reason &amp; setup</div>
+  <h2>Setting up an Apex Sharing Reason</h2>
+  <div class="cards">
+    <div class="card"><h4>Apex Sharing Reason</h4><p>To use Apex managed sharing, a sharing reason must first be defined for the custom object. Apex code can then add or remove entries of the Share object to grant users access when specific conditions are met.</p></div>
+    <div class="card"><h4>Object Definition</h4><p>Apex sharing reasons can be created by navigating to the <strong>'Apex Sharing Reasons'</strong> related list of the custom object in the <strong>Salesforce Classic</strong> interface.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Apex Sharing Reasons can only be created in <em>Salesforce Classic</em>. This is a real-world gotcha — administrators expecting to do it in Lightning have to switch UI.</p>
+  </div>
+</section>
+
+<section class="slide" id="using-amg-2" data-search="apex sharing reason label name api rowcause type custom manual user managed declarative programmatic">
+  <div class="pgnum">Page 18 · Label/name &amp; RowCause types</div>
+  <h2>Label/name &amp; RowCause types</h2>
+  <div class="cards">
+    <div class="card"><h4>Label and Name</h4><p>Each Apex sharing reason has a <strong>label</strong> and a <strong>name</strong>. Label is displayed in the UI while viewing sharing for a record; the name is used when referencing the reason in the <strong>API</strong> and <strong>Apex</strong>.</p></div>
+    <div class="card"><h4>RowCause Type</h4><p>Either a <strong>custom</strong> or <code>'Manual'</code> RowCause can be used in Apex code to create records in share tables. In Apex managed sharing, a <strong>sharing reason</strong> must be used.</p></div>
+    <div class="card"><h4>Manual RowCause</h4><p>A <code>'Manual'</code> RowCause is used to treat the share record as if it were created by manual sharing. This value is used in declarative or programmatic <strong>user managed sharing</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="setup-ui" data-search="apex managed sharing setup detail page record types apex sharing reasons recalculation salesforce classic object limits">
+  <div class="pgnum">Page 19 · Setup UI</div>
+  <h2>Setup UI for Apex Sharing Reasons</h2>
+  <p>Apex Sharing Reasons and Apex Sharing Recalculation are managed in the detail page of a custom object in the <strong>Salesforce Classic</strong> interface. Example reason: <em>"Share with Specialist"</em>.</p>
+</section>
+
+<section class="slide" id="amg-example" data-search="apex managed sharing example manualsharereadwrite mycustomobject__share parentid userorgroupid accesslevel edit rowcause schema share_with_specialist__c">
+  <div class="pgnum">Page 20 · Apex code example</div>
+  <h2>Apex code example</h2>
+<pre class="code"><span class="k">public static void</span> manualShareReadWrite(Id recordToShareId, Id shareWithId){
+
+  <span class="c">// Create new sharing object</span>
+  MyCustomObject__Share shareObject = <span class="k">new</span> MyCustomObject__Share();
+
+  <span class="c">//ID of the object we want to share</span>
+  shareObject.ParentId = recordToShareId;
+
+  <span class="c">//ID of the person we want to share with</span>
+  shareObject.UserOrGroupId = shareWithId;
+
+  <span class="c">// Access level - valid values are Read, Edit, or ALL.</span>
+  <span class="c">// Note that unlike Read and Edit, ALL is an internal value and cannot be granted.</span>
+  shareObject.AccessLevel = <span class="s">'Edit'</span>;
+
+  <span class="c">// Fill in this field with an existing, manually created sharing reason</span>
+  <span class="c">// defined in the 'Apex Sharing Reasons' section of the custom object definition</span>
+  shareObject.RowCause = Schema.MyCustomObject__Share.RowCause.Share_with_Specialist__c;
+
+  <span class="c">// Activate the defined access to the record</span>
+  insert shareObject;
+}</pre>
+  <div class="note">An Apex Sharing Reason is used for tracking or determining <strong>why</strong> a record was shared with a user or group of users.</div>
+</section>
+
+<section class="slide" id="when-amg" data-search="when to use apex managed sharing capability sufficient declaratively failed combination multiple objects complexity criteria-based not supported">
+  <div class="pgnum">Page 21 · When to use Apex managed sharing</div>
+  <h2>When to use Apex managed sharing</h2>
+  <p class="lede">The following conditions require the use of Apex managed sharing:</p>
+  <div class="cards">
+    <div class="card"><h4>Capability</h4><p>Standard sharing functionality is <strong>not sufficient</strong>, and all attempts to share declaratively have <strong>failed</strong>.</p></div>
+    <div class="card"><h4>Combination</h4><p>Sharing rules depend on a <strong>combination of values across multiple objects</strong>.</p></div>
+    <div class="card"><h4>Complexity</h4><p>The sharing logic is <strong>too complex</strong> to be established declaratively.</p></div>
+    <div class="card"><h4>Support</h4><p>Sharing access is <strong>criteria-based</strong>, but the evaluated field is <strong>not supported</strong> by declarative sharing.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Apex Managed Sharing should always be the <em>last</em> option. Interviewers want to hear: "first try OWD + role hierarchy → then sharing rules → then criteria-based sharing → only then Apex." Reaching for code first signals weak Salesforce intuition.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="recalc-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 22</div>
+  <h2>Apex Managed Sharing Recalculation</h2>
+</section>
+
+<section class="slide" id="recalc-1" data-search="apex managed sharing recalculation automatically recalculated org-wide sharing default access level updated custom recalculation classes manual invocation setup area">
+  <div class="pgnum">Page 23 · Recalculation triggers</div>
+  <h2>Recalculation triggers</h2>
+  <p class="lede">Apex managed sharing rules are <strong>automatically recalculated</strong> whenever a custom object's org-wide sharing default access level is updated.</p>
+  <div class="cards">
+    <div class="card"><h4>Classes Execution</h4><p>During automatic recalculation, <strong>custom recalculation classes</strong> are executed.</p></div>
+    <div class="card"><h4>Manual Invocation</h4><p>Sharing rule recalculation can be <strong>manually invoked</strong> from the custom object's setup area.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="recalc-2" data-search="apex managed sharing recalculation class database.batchable interface object association apex sharing recalculations section">
+  <div class="pgnum">Page 24 · Recalc class &amp; object association</div>
+  <h2>Recalculation class &amp; object association</h2>
+  <div class="cards">
+    <div class="card"><h4>Recalculation Class</h4><p>To enable manual recalculation, an Apex class that implements the <code>Database.Batchable</code> interface must be written.</p></div>
+    <div class="card"><h4>Object Association</h4><p>To associate an Apex managed sharing recalculation class with a custom object, the recalculation class is selected in the <strong>Apex Sharing Recalculations</strong> section of the object definition.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="considerations-1" data-search="apex managed sharing considerations most permissive rule managed manual read edit read/write multiple entries">
+  <div class="pgnum">Page 25 · Most permissive rule</div>
+  <h2>Most permissive rule wins</h2>
+  <div class="note"><strong>When multiple entries of a Share object apply to a certain user, the most permissive rule is applied.</strong> For example, if a user has been granted Read access through managed or manual sharing, and an Apex managed sharing rule grants Read/Write access, then Read/Write access is applied.</div>
+</section>
+
+<section class="slide" id="considerations-2" data-search="apex managed sharing considerations owner changes maintained modify all data add edit delete sharing reasons multiple times">
+  <div class="pgnum">Page 26 · Considerations</div>
+  <h2>Other Apex Managed Sharing considerations</h2>
+  <div class="cards">
+    <div class="card"><h4>Owner Changes</h4><p>Apex managed sharing is <strong>maintained</strong> across record owner changes.</p></div>
+    <div class="card"><h4>Modify All Data</h4><p>Only users with the <strong>'Modify All Data'</strong> permission can add, edit, or delete Apex managed sharing on a record.</p></div>
+    <div class="card"><h4>Sharing Reasons</h4><p>A record can be <strong>shared multiple times</strong> with a user or group using <strong>different</strong> Apex sharing reasons.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Compare/contrast: <em>Manual</em> RowCause shares disappear when the record owner changes; <em>Apex managed</em> sharing persists. This is a primary reason to choose Apex managed over "manual via Apex".</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="scenarios-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 27</div>
+  <h2>Scenarios and Solutions</h2>
+</section>
+
+<section class="slide" id="uc-job" data-search="use case job recruiter hiring manager lookup field after insert trigger record-triggered flow apex sharing reasons related list">
+  <div class="pgnum">Page 28 · Job → hiring manager</div>
+  <h2>Job record → hiring manager</h2>
+  <div class="scenario"><h4>Scenario</h4><p>Once a Job record is created by a Recruiter, it needs to be shared automatically with a hiring manager based on the value in a lookup field on the Job record.</p></div>
+  <div class="sln"><h4>Solution</h4><p>An <strong>'after insert' trigger</strong> or a <strong>record-triggered flow</strong> can be created to share a newly created Job record with its associated hiring manager automatically. A Share record for the Job record needs to be created with <code>ParentId</code>, <code>UserOrGroupId</code>, <code>AccessLevel</code>, and <code>RowCause</code>. The RowCause can be specified by navigating to the <strong>'Apex Sharing Reasons'</strong> related list of the Job custom object.</p></div>
+</section>
+
+<section class="slide" id="uc-expense" data-search="use case expense custom object contact records share apex managed sharing custom values fields complex">
+  <div class="pgnum">Page 29 · Expense custom object</div>
+  <h2>Expense — sharing by custom field</h2>
+  <div class="scenario"><h4>Scenario</h4><p>Records of a custom object called <em>Expense</em> in an org need to be shared to users based on values of certain custom fields on the Contact records which they own.</p></div>
+  <div class="sln"><h4>Solution</h4><p>Apex Managed Sharing allows using Apex to share custom object records programmatically. If the sharing logic is too complex and/or involves other objects, Apex code can be defined to create and insert share records for the custom object records. In this scenario, the share object for Expense would be <code>Expense__Share</code>.</p></div>
+</section>
+
+<section class="slide" id="uc-warehouse" data-search="use case warehouse custom object different criteria reason visible user interface schema customobjectname share rowcause sharingreason__c">
+  <div class="pgnum">Page 30 · Warehouse — Apex Sharing Reasons</div>
+  <h2>Warehouse — reasons visible to users</h2>
+  <div class="scenario"><h4>Scenario</h4><p>An organization needs to grant access to users to the <em>Warehouse</em> custom object based on different criteria. The reason for granting access needs to be visible in the user interface.</p></div>
+  <div class="sln"><h4>Solution</h4><p>Apex Sharing Reasons can be defined for a custom object from the 'Apex Sharing Reasons' related list. It can be used while creating Apex code to provide access to custom object records programmatically. A reason can be specified while assigning the value of the <code>RowCause</code> of the share record. The reason can be accessed using:</p>
+<pre class="code">Schema.CustomObjectName__Share.RowCause.SharingReason__c</pre>
+  </div>
+</section>
+
+<section class="slide" id="uc-lead" data-search="use case lead opportunity owner programmatically rowcause manual custom sharing reasons standard object">
+  <div class="pgnum">Page 31 · Lead → Opportunity</div>
+  <h2>Lead → Opportunity (standard object)</h2>
+  <div class="scenario"><h4>Scenario</h4><p>When a lead is converted into an opportunity, the opportunity needs to be shared with the lead owner, if the record meets certain criteria based on computed values from certain fields.</p></div>
+  <div class="sln"><h4>Solution</h4><p>The Opportunity records created from leads can be shared programmatically with the lead owner using Apex code. However, the <code>RowCause</code> would need to be <code>'Manual'</code>, since <strong>custom sharing reasons are only supported by custom objects</strong>. This scenario illustrates a programmatic implementation of <strong>manual sharing</strong> for a record.</p></div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Trap question: "Use Apex Managed Sharing on Opportunity." Answer: you can't — Opportunity is standard. You can do programmatic manual sharing with <code>RowCause='Manual'</code>, but it's not "Apex Managed Sharing" in the strict sense.</p>
+  </div>
+</section>
+
+<section class="slide" id="uc-promotion" data-search="use case promotion__c custom object private apex trigger share marketing manager criteria">
+  <div class="pgnum">Page 32 · Promotion__c — scenario</div>
+  <h2>Promotion__c — scenario</h2>
+  <div class="scenario"><h4>Scenario</h4><p>The organization-wide default sharing setting of a custom object named <code>Promotion__c</code> has been set to <strong>'Private'</strong>. A developer has created an Apex trigger that shares a record of the custom object programmatically with a marketing manager if the record meets a certain set of criteria.</p></div>
+</section>
+
+<section class="slide" id="uc-promotion-sln" data-search="use case promotion__c solution promotion__share share object marketing manager apex sharing reason private">
+  <div class="pgnum">Page 33 · Promotion__c — solution</div>
+  <h2>Promotion__c — solution</h2>
+  <div class="sln"><h4>Solution</h4>
+    <p>When the org-wide default sharing setting of a custom object such as <code>Promotion__c</code> is set to Private, a <strong>'share object'</strong> exists for the object.</p>
+    <p>In this scenario, the org will have a share object named <code>Promotion__Share</code>, which can be utilized to share a record of the corresponding custom object using <strong>Apex Managed Sharing</strong>.</p>
+    <p>Sharing a record of the object with the marketing manager using an Apex trigger will result in the existence of a share record in the <code>Promotion__Share</code> table. The <code>RowCause</code> of the share record will be defined with an <strong>Apex sharing reason</strong> when creating the share record.</p>
+  </div>
+</section>
+
+<section class="slide" id="learn-more" data-search="learn more sharing record using apex just-in-time understanding sharing recalculating">
+  <div class="pgnum">Page 34 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Reference list from the deck. URLs not yet wired — paste the annotation-link JSON for page 34 (using the DevTools snippet from before, with <code>['34']</code>) and I'll convert these to live links.</p>
+  <ul>
+    <li>Sharing a Record Using Apex</li>
+    <li>Just-In-Time Sharing Slide Deck from DeveloperForce</li>
+    <li>Understanding Sharing</li>
+    <li>Recalculating Apex Managed Sharing</li>
+  </ul>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet quick reference interview share object rowcause parentid userorgroupid accesslevel apex managed sharing recalculation manual">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>The four fields of a share record</h3>
+  <ul>
+    <li><code>ParentId</code> — record being shared.</li>
+    <li><code>UserOrGroupId</code> — grantee (user or public group).</li>
+    <li><code>AccessLevel</code> — <code>'Read'</code> or <code>'Edit'</code>. <code>'All'</code> exists but is internal-only.</li>
+    <li><code>RowCause</code> — <code>'Owner'</code> | <code>'Manual'</code> | a custom <em>Apex Sharing Reason</em> (custom objects only).</li>
+  </ul>
+
+  <h3>When a Share object exists</h3>
+  <p>Only when the object's <strong>OWD = Private or Public Read-Only</strong>. Public Read/Write = no share object, no sharing API.</p>
+
+  <h3>Naming</h3>
+  <ul>
+    <li>Standard: <code>Account</code> → <code>AccountShare</code>, <code>Opportunity</code> → <code>OpportunityShare</code>.</li>
+    <li>Custom: <code>MyObj__c</code> → <code>MyObj__Share</code>.</li>
+  </ul>
+
+  <h3>The three "sharing via Apex" flavors</h3>
+  <table class="dttable">
+    <thead><tr><th>Flavor</th><th>RowCause</th><th>Supported on</th><th>Owner-change behavior</th><th>Recalc on OWD change</th></tr></thead>
+    <tbody>
+      <tr><td>Programmatic <em>managed</em></td><td><em>system-set</em></td><td>n/a (system)</td><td>maintained</td><td>auto</td></tr>
+      <tr><td>Manual via Apex</td><td><code>'Manual'</code></td><td>All custom + Account/Contact/Opportunity/Case</td><td><strong>deleted</strong></td><td>n/a</td></tr>
+      <tr><td>Apex Managed Sharing</td><td>Custom reason (<code>Foo__c</code>)</td><td><strong>Custom objects only</strong></td><td><strong>maintained</strong></td><td>auto + custom recalc class</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The decision flow</h3>
+  <ol>
+    <li>OWD + role hierarchy enough? → done.</li>
+    <li>Add owner-based or criteria-based <strong>sharing rules</strong>.</li>
+    <li>Need user-initiated sharing? → <strong>manual sharing</strong> in UI.</li>
+    <li>Still not enough (complex logic, multi-object criteria, unsupported fields)? → <strong>Apex Managed Sharing</strong>.</li>
+  </ol>
+
+  <h3>When picking RowCause</h3>
+  <ul>
+    <li>Custom object + you want the share to survive owner changes → <strong>custom Apex Sharing Reason</strong>.</li>
+    <li>Standard object (Account/Contact/Opp/Case) → forced to <code>'Manual'</code> (and shares die on owner change).</li>
+    <li>Want the share to disappear when the record changes hands → <code>'Manual'</code>.</li>
+  </ul>
+
+  <h3>Gotchas to memorize</h3>
+  <ul>
+    <li><strong>Most permissive wins</strong> across multiple share rows.</li>
+    <li><strong>Apex Sharing Reasons can only be defined in Salesforce Classic</strong> — not Lightning Setup.</li>
+    <li>Only users with <strong>Modify All Data</strong> can add/edit/delete Apex Managed Sharing rows on a record.</li>
+    <li>Recalculation = an Apex class implementing <code>Database.Batchable</code>, attached via the object's <em>Apex Sharing Recalculations</em> section.</li>
+    <li>Implicit shares for Cases/Contacts/Opportunities under Accounts can be <strong>skipped</strong> for performance.</li>
+  </ul>
+
+  <h3>Reading shares with SOQL</h3>
+<pre class="code">SELECT ParentId, UserOrGroupId, AccessLevel, RowCause
+FROM MyObj__Share
+WHERE ParentId = :recordId</pre>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

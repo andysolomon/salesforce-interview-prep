@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Localization &amp; Multi-Currency — Salesforce Interview Prep</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;gap:0;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:13.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:8px 12px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:0.6px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Advanced Developer Fundamentals</a>
+    · Topic
+  </div>
+  <h1>Localization &amp; Multi-Currency</h1>
+  <div class="sub">Demonstrate knowledge of localization and multi-currency features and capabilities and how they affect coding · Salesforce interview prep</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (31 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#tools">Tools for Localization</a></li>
+    </ul>
+    <h3>General Guidelines</h3>
+    <ul>
+      <li><a href="#guidelines-1">Language / locale / currency</a></li>
+      <li><a href="#guidelines-2">Dynamic SOQL/Apex &amp; strings</a></li>
+      <li><a href="#userinfo">UserInfo methods</a></li>
+      <li><a href="#userinfo-example">UserInfo example</a></li>
+    </ul>
+    <h3>Multi-language</h3>
+    <ul>
+      <li><a href="#lang-levels">Support levels</a></li>
+      <li><a href="#lang-text-tools">Text length &amp; Translation Workbench</a></li>
+      <li><a href="#workbench-add">Adding languages</a></li>
+      <li><a href="#workbench-translate">Translate via Workbench</a></li>
+      <li><a href="#rename-labels">Rename Tabs and Labels</a></li>
+      <li><a href="#lang-recommendations">Recommendations for localization-ready apps</a></li>
+      <li><a href="#custom-labels">Custom labels</a></li>
+      <li><a href="#custom-label-code">Custom label in Apex</a></li>
+      <li><a href="#label-dynamic">Accessing label dynamically</a></li>
+      <li><a href="#lang-direction">Directionality &amp; formatting</a></li>
+    </ul>
+    <h3>Multi-currency</h3>
+    <ul>
+      <li><a href="#currency-overview">Multi-currency overview</a></li>
+      <li><a href="#currencyisocode">CurrencyIsoCode field</a></li>
+      <li><a href="#currencytype">CurrencyType object</a></li>
+      <li><a href="#dated-conversion">DatedConversionRate object</a></li>
+      <li><a href="#format-fn">FORMAT function</a></li>
+      <li><a href="#convert-format">convertCurrency + FORMAT</a></li>
+      <li><a href="#handle-vf">Visualforce outputField</a></li>
+      <li><a href="#i18n-lwc">Localization in LWC (@salesforce/i18n)</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#learn-more">Learn More</a></li>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover advanced developer fundamentals localization multi-currency">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Advanced Developer Fundamentals</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Demonstrate knowledge of localization and multi-currency features and capabilities and how they affect coding.</p>
+</section>
+
+<section class="slide" id="toc" data-search="table of contents general guidelines multi-language multi-currency">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#guidelines-1">General Guidelines</a></li>
+    <li><a class="toc-link" href="#lang-levels">Multi-language</a></li>
+    <li><a class="toc-link" href="#currency-overview">Multi-currency</a></li>
+  </ol>
+</section>
+
+<section class="slide" id="objectives" data-search="learning objectives localization tools multi-language multi-locale multi-currency apex low-code">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Explain the role and importance of localization tools in orgs that work with multiple languages, locales, or currencies.</li>
+    <li>Identify best practices when working with a multi-language, multi-locale, or multi-currency Salesforce org.</li>
+    <li>Identify common use cases for localization tools in working with Apex or low-code customizations.</li>
+    <li>Describe how to retrieve local language, locale, and currency <strong>programmatically</strong>.</li>
+  </ul>
+</section>
+
+<section class="slide" id="intro" data-search="introduction translations declarative user interface specified users soql visualforce apex functions special label notations">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Salesforce provides tools for creating apps that can accommodate <strong>multiple languages, currencies, and locales</strong>. Object and field label <strong>translations</strong> can be provided declaratively through the user interface by specified users. To ensure that information displays correctly to all users regardless of language, locale, or preferred currency, developers should use <strong>functions and special label notations</strong> provided in <strong>SOQL, Visualforce, and Apex</strong>.</p>
+</section>
+
+<section class="slide" id="tools" data-search="tools localization multi-currency currencytype datedconversionrate currencyisocode convertcurrency format multi-language translation workbench rename tabs labels objecttype system.label tolabel multi-locale apex:outputfield">
+  <div class="pgnum">Page 5 · Tools for Localization</div>
+  <h2>Tools for Localization</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Multi-Currency Tools</h4>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px;">
+        <li><code>CurrencyType</code> object: currencies used by org.</li>
+        <li><code>DatedConversionRate</code> object: dated exchange rates.</li>
+        <li><code>CurrencyIsoCode</code> field: defines the currency on a record.</li>
+        <li><code>convertCurrency()</code>: converts a record's currency to the user's currency value in SOQL/SOSL.</li>
+        <li><code>FORMAT()</code>: displays a currency value both in the original record source and in the current user's currency in SOQL/SOSL.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Multi-Language Tools</h4>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px;">
+        <li><strong>Translation Workbench</strong> &amp; <strong>Rename Tabs &amp; Labels</strong>: enter translations for objects and fields.</li>
+        <li><code>{!$ObjectType.[object].fields.name.label}</code>: displays a translated label in Visualforce.</li>
+        <li><code>System.Label</code>: accesses translated labels in Apex.</li>
+        <li><code>toLabel()</code>: translates a label in SOQL/SOSL.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Multi-Locale Tools</h4>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px;">
+        <li><code>FORMAT()</code>: formats number/date/time/currency fields based on user's locale in SOQL/SOSL.</li>
+        <li><code>&lt;apex:outputField&gt;</code>: formats data according to the user's locale.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="guidelines-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 6</div>
+  <h2>General Guidelines</h2>
+</section>
+
+<section class="slide" id="guidelines-1" data-search="general guidelines language locale currency labels translations formatting dates times names period comma exchange rates">
+  <div class="pgnum">Page 7 · Language / locale / currency</div>
+  <h2>Language / locale / currency</h2>
+  <p class="lede">Deploying Salesforce applications to international communities requires adapting to variations in <strong>language</strong>, <strong>locale</strong>, and <strong>currency</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Language</h4><p>Controls labels and translations.</p></div>
+    <div class="card"><h4>Locale</h4><p>Controls formatting of information such as <strong>dates</strong>, <strong>times</strong>, and <strong>names</strong>, as well as the use of <strong>period vs. comma</strong> for thousands and decimal separators.</p></div>
+    <div class="card"><h4>Currency</h4><p>Controls currency display such as the currency symbol and <strong>conversion based on defined exchange rates</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="guidelines-2" data-search="dynamic soql apex language-dependent locale-dependent currency-dependent string lengths literal avoid translation break">
+  <div class="pgnum">Page 8 · Dynamic SOQL/Apex &amp; strings</div>
+  <h2>Dynamic SOQL/Apex &amp; strings</h2>
+  <div class="cards">
+    <div class="card"><h4>Dynamic SOQL/Apex</h4><p>Dynamic SOQL and Apex can be used for code that is <strong>language-dependent</strong>, <strong>locale-dependent</strong>, or <strong>currency-dependent</strong>.</p></div>
+    <div class="card"><h4>Strings and Lengths</h4><p>Building logic based on <strong>literal string values</strong> or <strong>specific string lengths</strong> in Apex code or formulas <strong>should be avoided</strong> — the logic may break (for example, after a translation changes the current language).</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Classic gotcha: a formula that compares to the literal <code>"Closed Won"</code> string breaks the moment the org is translated. Compare to picklist API values or status flags, not display labels.</p>
+  </div>
+</section>
+
+<section class="slide" id="userinfo" data-search="system.userinfo getdefaultcurrency getlocale getlanguage ismulticurrencyorganization methods">
+  <div class="pgnum">Page 9 · UserInfo methods</div>
+  <h2>System.UserInfo methods for localization</h2>
+  <ul>
+    <li><code>UserInfo.getDefaultCurrency()</code></li>
+    <li><code>UserInfo.getLocale()</code></li>
+    <li><code>UserInfo.getLanguage()</code></li>
+    <li><code>UserInfo.isMultiCurrencyOrganization()</code></li>
+  </ul>
+</section>
+
+<section class="slide" id="userinfo-example" data-search="userinfo example getname getlanguage getlocale getdefaultcurrency martin gessner en_us usd">
+  <div class="pgnum">Page 10 · UserInfo example</div>
+  <h2>UserInfo example</h2>
+<pre class="code">System.debug(UserInfo.getName());
+System.debug(UserInfo.getLanguage());
+System.debug(UserInfo.getLocale());
+System.debug(UserInfo.getDefaultCurrency());</pre>
+  <p>Sample debug output:</p>
+<pre class="code">[1]|DEBUG|Martin Gessner
+[2]|DEBUG|en_US
+[3]|DEBUG|en_US
+[4]|DEBUG|USD</pre>
+</section>
+
+<section class="slide title-slide" id="lang-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 11</div>
+  <h2>Multi-language</h2>
+</section>
+
+<section class="slide" id="lang-levels" data-search="multi-language techniques language support levels fully supported end-user platform-only labels custom apps right-to-left">
+  <div class="pgnum">Page 12 · Language support levels</div>
+  <h2>Language support levels</h2>
+  <p class="lede">Salesforce has <strong>three levels</strong> of language support: fully supported, end-user, and platform-only.</p>
+  <div class="cards">
+    <div class="card"><h4>Fully Supported Languages</h4><p>All Salesforce features and UI texts are <strong>automatically translated</strong> into the org's default language.</p></div>
+    <div class="card"><h4>End-User Languages</h4><p>Labels for all standard objects and pages — <strong>except</strong> admin pages, Setup, and Help — can be translated. Right-to-left languages are supported but have some limitations.</p></div>
+    <div class="card"><h4>Platform-Only Languages</h4><p>Custom apps developed in Salesforce can be localized using platform-only languages — translating custom labels/objects/fields and <strong>most</strong> standard labels/objects/fields.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="lang-text-tools" data-search="text field lengths sufficient longer translations russian three-word fifteen-word translation workbench rename tabs labels managed packages">
+  <div class="pgnum">Page 13 · Text length &amp; Translation Workbench</div>
+  <h2>Text length &amp; tooling</h2>
+  <div class="cards">
+    <div class="card"><h4>Text Field Lengths</h4><p>Text field lengths should be sufficient to accommodate <strong>longer translations</strong>. A three-word English phrase may be a fifteen-word Russian phrase.</p></div>
+    <div class="card"><h4>Translation Tools</h4>
+      <p>Use the <strong>Translation Workbench</strong> and <strong>Rename Tabs and Labels</strong> screens to:</p>
+      <ul style="margin:6px 0 0;padding-left:18px;font-size:13.5px;">
+        <li>Translate customizations.</li>
+        <li>Change labels in installed <strong>custom managed packages</strong>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="workbench-add" data-search="add languages translation workbench supported active translators german spanish french setup user interface">
+  <div class="pgnum">Page 14 · Adding languages</div>
+  <h2>Add languages in Translation Workbench</h2>
+  <p>The Translation Workbench can add <strong>supported languages</strong> and manage translations for metadata and data labels in the org. Found at <em>Setup → User Interface → Translation Workbench → Translation Language Settings</em>.</p>
+</section>
+
+<section class="slide" id="workbench-translate" data-search="translate workbench page select language custom field object aspect field label translation vorname">
+  <div class="pgnum">Page 15 · Translate via Workbench</div>
+  <h2>Translate via Translation Workbench</h2>
+  <p>From the Translate page in Translation Workbench:</p>
+  <ol>
+    <li>Select a language (if you're a translator for more than one).</li>
+    <li>Select a setup component.</li>
+    <li>If necessary, select an object and aspect (e.g. a workflow task has Object: Account/Contact and Aspect: Subject/Comment).</li>
+    <li>Double-click in the translation column to enter new values. Tab to next row.</li>
+  </ol>
+  <div class="note">Example: <em>Master Field Label</em> "First Name" → <em>Field Label Translation</em> "Vorname" (German, Custom Field on Student object).</div>
+</section>
+
+<section class="slide" id="rename-labels" data-search="rename tabs labels french volunteer bénévole bénévoles singular plural gender masculine record name">
+  <div class="pgnum">Page 16 · Rename Tabs and Labels</div>
+  <h2>Translate Tabs and Labels</h2>
+  <p>The <em>Rename Tabs and Labels</em> page in Setup can be used to translate tabs and labels. Example fields for French translation of the <em>Volunteers</em> tab:</p>
+  <ul>
+    <li><strong>Tab:</strong> Volunteers</li>
+    <li><strong>Language:</strong> French</li>
+    <li><strong>Record Name:</strong> Volunteer Name</li>
+    <li><strong>Gender:</strong> Masculine</li>
+    <li><strong>Singular:</strong> Bénévole — <strong>Plural:</strong> Bénévoles</li>
+  </ul>
+</section>
+
+<section class="slide" id="lang-recommendations" data-search="localization-ready visualforce objecttype fields name label soql sosl tolabel apex system.label picklists email templates outputfield">
+  <div class="pgnum">Page 17 · Recommendations for localization-ready apps</div>
+  <h2>Recommendations for localization-ready apps</h2>
+  <div class="cards">
+    <div class="card"><h4>Visualforce Page</h4><p><code>{!$ObjectType.[object].fields.name.label}</code> can be used to display labels.</p></div>
+    <div class="card"><h4>SOQL / SOSL</h4><p>The <code>toLabel()</code> function can be used in SOQL or SOSL to translate labels.</p></div>
+    <div class="card"><h4>Apex</h4><p><code>System.Label</code> in Apex can be used to make translation-friendly error messages.</p></div>
+    <div class="card"><h4>Picklists</h4><p>Picklists should be used <strong>whenever possible</strong> instead of allowing users to type in free-form text.</p></div>
+    <div class="card"><h4>Email Templates</h4><p>Use <strong>Visualforce email templates</strong> instead of standard email templates for locale-aware and translation-friendly templates.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="custom-labels" data-search="translate custom labels setup user interface custom labels translations new invalid_name_format error message">
+  <div class="pgnum">Page 18 · Translate Custom Labels</div>
+  <h2>Translate Custom Labels</h2>
+  <p>Translations can be created for <strong>custom labels</strong> in the <em>Custom Labels</em> page in Setup. Example: a custom label <code>Invalid_Name_Format</code> with English value "The name format you entered is invalid for this record." Then add translations as needed.</p>
+</section>
+
+<section class="slide" id="custom-label-code" data-search="custom label code system.label invalid_name_format apexpages addmessage severity error visualforce localized error message">
+  <div class="pgnum">Page 19 · Custom label in Apex</div>
+  <h2>Custom label in Apex</h2>
+<pre class="code"><span class="k">if</span> (isValidNameFormat(name)) {
+  processName(name);
+} <span class="k">else</span> {
+  <span class="c">// show multi-language friendly error message</span>
+  ApexPages.addMessage(
+      <span class="k">new</span> ApexPages.Message(ApexPages.Severity.ERROR, System.Label.Invalid_Name_Format)
+  );
+}</pre>
+  <div class="note">A custom label is accessed in Apex using <code>System.Label</code> to display a localized error message based on the current user's settings.</div>
+</section>
+
+<section class="slide" id="label-dynamic" data-search="system.label.get label.translationexists namespace label language outofstock german de fallback default translation">
+  <div class="pgnum">Page 20 · Accessing label dynamically</div>
+  <h2>Accessing label dynamically</h2>
+<pre class="code"><span class="c">// If namespace is an empty string, it refers to the org namespace</span>
+<span class="c">// If namespace is set to null, it refers to the package namespace</span>
+String namespace = <span class="s">''</span>; <span class="c">// if empty</span>
+
+String label = <span class="s">'OutOfStock'</span>;
+String language = <span class="s">'de'</span>; <span class="c">// language ISO code for German</span>
+
+String message = <span class="s">''</span>;
+
+<span class="k">if</span> (System.Label.translationExists(namespace, label, language)) {
+  message = System.Label.get(namespace, label, language);
+} <span class="k">else</span> {
+  <span class="c">// get default translation if not available</span>
+  message = System.Label.get(namespace, label);
+}</pre>
+  <div class="note"><code>Label.translationExists</code> checks whether a translation exists for the specified language before trying to fetch it.</div>
+</section>
+
+<section class="slide" id="lang-direction" data-search="directionality data formatting component labels right-to-left script direction auto-formatting outputfield lightning app builder customlabelname">
+  <div class="pgnum">Page 21 · Directionality &amp; formatting</div>
+  <h2>Directionality &amp; formatting</h2>
+  <div class="cards">
+    <div class="card"><h4>Directionality</h4><p>Languages that are read <strong>left-to-right</strong> and <strong>right-to-left</strong> should be considered when designing UIs. It can affect the layout order of fields and CSS styling.</p></div>
+    <div class="card"><h4>Data Formatting</h4><p>Locale-aware components such as <code>&lt;apex:outputField&gt;</code> should be used to <strong>automatically format</strong> data based on the underlying field type — currency, date, checkbox, picklist, etc.</p></div>
+    <div class="card"><h4>Component Labels</h4><p>In the Lightning App Builder, the expression <code>{!$Label.customLabelName}</code> can be used to specify localized custom component labels.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="currency-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 22</div>
+  <h2>Multi-currency</h2>
+</section>
+
+<section class="slide" id="currency-overview" data-search="multi-currency currencyisocode convertcurrency format localized formatting currency number date time original record source current user">
+  <div class="pgnum">Page 23 · Multi-currency overview</div>
+  <h2>Multi-currency overview</h2>
+  <p class="lede">Salesforce offers features to support orgs that use multiple currencies. Some features are only available when <strong>multi-currency is enabled</strong> for the org.</p>
+  <div class="cards">
+    <div class="card"><h4>Currency ISO Code</h4><p>All objects with currency fields also have a <code>CurrencyIsoCode</code> field, which specifies the currency the numeric amount represents.</p></div>
+    <div class="card"><h4>convertCurrency()</h4><p>SOQL/SOSL function that converts a currency value into the current user's currency.</p></div>
+    <div class="card"><h4>FORMAT()</h4><p>SOQL/SOSL function applying localized formatting of a currency, number, date, or time. Can also display the value in the <strong>original record source</strong> and in the <strong>current user's currency</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="currencyisocode" data-search="currencyisocode field soql bike_part usd aud eur sprocket fork handlebars">
+  <div class="pgnum">Page 24 · CurrencyIsoCode field</div>
+  <h2>CurrencyIsoCode field</h2>
+<pre class="code">SELECT Name, CurrencyIsoCode, Purchase_Cost__c FROM Bike_Part__c</pre>
+  <table class="dttable">
+    <thead><tr><th>Name</th><th>CurrencyIsoCode</th><th>Purchase_Cost__c</th></tr></thead>
+    <tbody>
+      <tr><td>Sprocket - 10 speed</td><td>USD</td><td>130.5</td></tr>
+      <tr><td>Fork - Australian Assembly</td><td>AUD</td><td>275.66</td></tr>
+      <tr><td>Handlebars - European Assembly</td><td>EUR</td><td>163.75</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="currencytype" data-search="currencytype object conversionrate decimalplaces isactive iscorporate isocode multiple currencies enabled">
+  <div class="pgnum">Page 25 · CurrencyType object</div>
+  <h2>CurrencyType object</h2>
+  <p class="lede">Exists in orgs where the multiple currencies feature is enabled. Stores the currencies being added or used in the org.</p>
+<pre class="code">SELECT ConversionRate, DecimalPlaces, IsActive, IsCorporate, IsoCode FROM CurrencyType</pre>
+  <table class="dttable">
+    <thead><tr><th>ConversionRate</th><th>DecimalPlaces</th><th>IsActive</th><th>IsCorporate</th><th>IsoCode</th></tr></thead>
+    <tbody>
+      <tr><td>1.38</td><td>2</td><td>true</td><td>false</td><td>AUD</td></tr>
+      <tr><td>0.88</td><td>2</td><td>true</td><td>false</td><td>EUR</td></tr>
+      <tr><td>1</td><td>2</td><td>true</td><td>true</td><td>USD</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="dated-conversion" data-search="datedconversionrate object dated exchange rates startdate nextstartdate isocode conversionrate date range">
+  <div class="pgnum">Page 26 · DatedConversionRate object</div>
+  <h2>DatedConversionRate object</h2>
+  <p class="lede">Stores <strong>dated exchange rates</strong>. Dated exchange rates is a feature that allows applying conversion rates based on a specific date range.</p>
+<pre class="code">SELECT StartDate, NextStartDate, IsoCode, ConversionRate
+FROM DatedConversionRate ORDER BY StartDate ASC</pre>
+  <table class="dttable">
+    <thead><tr><th>StartDate</th><th>NextStartDate</th><th>IsoCode</th><th>ConversionRate</th></tr></thead>
+    <tbody>
+      <tr><td>0000-12-30</td><td>2021-01-01</td><td>AUD</td><td>1.38</td></tr>
+      <tr><td>0000-12-30</td><td>2021-01-01</td><td>EUR</td><td>0.88</td></tr>
+      <tr><td>0000-12-30</td><td>9999-12-31</td><td>USD</td><td>1</td></tr>
+      <tr><td>2021-01-01</td><td>9999-12-31</td><td>AUD</td><td>1.35</td></tr>
+      <tr><td>2021-01-01</td><td>9999-12-31</td><td>EUR</td><td>0.89</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="format-fn" data-search="format function currency iso code per record converted value user's currency soql">
+  <div class="pgnum">Page 27 · FORMAT function</div>
+  <h2>FORMAT function</h2>
+  <p class="lede">When using <code>format()</code> on a currency field, the value is formatted according to its associated currency ISO code per record. A converted value based on the user's currency is also displayed.</p>
+<pre class="code">SELECT Name, format(Purchase_Cost__c) FROM Bike_Part__c</pre>
+  <table class="dttable">
+    <thead><tr><th>Name</th><th>Purchase_Cost__c</th></tr></thead>
+    <tbody>
+      <tr><td>Sprocket - 10 speed</td><td>USD 130.50</td></tr>
+      <tr><td>Fork - Australian Assembly</td><td>AUD 275.66 (USD 199.75)</td></tr>
+      <tr><td>Handlebars - European Assembly</td><td>EUR 163.75 (USD 186.08)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="convert-format" data-search="convert format function convertcurrency user's currency numeric amount soql sosl">
+  <div class="pgnum">Page 28 · convertCurrency + FORMAT</div>
+  <h2>convertCurrency + FORMAT</h2>
+  <p class="lede"><code>convertCurrency</code> converts the numeric amount into the user's currency; <code>format</code> properly formats the value as a currency amount.</p>
+<pre class="code">SELECT Name, format(convertCurrency(Purchase_Cost__c)) FROM Bike_Part__c</pre>
+  <table class="dttable">
+    <thead><tr><th>Name</th><th>Purchase_Cost__c</th></tr></thead>
+    <tbody>
+      <tr><td>Sprocket - 10 speed</td><td>USD 130.50</td></tr>
+      <tr><td>Fork - Australian Assembly</td><td>USD 199.75</td></tr>
+      <tr><td>Handlebars - European Assembly</td><td>USD 186.08</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="handle-vf" data-search="handle multiple currencies visualforce outputfield opportunity amount automatically format advanced currency management outputtext">
+  <div class="pgnum">Page 29 · Visualforce outputField</div>
+  <h2>Handle multiple currencies in Visualforce</h2>
+<pre class="code">&lt;!-- the opportunity amount will automatically format based on the user's settings--&gt;
+&lt;apex:outputField value=<span class="s">"{! Opportunity.Amount }"</span>/&gt;</pre>
+  <div class="note"><code>outputField</code> <strong>cannot be used</strong> to display currency values when <strong>Advanced Currency Management</strong> is enabled in the org. In this case, the <code>outputText</code> component can be used.</div>
+</section>
+
+<section class="slide" id="i18n-lwc" data-search="localization lightning web components @salesforce/i18n locale currency intl.datetimeformat intl.numberformat en-ph aud a$">
+  <div class="pgnum">Page 30 · @salesforce/i18n in LWC</div>
+  <h2>Localization in Lightning Web Components</h2>
+  <p class="lede">LWCs can adapt to user languages, currencies, and timezones via the <code>@salesforce/i18n</code> scoped module.</p>
+  <h3>LocalExample.js</h3>
+<pre class="code"><span class="k">import</span> { LightningElement } <span class="k">from</span> <span class="s">"lwc"</span>;
+<span class="k">import</span> LOCALE <span class="k">from</span> <span class="s">"@salesforce/i18n/locale"</span>;
+<span class="k">import</span> CURRENCY <span class="k">from</span> <span class="s">"@salesforce/i18n/currency"</span>;
+
+<span class="k">export default class</span> LocalExample <span class="k">extends</span> LightningElement {
+  myLocale = LOCALE;
+  myCurrency = CURRENCY;
+  localDate;
+  localPrice;
+
+  connectedCallback() {
+      <span class="k">let</span> date = <span class="k">new</span> Date(<span class="t">2024</span>, <span class="t">1</span>, <span class="t">14</span>);
+      <span class="k">this</span>.localDate = <span class="k">new</span> Intl.DateTimeFormat(LOCALE).format(date);
+      <span class="k">let</span> price = <span class="t">11.99</span>;
+      <span class="k">let</span> setting = Intl.NumberFormat(LOCALE,
+          { style: <span class="s">'currency'</span>, currency: CURRENCY });
+      <span class="k">this</span>.localPrice = setting.format(price);
+  }
+}</pre>
+  <h3>LocalExample.html</h3>
+<pre class="code">&lt;template&gt;
+  &lt;div class=<span class="s">"slds-color__background_gray-1 slds-box"</span>&gt;
+      My locale is {myLocale}.&lt;br /&gt;
+      The local date is {localDate}.&lt;br /&gt;
+      My currency is {myCurrency}.&lt;br /&gt;
+      The price is {localPrice}
+  &lt;/div&gt;
+&lt;/template&gt;</pre>
+  <div class="note">Sample output for a user in the Philippines using AUD:<br><code>My locale is en-PH. The local date is 2/14/2024. My currency is AUD. The price is A$11.99.</code></div>
+</section>
+
+<section class="slide" id="learn-more" data-search="learn more support users multiple languages localization supported languages currency fields multi-currency orgs tolabel internationalization properties">
+  <div class="pgnum">Page 31 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Reference list from the deck. URLs not yet wired — paste the annotation-link JSON for page 31 (using the same DevTools snippet from before, with <code>['31']</code>) and I'll convert these to live links.</p>
+  <ul>
+    <li>Support Users in Multiple Languages</li>
+    <li>Localization</li>
+    <li>Supported Languages</li>
+    <li>Querying Currency Fields in Multi-Currency Orgs</li>
+    <li>Translate Returned SOQL Results</li>
+    <li>Access Internationalization Properties</li>
+  </ul>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet quick reference interview userinfo currencytype datedconversionrate convertcurrency format tolabel system.label translation workbench i18n">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>UserInfo (Apex)</h3>
+  <ul>
+    <li><code>UserInfo.getLanguage()</code> → e.g. <code>en_US</code>.</li>
+    <li><code>UserInfo.getLocale()</code> → e.g. <code>en_US</code>.</li>
+    <li><code>UserInfo.getDefaultCurrency()</code> → e.g. <code>USD</code>.</li>
+    <li><code>UserInfo.isMultiCurrencyOrganization()</code> → branch logic on this.</li>
+  </ul>
+
+  <h3>Translations</h3>
+  <ul>
+    <li><strong>Visualforce labels:</strong> <code>{!$ObjectType.[Object].fields.name.label}</code>.</li>
+    <li><strong>SOQL/SOSL:</strong> <code>SELECT toLabel(StageName) FROM Opportunity</code> for picklist label translation.</li>
+    <li><strong>Apex error messages:</strong> <code>System.Label.MyLabelName</code>.</li>
+    <li><strong>Dynamic per-language fetch:</strong> <code>System.Label.get(namespace, label, language)</code>; guard with <code>Label.translationExists(...)</code>.</li>
+    <li><strong>LWC component labels:</strong> import from <code>@salesforce/label/c.MyLabel</code>; Lightning App Builder: <code>{!$Label.customLabelName}</code>.</li>
+  </ul>
+
+  <h3>Multi-currency</h3>
+  <ul>
+    <li>Every currency field comes with a sibling <code>CurrencyIsoCode</code>.</li>
+    <li>SOQL helpers: <code>convertCurrency(field)</code> + <code>FORMAT(field)</code> — combine for "show me everything in the viewer's currency".</li>
+    <li><code>CurrencyType</code> = active currencies + base conversion rates; one row has <code>IsCorporate=true</code>.</li>
+    <li><code>DatedConversionRate</code> = time-bounded rates (used when "Dated Exchange Rates" / Advanced Currency Management is on).</li>
+    <li>Visualforce: <code>&lt;apex:outputField&gt;</code> handles currency formatting <strong>unless</strong> Advanced Currency Management is on → fall back to <code>&lt;apex:outputText&gt;</code>.</li>
+  </ul>
+
+  <h3>LWC i18n</h3>
+  <ul>
+    <li>Scoped imports: <code>@salesforce/i18n/locale</code>, <code>@salesforce/i18n/currency</code>, also timeZone, language, etc.</li>
+    <li>Pair with browser built-ins: <code>new Intl.DateTimeFormat(LOCALE)</code>, <code>Intl.NumberFormat(LOCALE, { style:'currency', currency:CURRENCY })</code>.</li>
+  </ul>
+
+  <h3>Anti-patterns to memorize</h3>
+  <ul>
+    <li>Comparing to literal display strings (<code>'Closed Won'</code>) — breaks on translation. Use picklist API values or status flags.</li>
+    <li>Hardcoded string-length limits — a 3-word English phrase can be a 15-word Russian phrase.</li>
+    <li>Free-form text input where a picklist + toLabel would translate cleanly.</li>
+    <li>Standard email templates for international audiences — use Visualforce email templates instead.</li>
+    <li>Assuming LTR layouts. RTL languages flip field order and CSS.</li>
+  </ul>
+
+  <h3>Interview-friendly one-liners</h3>
+  <ul>
+    <li>"Locale ≠ language" — locale controls date/number formatting; language controls labels.</li>
+    <li>"toLabel() in SOQL is the most surgical way to get translated picklist values without leaving your query."</li>
+    <li>"<code>System.Label</code> in Apex automatically picks the right translation based on the running user's language."</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

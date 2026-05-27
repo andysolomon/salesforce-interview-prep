@@ -1,0 +1,1627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isolating &amp; Identifying Root Causes in Apex — Salesforce Interview Prep</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --ink: #1a2233;
+    --muted: #5b6b80;
+    --navy: #22344c;
+    --navy-dark: #16243a;
+    --accent: #1589ee;
+    --accent-2: #00a3e0;
+    --green: #4bca81;
+    --orange: #f4a261;
+    --code-bg: #f1f5fb;
+    --code-border: #d6e0ee;
+    --highlight: #fff7d6;
+    --rule: #e3e8f0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  header.topbar {
+    background: var(--navy);
+    color: white;
+    padding: 14px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+  }
+  header.topbar h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  header.topbar .sub {
+    font-size: 12px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 80px);
+  }
+  aside.sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--rule);
+    padding: 20px 0;
+    overflow-y: auto;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+  }
+  .search { margin: 0 16px 16px; }
+  .search input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 13px;
+    background: var(--bg);
+  }
+  .search input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    background: white;
+  }
+  nav.toc h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin: 16px 16px 6px;
+    font-weight: 600;
+  }
+  nav.toc ul { list-style: none; padding: 0; margin: 0 0 8px; }
+  nav.toc li a {
+    display: block;
+    padding: 5px 16px 5px 22px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+  }
+  nav.toc li a:hover {
+    background: var(--code-bg);
+    color: var(--accent);
+  }
+  nav.toc li a.active {
+    border-left-color: var(--accent);
+    background: var(--code-bg);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  main {
+    padding: 28px 40px 80px;
+    max-width: 920px;
+    width: 100%;
+  }
+  section.slide {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 22px 28px;
+    margin-bottom: 24px;
+    scroll-margin-top: 100px;
+  }
+  section.slide.title-slide {
+    background: var(--navy);
+    color: white;
+    text-align: center;
+    padding: 56px 28px;
+  }
+  section.slide.title-slide h2 {
+    color: white;
+    margin: 0;
+    font-size: 32px;
+    border: none;
+  }
+  .pgnum {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  section.slide h2 {
+    margin: 4px 0 14px;
+    font-size: 22px;
+    color: var(--navy);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 6px;
+    display: inline-block;
+  }
+  section.slide .lede {
+    font-size: 14.5px;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+  section.slide h3 {
+    color: var(--navy);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 18px 0 6px;
+  }
+  section.slide ul, section.slide ol {
+    margin: 8px 0 12px;
+    padding-left: 22px;
+  }
+  section.slide li { margin: 4px 0; }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 10px 0 14px;
+  }
+  .card {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .card h4 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--accent);
+  }
+  .card p { margin: 0; font-size: 13.5px; }
+  pre.code {
+    background: #fbfcfe;
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font: 12.5px/1.5 "SF Mono", Menlo, Consolas, monospace;
+    margin: 10px 0 12px;
+    color: #1a2233;
+  }
+  pre.code .c { color: #6a8b8c; font-style: italic; }
+  pre.code .k { color: #1a64c7; font-weight: 600; }
+  pre.code .s { color: #c14a4a; }
+  pre.code .a { color: #b14b7d; }
+  pre.code .t { color: #1a8b8d; }
+  .note {
+    background: var(--highlight);
+    border-left: 3px solid #e6c548;
+    padding: 8px 12px;
+    margin: 8px 0 12px;
+    font-size: 13.5px;
+  }
+  .interview {
+    background: #eaf6ff;
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    margin: 14px 0 4px;
+    border-radius: 0 6px 6px 0;
+  }
+  .interview h4 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--accent);
+    letter-spacing: 0.8px;
+  }
+  .interview p { margin: 0; font-size: 13.5px; }
+  .scenario {
+    background: #f5f7fb;
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 10px 0 12px;
+  }
+  .scenario h4 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--orange);
+    letter-spacing: 0.8px;
+  }
+  .scenario p { margin: 0; font-size: 13.5px; }
+  .sln {
+    background: #effaf2;
+    border: 1px solid #c6e7d2;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 10px 0 12px;
+  }
+  .sln h4 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--green);
+    letter-spacing: 0.8px;
+  }
+  .sln p { margin: 4px 0; font-size: 13.5px; }
+  a.toc-link {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  a.toc-link:hover { text-decoration: underline; }
+  .pill {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside.sidebar { position: static; height: auto; }
+    main { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Testing, Debugging, and Deployment</a>
+    · Topic
+  </div>
+  <h1>Isolating &amp; identifying root causes in Apex</h1>
+  <div class="sub">Given a scenario — Apex code, trigger, or test not executing as expected — apply techniques and tools to isolate the root cause · Salesforce interview prep</div>
+  <div style="margin-top:8px;font-size:12px;"><a href="slides.pdf" target="_blank" rel="noopener" style="color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;">Download original PDF (98 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#hub">Profiling &amp; troubleshooting hub</a></li>
+    </ul>
+
+    <h3>Performance Profiling</h3>
+    <ul>
+      <li><a href="#profiling-overview">Process &amp; technique</a></li>
+      <li><a href="#profiling-testing">Testing</a></li>
+      <li><a href="#methodology">Methodology (5 steps)</a></li>
+      <li><a href="#analysis-1">Web tools &amp; trace flags</a></li>
+      <li><a href="#analysis-2">Debug logs &amp; timeline</a></li>
+      <li><a href="#analysis-3">Timeline tool &amp; query plan</a></li>
+    </ul>
+
+    <h3>Client-Side Tools</h3>
+    <ul>
+      <li><a href="#lightning-debug">Lightning Debug Mode</a></li>
+      <li><a href="#debug-users">Selecting debug users</a></li>
+      <li><a href="#debug-mode-ui">Debug Mode UI</a></li>
+      <li><a href="#chrome-firefox">Chrome / Firefox tools</a></li>
+      <li><a href="#fiddler-charles">Fiddler / Charles / WebPageTest</a></li>
+    </ul>
+
+    <h3>Server-Side Tools</h3>
+    <ul>
+      <li><a href="#devconsole-tools">Developer Console tools</a></li>
+      <li><a href="#stack-tree">Stack Tree panel</a></li>
+      <li><a href="#exec-stack">Execution Stack</a></li>
+      <li><a href="#other-tools">Tooling API &amp; Apex Timeline</a></li>
+    </ul>
+
+    <h3>Considerations</h3>
+    <ul>
+      <li><a href="#considerations">Profiling considerations</a></li>
+    </ul>
+
+    <h3>Worked example</h3>
+    <ul>
+      <li><a href="#example-controller">OppController class</a></li>
+      <li><a href="#example-vf">Visualforce page</a></li>
+      <li><a href="#example-devconsole-1">Developer Console — Stack Tree</a></li>
+      <li><a href="#example-devconsole-2">Developer Console — Timeline</a></li>
+    </ul>
+
+    <h3>Developer Console deep dive</h3>
+    <ul>
+      <li><a href="#summary-info">Obtaining summary information</a></li>
+      <li><a href="#four-tabs">Four tabs</a></li>
+      <li><a href="#save-order">Save Order</a></li>
+      <li><a href="#save-order-tab">Save Order tab</a></li>
+      <li><a href="#limits">Limits</a></li>
+      <li><a href="#limits-tab">Limits tab</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#timeline-tab">Timeline tab</a></li>
+      <li><a href="#executed-units">Executed Units</a></li>
+      <li><a href="#executed-units-tab">Executed Units tab</a></li>
+    </ul>
+
+    <h3>Examples</h3>
+    <ul>
+      <li><a href="#ex-debug-1">Debug logging — code</a></li>
+      <li><a href="#ex-debug-2">Debug logging — trace flags</a></li>
+      <li><a href="#ex-dml-1">Tracking DML — code</a></li>
+      <li><a href="#ex-dml-2">Tracking DML — filter</a></li>
+      <li><a href="#ex-tree-1">Execution tree — code</a></li>
+      <li><a href="#ex-tree-2">Execution tree — view</a></li>
+    </ul>
+
+    <h3>Use cases</h3>
+    <ul>
+      <li><a href="#uc-calls">Method call count</a></li>
+      <li><a href="#uc-soql">SOQL row count</a></li>
+      <li><a href="#uc-limits">SOQL_ROWS limit</a></li>
+      <li><a href="#uc-vf">Visualforce timing</a></li>
+      <li><a href="#uc-debug-users">Debug for some users</a></li>
+    </ul>
+
+    <h3>Apex Tests</h3>
+    <ul>
+      <li><a href="#apex-test-class">Creating an Apex test class</a></li>
+    </ul>
+
+    <h3>Scenario I — Coverage</h3>
+    <ul>
+      <li><a href="#s1-scenario">Scenario</a></li>
+      <li><a href="#s1-class">ItemDiscount class</a></li>
+      <li><a href="#s1-test">Test class</a></li>
+      <li><a href="#s1-narrative">Analysis</a></li>
+      <li><a href="#s1-unoptimized">56% coverage result</a></li>
+      <li><a href="#s1-improved">Improved testYears</a></li>
+      <li><a href="#s1-solution-code">Solution code</a></li>
+      <li><a href="#s1-optimized">100% coverage result</a></li>
+    </ul>
+
+    <h3>Scenario II — Missing assertions</h3>
+    <ul>
+      <li><a href="#s2-scenario">Scenario</a></li>
+      <li><a href="#s2-class">Original test class</a></li>
+      <li><a href="#s2-solution">Solution</a></li>
+    </ul>
+
+    <h3>Scenario III — SeeAllData</h3>
+    <ul>
+      <li><a href="#s3-scenario">Scenario</a></li>
+      <li><a href="#s3-class">Test class</a></li>
+      <li><a href="#s3-solution-1">Solution narrative</a></li>
+      <li><a href="#s3-solution-2">Test data approaches</a></li>
+      <li><a href="#s3-factory">Test data factory</a></li>
+      <li><a href="#s3-testsetup">@testSetup</a></li>
+    </ul>
+
+    <h3>Scenario IV — Limits</h3>
+    <ul>
+      <li><a href="#s4-scenario">Scenario</a></li>
+      <li><a href="#s4-class">Bad test class</a></li>
+      <li><a href="#s4-solution">Solution narrative</a></li>
+      <li><a href="#s4-code-1">Bulk + startTest (1)</a></li>
+      <li><a href="#s4-code-2">Bulk + startTest (2)</a></li>
+      <li><a href="#s4-result">Limit exception avoided</a></li>
+    </ul>
+
+    <h3>Scenario V — runAs</h3>
+    <ul>
+      <li><a href="#s5-scenario">Scenario</a></li>
+      <li><a href="#s5-class">Original test class</a></li>
+      <li><a href="#s5-discovery">Production issue</a></li>
+      <li><a href="#s5-solution">runAs solution</a></li>
+      <li><a href="#s5-code-1">Admin user code</a></li>
+      <li><a href="#s5-code-2">Marketing user code</a></li>
+    </ul>
+
+    <h3>Scenario VI — Lock row</h3>
+    <ul>
+      <li><a href="#s6-scenario">Scenario</a></li>
+      <li><a href="#s6-causes">Causes</a></li>
+      <li><a href="#s6-disable">Disable parallel</a></li>
+      <li><a href="#s6-ui">Setup UI</a></li>
+    </ul>
+
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#learn-more">Learn More</a></li>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover root cause apex code trigger test">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Testing, Debugging, and Deployment</h2>
+  <p style="opacity:0.85;max-width:700px;margin:18px auto 0;">Given a scenario, Apex code, Apex trigger, or Apex test that is not executing as expected, apply techniques and tools to isolate and identify the root cause.</p>
+</section>
+
+<section class="slide" id="toc" data-search="table of contents toc">
+  <div class="pgnum">Pages 2–3 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#profiling-overview">Performance Profiling</a></li>
+    <li><a class="toc-link" href="#lightning-debug">Client-Side Tools</a></li>
+    <li><a class="toc-link" href="#devconsole-tools">Server-Side Tools</a></li>
+    <li><a class="toc-link" href="#considerations">Profiling Performance Considerations</a></li>
+    <li><a class="toc-link" href="#summary-info">Developer Console</a></li>
+    <li><a class="toc-link" href="#ex-debug-1">Examples</a></li>
+    <li><a class="toc-link" href="#uc-calls">Scenarios and Solutions</a></li>
+    <li><a class="toc-link" href="#apex-test-class">Apex Tests</a></li>
+    <li><a class="toc-link" href="#s1-scenario">Apex Test Scenario / Solution I</a></li>
+    <li><a class="toc-link" href="#s2-scenario">Apex Test Scenario / Solution II</a></li>
+    <li><a class="toc-link" href="#s3-scenario">Apex Test Scenario / Solution III</a></li>
+    <li><a class="toc-link" href="#s4-scenario">Apex Test Scenario / Solution IV</a></li>
+    <li><a class="toc-link" href="#s5-scenario">Apex Test Scenario / Solution V</a></li>
+    <li><a class="toc-link" href="#s6-scenario">Apex Test Scenario / Solution VI</a></li>
+  </ol>
+</section>
+
+<section class="slide" id="objectives" data-search="learning objectives goals isolate resolve issues org performance troubleshoot apex tests robust">
+  <div class="pgnum">Page 4 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe techniques and tools that can be used to isolate and resolve issues.</li>
+    <li>Describe processes to identify and manage issues related to org performance.</li>
+    <li>Identify the techniques and tools that can be used for troubleshooting Apex code and tests.</li>
+    <li>Identify how to write proper tests to build robust applications using Apex.</li>
+  </ul>
+</section>
+
+<section class="slide" id="intro" data-search="introduction apex classes triggers visualforce controllers controller extensions tests tools techniques root causes">
+  <div class="pgnum">Page 5 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>When <strong>Apex classes</strong>, <strong>triggers</strong>, <strong>Visualforce controllers</strong>, <strong>controller extensions</strong>, or <strong>Apex tests</strong> are not working as expected, or performance issues are encountered, <strong>tools and techniques</strong> are available to identify the <strong>root causes</strong>.</p>
+  <p>This topic covers concepts and scenarios to determine the appropriate <strong>methods</strong>, <strong>procedures</strong>, and <strong>considerations</strong> for resolving issues generally caused by Apex.</p>
+</section>
+
+<section class="slide" id="hub" data-search="performance profiling troubleshooting client side server side analysis lightning framework">
+  <div class="pgnum">Page 6 · Performance Profiling &amp; Troubleshooting</div>
+  <h2>Performance Profiling &amp; Troubleshooting</h2>
+  <div class="cards">
+    <div class="card"><h4>I — Performance Profiling</h4><p>Process of identifying and fixing application bottlenecks for optimal performance.</p></div>
+    <div class="card"><h4>II — Performance Analysis</h4><p>Application performance can be analyzed using client-side and server-side tools.</p></div>
+    <div class="card"><h4>III — Troubleshooting</h4><p>Debug logs can be generated using debug traces to identify and fix performance issues.</p></div>
+    <div class="card"><h4>IV — Client-Side Tools</h4><p>Client-side and network performance tools, such as Fiddler, can be utilized.</p></div>
+    <div class="card"><h4>V — Server-Side Tools</h4><p>Server-side tools, such as the Developer Console, can be used to analyze server-side application performance.</p></div>
+    <div class="card"><h4>VI — Profiling Considerations</h4><p>Performance Profiling has considerations related to sharing, governor limits, load testing, etc.</p></div>
+    <div class="card"><h4>VII — Lightning Framework</h4><p>When debugging Lightning component JavaScript code, debug mode can be enabled for specific users.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="profiling-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 7</div>
+  <h2>Performance Profiling</h2>
+</section>
+
+<section class="slide" id="profiling-overview" data-search="performance profiling process technique bottleneck identify fix testing functional unit testing large data volumes complex sharing">
+  <div class="pgnum">Pages 8–9 · Performance Profiling</div>
+  <h2>Process &amp; technique</h2>
+  <p class="lede">Salesforce provides tools that enable developers to implement application performance profiling.</p>
+  <div class="cards">
+    <div class="card"><h4>Process</h4><p>Performance profiling refers to the <strong>process of identifying and fixing performance bottlenecks</strong>, ensuring that applications are fast and scalable.</p></div>
+    <div class="card"><h4>Technique</h4><p>Performance profiling techniques help <strong>identify potential performance issues</strong> and apply best practices to improve performance.</p></div>
+    <div class="card" id="profiling-testing"><h4>Testing</h4><p>Used with <strong>functional unit testing</strong> to ensure that an application is coded to properly handle large data volumes and/or complex sharing configurations.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="methodology" data-search="performance profiling methodology scope definition analysis identification remedy rerun bottlenecks">
+  <div class="pgnum">Page 10 · Performance Profiling Methodology</div>
+  <h2>Methodology (5 steps)</h2>
+  <ol>
+    <li><strong>Scope definition</strong> — split scenarios into different functionalities.</li>
+    <li><strong>Analysis</strong> — measure performance for each functionality.</li>
+    <li><strong>Identification</strong> — identify potential bottlenecks and their root causes.</li>
+    <li><strong>Remedy</strong> — fix the root causes of the bottlenecks.</li>
+    <li><strong>Rerun</strong> — compare results and repeat the previous steps until the bottlenecks are removed.</li>
+  </ol>
+</section>
+
+<section class="slide" id="analysis-1" data-search="analysis troubleshooting web analysis tools chrome firefox fiddler debug trace flags info level">
+  <div class="pgnum">Page 11 · Analysis &amp; Troubleshooting — Web tools / Trace flags</div>
+  <h2>Web tools &amp; trace flags</h2>
+  <div class="cards">
+    <div class="card"><h4>Web Analysis Tools</h4><p>Chrome Developer Tools, Firefox Developer Tools, or Fiddler can identify network issues, client-side problems, and resource optimization opportunities.</p></div>
+    <div class="card"><h4>Debug Trace Flags</h4><p>Debug traces can be set up for users and Apex classes; a debug level of <strong>INFO</strong> can be initially set and adjusted upward until the desired level of detail is achieved.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="analysis-2" data-search="debug logs apex code timeline tab execution overview duration efficiency looping statement">
+  <div class="pgnum">Page 12 · Analysis &amp; Troubleshooting — Logs &amp; timeline</div>
+  <h2>Debug logs &amp; timeline</h2>
+  <div class="cards">
+    <div class="card"><h4>Debug Logs</h4><p>When Apex code is run, a debug log is generated.</p></div>
+    <div class="card"><h4>Timeline Tab</h4>
+      <p>The Timeline tab of the <strong>Execution Overview</strong> panel can be analyzed for either:</p>
+      <ul style="margin:6px 0 0;padding-left:18px;font-size:13.5px;">
+        <li><strong>Duration:</strong> identify processes that take significantly more time than others.</li>
+        <li><strong>Efficiency:</strong> detect a sequence of many short, rapidly repeated processes, which may indicate an inefficient looping statement.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="analysis-3" data-search="apex timeline tool larger log files query plan tab developer console soql queries inefficient">
+  <div class="pgnum">Page 13 · Analysis &amp; Troubleshooting — Timeline tool / Query plan</div>
+  <h2>Timeline tool &amp; query plan</h2>
+  <div class="cards">
+    <div class="card"><h4>Timeline Tool</h4><p>The <strong>Apex Timeline tool</strong> can be used for evaluating <strong>larger log files</strong>.</p></div>
+    <div class="card"><h4>Query Plan</h4><p>In Developer Console, the <strong>Query Plan</strong> tab can be used to analyze how SOQL queries are executed in the org and identify inefficient queries.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="client-side-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 14</div>
+  <h2>Client-Side Tools</h2>
+</section>
+
+<section class="slide" id="lightning-debug" data-search="lightning debug mode production minified obfuscated framework javascript slower">
+  <div class="pgnum">Page 15 · Lightning Debug Mode</div>
+  <h2>Lightning Debug Mode</h2>
+  <p class="lede">The Lightning Component Framework executes in one of two modes: <strong>production</strong> or <strong>debug</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Production Mode</h4><p>Default. Framework code is <strong>optimized, minified, and obfuscated</strong>, reducing JS size. Custom component code is <em>not</em> minified or obfuscated.</p></div>
+    <div class="card"><h4>Debug Mode</h4><p>Framework JS code is <strong>not minified</strong> and is easier to read and debug. Salesforce is <strong>slower</strong> for any user who has debug mode enabled.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="debug-users" data-search="select debug users enable debug mode banner notification specific users lightning components setup">
+  <div class="pgnum">Page 16 · Selecting debug users</div>
+  <h2>Selecting debug users</h2>
+  <div class="cards">
+    <div class="card"><h4>Select Debug Users</h4><p>Enable debug mode <strong>only</strong> for users involved in debugging activity to avoid impacting other users.</p></div>
+    <div class="card"><h4>Enable Debug Mode</h4><p>Enable for specific users at <strong>Setup → Lightning Components → Debug Mode</strong>.</p></div>
+    <div class="card"><h4>Banner Notification</h4><p>Users with debug mode enabled see a banner notification <strong>once a week</strong> while it is enabled.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="debug-mode-ui" data-search="debug mode setup ui multiple users enable disable">
+  <div class="pgnum">Page 17 · Debug Mode UI</div>
+  <h2>Debug Mode UI</h2>
+  <p>Debug mode can be <strong>enabled</strong> as well as <strong>disabled</strong> for <strong>multiple users</strong> on a single page. From <em>Setup → Custom Code → Lightning Components → Debug Mode</em>, select rows in the user list and click <strong>Enable</strong> or <strong>Disable</strong>.</p>
+</section>
+
+<section class="slide" id="chrome-firefox" data-search="chrome developer tools firefox developer tools page request html css javascript graphical">
+  <div class="pgnum">Page 18 · Chrome / Firefox tools</div>
+  <h2>Chrome &amp; Firefox developer tools</h2>
+  <div class="cards">
+    <div class="card"><h4>Chrome Developer Tools</h4><p>Provide graphical representations of how the <strong>time is spent</strong> from the moment the <strong>page request</strong> is sent until <strong>page load</strong> is complete.</p></div>
+    <div class="card"><h4>Firefox Developer Tools</h4><p>Examine, edit, and debug HTML, CSS, and JavaScript.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="fiddler-charles" data-search="fiddler charles webpagetest web requests responses bottlenecks speed tests location browser connection">
+  <div class="pgnum">Page 19 · Fiddler / Charles / WebPageTest</div>
+  <h2>Network &amp; perf inspection tools</h2>
+  <div class="cards">
+    <div class="card"><h4>Fiddler</h4><p>Inspect and analyze <strong>web requests and responses</strong> to identify <strong>bottlenecks</strong>.</p></div>
+    <div class="card"><h4>Charles</h4><p>Like Fiddler — request/response inspection for bottleneck identification.</p></div>
+    <div class="card"><h4>WebPageTest</h4><p>Performs <strong>speed tests</strong> based on various combinations of test location, browser, and connection speed.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="server-side-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 20</div>
+  <h2>Server-Side Tools</h2>
+</section>
+
+<section class="slide" id="devconsole-tools" data-search="developer console execution overview panel timeline tab visual representation">
+  <div class="pgnum">Page 21 · Developer Console tools</div>
+  <h2>Developer Console tools</h2>
+  <div class="cards">
+    <div class="card"><h4>Execution Overview Panel</h4><p>The <strong>Timeline tab</strong> of the execution overview panel provides a <strong>visual representation</strong> of how long each type of process took.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="stack-tree" data-search="stack tree panel performance tree execution tree top-down view repeated statements iterations">
+  <div class="pgnum">Page 22 · Stack Tree panel</div>
+  <h2>Stack Tree panel</h2>
+  <div class="cards">
+    <div class="card"><h4>Performance Tree</h4><p>Top-down view showing the <strong>amount of time</strong> a section of code took, groups <strong>repeated statements</strong> into a single total, and shows the <strong>number of iterations</strong>.</p></div>
+    <div class="card"><h4>Execution Tree</h4><p>Top-down view showing amount of time; shows each <strong>iteration of a repeated statement</strong> in a separate line.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="exec-stack" data-search="execution stack bottom-up view section code iteration separate line repeated statement">
+  <div class="pgnum">Page 23 · Execution Stack</div>
+  <h2>Execution Stack</h2>
+  <p>Provides a <strong>bottom-up view</strong> that shows the amount of time a specific section of code took to execute; it shows each <strong>iteration of a repeated statement</strong> in a separate line.</p>
+</section>
+
+<section class="slide" id="other-tools" data-search="other server-side tools tooling api log files apex timeline json soql queries dml operations triggers">
+  <div class="pgnum">Page 24 · Tooling API &amp; Apex Timeline</div>
+  <h2>Tooling API &amp; Apex Timeline</h2>
+  <div class="cards">
+    <div class="card"><h4>Tooling API</h4><p>Retrieves <strong>log files</strong> via API calls for further analysis with tools or code.</p></div>
+    <div class="card"><h4>Apex Timeline Tool</h4>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px;">
+        <li>Uses the Tooling API to retrieve debug logs and show a <strong>graphical representation</strong> of events.</li>
+        <li>Extracts <strong>SOQL queries</strong>, <strong>DML operations</strong>, and <strong>Apex trigger</strong> information.</li>
+        <li>Provides key data in <strong>JSON format</strong> that can be parsed with another tool.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="considerations-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 25</div>
+  <h2>Profiling Performance Considerations</h2>
+</section>
+
+<section class="slide" id="considerations" data-search="considerations profiling performance role users governor limit business process query performance customer support limit_usage">
+  <div class="pgnum">Page 26 · Considerations for Profiling Performance</div>
+  <h2>Considerations for profiling performance</h2>
+  <div class="cards">
+    <div class="card"><h4>Role Users</h4><p>Users with <strong>different roles</strong> may be used when profiling to identify the impact of data volume and sharing calculation overheads.</p></div>
+    <div class="card"><h4>Governor Limit</h4><p>Governor limit usage can be identified using <strong>LIMIT_USAGE</strong> in the Execution Log panel.</p></div>
+    <div class="card"><h4>Business Process</h4><p>Business processes should <strong>not</strong> be designed with the assumption that only <strong>optimal test results</strong> will be observed.</p></div>
+    <div class="card"><h4>Query Performance</h4><p>Query performance should be evaluated with a <strong>custom field without an index</strong> to establish the query's baseline performance.</p></div>
+    <div class="card"><h4>Customer Support</h4><p>Salesforce Customer Support should be consulted <strong>before</strong> running any load testing, including stress, bandwidth, or concurrent user testing.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The "no-index custom field" point is subtle — it's saying: test the worst case. If your query is fast only because of a system index you don't control, you don't actually know the floor.</p>
+  </div>
+</section>
+
+<section class="slide" id="example-controller" data-search="performance profiling example oppcontroller aggregateresult stagename amount count opportunity isclosed canceled group by oppagg">
+  <div class="pgnum">Pages 27 · Performance Profiling Example — Apex controller</div>
+  <h2>OppController class</h2>
+<pre class="code"><span class="k">public class</span> OppController {
+   <span class="k">public</span> list&lt;AggregateResult&gt; lstAgg = <span class="k">new</span> list&lt;AggregateResult&gt;();
+   <span class="k">public</span> OppController() {
+       lstAgg = [
+           SELECT StageName, SUM(Amount) Amount, COUNT(id) Total
+           FROM Opportunity WHERE isClosed = <span class="k">false</span> AND StageName != <span class="s">'Canceled'</span> GROUP BY StageName
+       ];
+   }
+   <span class="k">public</span> list&lt;OppAgg&gt; getResults() {
+       list&lt;OppAgg&gt; lstResult = <span class="k">new</span> list&lt;OppAgg&gt;();
+       <span class="k">for</span> (AggregateResult ar: lstAgg) {
+           OppAgg objOppAgg = <span class="k">new</span> OppAgg(ar);
+           lstResult.add(objOppAgg);
+       }
+       <span class="k">return</span> lstResult;
+   }
+   <span class="k">class</span> OppAgg {
+       <span class="k">public</span> Integer Total {<span class="k">get</span>;<span class="k">set</span>;}
+       <span class="k">public</span> String StageName {<span class="k">get</span>;<span class="k">set</span>;}
+       <span class="k">public</span> Decimal Amount {<span class="k">get</span>;<span class="k">set</span>;}
+       <span class="k">public</span> OppAgg(AggregateResult ar) {
+           Total = (Integer)ar.get(<span class="s">'Total'</span>);
+           StageName = (String)ar.get(<span class="s">'StageName'</span>);
+           Amount = (Decimal)ar.get(<span class="s">'Amount'</span>);
+       }
+   }
+}</pre>
+</section>
+
+<section class="slide" id="example-vf" data-search="performance profiling example visualforce page sales aggregate apex:page apex:pageblock pageblocktable column">
+  <div class="pgnum">Page 28 · Performance Profiling Example — VF page</div>
+  <h2>Visualforce page</h2>
+<pre class="code">&lt;apex:page sidebar=<span class="s">"false"</span> controller=<span class="s">"OppController"</span>&gt;
+   &lt;apex:pageBlock title=<span class="s">"Sales Aggregate"</span>&gt;
+       &lt;apex:pageBlockTable value=<span class="s">"{!Results}"</span> var=<span class="s">"ar"</span>&gt;
+           &lt;apex:column headerValue=<span class="s">"Stage Name"</span> value=<span class="s">"{!ar.StageName}"</span>/&gt;
+           &lt;apex:column headerValue=<span class="s">"Total Amount"</span> value=<span class="s">"{!ar.Amount}"</span>/&gt;
+           &lt;apex:column headerValue=<span class="s">"Number of Orders"</span> value=<span class="s">"{!ar.Total}"</span>/&gt;
+       &lt;/apex:pageBlockTable>
+   &lt;/apex:pageBlock>
+&lt;/apex:page></pre>
+</section>
+
+<section class="slide" id="example-devconsole-1" data-search="developer console performance tree soql query 12.85ms execution log filter db category execution stack visualforce page 65.5ms">
+  <div class="pgnum">Page 29 · Developer Console — Stack Tree</div>
+  <h2>Developer Console — Stack Tree</h2>
+  <p>Running the example with Developer Console reveals:</p>
+  <ul>
+    <li>The <strong>Performance Tree</strong> shows that the SOQL query took <strong>12.85 ms</strong> to execute.</li>
+    <li>In the <strong>Execution Log</strong>, the filter can be used to identify events associated with the <strong>DB category</strong> (<code>{"category":"DB"}</code>).</li>
+    <li>The <strong>Execution Stack</strong> shows the time taken by each code section — in this case the Visualforce page took <strong>65.5 ms</strong> to load.</li>
+  </ul>
+</section>
+
+<section class="slide" id="example-devconsole-2" data-search="developer console timeline tab execution overview panel database query db apex_code workflow validation panels view log panels debug menu">
+  <div class="pgnum">Page 30 · Developer Console — Timeline</div>
+  <h2>Developer Console — Timeline</h2>
+  <p>The <strong>Timeline tab</strong> of the Execution Overview panel showed the <strong>DB</strong> query took longer than other processes (<code>APEX_CODE 3.27%</code>, <code>WORKFLOW 0.00%</code>, <code>DB 20.21%</code>, <code>VALIDATION 0.00%</code>).</p>
+  <div class="note">Panels can be analyzed via <strong>View → Log Panels</strong> in the Debug menu. Available: Stack Tree, Execution Stack, Execution Log, Source, Source List, Variables, Execution Overview.</div>
+</section>
+
+<section class="slide title-slide" id="devconsole-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 31</div>
+  <h2>Developer Console</h2>
+</section>
+
+<section class="slide" id="summary-info" data-search="obtaining summary information execution overview log inspector execution log filter">
+  <div class="pgnum">Page 32 · Obtaining summary information</div>
+  <h2>Obtaining summary information</h2>
+  <div class="cards">
+    <div class="card"><h4>Execution Overview</h4><p>The <strong>Execution Overview</strong> panel at the bottom of the Log Inspector in the Developer Console can be used to obtain summary information about processes.</p></div>
+    <div class="card"><h4>Execution Log</h4><p>Provides similar information, but it is quicker to access the Execution Overview panel to <strong>view info without applying filters</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="four-tabs" data-search="execution overview four tabs save order limits timeline executed units">
+  <div class="pgnum">Page 33 · Four tabs of the panel</div>
+  <h2>Four tabs of the Execution Overview panel</h2>
+  <ul>
+    <li><strong>Save Order</strong></li>
+    <li><strong>Limits</strong></li>
+    <li><strong>Timeline</strong></li>
+    <li><strong>Executed Units</strong></li>
+  </ul>
+</section>
+
+<section class="slide" id="save-order" data-search="save order color-coded dml actions before after triggers validation rules record-triggered flows action details boxcar">
+  <div class="pgnum">Page 34 · Save Order</div>
+  <h2>Save Order</h2>
+  <p class="lede">Displays a <strong>color-coded</strong> timeline of DML actions and save order elements: before/after triggers, validation rules, record-triggered flows, etc.</p>
+  <div class="cards">
+    <div class="card"><h4>Color-Coded</h4><p>Different colors differentiate between save order elements.</p></div>
+    <div class="card"><h4>Action Details</h4><p>Click the <strong>boxcar</strong> — a batch of actions — to access details about the element.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="save-order-tab" data-search="save order tab execution overview panel apex trigger inefficientquerylookup account validation workflow">
+  <div class="pgnum">Page 35 · Save Order tab</div>
+  <h2>Save Order tab in action</h2>
+  <p>The Save Order tab quickly provides information about the save order of execution associated with a transaction — e.g. for an Account Insert: <em>Apex Trigger InefficientQueryLookupAccountTrigger → Validation → Workflow</em>.</p>
+</section>
+
+<section class="slide" id="limits" data-search="limits tab overall system limits name amount used point of execution completion total available finest profiling debug level">
+  <div class="pgnum">Page 36 · Limits</div>
+  <h2>Limits</h2>
+  <p class="lede">Shows the <strong>overall system limits</strong> by name and amount used.</p>
+  <div class="cards">
+    <div class="card"><h4>Limit Details</h4><p>Displays the <strong>name</strong> of the limit, amount used at <strong>point of execution</strong>, amount at <strong>completion</strong>, and the <strong>total amount</strong> available.</p></div>
+    <div class="card"><h4>Debug Level</h4><p>The profiling debug level must be set to <strong>'Finest'</strong> to obtain this information.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="limits-tab" data-search="limits tab soql aggs soql_rows dml dml_rows used so far request total total available">
+  <div class="pgnum">Page 37 · Limits tab</div>
+  <h2>Limits tab in action</h2>
+  <p>Example values from the Limits tab:</p>
+<pre class="code">Limit       Used so far   Request Total   Total Available
+SOQL        0             1               100
+AGGS        0             0               300
+SOQL_ROWS   0             532             50000
+DML         0             1               150
+DML_ROWS    0             1               10000</pre>
+</section>
+
+<section class="slide" id="timeline" data-search="timeline tab visual representation each process event duration scale option time interval columns">
+  <div class="pgnum">Page 38 · Timeline</div>
+  <h2>Timeline</h2>
+  <p class="lede">Provides a quick <strong>visual representation</strong> of the amount of <strong>time</strong> taken by <strong>each process</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Event Duration</h4><p>Contains the <strong>type</strong> of process, <strong>time</strong> in milliseconds, and the <strong>percentage</strong> of time taken for the entire request.</p></div>
+    <div class="card"><h4>Scale Option</h4><p>Increase or decrease the <strong>time interval</strong> in the time duration columns.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="timeline-tab" data-search="timeline tab apex_code workflow db validation callout visualforce">
+  <div class="pgnum">Page 39 · Timeline tab</div>
+  <h2>Timeline tab in action</h2>
+<pre class="code">Category     Millis    %
+APEX_CODE    54.55     63.31%
+WORKFLOW      9.85     11.43%
+DB           21.52     24.98%
+VALIDATION    0.24      0.28%
+CALLOUT       0.00      0.00%
+VISUALFORCE   0.00      0.00%</pre>
+</section>
+
+<section class="slide" id="executed-units" data-search="executed units metrics process name total average maximum minimum duration heap size query type records changed sorted filtered">
+  <div class="pgnum">Page 40 · Executed Units</div>
+  <h2>Executed Units</h2>
+  <p class="lede">Displays the <strong>system resources</strong> used by <strong>each item</strong> in the process.</p>
+  <div class="cards">
+    <div class="card"><h4>Metrics</h4><p>Process name; <strong>total, average, maximum, minimum duration</strong>; number of times called; <strong>heap size</strong>; query type; total/avg/max/min records changed.</p></div>
+    <div class="card"><h4>Sorted</h4><p>Information can be sorted by any specific column.</p></div>
+    <div class="card"><h4>Filtered</h4><p>Buttons at the bottom of the tab filter by item type.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="executed-units-tab" data-search="executed units tab method trigger workflow query rows count heap query type sum avg max min">
+  <div class="pgnum">Page 41 · Executed Units tab</div>
+  <h2>Executed Units tab in action</h2>
+  <p>Provides info such as the <strong>number of times a method got called</strong> and the <strong>number of rows returned by a query</strong>. Filters at the bottom: <em>Methods, Queries, Workflow, Callouts, DML, Validations, Triggers, Pages</em>.</p>
+</section>
+
+<section class="slide title-slide" id="examples-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 42</div>
+  <h2>Examples</h2>
+</section>
+
+<section class="slide" id="ex-debug-1" data-search="debug logging example contacttrigger after update democlass somemethod utilityclass">
+  <div class="pgnum">Page 43 · Debug Logging Example — code</div>
+  <h2>Debug logging — code</h2>
+  <p class="lede">An Apex trigger executes static methods from two different classes and is not producing expected results.</p>
+<pre class="code"><span class="k">trigger</span> ContactTrigger <span class="k">on</span> Contact (after update) {
+
+  System.debug(<span class="s">'ContactTrigger executed!'</span>);
+  DemoClass.someMethod();
+  UtilityClass.someMethod();
+}</pre>
+  <div class="note">The developer needs to figure out where in the process the logic is failing and aims to trace the processes executed or invoked by the <em>DemoClass</em> class first.</div>
+</section>
+
+<section class="slide" id="ex-debug-2" data-search="debug logging trace flags debug level democlass utilityclass contacttrigger sfdc_devconsole none class tracing">
+  <div class="pgnum">Page 44 · Debug logging — trace flags</div>
+  <h2>Debug logging — trace flags</h2>
+  <p>By using <strong>trace flags</strong>, a debug level can be specified for the <em>DemoClass</em> to <strong>increase the log verbosity</strong> for transaction details associated with the class. A different debug level can be configured and assigned to <em>UtilityClass</em> and <em>ContactTrigger</em> to <strong>disable</strong> their logging (debug level = <code>NONE</code>).</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Per-class trace flags are how you keep logs readable when a single transaction touches many classes — bump only the class you're investigating, silence the rest.</p>
+  </div>
+</section>
+
+<section class="slide" id="ex-dml-1" data-search="tracking dml example contacttrigger coupon coupontrigger utilityclass logcoupon dml limits">
+  <div class="pgnum">Page 45 · Tracking DML — code</div>
+  <h2>Tracking DML — code</h2>
+  <p class="lede">A developer is building custom functionality that involves an Apex class and triggers that perform <strong>DML statements</strong> at various execution points.</p>
+<pre class="code"><span class="k">trigger</span> ContactTrigger <span class="k">on</span> Contact (after insert) {
+   List&lt;Coupon__c&gt; coupons = <span class="k">new</span> List&lt;Coupon__c&gt;();
+   <span class="k">for</span> (Contact c : Trigger.New) {
+       <span class="k">if</span> (c.Has_Coupon__c == TRUE) {
+           Coupon__c coupon = <span class="k">new</span> Coupon__c();
+           coupon.Contact__c = c.Id;
+           coupons.add(coupon);
+           <span class="c">// other logic below...</span>
+       }
+   }
+   insert coupons;
+}
+
+<span class="k">trigger</span> CouponTrigger <span class="k">on</span> Coupon__c (after insert) {
+   <span class="k">for</span> (Coupon__c c : Trigger.New) {
+       UtilityClass.logCoupon(c.Contact__c);
+       <span class="c">// other logic below...</span>
+   }
+}
+
+<span class="k">public class</span> UtilityClass {
+   <span class="k">public static void</span> logCoupon(Id contactId) {
+       Coupon_Log__c cl = <span class="k">new</span> Coupon_Log__c();
+       cl.Contact__c = contactId;
+       insert cl;
+       <span class="c">// other logic below...</span>
+   }
+}</pre>
+</section>
+
+<section class="slide" id="ex-dml-2" data-search="tracking dml filter dml log messages case-sensitive hiding executed units">
+  <div class="pgnum">Page 46 · Tracking DML — filter</div>
+  <h2>Tracking DML — two techniques</h2>
+  <ol>
+    <li><strong>Filtering log messages</strong> — enter <code>DML</code> in the Filter input to match messages containing "DML". <em>The filter is case-sensitive.</em></li>
+    <li><strong>Hiding executed units</strong> — in the Executed Units tab, click all the filter buttons <em>except</em> DML so only DML operations are shown.</li>
+  </ol>
+</section>
+
+<section class="slide" id="ex-tree-1" data-search="execution tree example accountfeature generateaccounts iso_code payment_mode trigger workflow validation">
+  <div class="pgnum">Page 47 · Execution tree — code</div>
+  <h2>Execution tree — code</h2>
+<pre class="code"><span class="k">public class</span> AccountFeature {
+
+  <span class="k">public void</span> generateAccounts(Integer maxRecords) {
+
+      List&lt;Account&gt; accounts = <span class="k">new</span> List&lt;Account&gt;();
+      String accountName = <span class="s">''</span>;
+
+      <span class="k">for</span> (Integer i = <span class="t">0</span>; i &lt; maxRecords; i++) {
+          Account a = <span class="k">new</span> Account();
+          a.Name = generateName();
+          a.ISO_Code__c = generateISOCode();
+          a.Payment_Mode__c = generatePaymentMode();
+          accounts.add(a);
+      }
+
+      insert accounts;
+  }
+  <span class="c">// ...</span>
+}</pre>
+  <div class="note">The developer intends to analyze the <strong>execution path</strong> to understand the processes involved (custom feature invokes Apex method, triggers, workflow rules, and validation rules).</div>
+</section>
+
+<section class="slide" id="ex-tree-2" data-search="execution tree view stack tree developer console workflow rules validation rule apex trigger inefficientquerylookupaccounttrigger payment status rule transaction status rule">
+  <div class="pgnum">Page 48 · Execution tree — view</div>
+  <h2>Execution tree — view</h2>
+  <p>The <strong>Stack Tree</strong> panel of the Developer Console can be used to trace the execution path of a transaction; the <strong>hierarchy</strong> of executed items is visible.</p>
+  <p>In the example: Account Insert → Workflow:Account (<em>Payment Status Rule</em>, <em>Transaction Status Rule</em>) → Validation:Account (<em>Is_Valid_ISO_Code</em>) → Apex Trigger <em>InefficientQueryLookupAccountTrigger</em> → Flow:Account.</p>
+</section>
+
+<section class="slide title-slide" id="usecases-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 49</div>
+  <h2>Scenarios and Solutions</h2>
+</section>
+
+<section class="slide" id="uc-calls" data-search="use case scenario solution method call count executed units log inspector execute anonymous">
+  <div class="pgnum">Page 50 · Use case — method call count</div>
+  <h2>Use case — how many times was a method called?</h2>
+  <div class="scenario"><h4>Scenario</h4><p>A developer who has just executed Apex code from the <strong>Execute Anonymous</strong> window wants to know how many times a method in the code was called.</p></div>
+  <div class="sln"><h4>Solution</h4><p>Access the <strong>Execution Overview</strong> panel of the Log Inspector. The <strong>Executed Units</strong> tab shows the number of times each process was called during the transaction.</p></div>
+</section>
+
+<section class="slide" id="uc-soql" data-search="use case soql records returned executed units log inspector trigger helper class">
+  <div class="pgnum">Page 51 · Use case — SOQL row count</div>
+  <h2>Use case — how many records did a SOQL query return?</h2>
+  <div class="scenario"><h4>Scenario</h4><p>An Apex trigger uses a helper class that contains an SOQL query. The developer needs to know how many records the query returned.</p></div>
+  <div class="sln"><h4>Solution</h4><p>Information about the number of rows returned by a SOQL or SOSL query can be obtained from the <strong>Executed Units</strong> tab of the Execution Overview panel.</p></div>
+</section>
+
+<section class="slide" id="uc-limits" data-search="use case soql_rows limits tab request total available apex transaction">
+  <div class="pgnum">Page 52 · Use case — SOQL_ROWS limit</div>
+  <h2>Use case — SOQL_ROWS limit usage</h2>
+  <div class="scenario"><h4>Scenario</h4><p>A developer analyzing code performance needs to know the number of requests for SOQL rows as well as the total number of requests available for an Apex transaction.</p></div>
+  <div class="sln"><h4>Solution</h4><p>The <strong>Limits</strong> tab of the Execution Overview panel shows the limit named <code>SOQL_ROWS</code> — number of requests and total available.</p></div>
+</section>
+
+<section class="slide" id="uc-vf" data-search="use case visualforce timeline time taken processes scale options milliseconds">
+  <div class="pgnum">Page 53 · Use case — Visualforce timing</div>
+  <h2>Use case — Visualforce process timing</h2>
+  <div class="scenario"><h4>Scenario</h4><p>A developer improving the performance of a Visualforce page needs the amount of time taken by each process related to the execution of the page.</p></div>
+  <div class="sln"><h4>Solution</h4><p>The <strong>Timeline</strong> tab of the Execution Overview panel provides time per process in milliseconds. Scale options are available to change the time frame.</p></div>
+</section>
+
+<section class="slide" id="uc-debug-users" data-search="use case debug javascript lightning components users debug mode setup">
+  <div class="pgnum">Page 54 · Use case — debug mode for some users</div>
+  <h2>Use case — debug some users without affecting others</h2>
+  <div class="scenario"><h4>Scenario</h4><p>A developer needs to debug JavaScript code in Lightning components but must avoid impacting other users' performance.</p></div>
+  <div class="sln"><h4>Solution</h4><p>Enable debug mode for <strong>specific users</strong> in the org from the <em>Debug Mode</em> page in Setup. This ensures performance is slower only for users involved in the debugging activity.</p></div>
+</section>
+
+<section class="slide title-slide" id="apex-tests-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 55</div>
+  <h2>Apex Tests</h2>
+</section>
+
+<section class="slide" id="apex-test-class" data-search="creating apex test class annotations istest testsetup seealldata start test stop test create test data code execution assertions branches">
+  <div class="pgnum">Page 56 · Creating an Apex test class</div>
+  <h2>Creating an Apex test class</h2>
+  <div class="cards">
+    <div class="card"><h4>Annotations</h4><p>Test classes and methods should be annotated with <code>@isTest</code>. The <code>(SeeAllData=true)</code> annotation can be added for org data access.</p></div>
+    <div class="card"><h4>Create Test Data</h4><p>Test data should be created whenever possible. <code>Test.loadData</code> or a utility class can be used.</p></div>
+    <div class="card"><h4>Start Test</h4><p>Test code can be isolated from setup code with <code>Test.startTest()</code> — receives a fresh set of governor limits.</p></div>
+    <div class="card"><h4>Code Execution</h4><p>Execute all logic branches. Both <strong>single and bulk</strong> operations should be tested. Positive, negative, and user-context test cases should be covered.</p></div>
+    <div class="card"><h4>Stop Test</h4><p>Async code can be forced to complete with <code>Test.stopTest()</code>. Original governor limits are restored after this point.</p></div>
+    <div class="card"><h4>Assertions</h4><p>Use assert methods to verify results. Each test method should have at least one assertion. The more assertions, the better.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="s1-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 57</div>
+  <h2>Apex Test Scenario / Solution I</h2>
+</section>
+
+<section class="slide" id="s1-scenario" data-search="scenario 1 apex class test class compile development org deployment fails poor code coverage production">
+  <div class="pgnum">Page 58 · Scenario I — Coverage</div>
+  <h2>Scenario I — Poor code coverage</h2>
+  <div class="scenario"><h4>Scenario</h4><p>An Apex class and its test class compile successfully in a development org. However, deployment fails due to poor code coverage results in the production org. The developer needs to increase coverage.</p></div>
+</section>
+
+<section class="slide" id="s1-class" data-search="itemdiscount calculateamount yearsmember price discount rates fixed">
+  <div class="pgnum">Page 59 · ItemDiscount class</div>
+  <h2>The class under test</h2>
+<pre class="code"><span class="k">public class</span> ItemDiscount {
+  <span class="k">public static</span> Decimal calculateAmount(Integer yearsMember, Decimal price) {
+      Decimal amount = price;
+      <span class="k">if</span> (price &lt; <span class="t">1000</span>) { <span class="c">// discount rates if price is below 1000</span>
+          <span class="k">if</span> (yearsMember &lt; <span class="t">1</span>) {
+              amount = price - (price * <span class="t">0.10</span>);
+          } <span class="k">else if</span> (yearsMember &gt;= <span class="t">1</span> &amp;&amp; yearsMember &lt; <span class="t">2</span>) {
+              amount = price - (price * <span class="t">0.12</span>);
+          } <span class="k">else if</span> (yearsMember &gt;= <span class="t">2</span> &amp;&amp; yearsMember &lt; <span class="t">3</span>) {
+              amount = price - (price * <span class="t">0.14</span>);
+          } <span class="k">else if</span> (yearsMember &gt;= <span class="t">3</span> &amp;&amp; yearsMember &lt; <span class="t">4</span>) {
+              amount = price - (price * <span class="t">0.18</span>);
+          } <span class="k">else if</span> (yearsMember &gt;= <span class="t">4</span> &amp;&amp; yearsMember &lt; <span class="t">5</span>) {
+              amount = price - (price * <span class="t">0.2</span>);
+          } <span class="k">else</span> {
+              amount = price - (price * <span class="t">0.25</span>);
+          }
+      } <span class="k">else</span> amount = price - <span class="t">100</span>; <span class="c">// a fixed discount value</span>
+      <span class="k">return</span> amount;
+  }
+}</pre>
+</section>
+
+<section class="slide" id="s1-test" data-search="itemdiscounttest testYears testAmount calculateamount assertequals">
+  <div class="pgnum">Page 60 · Original test class</div>
+  <h2>The original test class</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">private class</span> ItemDiscountTest {
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testYears() {
+      Decimal price = <span class="t">750</span>;
+      Integer years = <span class="t">2</span>;
+      Decimal amount = ItemDiscount.calculateAmount(years, price);
+      System.assertEquals((price - (price * <span class="t">0.14</span>)), amount);
+  }
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testAmount() {
+      Decimal price = <span class="t">1000</span>;
+      Integer years = <span class="t">5</span>;
+      Decimal amount = ItemDiscount.calculateAmount(years, price);
+      System.assertEquals((price - <span class="t">100</span>), amount);
+  }
+}</pre>
+</section>
+
+<section class="slide" id="s1-narrative" data-search="solution 1 itemdiscount discount rates years member fixed discount value cater more input">
+  <div class="pgnum">Page 61 · Analysis</div>
+  <h2>Analysis</h2>
+  <div class="sln"><h4>Solution narrative</h4>
+    <p>In <em>ItemDiscount</em>, if price is below 1,000, discount rates are applied depending on <strong>number of years</strong> a customer has been a member. Otherwise, a <strong>fixed discount value</strong> is applied. The test class executes only <strong>two</strong> scenarios — one where years is 2 and one where price is 1,000. Updating the test to cover other input values improves coverage accordingly.</p>
+  </div>
+</section>
+
+<section class="slide" id="s1-unoptimized" data-search="result unoptimized test class developer console 56 percent code coverage red highlighted">
+  <div class="pgnum">Page 62 · Result of unoptimized test class</div>
+  <h2>56% coverage — fails deployment</h2>
+  <p>Running via the Developer Console reveals that areas highlighted in <strong>red</strong> are not covered. Overall coverage for <em>ItemDiscount</em> is <strong>56% (9/16)</strong> — below the required 75% for production.</p>
+</section>
+
+<section class="slide" id="s1-improved" data-search="solution improved testyears all logic branches year to rate map for loop max rate five years">
+  <div class="pgnum">Page 63 · Improved testYears</div>
+  <h2>Improved <code>testYears()</code></h2>
+  <div class="sln"><h4>Solution approach</h4>
+    <p>Improve <em>testYears()</em> to execute <strong>all</strong> the logic branches: use a year-to-rate <strong>map</strong> to represent year and rate, iterate via a <strong>for loop</strong>, and apply a max rate if the member reaches five years.</p>
+  </div>
+</section>
+
+<section class="slide" id="s1-solution-code" data-search="solution code itemdiscount testyears maxrate ratemap for loop testamount assertequals">
+  <div class="pgnum">Pages 64–65 · Solution code</div>
+  <h2>Solution code</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> ItemDiscountTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testYears() {
+
+      Decimal price = <span class="t">750</span>;
+
+      <span class="c">// rate used when member has reached 5 years and beyond</span>
+      Decimal maxRate = <span class="t">0.25</span>;
+
+      <span class="c">// create a year-to-rate mapping</span>
+      Map&lt;Integer, Decimal&gt; rateMap = <span class="k">new</span> Map&lt;Integer, Decimal&gt;{
+          <span class="t">0</span> =&gt; <span class="t">0.10</span>, <span class="t">1</span> =&gt; <span class="t">0.12</span>, <span class="t">2</span> =&gt; <span class="t">0.14</span>, <span class="t">3</span> =&gt; <span class="t">0.18</span>, <span class="t">4</span> =&gt; <span class="t">0.2</span>
+      };
+
+      <span class="c">// loop through the years to execute all branches</span>
+      <span class="k">for</span> (Integer years = <span class="t">0</span>; years &lt;= rateMap.size(); years++) {
+
+          Decimal amount = ItemDiscount.calculateAmount(years, price);
+          Decimal rate = years &gt;= rateMap.size() ? maxRate : rateMap.get(years);
+          System.assertEquals((price - (price * rate)), amount);
+      }
+  }
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testAmount() {
+
+      Decimal price = <span class="t">1000</span>;
+      Integer years = <span class="t">5</span>;
+      Decimal amount = ItemDiscount.calculateAmount(years, price);
+      System.assertEquals((price - <span class="t">100</span>), amount);
+  }
+}</pre>
+</section>
+
+<section class="slide" id="s1-optimized" data-search="result optimized test class 100 percent code coverage production deployment every block">
+  <div class="pgnum">Page 66 · 100% coverage result</div>
+  <h2>100% coverage — passes deployment</h2>
+  <p>After optimizing the test class, code coverage for <em>ItemDiscount</em> increases to <strong>100% (16/16)</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>"Only 75% of Apex code must be covered to deploy" — but don't focus on the percentage. Good practice: ensure every block in the Apex class is covered. That's how you get the highest possible coverage a unit test can achieve.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="s2-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 67</div>
+  <h2>Apex Test Scenario / Solution II</h2>
+</section>
+
+<section class="slide" id="s2-scenario" data-search="scenario 2 apex trigger contact member membership plan c salary range record-triggered flow field update">
+  <div class="pgnum">Page 68 · Scenario II — Missing assertions</div>
+  <h2>Scenario II — Production behavior diverged from dev</h2>
+  <div class="scenario"><h4>Scenario</h4>
+    <p>An Apex trigger creates a Membership record when a Contact is created with <code>Type = 'Member'</code>. Depending on salary range, a certain <code>Membership_Plan__c</code> value is also auto-assigned. After production rollout, it was noticed that the value of <code>Membership_Plan__c</code> on generated membership records did not always match the contact's salary range.</p>
+    <p>Investigation revealed that a <strong>field update action associated with a record-triggered flow</strong> was also executing when a contact record was created. The issue did not occur in dev because dev did not have the flow. The developer was asked what could have been added to the test class to prevent this.</p>
+  </div>
+</section>
+
+<section class="slide" id="s2-class" data-search="membership test class testregistration contact firstname lastname salary range type member assertequals one membership">
+  <div class="pgnum">Page 69 · Original test class</div>
+  <h2>Original test class</h2>
+<pre class="code"><span class="c">// Original test class</span>
+<span class="a">@isTest</span>
+<span class="k">public class</span> MembershipTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testRegistration() {
+
+      <span class="c">// Create a new contact</span>
+      Contact con = <span class="k">new</span> Contact();
+      con.FirstName = <span class="s">'John'</span>;
+      con.LastName = <span class="s">'Smith'</span>;
+      con.Salary_Range__c = <span class="s">'A'</span>;
+      con.Type__c = <span class="s">'Member'</span>;
+      insert con;
+
+      <span class="c">// Check if a membership belongs to the contact</span>
+      List&lt;Membership__c&gt; results = [SELECT Id, Membership_Plan__c FROM Membership__c WHERE Contact__c = :con.Id];
+      System.assertEquals(<span class="t">1</span>, results.size()); <span class="c">// check that there is only one membership record for the contact</span>
+  }
+}</pre>
+</section>
+
+<section class="slide" id="s2-solution" data-search="solution 2 assertions membership plan salary range single record assertion at least one bulk operations">
+  <div class="pgnum">Page 70 · Solution</div>
+  <h2>Solution — assert what matters</h2>
+  <div class="sln"><h4>Diagnosis</h4>
+    <p>The original test only checks that a membership record was created — not whether the <strong>membership plan matches the salary range</strong>. Adding this assertion catches the bug:</p>
+  </div>
+<pre class="code"><span class="c">// Check if membership plan matches with the salary range</span>
+System.assertEquals(con.Salary_Range__c, results.get(<span class="t">0</span>).Membership_Plan__c);</pre>
+  <div class="note">Test methods should contain <strong>at least one</strong> assertion. Good test methods include <strong>more than one</strong>. Add more test methods to cover all salary ranges and possible scenarios using both <strong>single and batch</strong> operations.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the canonical "passing test that doesn't catch the bug" story. Lesson: every assertion you add narrows the gap between "tests pass" and "feature works".</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="s3-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 71</div>
+  <h2>Apex Test Scenario / Solution III</h2>
+</section>
+
+<section class="slide" id="s3-scenario" data-search="scenario 3 apex trigger update vendor name account opportunity won test class fails production sandbox">
+  <div class="pgnum">Page 72 · Scenario III — SeeAllData=true</div>
+  <h2>Scenario III — Test fails only in production</h2>
+  <div class="scenario"><h4>Scenario</h4>
+    <p>A developer created an Apex trigger that updates a custom field <code>Vendor_Name__c</code> on the Account when a related opportunity is won. A test class was written. In the sandbox, the test code compiles and coverage is satisfactory. However, when deployed to production, the Apex test class <strong>fails</strong>. The developer needs to fix it.</p>
+  </div>
+</section>
+
+<section class="slide" id="s3-class" data-search="opportunitytriggertest seealldata vendor name project negotiation review closed won opportunity">
+  <div class="pgnum">Page 73 · Test class</div>
+  <h2>The failing test class</h2>
+<pre class="code"><span class="c">// Test Class</span>
+<span class="a">@isTest(SeeAllData=true)</span>
+<span class="k">public class</span> OpportunityTriggerTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testMyTrigger() {
+
+      Opportunity opp = [SELECT Id, Name, Project__r.Vendor_Name__c FROM Opportunity
+                         WHERE StageName = <span class="s">'Negotiation/Review'</span> LIMIT <span class="t">1</span>];
+      opp.StageName = <span class="s">'Closed Won'</span>;
+      update opp;
+
+      Account acc = [SELECT Id, Vendor_Name__c FROM Account WHERE Id = :opp.AccountId LIMIT <span class="t">1</span>];
+      System.assertEquals(acc.Vendor_Name__c, opp.Project__r.Vendor_Name__c);
+  }
+}</pre>
+</section>
+
+<section class="slide" id="s3-solution-1" data-search="solution 3 seealldata true dependency existing org data query exception dedicated test data">
+  <div class="pgnum">Page 74 · Solution narrative</div>
+  <h2>Diagnosis</h2>
+  <div class="sln"><h4>Root cause</h4>
+    <p>One likely cause is the <strong>dependency</strong> of the test class on <strong>existing org data</strong>, made evident by the <code>@isTest(SeeAllData=true)</code> annotation. The test scenario may throw a <strong>query exception</strong> if no opportunities are found in the <em>Negotiation/Review</em> stage. Whenever possible, it is recommended to create <strong>dedicated test data</strong> for the test class.</p>
+  </div>
+</section>
+
+<section class="slide" id="s3-solution-2" data-search="test data test.loaddata static resource csv file utility class generate sobject">
+  <div class="pgnum">Page 75 · Test data approaches</div>
+  <h2>Test data approaches</h2>
+  <div class="cards">
+    <div class="card"><h4>Test.loadData</h4><p>Static resources contain data for test classes. A CSV file can be uploaded and loaded into a test method:<br><code>List&lt;sObject&gt; records = Test.loadData(Opportunity.sObjectType, 'myStaticResourceName');</code></p></div>
+    <div class="card"><h4>Test Utility Class</h4><p>Utility classes are public classes containing reusable code. A test utility class can generate data for test classes.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="s3-factory" data-search="mytestdatafactory createaccounts test data factory generate multiple test classes shared">
+  <div class="pgnum">Page 76 · Test data factory</div>
+  <h2>Test data factory example</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> MyTestDataFactory {
+  <span class="k">public static void</span> createAccounts(Integer numAccts) {
+
+      List&lt;Account&gt; accts = <span class="k">new</span> List&lt;Account&gt;();
+
+      <span class="k">for</span> (Integer i = <span class="t">1</span>; i &lt;= numAccts; i++) {
+          Account a = <span class="k">new</span> Account(Name=<span class="s">'Test Account '</span> + i);
+          accts.add(a);
+      }
+
+      insert accts;
+  }
+}
+
+<span class="c">// For example, to create 100 test accounts, run:</span>
+<span class="c">// MyTestFactory.createAccounts(100);</span></pre>
+</section>
+
+<section class="slide" id="s3-testsetup" data-search="testsetup method create test data rolled back one test setup method per class">
+  <div class="pgnum">Page 77 · @testSetup</div>
+  <h2>@testSetup pattern</h2>
+  <div class="sln"><h4>Approach</h4>
+    <p>The test setup method generates test data. Changes performed by one test method are <strong>not carried over</strong> to the next — any changes are rolled back after the method finishes executing. Only <strong>one</strong> test setup method can be used in a single test class.</p>
+  </div>
+<pre class="code"><span class="a">@testSetup</span>
+<span class="k">static void</span> setup() {
+   <span class="c">// create 50 accounts</span>
+   MyTestFactory.createAccounts(<span class="t">50</span>);
+}</pre>
+</section>
+
+<section class="slide title-slide" id="s4-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 78</div>
+  <h2>Apex Test Scenario / Solution IV</h2>
+</section>
+
+<section class="slide" id="s4-scenario" data-search="scenario 4 limit exception controller test class governor limits dml for loop">
+  <div class="pgnum">Page 79 · Scenario IV — Limit Exception</div>
+  <h2>Scenario IV — Limit Exception thrown</h2>
+  <div class="scenario"><h4>Scenario</h4>
+    <p>A developer wrote a test class for a controller and noticed that at some point in the testing process, a <strong>limit exception</strong> is thrown. The test class needs to be modified to avoid hitting the governor limits.</p>
+  </div>
+</section>
+
+<section class="slide" id="s4-class" data-search="controllertest testmethodx account opportunity for loop insert dml inside loop">
+  <div class="pgnum">Page 80 · Bad test class</div>
+  <h2>The bad test class</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> ControllerTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">public static void</span> testMethodx() {
+
+      <span class="c">// ...other logic here prior to the following...</span>
+
+      Account acc = <span class="k">new</span> Account(Name=<span class="s">'Testers Inc.'</span>);
+      insert acc; <span class="c">// create account</span>
+
+      List&lt;Opportunity&gt; opps = <span class="k">new</span> List&lt;Opportunity&gt;();
+      <span class="c">// create opportunities</span>
+      <span class="k">for</span> (Integer i = <span class="t">1</span>; i &lt;= <span class="t">100</span>; i++) {
+          Opportunity opp = <span class="k">new</span> Opportunity();
+          opp.AccountId = acc.Id;
+          opp.Name = <span class="s">'Test Opportunity '</span> + i;
+          opp.StageName = <span class="s">'Analysis'</span>;
+          opp.CloseDate = Date.newInstance(<span class="t">2019</span>, <span class="t">12</span>, <span class="t">31</span>);
+          insert opp; <span class="c">// create opportunity</span>
+      }
+  }
+}</pre>
+</section>
+
+<section class="slide" id="s4-solution" data-search="solution 4 bulk operation insert outside for loop test.starttest stoptest limits.getdmlstatements">
+  <div class="pgnum">Page 81 · Solution narrative</div>
+  <h2>Solution — bulk DML &amp; startTest/stopTest</h2>
+  <div class="sln"><h4>Fix</h4>
+    <p>A DML statement should <strong>not</strong> be placed inside a <em>for</em> loop. The for loop should add opportunity records to a <strong>list variable</strong>, then a <strong>single insert</strong> can be applied to that list after the loop. This requires only <strong>one</strong> DML operation.</p>
+    <p>Use <code>Test.startTest()</code> and <code>Test.stopTest()</code> to ensure code between is executed under a fresh set of governor limits. <code>Limits.getDmlStatements()</code> and <code>Limits.getLimitDmlStatements()</code> can perform a runtime check to avoid hitting the limit for DML statements.</p>
+  </div>
+</section>
+
+<section class="slide" id="s4-code-1" data-search="limits starttest stoptest fresh governor limits account opportunity">
+  <div class="pgnum">Page 82 · Bulk + startTest (1)</div>
+  <h2>Bulk + startTest — part 1</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> ControllerTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">public static void</span> testMethodx() {
+
+      <span class="c">// other logic and processes before here...</span>
+
+      Test.startTest();  <span class="c">// A new set of governor limits are applied after this point.</span>
+
+      <span class="c">// create account</span>
+      Account acc = <span class="k">new</span> Account(Name=<span class="s">'Testers Inc.'</span>);
+      insert acc;
+
+      List&lt;Opportunity&gt; opps = <span class="k">new</span> List&lt;Opportunity&gt;();
+
+      <span class="c">// create opportunities</span>
+      <span class="k">for</span> (Integer i = <span class="t">1</span>; i &lt;= <span class="t">200</span>; i++) {
+
+          Opportunity opp = <span class="k">new</span> Opportunity();</pre>
+</section>
+
+<section class="slide" id="s4-code-2" data-search="limits.getdmlstatements getlimitdmlstatements check limit insert opp test.stoptest original limits restored">
+  <div class="pgnum">Page 83 · Bulk + startTest (2)</div>
+  <h2>Bulk + startTest — part 2</h2>
+<pre class="code">          opp.AccountId = acc.Id;
+          opp.Name = <span class="s">'Test Opportunity '</span> + i;
+          opp.StageName = <span class="s">'Analysis'</span>;
+          opp.Amount = <span class="t">0</span>;
+          opp.CloseDate = Date.newInstance(<span class="t">2019</span>, <span class="t">12</span>, <span class="t">31</span>);
+
+          <span class="k">if</span> (Limits.getDmlStatements() &lt; Limits.getLimitDmlStatements()) {
+
+              insert opp; <span class="c">// create opportunity</span>
+              System.assert(opp.Amount == <span class="t">0</span>);
+              System.debug(Limits.getDmlStatements() + <span class="s">' &lt;= '</span> + Limits.getLimitDmlStatements());
+
+          } <span class="k">else</span> System.debug(<span class="s">'One more DML statement will throw an error!'</span>);
+      }
+
+      Test.stopTest();  <span class="c">// Original limits are restored after this point.</span>
+      <span class="c">// ...</span>
+  }
+}</pre>
+  <div class="note">In a properly bulkified test, you wouldn't <code>insert opp</code> inside the loop — this version shows the explicit limit check pattern, which is useful for diagnostic / instrumentation code paths, not steady-state.</div>
+</section>
+
+<section class="slide" id="s4-result" data-search="limit exception avoided 150 dml statements user_debug execution log skipped">
+  <div class="pgnum">Page 84 · Limit exception avoided</div>
+  <h2>Result — limit exception avoided</h2>
+  <p>The example stops performing a DML statement before exceeding the governor limit of <strong>150 statements</strong>. The execution log shows: <code>141 &lt;= 150 … 149 &lt;= 150 … 150 &lt;= 150 … One more DML statement will throw an error!</code></p>
+</section>
+
+<section class="slide title-slide" id="s5-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 85</div>
+  <h2>Apex Test Scenario / Solution V</h2>
+</section>
+
+<section class="slide" id="s5-scenario" data-search="scenario 5 random coupons marketing head contact has_coupons checkbox creation">
+  <div class="pgnum">Page 86 · Scenario V — runAs</div>
+  <h2>Scenario V — Coupon assignment fails in prod</h2>
+  <div class="scenario"><h4>Scenario</h4>
+    <p>A test class was developed for an Apex trigger that assigns a set of random coupons (created by the marketing head of the company) to a Contact when the contact's <code>Has_Coupons__c</code> checkbox is ticked during creation.</p>
+  </div>
+</section>
+
+<section class="slide" id="s5-class" data-search="coupontest seealldata mytestfactory generatecoupons contact has_coupon insert select coupon">
+  <div class="pgnum">Page 87 · Original test class</div>
+  <h2>The original test class</h2>
+<pre class="code"><span class="a">@isTest(SeeAllData=true)</span>
+<span class="k">public class</span> CouponTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> myTestMethod() {
+
+      MyTestFactory.generateCoupons();
+
+      Contact con = <span class="k">new</span> Contact();
+      con.FirstName = <span class="s">'New'</span>;
+      con.LastName = <span class="s">'Member'</span>;
+      con.Has_Coupons__c = <span class="k">true</span>; <span class="c">// assign coupons after insert</span>
+      insert con;
+
+      <span class="c">// now, check if coupons have been assigned to this contact</span>
+      List&lt;Coupon__c&gt; coupons = [SELECT Name FROM Coupon__c WHERE Contact__r.Id = :con.Id];
+      System.assert(coupons.size() &gt; <span class="t">0</span>);
+  }
+}</pre>
+</section>
+
+<section class="slide" id="s5-discovery" data-search="production rollout coupons not linked users no access marketing head sharing">
+  <div class="pgnum">Page 88 · Production issue</div>
+  <h2>Production issue discovered</h2>
+  <div class="scenario"><h4>What happened in production</h4>
+    <p>After rollout, some users discovered that no coupons were linked to contacts they added. Investigation revealed they did <strong>not have access</strong> to the coupon records created by the marketing head. Changes need to be made to the test class to catch and prevent the issue.</p>
+  </div>
+</section>
+
+<section class="slide" id="s5-solution" data-search="solution 5 system.runas execute context another user create new user select existing utility class generate test user">
+  <div class="pgnum">Page 89 · runAs solution</div>
+  <h2><code>System.runAs()</code> solution</h2>
+  <div class="sln"><h4>Approach</h4>
+    <p>The <code>System.runAs()</code> method executes code in the <strong>context of another user</strong>. Test methods can access org metadata such as <strong>Users</strong> and <strong>Profiles</strong>, even without using the <em>SeeAllData=true</em> annotation. This allows the test to either <strong>create a new user</strong> or <strong>select an existing one</strong> and run code as that user. Use a utility class to generate a test user for execution.</p>
+  </div>
+</section>
+
+<section class="slide" id="s5-code-1" data-search="solution 5 admin user createadminuser system.runas contact has_coupon coupon assertion">
+  <div class="pgnum">Page 90 · Admin user code</div>
+  <h2>Admin-user test method</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> CouponTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> myTestMethod1() {
+
+      User adminUser = MyTestFactory.createAdminUser(); <span class="c">// create a user with admin profile</span>
+
+      System.runAs(adminUser){
+
+          Contact con = <span class="k">new</span> Contact();
+          con.FirstName = <span class="s">'New'</span>;
+          con.LastName = <span class="s">'Member'</span>;
+          con.Has_Coupon__c = <span class="k">true</span>;
+          insert con;
+
+          List&lt;Coupon__c&gt; coupons = [SELECT Name FROM Coupon__c WHERE Contact__r.Id = :con.Id];
+          System.assert(coupons.size() &gt; <span class="t">0</span>);
+      }
+  }
+  <span class="c">// Continued…</span></pre>
+</section>
+
+<section class="slide" id="s5-code-2" data-search="solution 5 marketing user createmarketinguser runas contact coupons assertion">
+  <div class="pgnum">Page 91 · Marketing user code</div>
+  <h2>Marketing-user test method</h2>
+<pre class="code">  <span class="a">@isTest</span>
+  <span class="k">static void</span> myTestMethod2() {
+
+      User marketingUser = MyTestFactory.createMarketingUser(); <span class="c">// create a user with marketing profile</span>
+      System.RunAs(marketingUser){
+
+          Contact con = <span class="k">new</span> Contact();
+          con.FirstName = <span class="s">'New'</span>;
+          con.LastName = <span class="s">'Member'</span>;
+          con.Has_Coupon__c = <span class="k">true</span>;
+          insert con;
+
+          List&lt;Coupon__c&gt; coupons = [SELECT Name FROM Coupon__c WHERE Contact__r.Id = :con.Id];
+          System.assert(coupons.size() &gt; <span class="t">0</span>);
+      }
+   }
+}</pre>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The lesson: tests run as the deploying admin by default, which masks permission/sharing bugs. Always exercise <code>System.runAs()</code> for at least one of the lower-permission profiles your feature serves.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="s6-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 92</div>
+  <h2>Apex Test Scenario / Solution VI</h2>
+</section>
+
+<section class="slide" id="s6-scenario" data-search="scenario 6 unable_to_lock_row error developer console salesforce user interface parallel">
+  <div class="pgnum">Page 93 · Scenario VI — UNABLE_TO_LOCK_ROW</div>
+  <h2>Scenario VI — UNABLE_TO_LOCK_ROW</h2>
+  <div class="scenario"><h4>Scenario</h4>
+    <p>A developer has observed that when running certain test classes from the Salesforce user interface or Developer Console, the <code>UNABLE_TO_LOCK_ROW</code> error is sometimes encountered. The developer needs to determine the cause and take steps to prevent it.</p>
+  </div>
+</section>
+
+<section class="slide" id="s6-causes" data-search="parallel test execution data contention same records duplicate index">
+  <div class="pgnum">Page 94 · Causes</div>
+  <h2>Causes</h2>
+  <div class="sln"><h4>Why it happens</h4>
+    <p>Tests executed from the Salesforce UI or Developer Console run in <strong>parallel</strong> to speed up runtime. Data contention and <code>UNABLE_TO_LOCK_ROW</code> errors occur due to:</p>
+  </div>
+  <div class="cards">
+    <div class="card"><h4>Same Records</h4><p>Tests update the same records at the same time.</p></div>
+    <div class="card"><h4>Duplicate Index</h4><p>Records are created with duplicate index field values.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="s6-disable" data-search="disable parallel test execution setup custom code application test execution options @istest isparallel override">
+  <div class="pgnum">Page 95 · Disable parallel</div>
+  <h2>Disable parallel execution</h2>
+  <p>Prevented by deactivating parallel test execution. From <em>Setup → Custom Code → Application Test Execution → Options</em>, select <strong>Disable Parallel Apex Testing</strong>. The annotation <code>@IsTest(isParallel=true)</code> can be used on a test class to <strong>override</strong> disabled parallel testing.</p>
+</section>
+
+<section class="slide" id="s6-ui" data-search="application test execution setup ui disable parallel apex testing options checkbox">
+  <div class="pgnum">Page 96 · Setup UI</div>
+  <h2>Setup UI</h2>
+  <p>From <em>Setup → Custom Code → Application Test Execution</em>, click <strong>Options</strong> → <strong>Disable Parallel Apex Testing</strong> checkbox. This executes test methods one at a time and prevents the occurrence of <code>UNABLE_TO_LOCK_ROW</code> errors.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Parallel testing is faster but flaky for tests that share records. Disable it org-wide as a safety default, then opt-in via <code>isParallel=true</code> on tests you've engineered for parallel safety (i.e. tests that create their own isolated data).</p>
+  </div>
+</section>
+
+<section class="slide" id="learn-more" data-search="learn more performance profiling apex developer guide visualforce trailhead testing best practices order of execution">
+  <div class="pgnum">Pages 97–98 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Reference list from the deck. URLs not yet wired — paste the annotation-link JSON for pages 97–98 (using the same DevTools snippet from before, with <code>['97','98']</code>) and I'll convert these to live links.</p>
+  <ul>
+    <li>A Guide to Application Performance Profiling in Force.com</li>
+    <li>Apex Developer Guide</li>
+    <li>Force.com Performance Profiling Using the Developer Console</li>
+    <li>Performance Tuning for Visualforce and Apex</li>
+    <li>Network Best Practices for Salesforce Architects</li>
+    <li>Debugging</li>
+    <li>Visualforce Performance: Best Practices</li>
+    <li>Get Started With Analyzing Runtime Performance <span class="pill">Trailhead</span></li>
+    <li>Enable Debug Mode for Lightning Components</li>
+    <li>Testing Apex</li>
+    <li>Understanding Test Data</li>
+    <li>Testing Best Practices</li>
+    <li>Isolation of Test Data from Organization Data in Unit Tests</li>
+    <li>Order of Execution Overview (Diagram)</li>
+  </ul>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet quick reference interview developer console execution overview save order limits timeline executed units runas seealldata startTest stopTest unable_to_lock_row">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>Developer Console — the four Execution Overview tabs</h3>
+  <ul>
+    <li><strong>Save Order</strong> — color-coded DML save sequence (triggers, validation rules, flows).</li>
+    <li><strong>Limits</strong> — used/total for SOQL, SOQL_ROWS, DML, DML_ROWS, AGGS (needs debug level <em>Finest</em>).</li>
+    <li><strong>Timeline</strong> — % time per category: APEX_CODE, DB, WORKFLOW, VALIDATION, CALLOUT, VISUALFORCE.</li>
+    <li><strong>Executed Units</strong> — per-method/query call counts, heap size, row counts. Filter by Methods/Queries/Workflow/Callouts/DML/Validations/Triggers/Pages.</li>
+  </ul>
+
+  <h3>Tooling matrix</h3>
+  <ul>
+    <li><strong>Client-side:</strong> Chrome DevTools, Firefox DevTools, Fiddler, Charles, WebPageTest.</li>
+    <li><strong>Lightning JS:</strong> Setup → Lightning Components → Debug Mode (per-user; weekly banner).</li>
+    <li><strong>Server-side:</strong> Developer Console (Stack Tree, Execution Stack, Execution Overview), Tooling API, Apex Timeline tool, Query Plan tab.</li>
+  </ul>
+
+  <h3>Trace flags</h3>
+  <ul>
+    <li>Set <strong>per-class</strong> and per-user. Bump only the class under investigation; set others to <code>NONE</code>.</li>
+    <li>Start at <code>INFO</code>, escalate to <code>FINEST</code> when needed (required for Limits tab data).</li>
+  </ul>
+
+  <h3>Test-failure root causes (the 6 scenarios memorized)</h3>
+  <ol>
+    <li><strong>Low coverage</strong> — exercise every branch (use a Map + for loop for combinatorics).</li>
+    <li><strong>Tests pass, prod breaks</strong> — missing assertions. Assert the actual business outcome, not just "a record exists".</li>
+    <li><strong>Works in sandbox, fails in prod</strong> — <code>@isTest(SeeAllData=true)</code> + reliance on org data. Use <code>Test.loadData</code>, factory class, or <code>@testSetup</code>.</li>
+    <li><strong>Limit exception</strong> — DML inside a for loop. Collect into a list, single DML after. Wrap in <code>Test.startTest/stopTest</code> for fresh limits; check <code>Limits.getDmlStatements()</code>.</li>
+    <li><strong>Works for admin, fails for some users</strong> — permission/sharing-dependent. Wrap in <code>System.runAs(nonAdminUser) { ... }</code>.</li>
+    <li><strong>UNABLE_TO_LOCK_ROW</strong> — parallel tests contending on same records. Disable parallel testing org-wide; opt back in with <code>@IsTest(isParallel=true)</code> for tests engineered safely.</li>
+  </ol>
+
+  <h3>Profiling considerations</h3>
+  <ul>
+    <li>Profile with users of <strong>different roles</strong> — sharing calculations vary.</li>
+    <li>Use <code>LIMIT_USAGE</code> in Execution Log for governor visibility.</li>
+    <li>Establish baseline query perf with an <strong>un-indexed</strong> custom field.</li>
+    <li>Talk to <strong>Salesforce Customer Support</strong> before any load/stress/concurrent-user testing.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) {
+      allSections.forEach(s => s.style.display = '');
+      links.forEach(l => l.style.display = '');
+      return;
+    }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1619 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing, Debugging, and Deployment — Salesforce Interview Prep</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --ink: #1a2233;
+    --muted: #5b6b80;
+    --navy: #22344c;
+    --navy-dark: #16243a;
+    --accent: #1589ee;
+    --accent-2: #00a3e0;
+    --green: #4bca81;
+    --orange: #f4a261;
+    --code-bg: #f1f5fb;
+    --code-border: #d6e0ee;
+    --highlight: #fff7d6;
+    --rule: #e3e8f0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  header.topbar {
+    background: var(--navy);
+    color: white;
+    padding: 14px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+  }
+  header.topbar h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  header.topbar .sub {
+    font-size: 12px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 56px);
+  }
+  aside.sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--rule);
+    padding: 20px 0;
+    overflow-y: auto;
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+  }
+  .search {
+    margin: 0 16px 16px;
+  }
+  .search input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 13px;
+    background: var(--bg);
+  }
+  .search input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    background: white;
+  }
+  nav.toc h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin: 16px 16px 6px;
+    font-weight: 600;
+  }
+  nav.toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px;
+  }
+  nav.toc li a {
+    display: block;
+    padding: 5px 16px 5px 22px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+  }
+  nav.toc li a:hover {
+    background: var(--code-bg);
+    color: var(--accent);
+  }
+  nav.toc li a.active {
+    border-left-color: var(--accent);
+    background: var(--code-bg);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  main {
+    padding: 28px 40px 80px;
+    max-width: 920px;
+    width: 100%;
+  }
+  section.slide {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 22px 28px;
+    margin-bottom: 24px;
+    scroll-margin-top: 80px;
+  }
+  section.slide.title-slide {
+    background: var(--navy);
+    color: white;
+    text-align: center;
+    padding: 56px 28px;
+  }
+  section.slide.title-slide h2 {
+    color: white;
+    margin: 0;
+    font-size: 32px;
+    border: none;
+  }
+  .pgnum {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  section.slide h2 {
+    margin: 4px 0 14px;
+    font-size: 22px;
+    color: var(--navy);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 6px;
+    display: inline-block;
+  }
+  section.slide .lede {
+    font-size: 14.5px;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+  section.slide h3 {
+    color: var(--navy);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 18px 0 6px;
+  }
+  section.slide ul, section.slide ol {
+    margin: 8px 0 12px;
+    padding-left: 22px;
+  }
+  section.slide li {
+    margin: 4px 0;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 10px 0 14px;
+  }
+  .card {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .card h4 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--accent);
+  }
+  .card p { margin: 0; font-size: 13.5px; }
+  pre.code {
+    background: #fbfcfe;
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font: 12.5px/1.5 "SF Mono", Menlo, Consolas, monospace;
+    margin: 10px 0 12px;
+    color: #1a2233;
+  }
+  pre.code .c { color: #6a8b8c; font-style: italic; }
+  pre.code .k { color: #1a64c7; font-weight: 600; }
+  pre.code .s { color: #c14a4a; }
+  pre.code .a { color: #b14b7d; }
+  pre.code .t { color: #1a8b8d; }
+  .note {
+    background: var(--highlight);
+    border-left: 3px solid #e6c548;
+    padding: 8px 12px;
+    margin: 8px 0 12px;
+    font-size: 13.5px;
+  }
+  .interview {
+    background: #eaf6ff;
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    margin: 14px 0 4px;
+    border-radius: 0 6px 6px 0;
+  }
+  .interview h4 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--accent);
+    letter-spacing: 0.8px;
+  }
+  .interview p { margin: 0; font-size: 13.5px; }
+  a.toc-link {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  a.toc-link:hover { text-decoration: underline; }
+  .pillrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 12px;
+  }
+  .pill {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside.sidebar { position: static; height: auto; }
+    main { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Testing, Debugging, and Deployment</a>
+    · Topic
+  </div>
+  <h1>Testing, Debugging, and Deployment</h1>
+  <div class="sub">Apply advanced techniques and tools for testing Apex classes and triggers, such as mocks and stubs · Salesforce interview prep</div>
+  <div style="margin-top:8px;font-size:12px;"><a href="slides.pdf" target="_blank" rel="noopener" style="color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;">Download original PDF (87 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#classes-triggers">Apex Classes &amp; Triggers</a></li>
+    </ul>
+
+    <h3>Apex Unit Tests</h3>
+    <ul>
+      <li><a href="#unit-tests">Apex Unit Tests</a></li>
+      <li><a href="#executing">Executing Apex Unit Tests</a></li>
+      <li><a href="#devconsole">Developer Console</a></li>
+      <li><a href="#creating">Creating Unit Tests</a></li>
+      <li><a href="#writing">Writing Unit Tests</a></li>
+      <li><a href="#asserts">Verifying Code Behavior</a></li>
+      <li><a href="#anatomy">Anatomy of a Test Class</a></li>
+    </ul>
+
+    <h3>Apex Class Testing Example</h3>
+    <ul>
+      <li><a href="#class-ex-1">Class being tested</a></li>
+      <li><a href="#class-ex-2">Test class setup</a></li>
+      <li><a href="#class-ex-3">Test method</a></li>
+      <li><a href="#class-coverage">Class test coverage</a></li>
+    </ul>
+
+    <h3>Apex Trigger Testing Example</h3>
+    <ul>
+      <li><a href="#trig-ex-1">Trigger being tested</a></li>
+      <li><a href="#trig-ex-2">Test class setup</a></li>
+      <li><a href="#trig-ex-3">Test method</a></li>
+      <li><a href="#trig-coverage">Trigger test coverage</a></li>
+    </ul>
+
+    <h3>Error Methods in Apex Testing</h3>
+    <ul>
+      <li><a href="#error-methods">sObject Error Methods</a></li>
+      <li><a href="#error-example">sObject Error Methods Example</a></li>
+    </ul>
+
+    <h3>Test Data &amp; Callouts</h3>
+    <ul>
+      <li><a href="#data-callouts">Overview</a></li>
+      <li><a href="#test-setup">Test Setup Method</a></li>
+      <li><a href="#setup-example">@testSetup Example</a></li>
+      <li><a href="#utility">Test Utility Class</a></li>
+      <li><a href="#utility-example">Utility Class Example</a></li>
+      <li><a href="#static-resource">Load Test Data from Static Resource</a></li>
+      <li><a href="#csv">CSV File Example</a></li>
+      <li><a href="#static-create">Static Resource Creation</a></li>
+      <li><a href="#load-data">Loading via Test.loadData</a></li>
+    </ul>
+
+    <h3>Mock Callouts</h3>
+    <ul>
+      <li><a href="#rest-mock">REST Callout Mock</a></li>
+      <li><a href="#rest-mock-ex">REST Callout Mock Example</a></li>
+      <li><a href="#soap-mock">SOAP Callout Mock</a></li>
+    </ul>
+
+    <h3>Asynchronous Apex Testing</h3>
+    <ul>
+      <li><a href="#async">Asynchronous Apex Testing</a></li>
+      <li><a href="#future">Future Method Testing</a></li>
+      <li><a href="#queueable-batch">Queueable &amp; Batch Apex</a></li>
+      <li><a href="#scheduled">Scheduled Apex</a></li>
+    </ul>
+
+    <h3>Stubbing in Testing</h3>
+    <ul>
+      <li><a href="#stub-what">What is Stubbing</a></li>
+      <li><a href="#stub-how">How to Use a Stub</a></li>
+      <li><a href="#stub-example">Stubbing Example</a></li>
+      <li><a href="#stub-limits">Stub Limitations</a></li>
+    </ul>
+
+    <h3>Flows with External Services</h3>
+    <ul>
+      <li><a href="#flow-mock">HttpCalloutMock for flows</a></li>
+      <li><a href="#flow-test">Flow test class</a></li>
+    </ul>
+
+    <h3>Packages</h3>
+    <ul>
+      <li><a href="#packages">Managed &amp; Unlocked Packages</a></li>
+      <li><a href="#unlocked">Unlocked Packages report</a></li>
+    </ul>
+
+    <h3>Best Practices</h3>
+    <ul>
+      <li><a href="#bp-apex">Best Practices for Apex Testing</a></li>
+      <li><a href="#bp-unit">Unit Testing Best Practices</a></li>
+      <li><a href="#runas">Test as Different Users</a></li>
+      <li><a href="#bp-data">Best Practices for Test Data</a></li>
+      <li><a href="#bp-coverage">Test Coverage Best Practices</a></li>
+      <li><a href="#bp-parallel">Parallel Test Execution</a></li>
+      <li><a href="#bp-other">Other Best Practices</a></li>
+    </ul>
+
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover testing debugging deployment">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Testing, Debugging, and Deployment</h2>
+  <p style="opacity:0.85;max-width:600px;margin:18px auto 0;">Apply advanced techniques and tools for testing Apex classes and triggers, such as mocks and stubs.</p>
+</section>
+
+<section class="slide" id="toc" data-search="table of contents toc">
+  <div class="pgnum">Pages 2–3 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#unit-tests">Apex Unit Tests</a></li>
+    <li><a class="toc-link" href="#class-ex-1">Apex Class Testing Example</a></li>
+    <li><a class="toc-link" href="#trig-ex-1">Apex Trigger Testing Example</a></li>
+    <li><a class="toc-link" href="#error-methods">Error Methods in Apex Testing</a></li>
+    <li><a class="toc-link" href="#test-setup">Test Setup Method</a></li>
+    <li><a class="toc-link" href="#utility">Test Utility Class</a></li>
+    <li><a class="toc-link" href="#static-resource">Loading Static Resource</a></li>
+    <li><a class="toc-link" href="#rest-mock">Using Mock Callouts</a></li>
+    <li><a class="toc-link" href="#async">Asynchronous Apex Testing</a></li>
+    <li><a class="toc-link" href="#stub-what">Stubbing in Testing</a></li>
+    <li><a class="toc-link" href="#flow-mock">Testing Flows with External Services</a></li>
+    <li><a class="toc-link" href="#packages">Managed Packages and Unlocked Packages</a></li>
+    <li><a class="toc-link" href="#bp-apex">Best Practices</a></li>
+  </ol>
+</section>
+
+<section class="slide" id="objectives" data-search="learning objectives goals">
+  <div class="pgnum">Page 4 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the options available for executing Apex unit tests.</li>
+    <li>Explain how to create test classes for Apex classes and triggers.</li>
+    <li>Describe the techniques for loading test data in unit tests.</li>
+    <li>Describe what a <strong>mock</strong> is and how to use it in testing callouts.</li>
+    <li>Describe what a <strong>stub</strong> is and how it can be used in unit tests.</li>
+  </ul>
+</section>
+
+<section class="slide" id="intro" data-search="introduction overview testsetup istest 75 percent code coverage">
+  <div class="pgnum">Page 5 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>This topic discusses how to create and execute <strong>unit test classes</strong> for testing <strong>Apex classes</strong> and <strong>triggers</strong>. Test classes and methods are always annotated with the <code>@isTest</code> annotation. Unit tests should be created to achieve the <strong>75% minimum code coverage</strong> required for deployment, but developers should write test methods for all possible test cases.</p>
+  <p>Test data can be created for testing. A method annotated with <code>@testSetup</code> provides an easy way to create <strong>test data</strong> for all methods in a single test class. Test utility classes and test data stored as <strong>static resources</strong> allow for easy reuse of test data across test classes. <strong>Web service callouts</strong> cannot be tested directly, but Salesforce offers <strong>mock interfaces</strong>, which can be used to simulate test callouts.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Be ready to explain: <em>why</em> 75% (deployment gate, not a quality target), the difference between mocks/stubs/static resources, and when each is appropriate.</p>
+  </div>
+</section>
+
+<section class="slide" id="classes-triggers" data-search="apex classes triggers test execution istest">
+  <div class="pgnum">Page 6 · Testing Apex Classes &amp; Triggers</div>
+  <h2>Testing Apex Classes &amp; Triggers</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Apex Classes</h4>
+      <p>A unit test class can be created for testing an Apex class. The test class and its methods should be annotated with <code>@isTest</code>.</p>
+    </div>
+    <div class="card">
+      <h4>Apex Triggers</h4>
+      <p>A unit test class can be created for testing an Apex trigger. It should perform the actions that fire the trigger and verify the expected results.</p>
+    </div>
+    <div class="card">
+      <h4>Apex Test Execution</h4>
+      <p>All or specific methods of a unit test class can be executed. Tests can be executed from various places like the Developer Console and Setup.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="unit-tests" data-search="apex unit tests 75 percent code coverage meet requirements expectations use case positive negative bulk single">
+  <div class="pgnum">Pages 7–8 · Apex Unit Tests</div>
+  <h2>Apex Unit Tests</h2>
+  <p class="lede">Unit tests can be written and executed for Apex classes and triggers to promote <strong>high-quality</strong> code and <strong>meet</strong> deployment requirements.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Meet Expectations</h4>
+      <p>Unit tests ensure that Apex classes and triggers <strong>work as expected</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Meet Requirements</h4>
+      <p>For deployment, <strong>at least 75%</strong> of code must be covered by unit tests that pass.</p>
+    </div>
+    <div class="card">
+      <h4>Use Case Testing</h4>
+      <p>Unit tests should test the common use cases in the app, including <strong>positive</strong> and <strong>negative</strong> test cases, and <strong>bulk</strong> and <strong>single-record</strong> processing.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="executing" data-search="executing apex unit tests developer console setup salesforce extensions visual studio code builder api one class multiple test suite">
+  <div class="pgnum">Pages 9–10 · Executing Apex Unit Tests</div>
+  <h2>Executing Apex Unit Tests</h2>
+  <p class="lede">Salesforce provides different tools for executing Apex unit tests. Apex test methods can be executed in any of these tools:</p>
+  <div class="pillrow">
+    <span class="pill">Developer Console</span>
+    <span class="pill">Setup</span>
+    <span class="pill">Salesforce Extensions for VS Code</span>
+    <span class="pill">Code Builder</span>
+    <span class="pill">API</span>
+  </div>
+  <h3>Scope of execution</h3>
+  <div class="cards">
+    <div class="card"><h4>One Class</h4><p>All or a subset of test methods in a <strong>specific class</strong>.</p></div>
+    <div class="card"><h4>Multiple Classes</h4><p>All or a subset of test methods in a <strong>set of classes</strong>.</p></div>
+    <div class="card"><h4>Test Suite</h4><p>A predefined <strong>suite of test classes</strong>.</p></div>
+    <div class="card"><h4>All Test Classes</h4><p>All <strong>unit test classes</strong> in the org.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="devconsole" data-search="developer console run tests new run rerun failed abort suite manager">
+  <div class="pgnum">Pages 11–12 · Using the Developer Console to Run Tests</div>
+  <h2>Using the Developer Console to Run Tests</h2>
+  <p>The Developer Console provides several options and settings for running Apex tests via <strong>Test → New Run / Rerun / Rerun Failed Tests / Run All / Abort / New Suite / Suite Manager / New Suite Run</strong>.</p>
+  <p>Developer Console also allows specifying the <strong>test methods</strong> to run in a test class — select a test class, choose <em>All Methods</em> or specific methods (e.g. <code>testAmount</code>, <code>testYears</code>), then click <strong>Run</strong>.</p>
+</section>
+
+<section class="slide" id="creating" data-search="creating unit tests apex classes class annotation method annotation setup method access modifier private public test data factory">
+  <div class="pgnum">Pages 13–14 · Creating Unit Tests for Apex Classes</div>
+  <h2>Creating Unit Tests for Apex Classes</h2>
+  <p class="lede">A <strong>separate Apex class</strong>, called a <strong>test class</strong>, is required to test a particular Apex class.</p>
+  <div class="cards">
+    <div class="card"><h4>Class Annotation</h4><p>Annotate with <code>@isTest</code>; be either <strong>private</strong> or <strong>public</strong>. Public test classes are generally used for <strong>test data factory</strong> classes.</p></div>
+    <div class="card"><h4>Method Annotation</h4><p>Each test method should be annotated with <code>@isTest</code> and take <strong>no arguments</strong>.</p></div>
+    <div class="card"><h4>Setup Method</h4><p>A test setup method (for creating test data) is defined using <code>@testSetup</code>.</p></div>
+    <div class="card"><h4>Access Modifier</h4><p>Access modifiers can be <strong>omitted</strong> from test methods since they are always accessible by the testing framework.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="writing" data-search="writing unit tests testing methods triggers running results assert dml">
+  <div class="pgnum">Page 15 · Writing Unit Tests</div>
+  <h2>Writing Unit Tests</h2>
+  <p class="lede">A unit test invokes the method or trigger being tested. If a method or trigger isn't called, it negatively impacts the <strong>code coverage computation</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Testing Methods</h4><p>The method being tested can be called <strong>directly</strong> from the test method.</p></div>
+    <div class="card"><h4>Testing Triggers</h4><p>Include <strong>DML operations</strong> in test methods to invoke the triggers.</p></div>
+    <div class="card"><h4>Running Tests</h4><p>Unit tests should <strong>execute</strong> the Apex methods or triggers being tested.</p></div>
+    <div class="card"><h4>Verifying Results</h4><p>Test results should be verified with the use of <strong>assert methods</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="asserts" data-search="verifying code behavior assert methods system assertequals assertnotequals assert istrue isfalse areequal arenotequal class">
+  <div class="pgnum">Page 16 · Verifying Code Behavior</div>
+  <h2>Verifying Code Behavior</h2>
+  <p class="lede">Assert methods are used to verify code behavior. They throw an exception when the <strong>actual</strong> result does not match the <strong>expected</strong> result.</p>
+<pre class="code"><span class="c">// System.assert(condition, msg);</span>
+System.assert(x == y, <span class="s">'Oops, X does NOT equal Y'</span>);
+
+<span class="c">// System.assertEquals(expected, actual, msg);</span>
+System.assertEquals(x, y, <span class="s">'Oops, X does NOT equal Y'</span>);
+
+<span class="c">// System.assertNotEquals(expected, actual, msg);</span>
+System.assertNotEquals(x, y, <span class="s">'Oops, X does equal Y'</span>);
+
+<span class="c">// Assert.isTrue(condition, msg);</span>
+Assert.isTrue(x == y, <span class="s">'Oops, X does NOT equal Y'</span>);
+
+<span class="c">// Assert.isFalse(condition, msg);</span>
+Assert.isFalse(x == y, <span class="s">'Oops, X does NOT equal Y'</span>);
+
+<span class="c">// Assert.areEqual(expected, actual, msg);</span>
+Assert.areEqual(x, y, <span class="s">'Oops, X does NOT equal Y'</span>);
+
+<span class="c">// Assert.areNotEqual(expected, actual, msg);</span>
+Assert.areNotEqual(x, y, <span class="s">'Oops, X does equal Y'</span>);</pre>
+  <div class="note">The <code>Assert</code> class provides additional methods for checking <strong>instance types</strong>, <strong>null values</strong>, and explicitly <strong>throwing errors</strong>. <strong>Salesforce recommends using the <code>Assert</code> class</strong> for new code — it enhances flexibility and clarity over the older <code>System.assert*</code> methods.</div>
+</section>
+
+<section class="slide" id="anatomy" data-search="anatomy apex test class istest testsetup naming convention test suffix void static no arguments">
+  <div class="pgnum">Page 17 · Anatomy of an Apex Test Class</div>
+  <h2>Anatomy of an Apex Test Class</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">private class</span> MyApexClass__Test {
+
+    <span class="a">@testSetup</span>
+    <span class="k">private static void</span> setupTestData() {
+        <span class="c">// create records to use in the test methods</span>
+    }
+
+    <span class="a">@isTest</span>
+    <span class="k">private static void</span> myTestMethod() {
+        <span class="c">// test business logic in an Apex method</span>
+        <span class="c">// use assert methods to verify results</span>
+    }
+}</pre>
+  <ul>
+    <li><code>@isTest</code> defines the Apex class as a <strong>test class</strong>.</li>
+    <li>A naming convention such as a <code>"__Test"</code> suffix is advised to easily identify test classes.</li>
+    <li><code>@testSetup</code> defines a method used for creating test data.</li>
+    <li>Test methods must be <em>static</em>, must be <em>void</em>, must not accept any arguments.</li>
+    <li>Not every method in a test class has to be a test method.</li>
+  </ul>
+</section>
+
+<section class="slide title-slide" id="class-ex-1-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 18</div>
+  <h2>Apex Class Testing Example</h2>
+</section>
+
+<section class="slide" id="class-ex-1" data-search="opportunityupdate sales order closed won processrecords">
+  <div class="pgnum">Page 19 · Example of Testing an Apex Class — Class being tested</div>
+  <h2>The Apex class to test</h2>
+  <p class="lede">This Apex class creates a sales order and updates a field for every opportunity that is <strong>closed won</strong>.</p>
+<pre class="code"><span class="k">public class</span> OpportunityUpdate {
+
+    <span class="k">public static void</span> processRecords(List&lt;Opportunity&gt; opps) {
+
+        List&lt;Sales_Order__c&gt; salesOrders = <span class="k">new</span> List&lt;Sales_Order__c&gt;();
+        List&lt;Opportunity&gt; oppsToUpdate = <span class="k">new</span> List&lt;Opportunity&gt;();
+
+        <span class="k">for</span> (Opportunity o : opps) {
+            <span class="k">if</span> (o.StageName == <span class="s">'Closed Won'</span>) {
+                Sales_Order__c s = <span class="k">new</span> Sales_Order__c();
+                s.Name = o.Name + <span class="s">' Order'</span>;
+                s.Opportunity__c = o.Id;
+                s.Status__c = <span class="s">'New'</span>;
+                s.Account__c = o.AccountId;
+                salesOrders.add(s);
+
+                o.Notes__c = <span class="s">'A sales order has been created for this opportunity.'</span>;
+                oppsToUpdate.add(o);
+            }
+        }
+
+        insert salesOrders;
+        update oppsToUpdate;
+    }
+}</pre>
+</section>
+
+<section class="slide" id="class-ex-2" data-search="testopportunityupdate testsetup account testopportunities closed won">
+  <div class="pgnum">Page 20 · Example of Testing an Apex Class — Test setup</div>
+  <h2>Test class &amp; <code>@testSetup</code></h2>
+  <p class="lede">This test class contains test methods for testing the <em>OpportunityUpdate</em> Apex class example.</p>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> TestOpportunityUpdate {
+
+    <span class="a">@testSetup</span> <span class="c">// This method is used to set up test data for testing.</span>
+    <span class="k">static void</span> setup() {
+
+        Account a = <span class="k">new</span> Account(Name = <span class="s">'Test Account'</span>);
+        insert a;
+        List&lt;Opportunity&gt; testOpportunities = <span class="k">new</span> List&lt;Opportunity&gt;();
+
+        <span class="k">for</span> (Integer i=1; i&lt;=300; i++) {
+            testOpportunities.add(<span class="k">new</span> Opportunity(
+                Name = <span class="s">'Test Opportunity '</span> + i,
+                StageName = <span class="s">'Closed Won'</span>,
+                CloseDate = System.today(),
+                Notes__c = <span class="s">''</span>,
+                AccountId = a.Id
+            ));
+        }
+        insert testOpportunities;
+    }
+    <span class="c">// Continued…</span></pre>
+</section>
+
+<section class="slide" id="class-ex-3" data-search="testsalesordercreation soql opportunity sales order assert isfalse areequal">
+  <div class="pgnum">Page 21 · Example of Testing an Apex Class — Test method</div>
+  <h2>Test method</h2>
+<pre class="code">    <span class="c">// This test method verifies whether a sales order is created when the stage of an opportunity</span>
+    <span class="c">// is changed to 'Closed Won'. It also verifies whether the Notes__c field on the opportunity is updated.</span>
+    <span class="a">@isTest</span>
+    <span class="k">static void</span> testSalesOrderCreation() {
+        List&lt;Opportunity&gt; opps = [SELECT Id, Name, StageName, AccountId, Notes__c
+                                  FROM Opportunity WHERE StageName = <span class="s">'Closed Won'</span>];
+        OpportunityUpdate.processRecords(opps);
+        List&lt;Sales_Order__c&gt; salesOrders = [SELECT Id, Name, Opportunity__c, Status__c, Account__c
+                                            FROM Sales_Order__c WHERE Opportunity__c IN :opps];
+        Assert.isFalse(salesOrders.isEmpty()); <span class="c">// fail test if no sales order were created</span>
+        String note = <span class="s">'A sales order has been created for this opportunity.'</span>;
+        <span class="k">for</span> (Sales_Order__c so : salesOrders) {
+            <span class="k">for</span> (Opportunity o : opps) {
+                <span class="k">if</span> (so.Opportunity__c == o.Id) {
+                    Assert.areEqual(o.Name + <span class="s">' Order'</span>, so.Name);       <span class="c">// fail if naming convention not followed</span>
+                    Assert.areEqual(<span class="s">'New'</span>, so.Status__c);              <span class="c">// fail if order status is not 'New'</span>
+                    Assert.areEqual(o.AccountId, so.Account__c);          <span class="c">// fail if account IDs do not match</span>
+                    Assert.areEqual(note, o.Notes__c);                    <span class="c">// fail if the note was not saved</span>
+                }
+            }
+        }
+    }
+}</pre>
+</section>
+
+<section class="slide" id="class-coverage" data-search="apex class test coverage 100 percent overall code coverage panel">
+  <div class="pgnum">Page 22 · Apex Class Test Coverage</div>
+  <h2>Apex Class Test Coverage</h2>
+  <p>Running the test class using the Developer Console shows the test results in the <strong>Tests</strong> tab and coverage details in the <strong>Overall Code Coverage</strong> panel.</p>
+  <div class="note">In the example, the test passed and covered <strong>100% (15/15)</strong> of the <code>OpportunityUpdate</code> Apex class.</div>
+</section>
+
+<section class="slide title-slide" id="trig-ex-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 23</div>
+  <h2>Apex Trigger Testing Example</h2>
+</section>
+
+<section class="slide" id="trig-ex-1" data-search="opportunitytrigger before update closed won trigger.new trigger.oldmap order draft">
+  <div class="pgnum">Page 24 · Example of Testing an Apex Trigger — Trigger being tested</div>
+  <h2>The trigger to test</h2>
+  <p class="lede">This Apex trigger creates a new order when the status of an opportunity is <strong>changed to 'Closed Won'</strong>.</p>
+<pre class="code"><span class="k">trigger</span> OpportunityTrigger <span class="k">on</span> Opportunity (before update) {
+    List&lt;Order&gt; newOrders = <span class="k">new</span> List&lt;Order&gt;();
+
+    <span class="k">for</span> (Opportunity opp : Trigger.new) {
+
+        <span class="k">if</span> (opp.StageName == <span class="s">'Closed Won'</span> &amp;&amp;
+            (Trigger.oldMap.get(opp.Id).StageName != <span class="s">'Closed Won'</span>)) {
+
+            Order o = <span class="k">new</span> Order();
+            o.AccountId = opp.AccountId;
+            o.EffectiveDate = System.today();
+            o.Status = <span class="s">'Draft'</span>;
+            newOrders.add(o);
+        }
+    }
+
+    insert newOrders;
+}</pre>
+</section>
+
+<section class="slide" id="trig-ex-2" data-search="testopportunitytrigger testsetup prospecting account testopportunities">
+  <div class="pgnum">Page 25 · Example of Testing an Apex Trigger — Test setup</div>
+  <h2>Test class &amp; <code>@testSetup</code></h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> TestOpportunityTrigger {
+    <span class="c">// This method is used to set up test data for testing.</span>
+    <span class="a">@testSetup</span>
+    <span class="k">static void</span> setup() {
+        Account a = <span class="k">new</span> Account(Name = <span class="s">'Test Account'</span>);
+        insert a;
+
+        List&lt;Opportunity&gt; testOpportunities = <span class="k">new</span> List&lt;Opportunity&gt;();
+        <span class="k">for</span>(Integer i=1; i&lt;=300; i++) {
+            testOpportunities.add(<span class="k">new</span> Opportunity (
+                Name = <span class="s">'Test Opportunity '</span> + i,
+                StageName = <span class="s">'Prospecting'</span>,
+                CloseDate = System.today(),
+                AccountId = a.Id
+            ));
+        }
+        insert testOpportunities;
+    }
+    <span class="c">// Continued…</span></pre>
+</section>
+
+<section class="slide" id="trig-ex-3" data-search="testordercreation update opportunity dml closed won order draft assert">
+  <div class="pgnum">Page 26 · Example of Testing an Apex Trigger — Test method</div>
+  <h2>Test method (DML fires the trigger)</h2>
+<pre class="code">    <span class="c">// This test method verifies whether an order is created when the stage of an opportunity is changed to 'Closed Won'.</span>
+    <span class="a">@isTest</span>
+    <span class="k">static void</span> testOrderCreation() {
+        List&lt;Opportunity&gt; opps = [SELECT Id, Name, StageName, AccountId
+                                  FROM Opportunity WHERE StageName = <span class="s">'Prospecting'</span>];
+        List&lt;Opportunity&gt; newOpps = <span class="k">new</span> List&lt;Opportunity&gt;();
+        <span class="k">for</span>(Opportunity opp : opps) {
+            opp.StageName = <span class="s">'Closed Won'</span>;
+            newOpps.add(opp);
+        }
+        update newOpps;
+
+        List&lt;Order&gt; orders = [SELECT Id, Status, EffectiveDate, AccountId
+                              FROM Order WHERE AccountId = :opps[0].AccountId];
+        Assert.isTrue(orders.size() &gt; 0, <span class="s">'No orders were found!'</span>);
+
+        <span class="k">for</span> (Order o : orders) {
+            Assert.areEqual(o.Status, <span class="s">'Draft'</span>);
+            Assert.areEqual(o.AccountId, newOpps[<span class="t">0</span>].AccountId);
+            Assert.areEqual(o.EffectiveDate, System.today());
+        }
+    }
+}</pre>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Triggers are invoked by DML, never called directly. Stress-test bulk behavior — the example uses 300 opportunities to ensure the trigger is bulk-safe.</p>
+  </div>
+</section>
+
+<section class="slide" id="trig-coverage" data-search="apex trigger test coverage 100 percent overall code coverage">
+  <div class="pgnum">Page 27 · Apex Trigger Test Coverage</div>
+  <h2>Apex Trigger Test Coverage</h2>
+  <p>Running the test class shows the results in the <strong>Tests</strong> tab and coverage details in the <strong>Overall Code Coverage</strong> panel.</p>
+  <div class="note">In the example, the test passed and covered <strong>100% (9/9)</strong> of the <code>OpportunityTrigger</code>.</div>
+</section>
+
+<section class="slide title-slide" id="error-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 28</div>
+  <h2>Error Methods in Apex Testing</h2>
+</section>
+
+<section class="slide" id="error-methods" data-search="sobject error methods adderror haserrors geterrors dml database.error">
+  <div class="pgnum">Page 29 · sObject Error Methods</div>
+  <h2>Apex Testing with sObject Error Methods</h2>
+  <p class="lede">The <em>sObject</em> class contains error methods used in Apex testing to <strong>track</strong> and <strong>obtain</strong> errors without performing any <strong>DML operation</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>sObject.addError()</h4><p>Dynamically add errors to specific fields.</p>
+<pre class="code"><span class="c">// Example:</span>
+String field = <span class="s">'Site'</span>;
+String msg = <span class="s">'website does not exist.'</span>;
+account.addError(field, msg);</pre>
+    </div>
+    <div class="card"><h4>sObject.hasErrors()</h4><p>Determine if an object instance contains any errors.</p>
+<pre class="code"><span class="c">// Example:</span>
+Boolean has = account.hasErrors();
+Assert.areEqual(<span class="k">true</span>, has);</pre>
+    </div>
+    <div class="card"><h4>sObject.getErrors()</h4><p>Retrieve a list of errors for a specific object instance.</p>
+<pre class="code"><span class="c">// Example:</span>
+Integer size = account.getErrors().size();
+Assert.areEqual(<span class="t">1</span>, size);</pre>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="error-example" data-search="sobject error example url status mock field_custom_validation_exception getmessage getstatuscode getfields">
+  <div class="pgnum">Page 30 · sObject Error Methods Example</div>
+  <h2>sObject Error Methods Example</h2>
+<pre class="code">Account a = <span class="k">new</span> Account();
+a.Name = <span class="s">'ACME Inc.'</span>;
+a.Site = <span class="s">'https://www.nonworkingwebsite.com'</span>;
+
+URLStatus status = (<span class="k">new</span> URLStatus()).check(a.Site); <span class="c">// check if Site URL is accessible (mock)</span>
+Assert.areEqual(<span class="k">false</span>, status.healthy);
+
+a.addError(<span class="s">'Site'</span>, status.message); <span class="c">// add error message to specific field</span>
+Assert.areEqual(<span class="k">true</span>, a.hasErrors()); <span class="c">// assert that an message was added to the instance</span>
+
+List&lt;Database.Error&gt; errors = a.getErrors(); <span class="c">// get any errors added to the instance</span>
+Assert.areEqual(<span class="t">1</span>, errors.size()); <span class="c">// assert that there should only be 1 error</span>
+
+Database.Error error = errors.get(<span class="t">0</span>);
+Assert.areEqual(StatusCode.FIELD_CUSTOM_VALIDATION_EXCEPTION, error.getStatusCode());
+Assert.areEqual(<span class="s">'Site is not working!'</span>, error.getMessage());
+Assert.areEqual(<span class="t">1</span>, error.getFields().size());
+
+System.debug(<span class="s">'message: '</span> + error.getMessage());
+System.debug(<span class="s">'status:  '</span> + error.getStatusCode());
+System.debug(<span class="s">'fields:  '</span> + error.getFields());</pre>
+  <div class="note">Errors added via <code>addError</code> are assigned to the <strong>FIELD_CUSTOM_VALIDATION_EXCEPTION</strong> exception type, although it is not related to custom validation rules.</div>
+</section>
+
+<section class="slide" id="data-callouts" data-search="apex test data callouts overview testsetup utility static resource httpcalloutmock webservicemock">
+  <div class="pgnum">Page 31 · Apex Test Data and Callouts</div>
+  <h2>Apex Test Data and Callouts</h2>
+  <p class="lede">Salesforce provides the following features for working with data and callouts in unit tests:</p>
+  <div class="cards">
+    <div class="card"><h4>Test Setup Method</h4><p>Annotated with <code>@testSetup</code>; creates <strong>test data</strong> once for the test methods of the test class.</p></div>
+    <div class="card"><h4>Test Utility Class</h4><p>Uses <code>@isTest</code> and creates <strong>test records</strong> usable by test classes of the org.</p></div>
+    <div class="card"><h4>Loading Static Resource</h4><p>A static resource (.csv) containing test records, used in a test method via <code>Test.loadData</code>.</p></div>
+    <div class="card"><h4>Mock REST Callouts</h4><p>REST callouts tested via <code>HttpCalloutMock</code> + <code>Test.setMock</code>.</p></div>
+    <div class="card"><h4>Mock SOAP Callouts</h4><p>SOAP callouts tested via <code>WebServiceMock</code> + <code>Test.setMock</code>.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="test-setup-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 32</div>
+  <h2>Test Setup Method</h2>
+</section>
+
+<section class="slide" id="test-setup" data-search="test setup method testsetup annotation structure run first record creation seealldata">
+  <div class="pgnum">Pages 33–34 · Test Setup Methods</div>
+  <h2>Test Setup Methods</h2>
+  <p class="lede">A test class is allowed to only have <strong>one</strong> test setup method, used for creating test data.</p>
+  <div class="cards">
+    <div class="card"><h4>Structure</h4><p>Defined in a test class, takes <strong>no arguments</strong>, and returns no value.</p></div>
+    <div class="card"><h4>Annotation</h4><p>Annotated using <code>@testSetup</code>.</p></div>
+    <div class="card"><h4>Run First</h4><p>Runs first, <strong>before</strong> any test method in the class.</p></div>
+    <div class="card"><h4>Test Data</h4><p>Creates data once, accessible by all test methods.</p></div>
+    <div class="card"><h4>Record Creation</h4><p>Records created in a regular test method are rolled back at the end of <strong>method execution</strong>; records from <code>@testSetup</code> are rolled back at <strong>class execution</strong> — reducing test time.</p></div>
+    <div class="card"><h4>Record Changes</h4><p>If a test method changes records created by setup, those changes are rolled back at end of method, so every test method starts with the <strong>original, unchanged</strong> data.</p></div>
+    <div class="card"><h4>Method Support</h4><p>Test setup methods are <strong>not supported</strong> in a test class that uses <code>@isTest(SeeAllData=True)</code>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="setup-example" data-search="testsetup example accounttestclass testmethod1 testmethod2 healthcare communication">
+  <div class="pgnum">Pages 35–36 · Example of a Test Setup Method</div>
+  <h2>Example of a Test Setup Method</h2>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">private class</span> AccountTestClass {
+
+    <span class="c">// The @testSetup annotation is used for a test setup method</span>
+    <span class="a">@testSetup</span> <span class="k">static void</span> setup() {
+
+        List&lt;Account&gt; testAccounts = <span class="k">new</span> List&lt;Account&gt;();
+
+        <span class="k">for</span>(Integer i=1; i&lt;=300; i++) {
+            testAccounts.add(<span class="k">new</span> Account (Name = <span class="s">'Test Account '</span> + i));
+        }
+
+        insert testAccounts;
+    }
+
+    <span class="c">// The test record created in test setup method can be used in a test method</span>
+    <span class="a">@isTest</span>
+    <span class="k">static void</span> testMethod1() {
+        Account acc = [SELECT Id, Name, Industry FROM Account WHERE Name = <span class="s">'Test Account 1'</span>];
+        acc.Industry = <span class="s">'Healthcare'</span>;
+        update acc;
+    }
+
+    <span class="c">// Any changes to a test record created in a test setup method are rolled back at the end of a test method</span>
+    <span class="a">@isTest</span> <span class="k">static void</span> testMethod2() {
+        Account acc = [SELECT Id, Name, Industry FROM Account WHERE Name = <span class="s">'Test Account 1'</span>];
+
+        <span class="c">// Verify that the value of the Industry field currently has no value</span>
+        Assert.areEqual(<span class="k">null</span>, acc.Industry);
+
+        <span class="c">// The second test method can also make changes to the same test records</span>
+        acc.Industry = <span class="s">'Communication'</span>;
+        update acc;
+    }
+}</pre>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Be ready to articulate the rollback model: each test method starts from <em>the setup snapshot</em>, not from the previous method's state.</p>
+  </div>
+</section>
+
+<section class="slide title-slide" id="utility-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 37</div>
+  <h2>Test Utility Class</h2>
+</section>
+
+<section class="slide" id="utility" data-search="test utility class test data factory istest annotation parameters method call access global public">
+  <div class="pgnum">Page 38 · Test Utility Class</div>
+  <h2>Test Utility Class</h2>
+  <p class="lede">When test classes use similar test data, a <strong>test utility class</strong> or <strong>test data factory</strong> can be created and used across unit tests.</p>
+  <div class="cards">
+    <div class="card"><h4>Annotation</h4><p>Uses <code>@isTest</code>, which excludes the code from the org's code size limit and code coverage requirement.</p></div>
+    <div class="card"><h4>Parameters</h4><p>Methods can take <strong>parameters</strong> and return a <strong>value</strong>.</p></div>
+    <div class="card"><h4>Method Call</h4><p>Test creation methods are <strong>called directly</strong> from unit tests.</p></div>
+    <div class="card"><h4>Method Access</h4><p>Should be defined as <strong>global</strong> or <strong>public</strong> to ensure unit tests can access them.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="utility-example" data-search="testdatafactory createtestaccounts type industry">
+  <div class="pgnum">Page 39 · Example of a Test Utility Class</div>
+  <h2>Example of a Test Utility Class</h2>
+<pre class="code"><span class="c">// The @isTest annotation is used for the test utility class so that it is executed in test context.</span>
+<span class="a">@isTest</span>
+<span class="k">public class</span> TestDataFactory {
+
+    <span class="c">// A method in a test utility class can accept parameters and return a value</span>
+    <span class="k">public static</span> List&lt;Account&gt; createTestAccounts(String t, String i) {
+
+        List&lt;Account&gt; accounts = <span class="k">new</span> List&lt;Account&gt;();
+        <span class="k">for</span> (Integer j = 1; j &lt;= 300; j++) {
+            Account a = <span class="k">new</span> Account(Name = <span class="s">'Test'</span> + j, Type = t, Industry = i);
+            accounts.add(a);
+        }
+
+        insert accounts;
+        <span class="k">return</span> accounts;
+    }
+}</pre>
+</section>
+
+<section class="slide title-slide" id="static-resource-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 40</div>
+  <h2>Loading Static Resource</h2>
+</section>
+
+<section class="slide" id="static-resource" data-search="load test data static resource csv file upload load data per object field names values">
+  <div class="pgnum">Pages 41–42 · Load Test Data from Static Resource</div>
+  <h2>Load Test Data from Static Resource</h2>
+  <p class="lede">Salesforce allows generating test data from a static resource.</p>
+  <div class="cards">
+    <div class="card"><h4>File Format</h4><p>The data should be stored in a <strong>.csv file</strong>.</p></div>
+    <div class="card"><h4>Upload File</h4><p>Upload the file as a <strong>static resource</strong> in the org.</p></div>
+    <div class="card"><h4>Load Data</h4><p>Use <code>Test.loadData</code>, specifying the <strong>object type</strong> and <strong>static resource</strong>.</p></div>
+    <div class="card"><h4>Per Object</h4><p><strong>One file</strong> per object type that needs test data.</p></div>
+    <div class="card"><h4>Field Names</h4><p>The <strong>first line</strong> of the file must contain field names for the object.</p></div>
+    <div class="card"><h4>Field Values</h4><p>Remaining lines contain field values for records to be loaded.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="csv" data-search="csv example name rating type industry billingcity scarlette hermes luxo">
+  <div class="pgnum">Page 43 · CSV File Example</div>
+  <h2>CSV File Example</h2>
+  <p class="lede">Account test records that can be loaded during a test:</p>
+<pre class="code">Name,Rating,Type,Industry,BillingCity
+Scarlette Group,Hot,Customer,Entertainment,Rome
+Hermes,Hot,Customer,Fashion,Paris
+Luxo Roma,Hot,Customer,Travel,Milan</pre>
+</section>
+
+<section class="slide" id="static-create" data-search="static resource creation setup custom code testdata cache control private">
+  <div class="pgnum">Page 44 · Static Resource Creation</div>
+  <h2>Static Resource Creation</h2>
+  <p>The CSV file needs to be uploaded as a static resource so it can be referenced in the test. From <strong>Setup → Custom Code → Static Resources → New</strong>:</p>
+  <ul>
+    <li><strong>Name:</strong> testData</li>
+    <li><strong>File:</strong> testData.csv</li>
+    <li><strong>Cache Control:</strong> Private</li>
+  </ul>
+</section>
+
+<section class="slide" id="load-data" data-search="test.loaddata account sobjecttype testdata assert isTrue size hermes">
+  <div class="pgnum">Page 45 · Example of Loading Test Data from Static Resource</div>
+  <h2>Example of Loading Test Data from Static Resource</h2>
+  <p class="lede">Pass the <strong>object type</strong> and the <strong>name</strong> of the static file to <code>Test.loadData</code>:</p>
+<pre class="code"><span class="c">// This test class uses Test.loadData to load test data from a CSV file</span>
+<span class="a">@isTest</span>
+<span class="k">private class</span> TestClass {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testMethod1() {
+
+      List&lt;sObject&gt; accounts = Test.loadData(Account.sObjectType, <span class="s">'testData'</span>);
+      Assert.isTrue(accounts.size() == <span class="t">3</span>);
+      Account acc = (Account) accounts[<span class="t">1</span>];
+
+      Assert.areEqual(<span class="s">'Hermes'</span>, acc.Name);
+  }
+}</pre>
+</section>
+
+<section class="slide title-slide" id="mock-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 46</div>
+  <h2>Using Mock Callouts</h2>
+</section>
+
+<section class="slide" id="rest-mock" data-search="httpcalloutmock rest callout mock respond test.setmock access annotation standalone class verify response setmock startTest stopTest uncommitted work">
+  <div class="pgnum">Pages 47–49 · Generate REST Callout Mock Response</div>
+  <h2>Generate REST Callout Mock Response</h2>
+  <p class="lede">Salesforce does not allow performing callouts in test classes, and instead provides an interface for simulating callouts in test executions: <strong>HttpCalloutMock</strong>.</p>
+  <h3>HttpCalloutMock interface</h3>
+  <div class="cards">
+    <div class="card"><h4>Access</h4><p>The access modifier of the Apex class should be defined as either <strong>global</strong> or <strong>public</strong>.</p></div>
+    <div class="card"><h4>Annotation</h4><p>The class should be annotated with <code>@isTest</code>, since it is used only in test context.</p></div>
+    <div class="card"><h4>Respond</h4><p>The class only needs to implement a <code>respond()</code> method which accepts an <strong>HttpRequest</strong> and returns an <strong>HttpResponse</strong>.</p></div>
+    <div class="card"><h4>Response</h4><p>The HttpResponse should <strong>mimic what the actual REST-based web service would return</strong>.</p></div>
+    <div class="card"><h4>Standalone Class</h4><p>As a best practice, a separate class per callout to test.</p></div>
+    <div class="card"><h4>Mock Response</h4><p>In <code>respond()</code>, the mock response can be sent only for a specific endpoint and HTTP method.</p></div>
+  </div>
+  <h3>Wiring it up in tests</h3>
+  <div class="cards">
+    <div class="card"><h4>Set Callout Mock</h4><p>In the unit test, <code>Test.setMock</code> is used to set the mock callout and receive the fake response.</p></div>
+    <div class="card"><h4>First Argument</h4><p><code>HttpCalloutMock.class</code> is the first argument to <code>Test.setMock</code>.</p></div>
+    <div class="card"><h4>Second Argument</h4><p>An instance of the interface implementation, e.g. <code>Test.setMock(HttpCalloutMock.class, new MockContactServiceCallout());</code></p></div>
+    <div class="card"><h4>Verify Response</h4><p>The HttpResponse generated by the mock callout can be verified in the unit test method.</p></div>
+    <div class="card"><h4>setMock Position</h4><p><code>Test.setMock()</code> should be added <strong>before</strong> the callout. If the test class creates test data, an <strong>'uncommitted work'</strong> error will be thrown if the callout is invoked without enclosing it in <code>Test.startTest()</code> / <code>Test.stopTest()</code>.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>"Why do I need <code>startTest</code>/<code>stopTest</code> around a callout?" — Because mixing DML (test data creation) with callouts triggers the <em>uncommitted work pending</em> error; the start/stop boundary scopes the callout into its own transaction context.</p>
+  </div>
+</section>
+
+<section class="slide" id="rest-mock-ex" data-search="enrollhttpcalloutmock studentcontroller enroll application content-type httpresponse setbody setstatuscode 200 startTest stopTest">
+  <div class="pgnum">Page 50 · REST Callout Mock Example</div>
+  <h2>REST Callout Mock Example</h2>
+<pre class="code"><span class="c">// example callout mock class that simulates the response of a successful enrollment of a student:</span>
+<span class="k">public class</span> EnrollHttpCalloutMock <span class="k">implements</span> HttpCalloutMock {
+    <span class="k">public</span> HttpResponse respond(HttpRequest req) {
+        HttpResponse res = <span class="k">new</span> HttpResponse();
+        res.setHeader(<span class="s">'Content-Type'</span>, <span class="s">'application/json'</span>);
+        res.setBody(<span class="s">'{"success":true,"studentId":12345,"courseId":67,"yearLevel":3}'</span>); <span class="c">// create fake response</span>
+        res.setStatusCode(<span class="t">200</span>);
+        <span class="k">return</span> res;
+    }
+}
+
+<span class="c">// example code contained and executed inside a test method:</span>
+Test.startTest();
+Test.setMock(HttpCalloutMock.class, <span class="k">new</span> EnrollHttpCalloutMock());
+StudentApplicationWrapper application = generateStudentApplication(); <span class="c">// some helper method</span>
+Enrollment erm = StudentController.enroll(application); <span class="c">// invoke the method to test</span>
+
+<span class="c">// verify new record created from fake data</span>
+Assert.areEqual(erm.ExternalStudentId__c, <span class="t">12345</span>);
+Assert.areEqual(erm.YearLevel__c, <span class="t">3</span>);
+Assert.areEqual(erm.CourseId__c, <span class="t">67</span>);
+Test.stopTest();</pre>
+</section>
+
+<section class="slide" id="soap-mock" data-search="webservicemock soap callout mock doinvoke wsdl2apex map string object specific endpoint">
+  <div class="pgnum">Pages 51–53 · Generate SOAP Callout Mock Response</div>
+  <h2>Generate SOAP Callout Mock Response</h2>
+  <p class="lede"><strong>SOAP callouts</strong> can be tested by creating a class that implements the <strong>WebServiceMock</strong> interface based on classes generated by <strong>WSDL2Apex</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Standalone Class</h4><p>A separate class for each callout to test.</p></div>
+    <div class="card"><h4>Access Modifier</h4><p>Defined as <strong>global</strong> or <strong>public</strong>.</p></div>
+    <div class="card"><h4>Class Annotation</h4><p>Annotated with <code>@isTest</code>.</p></div>
+    <div class="card"><h4>Single Method</h4><p>Implements a <code>doInvoke()</code> method.</p></div>
+    <div class="card"><h4>Method Parameters</h4><p>All information about the callout, including the response, is passed to <code>doInvoke()</code> through multiple input parameters.</p></div>
+    <div class="card"><h4>Mock Response</h4><p>The response is placed in the <strong>response</strong> parameter of type <code>Map&lt;String, Object&gt;</code>.</p></div>
+    <div class="card"><h4>Specific Endpoint</h4><p>In <code>doInvoke()</code>, a specific endpoint and method can be used.</p></div>
+  </div>
+  <h3>Wiring in tests</h3>
+  <div class="cards">
+    <div class="card"><h4>First Argument</h4><p><code>WebServiceMock.class</code> is used as the first argument to <code>Test.setMock</code>.</p></div>
+    <div class="card"><h4>Second Argument</h4><p>An instance of the interface implementation of <code>WebServiceMock.class</code>, e.g. <code>Test.setMock(WebServiceMock.class, new MockContactWebService());</code></p></div>
+    <div class="card"><h4>Verify Response</h4><p>The response parameter passed to the callout is populated and can be verified in the unit test method.</p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="async-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 54</div>
+  <h2>Asynchronous Apex Testing</h2>
+</section>
+
+<section class="slide" id="async" data-search="asynchronous apex testing future method queueable batch scheduled synchronous transaction">
+  <div class="pgnum">Page 55 · Asynchronous Apex Testing</div>
+  <h2>Asynchronous Apex Testing</h2>
+  <p class="lede">Asynchronous Apex is executed in a <strong>different transaction and time</strong>. However, unit tests can be defined in a way that causes it to run in a <strong>synchronous manner</strong> so that its result can be verified accordingly.</p>
+  <div class="cards">
+    <div class="card"><h4>Future Method</h4><p>Executed in a different transaction and only when resources are available.</p></div>
+    <div class="card"><h4>Queueable Apex</h4><p>Like future methods, but supports <strong>job chaining</strong> and other data types.</p></div>
+    <div class="card"><h4>Batch Apex</h4><p>Used to perform operations that require <strong>higher governor limits</strong>.</p></div>
+    <div class="card"><h4>Scheduled Apex</h4><p>Used to run Apex at <strong>scheduled intervals</strong> or once, by aborting after job completion.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="future" data-search="future method test startTest stopTest productcontroller updatebycode 123abc product_log__c">
+  <div class="pgnum">Page 56 · Future Method Testing</div>
+  <h2>Future Method Testing</h2>
+  <p class="lede">To test an <code>updateByCode</code> future method, it is invoked between <code>Test.startTest()</code> and <code>Test.stopTest()</code>.</p>
+<pre class="code"><span class="a">@IsTest</span>
+<span class="k">private class</span> ProductControllerTest {
+
+  <span class="c">// ...</span>
+
+  <span class="a">@IsTest</span>
+  <span class="k">private static void</span> testUpdateByCode() {
+      Test.setMock(HttpCalloutMock.class, <span class="k">new</span> ERPCalloutMock());
+
+      Test.startTest();
+      ProductController.updateByCode(<span class="s">'123ABC'</span>); <span class="c">// future method</span>
+      Test.stopTest();
+
+      <span class="c">// verify results of updateByCode method</span>
+      List&lt;Product_Log__c&gt; logs = [SELECT Product_Code__c FROM Product_Log__c];
+      Assert.areEqual(<span class="t">1</span>, logs.size());
+      Assert.areEqual(<span class="s">'123ABC'</span>, logs[<span class="t">0</span>].Product_Code__c);
+  }
+
+  <span class="c">// ...</span>
+}</pre>
+  <div class="note">After <code>Test.startTest()</code>, any asynchronous processes are <strong>collected</strong>. When <code>Test.stopTest()</code> is called, any collected processes are <strong>run synchronously</strong>. This allows any results to be verified later in the <strong>same transaction</strong>.</div>
+</section>
+
+<section class="slide" id="queueable-batch" data-search="queueable batch apex test system.enqueuejob database.executebatch assigner couponupdate startTest stopTest">
+  <div class="pgnum">Page 57 · Testing Queueable Apex and Batch Apex</div>
+  <h2>Testing Queueable Apex and Batch Apex</h2>
+  <p class="lede">Queueable Apex and Batch Apex are tested in the same manner using <code>Test.startTest()</code> and <code>Test.stopTest()</code>.</p>
+<pre class="code"><span class="c">// ...  Queueable Apex test</span>
+<span class="a">@isTest</span>
+<span class="k">private static void</span> testAssigner() {
+
+    <span class="c">// get current records assigned to a specific owner</span>
+    List&lt;Opportunity&gt; opps = [SELECT Id FROM Opportunity
+                              WHERE OwnerId = :users.get(<span class="t">0</span>).Id];
+    <span class="c">// create a job to assign opportunities to a new owner</span>
+    Assigner assignment = <span class="k">new</span> Assigner(opps, users.get(<span class="t">1</span>).Id);
+
+    Test.startTest();
+    System.enqueueJob(assignment); <span class="c">// reassign the records</span>
+    Test.stopTest();
+
+    <span class="c">// validate results</span>
+    List&lt;Opportunity&gt; results = [SELECT Id FROM Opportunity
+                                 WHERE OwnerId = :users.get(<span class="t">0</span>)];
+    Assert.areEqual(<span class="t">0</span>, results.size());
+}
+
+<span class="c">// ... Batch Apex test</span>
+<span class="a">@isTest</span>
+<span class="k">private static void</span> testCouponUpdates() {
+
+    Test.startTest();
+    <span class="c">// update coupon details on products</span>
+    CouponUpdate updates = <span class="k">new</span> CouponUpdate();
+    Id batchId = Database.executeBatch(updates);
+    Test.stopTest();
+
+    <span class="c">// validate results</span>
+    Assert.areEqual(<span class="t">100</span>, [SELECT COUNT() FROM Product__c
+        WHERE CouponDate__c = TODAY]);
+}</pre>
+</section>
+
+<section class="slide" id="scheduled" data-search="scheduled apex test system.schedule schedulable runDate readleadreminder unread leads">
+  <div class="pgnum">Page 58 · Testing Scheduled Apex</div>
+  <h2>Testing Scheduled Apex</h2>
+  <p class="lede">Scheduled Apex is also asynchronous and is tested using the same approach. In this example, a <strong>schedulable class</strong> creates task reminders for sales users with <strong>unread leads</strong>.</p>
+<pre class="code"><span class="c">// ...</span>
+
+<span class="c">// "unreadLeads" = leads that haven't been viewed yet</span>
+Map&lt;Id, Lead&gt; leadMap = <span class="k">new</span> Map&lt;Id, Lead&gt;(unreadLeads);
+<span class="c">// get the IDs of the leads</span>
+List&lt;Id&gt; leadIds = <span class="k">new</span> List&lt;Id&gt;(leadMap.keySet());
+
+Test.startTest();
+
+<span class="c">// job will be executed immediately regardless of the set date due to start and stop methods</span>
+String runDate = <span class="s">'0 0 0 14 2 ? 2099'</span>; <span class="c">// Feb 12, 2099</span>
+
+<span class="c">// schedule the scheduleable Apex</span>
+System.schedule(<span class="s">'MyReadLeadsTask'</span>, runDate, <span class="k">new</span> ReadLeadReminder());
+
+<span class="c">// no tasks should have been created yet at this point</span>
+List&lt;Task&gt; tasks = [SELECT Id FROM Task WHERE WhatId IN :leadIds];
+Assert.areEqual(<span class="t">0</span>, tasks.size(), <span class="s">'Tasks already exist!'</span>);
+Test.stopTest();
+
+<span class="c">// tasks should already have been created at this point</span>
+tasks = [SELECT Id FROM Task WHERE WhatId IN :leadIds];
+Assert.areEqual(leadIds.size(), tasks.size(), <span class="s">'Scheduled reminders failed!'</span>);</pre>
+</section>
+
+<section class="slide title-slide" id="stub-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 59</div>
+  <h2>Stubbing in Testing</h2>
+</section>
+
+<section class="slide" id="stub-what" data-search="what is stubbing mock callout stubprovider test.createstub handlemethodcall test isolation">
+  <div class="pgnum">Pages 60–61 · What is Stubbing</div>
+  <h2>What is Stubbing</h2>
+  <p class="lede">While a mock callout returns a fake response from a <em>callout</em>, a <strong>stub</strong> returns a <strong>fake response from an invoked method</strong> by using a mock version of the method's class.</p>
+  <div class="cards">
+    <div class="card"><h4>Test Isolation</h4><p>Stubbing prevents code dependencies from interfering in a test and lets the unit test <strong>isolate</strong> the method being tested.</p></div>
+    <div class="card"><h4>Stub Class</h4><p>Implements the <strong>StubProvider</strong> interface, then is instantiated via <code>Test.createStub</code>. <em>System.StubProvider</em> + <em>System.Test.createStub</em> make up the <strong>Apex stub API</strong>.</p></div>
+    <div class="card"><h4>Method</h4><p>The stub class has a method called <code>handleMethodCall</code>, which contains several parameters used to determine the method being invoked in the test (and cause it to, for example, return a custom value).</p></div>
+    <div class="card"><h4>Stubbing</h4><p>Actual code is designed to allow the stub class to be used in place of the actual class when testing. For example, to test <em>classA.myMethod</em> which depends on output from <em>classB.myMethod</em>, a mock version of <em>classB</em> is created and referenced in the test instead of the real class.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="stub-how" data-search="how to use stub instantiate execute code assert results test.createstub startTest stopTest">
+  <div class="pgnum">Page 62 · How to Use a Stub</div>
+  <h2>How to Use a Stub</h2>
+  <ol>
+    <li><strong>Instantiate</strong> the stub class using the <code>Test.createStub</code> method.</li>
+    <li><strong>Execute Code</strong> — call <code>Test.startTest()</code> and execute the code that needs to be tested.</li>
+    <li><strong>Assert Results</strong> — call <code>Test.stopTest()</code> and verify the results using assertions.</li>
+  </ol>
+</section>
+
+<section class="slide" id="stub-example" data-search="vehicledoctor vehiclemock checkvehiclestatus gettotalmilestraveled stubprovider createstub vehicledoctortest">
+  <div class="pgnum">Pages 63–65 · Stubbing Example</div>
+  <h2>Stubbing Example</h2>
+  <p class="lede">A <strong>VehicleDoctor</strong> class contains a method called <code>checkVehicleStatus</code>. This method depends on <code>getTotalMilesTraveled</code> from a <strong>Vehicle</strong> class.</p>
+<pre class="code"><span class="k">public class</span> VehicleDoctor {
+  <span class="k">public</span> Boolean checkVehicleStatus(Vehicle v) {
+      Boolean status = <span class="k">true</span>;
+      Decimal miles = v.getTotalMilesTraveled();
+      <span class="k">if</span> (miles &gt;= <span class="t">100000.00</span>) {
+          status = <span class="k">false</span>;
+      }
+      <span class="k">return</span> status;
+  }
+}
+
+<span class="k">public class</span> Vehicle {
+  <span class="k">public</span> Decimal getTotalMilesTraveled() {
+      Decimal distance = <span class="t">0.00</span>;
+      <span class="c">// i.e.: some "complex" logic here to calculate distance</span>
+      <span class="c">// distance = ...</span>
+      <span class="k">return</span> distance;
+  }
+}</pre>
+  <h3>Stub class implementing StubProvider</h3>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> VehicleMock <span class="k">implements</span> System.StubProvider {
+  Decimal distance;
+
+  <span class="k">public</span> VehicleMock(Decimal d) { <span class="c">// preset the distance via constructor</span>
+      <span class="k">this</span>.distance = d;
+  }
+
+  <span class="k">public</span> Object handleMethodCall(Object stubbedObject, String stubbedMethodName, Type returnType,
+                                List&lt;Type&gt; listOfParamTypes, List&lt;String&gt; listOfParamNames, List&lt;Object&gt; listOfArgs){
+
+      <span class="k">if</span> (stubbedMethodName == <span class="s">'getTotalMilesTraveled'</span>) {
+          System.debug(<span class="k">this</span>.distance);
+          <span class="k">return</span> <span class="k">this</span>.distance; <span class="c">// stubbed method returns preset value</span>
+      }
+
+      <span class="k">return</span> <span class="k">null</span>;
+  }
+}</pre>
+  <h3>Test class that uses the stub</h3>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">private class</span> VehicleDoctorTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testCheckVehicleStatus() {
+
+      <span class="c">// instantiate the stub class</span>
+      Vehicle vm = (Vehicle) Test.createStub(Vehicle.class, <span class="k">new</span> VehicleMock(<span class="t">100000.00</span>));
+
+      VehicleDoctor vd = <span class="k">new</span> VehicleDoctor();
+      Boolean status;
+
+      Test.startTest();
+      status = vd.checkVehicleStatus(vm);
+      Test.stopTest();
+
+      Assert.areEqual(<span class="k">false</span>, status, <span class="s">'expected result false'</span>);
+  }
+}</pre>
+  <div class="note"><code>Test.createStub()</code> returns an <code>Object</code>, so the value needs to be <strong>casted</strong> back to the proper data type (here, <code>Vehicle</code>).</div>
+</section>
+
+<section class="slide" id="stub-limits" data-search="stub limitations batch apex inner classes private constructors static methods future methods private methods getters setters triggers system types">
+  <div class="pgnum">Page 66 · Stub Limitations</div>
+  <h2>Stub Limitations</h2>
+  <p class="lede">Stubs are flexible, but the following Apex elements <strong>cannot be mocked</strong>:</p>
+  <div class="cards">
+    <div class="card"><p><strong>Batch Apex</strong> classes and <strong>Inner</strong> classes</p></div>
+    <div class="card"><p>Classes that only have <strong>private constructors</strong></p></div>
+    <div class="card"><p><strong>Static methods</strong> (including future methods) and <strong>private methods</strong></p></div>
+    <div class="card"><p>Class Properties (<strong>getters</strong> and <strong>setters</strong>)</p></div>
+    <div class="card"><p>Apex <strong>triggers</strong></p></div>
+    <div class="card"><p>System <strong>types</strong></p></div>
+  </div>
+</section>
+
+<section class="slide title-slide" id="flow-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 67</div>
+  <h2>Testing Flows with External Services</h2>
+</section>
+
+<section class="slide" id="flow-mock" data-search="testing flows external services studentportal httpcalloutmock named credential g64509560 access code astro">
+  <div class="pgnum">Page 68 · HttpCalloutMock for flows</div>
+  <h2>HttpCalloutMock for invocable actions in flows</h2>
+  <p class="lede">Apex unit tests can also be created for flows that use an <strong>invocable action</strong> with External Services. The <code>HttpCalloutMock</code> interface can simulate the callout to the external service endpoint.</p>
+<pre class="code"><span class="k">global class</span> StudentPortalHttpCalloutMock <span class="k">implements</span> HttpCalloutMock {
+  <span class="k">global</span> HTTPResponse respond(HTTPRequest request) {
+      <span class="c">// Assert expected request test data</span>
+      Assert.areEqual(<span class="s">'GET'</span>, request.getMethod());
+      Assert.areEqual(<span class="s">'callout:StudentPortalService/G64509560'</span>, request.getEndpoint());
+      Assert.areEqual(<span class="s">'astro'</span>, request.getHeader(<span class="s">'accessCode'</span>));
+
+      <span class="c">// Send response test data</span>
+      HttpResponse response = <span class="k">new</span> HttpResponse();
+      response.setHeader(<span class="s">'Content-Type'</span>, <span class="s">'application/json'</span>);
+      response.setBody(<span class="s">'{"level": 3, "name": "John Smith", '</span> +
+          <span class="s">'"course": "BSME", "gender": "M", "birth": "20050101"}'</span>);
+      response.setStatusCode(<span class="t">200</span>);
+      <span class="k">return</span> response;
+  }
+}</pre>
+  <div class="note">In this example, the external service is registered with a <strong>Named Credential</strong> called <em>StudentPortalService</em> used to retrieve student information. The mock implementation tests the details of requests from the flow and responds with an appropriate HTTP response output.</div>
+</section>
+
+<section class="slide" id="flow-test" data-search="flow.interview createinterview studentportalserviceflow start variable value fullname studentcourse">
+  <div class="pgnum">Page 69 · Flow test class</div>
+  <h2>Flow test class</h2>
+  <p class="lede">The flow test class sets up the HTTP callout mock for the external service action, creates and runs the flow interview, and then asserts the actual flow output parameters with the expected test values.</p>
+<pre class="code"><span class="a">@IsTest</span>
+<span class="k">public class</span> StudentPortalServiceFlowTest {
+    <span class="a">@IsTest</span>
+    <span class="k">static public void</span> testStudentPortalServiceFlow() {
+        <span class="c">// Set HTTP callout mock to match flow's external service action invocation</span>
+        Test.setMock(HttpCalloutMock.class, <span class="k">new</span> StudentPortalHttpCalloutMock());
+        <span class="c">// Set flow input variables and create the flow interview</span>
+        Map&lt;String, Object&gt; inputVariables = <span class="k">new</span> Map&lt;String, Object&gt;();
+        Flow.Interview myStudentPortalFlow = Flow.Interview.createInterview(<span class="s">'StudentPortalServiceFlow'</span>, inputVariables);
+
+        myStudentPortalFlow.start(); <span class="c">// Start flow interview with set input variables</span>
+
+        <span class="c">// Assert flow output variables</span>
+        Assert.areEqual(<span class="s">'John Smith'</span>, (String)myStudentPortalFlow.getVariableValue(<span class="s">'fullname'</span>));
+        Assert.areEqual(<span class="s">'BSME'</span>, (String)myStudentPortalFlow.getVariableValue(<span class="s">'studentCourse'</span>));
+        <span class="c">// ...</span>
+    }
+}</pre>
+</section>
+
+<section class="slide title-slide" id="packages-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 70</div>
+  <h2>Managed Packages and Unlocked Packages</h2>
+</section>
+
+<section class="slide" id="packages" data-search="managed packages unlocked packages 2gp salesforce dx appexchange code coverage sfdx report">
+  <div class="pgnum">Page 71 · Managed Packages and Unlocked Packages</div>
+  <h2>Managed Packages and Unlocked Packages</h2>
+  <p class="lede">When running the <strong>SFDX report command</strong> for a package version of <strong>second-generation managed</strong> or <strong>unlocked packages</strong>, the output can also include <strong>code coverage details</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Managed Packages</h4><p>Second-generation managed packages (<strong>managed 2GP</strong>) are used for distributing apps on <strong>AppExchange</strong> using Salesforce DX.</p></div>
+    <div class="card"><h4>Unlocked Packages</h4><p>Related or organized metadata packaged together using the <strong>package development model</strong> to build apps that are <strong>versionable</strong>, easy to maintain, update, install, and upgrade.</p></div>
+    <div class="card"><h4>Code Coverage</h4><p>Coverage details in the report identify which Apex classes in the package fail to meet the required code coverage percentage.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="unlocked" data-search="force:package:version:report verbose package version id code coverage details">
+  <div class="pgnum">Page 72 · Unlocked Packages report</div>
+  <h2>Unlocked Packages report</h2>
+  <p class="lede">The <code>force:package:version:report</code> command retrieves details of a package version. To include code coverage details, add <code>--verbose</code>.</p>
+<pre class="code">$ sfdx force:package:version:report -p 04t5g000000UkN1AAK -v your@user.com --verbose</pre>
+  <div class="note">The output displays <strong>Code Coverage Details</strong> of Apex classes in the package at the end of the report.</div>
+</section>
+
+<section class="slide title-slide" id="bp-title">
+  <div class="pgnum" style="color:#cbd6e6">Page 73</div>
+  <h2>Best Practices</h2>
+</section>
+
+<section class="slide" id="bp-apex" data-search="best practices apex testing unit testing test data code coverage parallel test execution disabled">
+  <div class="pgnum">Page 74 · Best Practices for Apex Testing</div>
+  <h2>Best Practices for Apex Testing</h2>
+  <div class="cards">
+    <div class="card"><h4>Unit Testing</h4><p>Include <strong>valid and invalid inputs</strong> and execute <strong>each branch</strong> of conditional logic.</p></div>
+    <div class="card"><h4>Test Data</h4><p>Set up using a <strong>separate class</strong> and create it <strong>before</strong> <code>Test.startTest</code>.</p></div>
+    <div class="card"><h4>Code Coverage</h4><p>Every use case should be covered; rerun tests to refresh coverage.</p></div>
+    <div class="card"><h4>Parallel Test Execution</h4><p>Should be <strong>disabled</strong> in Setup to avoid data contention and other errors.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="bp-unit" data-search="unit testing best practices annotate test classes assert methods inputs branches catch handle errors user context runas trigger tests individual tests">
+  <div class="pgnum">Pages 75–76 · Unit Testing Best Practices</div>
+  <h2>Unit Testing Best Practices</h2>
+  <div class="cards">
+    <div class="card"><h4>Annotate Test Classes</h4><p><code>@isTest</code> should be used for <strong>every</strong> test class.</p></div>
+    <div class="card"><h4>Use Assert Methods</h4><p>Assert methods should be used to prove that code behaves properly.</p></div>
+    <div class="card"><h4>Inputs and Branches</h4><p>Make method calls with both <strong>valid</strong> and <strong>invalid</strong> inputs, and each branch of conditional logic must be executed.</p></div>
+    <div class="card"><h4>Catch / Handle Errors</h4><p>Expected errors should be caught in a <strong>try-catch block</strong>, and caught exceptions should always be handled.</p></div>
+    <div class="card"><h4>User Context</h4><p>If required, the <code>System.runAs</code> method should be used to test code in different user contexts.</p></div>
+    <div class="card"><h4>Trigger Tests</h4><p>Tests should handle bulk trigger functionality, and all triggers must have <strong>at least one line</strong> of test coverage.</p></div>
+    <div class="card"><h4>Individual Tests</h4><p>Each class should be tested individually.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="runas" data-search="system.runas different users profile newuser currentuser sharing object field level permissions">
+  <div class="pgnum">Page 77 · Test as Different Users</div>
+  <h2>Test as Different Users</h2>
+  <p class="lede"><code>System.runAs</code> enables code to run in the context of a specified user, enforcing the user's <strong>record sharing</strong>, <strong>object-level</strong> and <strong>field-level</strong> permissions to test code behavior and data security.</p>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public static void</span> test2() {
+
+    Profile p = [SELECT Id FROM Profile WHERE Name = <span class="s">'Standard User'</span>];
+    User newUser = <span class="k">new</span> User(Email=<span class="s">'newuser@acme.com'</span>, UserName=<span class="s">'newuser@acme.com.dev'</span>, LastName=<span class="s">'Testing'</span>, Alias=<span class="s">'newUser'</span>,
+        ProfileId=p.Id, LanguageLocaleKey=<span class="s">'en_US'</span>, LocaleSidKey=<span class="s">'en_US'</span>, TimeZoneSidKey=<span class="s">'America/Los_Angeles'</span>, EmailEncodingKey=<span class="s">'UTF-8'</span>);
+
+    System.runAs(newUser) {
+        Assert.areEqual(<span class="s">'newuser@acme.com.dev'</span>, UserInfo.getUserName()); <span class="c">// Execute code as newUser</span>
+        Assert.areEqual(p.Id, UserInfo.getProfileId());
+    }
+
+    User currentUser = [SELECT Id, ProfileId FROM User WHERE UserName=<span class="s">'currentuser@acme.com.dev'</span>];
+    System.runAs(currentUser) {
+        Assert.areEqual(<span class="s">'currentuser@acme.com.dev'</span>, UserInfo.getUserName()); <span class="c">// Execute code as currentUser</span>
+        Assert.areEqual(currentUser.ProfileId, UserInfo.getProfileId());
+    }
+}</pre>
+</section>
+
+<section class="slide" id="bp-data" data-search="best practices setting up test data dependency generation test data factory deletion accountclass processaccount reseller manufacturing">
+  <div class="pgnum">Pages 78–81 · Best Practices for Setting Up Test Data</div>
+  <h2>Best Practices for Setting Up Test Data</h2>
+  <div class="cards">
+    <div class="card"><h4>Data Dependency</h4><p>Test data should reduce dependencies on data in sandbox and production orgs.</p></div>
+    <div class="card"><h4>Data Generation</h4><p>Test data should be created before calling <code>Test.startTest</code>.</p></div>
+    <div class="card"><h4>Test Data Factory</h4><p>Separate test classes should set up the necessary data.</p></div>
+    <div class="card"><h4>Data Deletion</h4><p>Deleting test data is <strong>not necessary</strong> since tests do not commit.</p></div>
+  </div>
+  <h3>Apex class to test</h3>
+<pre class="code"><span class="k">public class</span> AccountClass {
+
+  <span class="k">public static</span> List&lt;Account&gt; processAccount(List&lt;Account&gt; accounts) {
+
+      List&lt;Account&gt; updatedAccounts = <span class="k">new</span> List&lt;Account&gt;();
+
+      <span class="k">for</span> (Account a : accounts) {
+          <span class="k">if</span>(a.Type == <span class="s">'Reseller'</span>) {
+              a.Industry = <span class="s">'Manufacturing'</span>;
+              updatedAccounts.add(a);
+          }
+      }
+
+      update updatedAccounts;
+      <span class="k">return</span> updatedAccounts;
+  }
+}</pre>
+  <h3>Test class using a utility class</h3>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">private class</span> AccountTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testAccountProcessing () {
+
+      String type = <span class="s">'Reseller'</span>;
+      String industry = <span class="s">'IT'</span>;
+
+      <span class="c">// Utility class for creating test data</span>
+      List&lt;Account&gt; accs = TestDataFactory.createTestAccounts(type, industry);
+
+      AccountClass.processAccount(accs);
+
+      <span class="k">for</span> (Account a : accs) {
+          Assert.areEqual(<span class="s">'Manufacturing'</span>, a.Industry); <span class="c">// validate fields</span>
+      }
+  }
+}</pre>
+  <h3>The utility class</h3>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> TestDataFactory {
+
+  <span class="k">public static</span> List&lt;Account&gt; createTestAccounts(String t, String i) {
+
+      List&lt;Account&gt; accounts = <span class="k">new</span> List&lt;Account&gt;();
+
+      <span class="k">for</span> (Integer j = 1; j &lt;= 300; j++) {
+          Account a = <span class="k">new</span> Account(Name = <span class="s">'Test'</span> + j, Type = t, Industry = i);
+          accounts.add(a);
+      }
+
+      insert accounts;
+      <span class="k">return</span> accounts;
+  }
+}</pre>
+</section>
+
+<section class="slide" id="bp-coverage" data-search="test coverage best practices optimize coverage rerun tests managed packages calculation insufficient increase">
+  <div class="pgnum">Pages 82–83 · Test Coverage Best Practices</div>
+  <h2>Test Coverage Best Practices</h2>
+  <div class="cards">
+    <div class="card"><h4>Optimize Coverage</h4><p>Even though 75% of Apex code must be covered, cover as many lines as possible while ensuring every use case is covered.</p></div>
+    <div class="card"><h4>Rerun Tests</h4><p>Tests should be <strong>rerun</strong> to refresh code coverage numbers and get a correct estimate.</p></div>
+    <div class="card"><h4>Managed Packages</h4><p>Managed package tests are <strong>not included</strong> in the overall code coverage percentage.</p></div>
+    <div class="card"><h4>Coverage Calculation</h4><p>Be careful while adding new code lines — code coverage depends on the <strong>total number</strong> of code lines in the org.</p></div>
+    <div class="card"><h4>Insufficient Coverage</h4><p>If a deployment to production fails due to insufficient code coverage, more unit tests should be written.</p></div>
+    <div class="card"><h4>Increase Coverage</h4><p>Additional tests should be written for classes with less than 75% coverage in sandbox.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="bp-parallel" data-search="parallel test execution data contention unable_to_lock_row same records disable application test execution options">
+  <div class="pgnum">Page 84 · Best Practices for Parallel Test Execution</div>
+  <h2>Best Practices for Parallel Test Execution</h2>
+  <div class="cards">
+    <div class="card"><h4>Parallel Execution</h4><p>Tests executed from the Salesforce user interface and Developer Console are executed <strong>in parallel</strong>.</p></div>
+    <div class="card"><h4>Issues and Errors</h4><p>Data contention issues and <strong>UNABLE_TO_LOCK_ROW</strong> errors can arise due to parallel execution.</p></div>
+    <div class="card"><h4>Same Records</h4><p>Tests may update the same records if they do not create their own test data.</p></div>
+    <div class="card"><h4>Turning Off</h4><p>Avoid such errors by turning off parallel test execution: <strong>Setup → Application Test Execution → Options → Disable Parallel Apex Testing</strong>.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="bp-other" data-search="other best practices add comments sort records order by">
+  <div class="pgnum">Page 85 · Other Best Practices for Testing</div>
+  <h2>Other Best Practices for Testing</h2>
+  <div class="cards">
+    <div class="card"><h4>Add Comments</h4><p>Comments should be included in tests with assumptions and expected outcomes.</p></div>
+    <div class="card"><h4>Sort Records</h4><p>The <code>ORDER BY</code> keywords should be used to ensure records are returned in the expected order.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="learn-more" data-search="learn more apex unit tests test setup methods static resource httpcalloutmock asynchronous webservicemock stub api trailhead salesforce documentation">
+  <div class="pgnum">Pages 86–87 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Official Salesforce documentation and Trailhead modules referenced in this deck:</p>
+  <ul>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.222.0.apexcode.meta/apexcode/apex_testing_unit_tests.htm" target="_blank" rel="noopener">What Are Apex Unit Tests?</a></li>
+    <li><a class="toc-link" href="https://trailhead.salesforce.com/content/learn/modules/apex_testing/apex_testing_intro" target="_blank" rel="noopener">Get Started with Apex Unit Tests</a> <span class="pill">Trailhead</span></li>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_testsetup_using.htm" target="_blank" rel="noopener">Using Test Setup Methods</a></li>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_utility_classes.htm" target="_blank" rel="noopener">Common Test Utility Classes for Test Data Creation</a></li>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_load_data.htm" target="_blank" rel="noopener">Loading Test Data [From Static Resource]</a></li>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_restful_http_testing_httpcalloutmock.htm" target="_blank" rel="noopener">Testing HTTP Callouts by Implementing the HttpCalloutMock Interface</a></li>
+    <li><a class="toc-link" href="https://trailhead.salesforce.com/content/learn/modules/asynchronous_apex" target="_blank" rel="noopener">Asynchronous Apex</a> <span class="pill">Trailhead</span></li>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_callouts_wsdl2apex_testing.htm" target="_blank" rel="noopener">Test Web Service Callouts [for Testing SOAP Callouts]</a></li>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_best_practices.htm" target="_blank" rel="noopener">Testing Best Practices</a></li>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_code_coverage_best_pract.htm" target="_blank" rel="noopener">Code Coverage Best Practices</a></li>
+    <li><a class="toc-link" href="https://help.salesforce.com/articleView?id=000041398&amp;type=1" target="_blank" rel="noopener">Test Your Code</a> <span class="pill">Help</span></li>
+    <li><a class="toc-link" href="https://trailhead.salesforce.com/content/learn/modules/unit-testing-on-the-lightning-platform/mock-stub-objects" target="_blank" rel="noopener">Use Mocks and Stub Objects</a> <span class="pill">Trailhead</span></li>
+    <li><a class="toc-link" href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_stub_api.htm" target="_blank" rel="noopener">Build a Mocking Framework with the Stub API</a></li>
+  </ul>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet quick reference interview annotations governor limits istest testsetup test.setmock createstub startTest stopTest seealldata uncommitted work unable_to_lock_row">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+  <h3>Key annotations</h3>
+  <ul>
+    <li><code>@isTest</code> — marks a class or method as a test; excluded from code-size and coverage limits.</li>
+    <li><code>@testSetup</code> — one per class; runs once before all test methods; rolled back at <em>class</em> end.</li>
+    <li><code>@isTest(SeeAllData=true)</code> — gives access to org data; <strong>incompatible with</strong> <code>@testSetup</code>.</li>
+  </ul>
+  <h3>Key APIs</h3>
+  <ul>
+    <li><code>Test.startTest()</code> / <code>Test.stopTest()</code> — fresh governor limits; async work is collected then run synchronously at stopTest.</li>
+    <li><code>Test.setMock(HttpCalloutMock.class, …)</code> / <code>Test.setMock(WebServiceMock.class, …)</code> — install mock callout before the callout fires.</li>
+    <li><code>Test.loadData(SObjectType, 'StaticResourceName')</code> — load from CSV static resource.</li>
+    <li><code>Test.createStub(Class, instanceOfStubProvider)</code> — returns an <code>Object</code>, cast to target type.</li>
+    <li><code>System.runAs(user) { … }</code> — execute as a different user; enforces sharing &amp; FLS.</li>
+  </ul>
+  <h3>Errors to recognize</h3>
+  <ul>
+    <li><strong>Uncommitted work pending</strong> — DML before a callout; wrap callout in <code>startTest/stopTest</code> or do DML after.</li>
+    <li><strong>UNABLE_TO_LOCK_ROW</strong> — parallel test execution + shared records; turn off parallel testing or isolate data.</li>
+    <li><strong>FIELD_CUSTOM_VALIDATION_EXCEPTION</strong> — what <code>sObject.addError</code> produces; not necessarily from a validation rule.</li>
+  </ul>
+  <h3>Rules-of-thumb interview hits</h3>
+  <ul>
+    <li>75% is the deployment <em>floor</em>, not a quality target.</li>
+    <li>Triggers fire via DML — never call directly; test in bulk (200+ records).</li>
+    <li>Prefer <code>Assert.areEqual</code> over <code>System.assertEquals</code> in new code.</li>
+    <li>Mocks ≠ stubs: mocks fake <em>callouts</em>, stubs fake <em>method calls on a class</em>.</li>
+    <li>Stubs can't mock: batch classes, inner classes, private-only-constructor classes, static/private methods, getters/setters, triggers, system types.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  // Sidebar active-link highlight on scroll
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  // Filter sections by free text
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) {
+      allSections.forEach(s => s.style.display = '');
+      links.forEach(l => l.style.display = '');
+      return;
+    }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

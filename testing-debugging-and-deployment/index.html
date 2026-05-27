@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing, Debugging, and Deployment — Topics</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --ink: #1a2233;
+    --muted: #5b6b80;
+    --navy: #22344c;
+    --accent: #1589ee;
+    --rule: #e3e8f0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  header.topbar {
+    background: var(--navy);
+    color: white;
+    padding: 18px 24px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+  }
+  header.topbar .crumbs {
+    font-size: 12px;
+    opacity: 0.75;
+    margin-bottom: 4px;
+  }
+  header.topbar .crumbs a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.75;
+  }
+  header.topbar .crumbs a:hover { opacity: 1; text-decoration: underline; }
+  header.topbar h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  header.topbar .sub {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 4px;
+  }
+  main {
+    max-width: 920px;
+    margin: 28px auto;
+    padding: 0 24px 80px;
+  }
+  h2 {
+    color: var(--navy);
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 6px;
+    margin: 28px 0 14px;
+    display: inline-block;
+  }
+  ul.topics {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+  ul.topics li {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  ul.topics li:hover {
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(21, 137, 238, 0.1);
+  }
+  ul.topics a {
+    display: block;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  ul.topics a .topic-title {
+    font-weight: 600;
+    color: var(--navy);
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  ul.topics a .topic-meta {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .empty {
+    color: var(--muted);
+    font-style: italic;
+    padding: 12px 0;
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="crumbs"><a href="../index.html">Study</a> · Module</div>
+  <h1>Testing, Debugging, and Deployment</h1>
+  <div class="sub">Salesforce Training &amp; Certification Preparation</div>
+</header>
+
+<main>
+  <h2>Topics</h2>
+  <ul class="topics">
+    <li>
+      <a href="topics/apply-advanced-techniques-and-tools-for-testing-apex-classes-and-triggers-such-as-mocks-and-stubs/index.html">
+        <div class="topic-title">Apply advanced techniques and tools for testing Apex classes and triggers, such as mocks and stubs</div>
+        <div class="topic-meta">87 slides · Apex unit tests · Mocks · Stubs · Async testing · Best practices</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/apply-techniques-and-tools-for-testing-and-debugging-lightning-web-components-aura-components-and-visualforce-controllers-visualforce-controller-extensions-and-javascript/index.html">
+        <div class="topic-title">Apply techniques and tools for testing and debugging Lightning Web Components, Aura Components, and Visualforce controllers, Visualforce controller extensions, and JavaScript</div>
+        <div class="topic-meta">67 slides · Visualforce testing · LWC + Jest · UTAM · DevTools debugging · JavaScript foot-guns</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/given-a-scenario-apex-code-apex-trigger-or-apex-test-that-is-not-executing-as-expected-apply-techniques-and-tools-to-isolate-and-identify-the-root-cause/index.html">
+        <div class="topic-title">Given a scenario, Apex code, Apex trigger, or Apex test that is not executing as expected, apply techniques and tools to isolate and identify the root cause</div>
+        <div class="topic-meta">98 slides · Performance profiling · Developer Console · Trace flags · 6 Apex test scenarios with solutions</div>
+      </a>
+    </li>
+  </ul>
+</main>
+</body>
+</html>
