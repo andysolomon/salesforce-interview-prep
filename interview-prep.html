@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kapitus Salesforce Tech Lead — Interview Prep</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:18px 24px;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar .crumbs{font-size:12px;opacity:0.75;margin-bottom:4px}
+  header.topbar .crumbs a{color:white;text-decoration:none;opacity:0.75}
+  header.topbar .crumbs a:hover{opacity:1;text-decoration:underline}
+  header.topbar h1{margin:0;font-size:22px;font-weight:600}
+  header.topbar .sub{font-size:13px;opacity:0.8;margin-top:4px}
+  .layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 90px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:0;height:100vh}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.q{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:24px}
+  section.q .qnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.q h2{margin:4px 0 14px;font-size:19px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block;line-height:1.3}
+  section.q h3{color:var(--navy);font-size:13px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.q ul,section.q ol{margin:8px 0 12px;padding-left:22px}
+  section.q li{margin:6px 0}
+  .followup{background:#fff7d6;border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px;border-radius:0 4px 4px 0}
+  .followup strong{color:#7a5e00}
+  .anchor{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .anchor h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .anchor p{margin:0;font-size:13.5px}
+  .star{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0 14px}
+  .star .step{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:10px 12px}
+  .star .step h4{margin:0 0 4px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.7px}
+  .star .step p{margin:0;font-size:13px}
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+  .pill{background:var(--code-bg);border:1px solid var(--code-border);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted)}
+  .intro{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px}
+  .intro h2{margin:0 0 10px;color:var(--navy);font-size:18px;border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  .intro p{margin:0 0 8px;font-size:14px;color:var(--muted)}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="crumbs"><a href="index.html">Study</a> · Interview Prep</div>
+  <h1>Kapitus — Salesforce Tech Lead</h1>
+  <div class="sub">10 high-value practice questions · STAR-anchored personal examples · Day-of warm-ups</div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <nav class="toc" id="toc">
+    <h3>Framework</h3>
+    <ul>
+      <li><a href="#star">STAR refresher</a></li>
+      <li><a href="#anchors">Your story anchors</a></li>
+    </ul>
+    <h3>Questions</h3>
+    <ul>
+      <li><a href="#q1">1. Tell me about yourself</a></li>
+      <li><a href="#q2">2. End-to-end design</a></li>
+      <li><a href="#q3">3. Loan intake system</a></li>
+      <li><a href="#q4">4. External integrations</a></li>
+      <li><a href="#q5">5. Delivery quality</a></li>
+      <li><a href="#q6">6. Security &amp; governance</a></li>
+      <li><a href="#q7">7. Apex / LWC perf</a></li>
+      <li><a href="#q8">8. Lead + hands-on</a></li>
+      <li><a href="#q9">9. Disagreement</a></li>
+      <li><a href="#q10">10. First 90 days</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="intro" id="intro">
+  <h2>How to use this page</h2>
+  <p>Each question has a likely follow-up, your personal anchor (the experience to lead with), and a "what they're actually testing" note. Don't memorize answers — rehearse the STAR shape and the data points that prove the story.</p>
+  <p>Open in two windows: this page + the relevant topic deck in <a href="index.html" style="color:var(--accent)">the study library</a>. Most technical follow-ups will pull from those decks.</p>
+</section>
+
+<section class="q" id="star">
+  <div class="qnum">Framework</div>
+  <h2>STAR refresher</h2>
+  <p style="margin:0 0 10px;color:var(--muted);font-size:14px;">Behavioral answers should land in 90–120 seconds. The shape:</p>
+  <div class="star">
+    <div class="step"><h4>S — Situation</h4><p>One sentence of business context. Who, where, why it mattered.</p></div>
+    <div class="step"><h4>T — Task</h4><p>Your specific responsibility. Name it explicitly — interviewers want to know what <em>you</em> owned.</p></div>
+    <div class="step"><h4>A — Action</h4><p>The longest part. Concrete steps you took, decisions you made, tradeoffs you weighed. Bring numbers.</p></div>
+    <div class="step"><h4>R — Result</h4><p>Quantified outcome + what you learned or would do differently.</p></div>
+  </div>
+  <div class="anchor">
+    <h4>Common mistakes</h4>
+    <p>"We did X" → no, "<em>I</em> did X." Don't skip Result. Don't ramble through Situation. Pivot to Action within 20 seconds.</p>
+  </div>
+</section>
+
+<section class="q" id="anchors">
+  <div class="qnum">Framework</div>
+  <h2>Your story anchors</h2>
+  <p style="margin:0 0 10px;color:var(--muted);font-size:14px;">The handful of projects you'll keep returning to. Memorize one quantified result for each.</p>
+  <div class="pillrow">
+    <span class="pill">VA case management</span>
+    <span class="pill">Experience Cloud partner portal</span>
+    <span class="pill">Bulk API + S3 ingestion pipeline</span>
+    <span class="pill">2GP pipeline (SFDX, GitHub Actions)</span>
+    <span class="pill">Jest standards rollout</span>
+    <span class="pill">Playwright E2E</span>
+    <span class="pill">Apex/LWC perf optimization</span>
+    <span class="pill">Mentoring &amp; code review at scale</span>
+  </div>
+  <div class="anchor">
+    <h4>Interview reflex</h4>
+    <p>Before any technical question, mentally ask: "which of my eight anchors gives me the cleanest narrative for this?" If two anchors fit, pick the one with the better quantified result.</p>
+  </div>
+</section>
+
+<section class="q" id="q1">
+  <div class="qnum">Question 1</div>
+  <h2>Tell me about yourself and why this Salesforce Tech Lead role at Kapitus interests you.</h2>
+  <div class="followup"><strong>Likely follow-up:</strong> How does your Experience Cloud, Apex, LWC, and DevOps background map to a fintech lending platform?</div>
+  <h3>What they're testing</h3>
+  <ul>
+    <li>Can you tell a coherent story arc — not a resume read-back?</li>
+    <li>Have you done specific homework on Kapitus (small-business financing, partner marketplace, regulated data)?</li>
+    <li>Tech Lead = hands-on coder + architecture owner + people leader. Show all three in 90 seconds.</li>
+  </ul>
+  <h3>Mapping to Kapitus (use these explicitly)</h3>
+  <ul>
+    <li><strong>Experience Cloud</strong> → borrower portal, partner/broker portal, document upload &amp; status tracking.</li>
+    <li><strong>Apex + LWC</strong> → underwriting workflow UI, custom approval logic, real-time decisioning UX.</li>
+    <li><strong>DevOps (SFDX + 2GP + GH Actions)</strong> → faster, safer releases in a regulated environment with audit trails.</li>
+    <li><strong>Integrations</strong> → bank data, credit bureaus, fraud/KYC, partner marketplaces.</li>
+  </ul>
+  <div class="anchor">
+    <h4>Close strong</h4>
+    <p>"What pulls me to Kapitus specifically is the combination of partner-driven distribution and small-business credit decisioning — both areas where Salesforce can be either a liability or a strategic asset depending on how it's architected. That gap is exactly what I've spent the last few years closing."</p>
+  </div>
+</section>
+
+<section class="q" id="q2">
+  <div class="qnum">Question 2</div>
+  <h2>Walk me through a Salesforce system you designed end-to-end. What were the key architecture decisions?</h2>
+  <div class="followup"><strong>Likely follow-up:</strong> Why <em>not</em> X (the alternative they'd pick)? What would you change about it now?</div>
+  <h3>Lead with</h3>
+  <p style="margin:6px 0 12px;font-size:14px;">Your <strong>VA case management</strong>, <strong>Experience Cloud portal</strong>, or <strong>Bulk API/S3 pipeline</strong>. Pick the one with the cleanest <em>decision narrative</em> — Tech Lead interviews are about how you choose, not what you ship.</p>
+  <h3>Frame the answer around 3–4 decisions</h3>
+  <ol>
+    <li><strong>Data model</strong> — why master-detail vs lookup, where you used custom metadata vs custom settings, sharing model (OWD + role hierarchy + criteria-based vs Apex managed).</li>
+    <li><strong>Integration boundary</strong> — sync REST vs async Bulk vs Platform Events. Idempotency &amp; replay.</li>
+    <li><strong>UX</strong> — LWC vs Flow vs Aura. Where you drew the "build vs configure" line.</li>
+    <li><strong>Release strategy</strong> — packages vs org dev, source tracking, who can deploy to prod.</li>
+  </ol>
+  <div class="anchor">
+    <h4>The "what would you change" judo</h4>
+    <p>Always have a credible answer. Best ones: "I'd move X from Flow to Apex because the volume crossed N records/day" — shows you understand thresholds, not just patterns.</p>
+  </div>
+</section>
+
+<section class="q" id="q3">
+  <div class="qnum">Question 3</div>
+  <h2>Design a Salesforce-based loan application intake system for small businesses.</h2>
+  <h3>What they want to hear (in roughly this order)</h3>
+  <ol>
+    <li><strong>Channels:</strong> Experience Cloud public site (self-serve), Partner Community (broker), agent-assisted (Sales Cloud), inbound API (marketplace integrations).</li>
+    <li><strong>Data model:</strong>
+      <ul>
+        <li><code>Account</code> = Business; <code>Contact</code> = Principal/Guarantor (with multiple per business).</li>
+        <li><code>Lead</code> or custom <code>Application__c</code> for intake → convert/related on qualification.</li>
+        <li><code>Opportunity</code> for the funded loan; <code>Product2 + PricebookEntry</code> for loan products.</li>
+        <li><code>ContentDocument/ContentVersion</code> for bank statements, tax returns, IDs.</li>
+      </ul>
+    </li>
+    <li><strong>Routing:</strong> Lead Assignment Rules or Flow-driven routing keyed on state, product type, partner source. Round-robin queues for underwriters.</li>
+    <li><strong>Integrations:</strong> Plaid/Yodlee for bank data, Experian/Equifax for bureau, OFAC/sanctions, KYC/KYB.</li>
+    <li><strong>Security &amp; compliance:</strong> field-level encryption, Shield Event Monitoring, separate persona-based permission sets, audit trail.</li>
+    <li><strong>Decisioning:</strong> Flow + Apex hybrid — declarative for business-policy edits, Apex for scoring logic with full test coverage.</li>
+    <li><strong>Observability:</strong> custom <code>Application_Event__c</code> for SLA timestamps; reports + dashboards for funnel conversion by partner.</li>
+  </ol>
+  <div class="followup"><strong>Likely follow-up:</strong> How would you handle PII? How would you bulk-import an old book of business? What if a partner sends 100k apps in one hour?</div>
+  <div class="anchor">
+    <h4>Bring up before they ask</h4>
+    <p>State limits and disclosures (lending varies by state). Idempotent API for partner submissions. Soft-decline vs hard-decline so brokers can re-submit.</p>
+  </div>
+</section>
+
+<section class="q" id="q4">
+  <div class="qnum">Question 4</div>
+  <h2>How would you integrate Salesforce with external underwriting, banking, or partner systems?</h2>
+  <h3>Cover the full matrix</h3>
+  <div class="star">
+    <div class="step"><h4>Pattern</h4><p>Sync REST · Async Bulk · Platform Events · Change Data Capture · MuleSoft/middleware</p></div>
+    <div class="step"><h4>Auth</h4><p>Named Credentials, OAuth 2.0 Client Credentials, JWT bearer for system-to-system</p></div>
+    <div class="step"><h4>Reliability</h4><p>Idempotency keys, retries w/ exponential backoff, dead-letter queue, circuit breaker</p></div>
+    <div class="step"><h4>Observability</h4><p>Integration_Log__c, Setup Audit Trail, Event Monitoring, OpenTelemetry via middleware</p></div>
+  </div>
+  <h3>Specific Salesforce mechanics</h3>
+  <ul>
+    <li><code>HttpCalloutMock</code> / <code>WebServiceMock</code> for unit tests — never let real HTTP into Apex tests.</li>
+    <li>Wrap callouts in <code>Test.startTest()</code>/<code>stopTest()</code> when DML precedes them, or hit the "uncommitted work" error.</li>
+    <li>Named Credentials + External Credentials for secret management — no API keys in Custom Settings.</li>
+    <li>For bursts: Bulk API 2.0 or Pub/Sub API (gRPC) rather than synchronous REST.</li>
+  </ul>
+  <div class="followup"><strong>Likely follow-up:</strong> A partner is sending us 5x their normal traffic and our callout limit is being blown. What do you do?</div>
+  <div class="anchor">
+    <h4>Concrete answer to the follow-up</h4>
+    <p>Short term: queueable + chained jobs to spread callouts across transactions; Platform Cache to deduplicate. Medium term: introduce middleware (MuleSoft or a Vercel Function) to absorb bursts and call SF asynchronously. Long term: renegotiate the partner contract for batched submission.</p>
+  </div>
+</section>
+
+<section class="q" id="q5">
+  <div class="qnum">Question 5</div>
+  <h2>Tell me about a time you improved Salesforce delivery or release quality.</h2>
+  <h3>Lead with your 2GP pipeline anchor</h3>
+  <p style="margin:6px 0 12px;font-size:14px;">This is your sweet spot. Tell it as STAR.</p>
+  <ul>
+    <li><strong>S:</strong> Releases were taking N hours / failing rate of X% / no clear ownership.</li>
+    <li><strong>T:</strong> You owned the platform engineering side — pipeline, conventions, enforcement.</li>
+    <li><strong>A:</strong>
+      <ul>
+        <li>Moved to <strong>2GP unlocked packages</strong>; established <code>sfdx-project.json</code> + dependency graph.</li>
+        <li>Set up <strong>GitHub Actions</strong> with stages: <em>lint → Jest → Apex tests → validate-only deploy → integration</em>.</li>
+        <li>Adopted <strong>Jest with Kent C. Dodds-style behavioral tests</strong> (no implementation details).</li>
+        <li>Added <strong>Playwright</strong> for E2E coverage of the highest-revenue user paths.</li>
+        <li>Wrote contributor docs + held office hours for the first 4 weeks.</li>
+      </ul>
+    </li>
+    <li><strong>R:</strong> Deploy time dropped from X to Y; failure rate from A% to B%; team shipped feature N two weeks early.</li>
+  </ul>
+  <div class="followup"><strong>Likely follow-up:</strong> What did the team push back on? How did you handle it?</div>
+  <div class="anchor">
+    <h4>Be honest about adoption pain</h4>
+    <p>Pretending everyone loved it on day one is a tell. Real answer: "Two senior engineers preferred change sets. I paired with them on the first three deploys and let them see the diff between source-driven and click-to-deploy — they converted themselves by week three."</p>
+  </div>
+</section>
+
+<section class="q" id="q6">
+  <div class="qnum">Question 6</div>
+  <h2>How do you approach Salesforce security and governance in a regulated or sensitive-data environment?</h2>
+  <h3>The Salesforce security stack — top to bottom</h3>
+  <ol>
+    <li><strong>Org-wide defaults</strong> → tightest reasonable (Private for sensitive objects).</li>
+    <li><strong>Role hierarchy</strong> → grants up the chain (managers see reports' records).</li>
+    <li><strong>Sharing rules</strong> → criteria-based or owner-based for broader access.</li>
+    <li><strong>Manual sharing</strong> → user-initiated; gone on owner change.</li>
+    <li><strong>Apex Managed Sharing</strong> → custom <code>RowCause</code>, only on custom objects, survives ownership changes.</li>
+    <li><strong>CRUD/FLS</strong> → enforced at object &amp; field. Apex needs to respect <code>WITH SECURITY_ENFORCED</code> / <code>Security.stripInaccessible()</code> / <code>USER_MODE</code>.</li>
+  </ol>
+  <h3>Persona-based pattern (drop this in)</h3>
+  <ul>
+    <li>One <strong>permission set per persona</strong> (Underwriter, Servicer, Broker, Compliance).</li>
+    <li>Permission set <strong>groups</strong> for composite roles ("Senior Underwriter" = Underwriter + Servicer).</li>
+    <li><strong>Persona-based Apex tests</strong> with <code>System.runAs(user)</code> for each persona — catches access bugs at deploy time.</li>
+    <li><strong>Shield Platform Encryption</strong> on PII fields (SSN, EIN, DOB, bank account numbers).</li>
+    <li><strong>Event Monitoring</strong> for audit; <strong>Setup Audit Trail</strong> for config changes; <strong>Field History Tracking</strong> for record-level history.</li>
+  </ul>
+  <div class="followup"><strong>Likely follow-up:</strong> An audit found that brokers can see other brokers' applications. How do you find and fix it?</div>
+  <div class="anchor">
+    <h4>The diagnostic answer</h4>
+    <p>"Query <code>AccountShare</code>/<code>Application__Share</code> for the affected records to see <em>why</em> they're shared — Owner, Manual, sharing rule name, or Apex custom RowCause. Most leaks I've seen come from criteria-based sharing rules with overly broad criteria, or from <code>WITH SECURITY_ENFORCED</code> being missed in a recent SOQL query. Then I'd add a <code>System.runAs(brokerUser)</code> test that asserts they can <em>only</em> see their own apps, so it never happens again."</p>
+  </div>
+</section>
+
+<section class="q" id="q7">
+  <div class="qnum">Question 7</div>
+  <h2>Describe a complex Apex or LWC performance issue you solved.</h2>
+  <div class="followup"><strong>Likely follow-up:</strong> How did you prove the fix worked, and how did you prevent regressions?</div>
+  <h3>Concrete frame</h3>
+  <ul>
+    <li><strong>The symptom:</strong> page taking N seconds / SOQL row limit / heap exception / UNABLE_TO_LOCK_ROW.</li>
+    <li><strong>The diagnostic tools:</strong>
+      <ul>
+        <li><strong>Developer Console</strong> Execution Overview: <em>Timeline</em> for category breakdown, <em>Limits</em> tab for governor pressure, <em>Executed Units</em> for method call counts.</li>
+        <li><strong>Query Plan</strong> tab to find unindexed selective queries.</li>
+        <li><strong>Apex Replay Debugger</strong> for stepping through prod-like execution.</li>
+        <li><strong>Browser DevTools</strong> for LWC: <code>$0</code> on the component to inspect @wired state, Performance tab for renders.</li>
+      </ul>
+    </li>
+    <li><strong>The fix:</strong> bulkified for loop → single DML, denormalized field to skip a query, moved hot path to Platform Cache, deferred non-critical work to Queueable, replaced N+1 SOQL with subquery.</li>
+    <li><strong>The proof:</strong> before/after numbers from the Executed Units tab; user-perceived load time from Lightning Usage App; <strong>regression-locked with a perf test</strong> in CI that asserts SOQL count and total time.</li>
+  </ul>
+  <div class="anchor">
+    <h4>Sharpest answer</h4>
+    <p>"The fix was easy — finding it took 80% of the time. The takeaway I push on the team: instrument first, optimize second. We now log query count + heap to a <code>Perf_Log__c</code> in the highest-traffic paths so we see degradation in dashboards, not in tickets."</p>
+  </div>
+</section>
+
+<section class="q" id="q8">
+  <div class="qnum">Question 8</div>
+  <h2>Tell me about a time you had to lead engineers while still staying hands-on.</h2>
+  <h3>What they're probing</h3>
+  <ul>
+    <li>Do you mentor, or just dictate?</li>
+    <li>Do you do code review well — substantive, kind, fast?</li>
+    <li>Do you delegate, or are you a bottleneck?</li>
+    <li>What do you reserve for yourself vs. push to the team?</li>
+  </ul>
+  <h3>Framing that lands</h3>
+  <ol>
+    <li>"I keep my hands on the most-leveraged parts: the conventions, the platform pieces, the toughest architectural cuts."</li>
+    <li>"I push features and incremental work to the team — pair when it's a teaching moment, review async otherwise."</li>
+    <li>"I aim for a 4-hour code-review SLA. I'd rather be the fast reviewer than the perfect one — fast review keeps people unblocked, and 'perfect' often just means 'how I'd do it.'"</li>
+    <li>"I run a weekly 30-minute office hour. No agenda. Most engineers don't come; the ones who do save me hours later."</li>
+  </ol>
+  <div class="anchor">
+    <h4>Concrete anti-bottleneck mechanism</h4>
+    <p>"For any non-trivial change, the engineer writes a one-page design doc before code. Two engineers review it. I review it. If we three agree, the design's done — I don't review the PR for architecture, just for the bar. That cut my PR-review queue from 30 → 6."</p>
+  </div>
+</section>
+
+<section class="q" id="q9">
+  <div class="qnum">Question 9</div>
+  <h2>Tell me about a disagreement with product, QA, design, or another engineer on a technical direction.</h2>
+  <h3>The STAR shape</h3>
+  <ul>
+    <li><strong>S:</strong> Real disagreement with stakes — not a bikeshed.</li>
+    <li><strong>T:</strong> Your job was to <em>create alignment</em>, not to win.</li>
+    <li><strong>A:</strong>
+      <ul>
+        <li>Got curious before being persuasive: "Help me understand what you're optimizing for."</li>
+        <li>Translated their concerns into technical constraints, and yours into business outcomes.</li>
+        <li>Found a small experiment / proof-of-concept that resolved it with data rather than opinion.</li>
+        <li>Wrote up the decision after, so the team has the receipts.</li>
+      </ul>
+    </li>
+    <li><strong>R:</strong> Decision was made <em>and</em> the relationship was better afterward. Quantified outcome.</li>
+  </ul>
+  <div class="followup"><strong>Likely follow-up:</strong> What if you'd been wrong?</div>
+  <div class="anchor">
+    <h4>The honest "wrong" answer</h4>
+    <p>Have one ready. "On the X project I argued strongly for queueable over future methods. Two months in we hit a chaining limit I hadn't anticipated, and the right answer was actually Platform Events. I wrote the post-mortem and presented it at engineering all-hands. The next architectural review I led, I deliberately asked 'what's the case <em>against</em>?' before committing."</p>
+  </div>
+</section>
+
+<section class="q" id="q10">
+  <div class="qnum">Question 10</div>
+  <h2>If you joined Kapitus and inherited a messy Salesforce org with slow releases and unclear ownership, what would you do in your first 90 days?</h2>
+  <h3>Days 1–30 — Listen &amp; measure</h3>
+  <ul>
+    <li>1:1s with every engineer + key stakeholders (product, ops, compliance, support).</li>
+    <li>Read the last 3 months of post-mortems, support escalations, and deploy logs.</li>
+    <li>Inventory: number of triggers per object, Flow count, custom code coverage %, deploy frequency &amp; failure rate, oldest scheduled jobs, top 10 slowest pages.</li>
+    <li>Run <code>force:package:version:report --verbose</code> on existing packages.</li>
+    <li>Identify the 3 things that are actively bleeding (production bugs, audit risks, broken integrations).</li>
+  </ul>
+  <h3>Days 31–60 — Stabilize</h3>
+  <ul>
+    <li>Land the bleeding fixes first — quickest path to credibility.</li>
+    <li>Stand up a basic CI gate: lint + tests + validate-only deploy. Even minimal CI catches the most common deploy failures.</li>
+    <li>Establish code review conventions and SLAs. Pair on the first few reviews to set the bar.</li>
+    <li>Draft a 6-month platform roadmap. Share with engineering + product, get buy-in.</li>
+  </ul>
+  <h3>Days 61–90 — Invest</h3>
+  <ul>
+    <li>Begin migration off worst tech debt (often: triggers without a framework, untested Apex, hardcoded IDs).</li>
+    <li>Move toward 2GP or unlocked packages if not already there. Start small — one module.</li>
+    <li>Define persona-based permission sets if missing; audit FLS coverage.</li>
+    <li>Set up dashboards for the metrics you'll be judged on: deploy time, failure rate, P1 incident count, code coverage trend.</li>
+    <li>Hand-off a piece of platform ownership to a strong IC — start growing the next Tech Lead.</li>
+  </ul>
+  <div class="anchor">
+    <h4>What they're really testing</h4>
+    <p>Patience + judgment. Junior leads come in swinging and break trust. Senior leads measure first, fix the bleeding, then invest. Show that distinction.</p>
+  </div>
+</section>
+
+<section class="q" id="closing">
+  <div class="qnum">Closing</div>
+  <h2>Closing posture</h2>
+  <ul>
+    <li>Have <strong>three questions</strong> for them queued up. Examples:
+      <ul>
+        <li>"What's the current state of your release process, and what would it take to cut deploy time in half?"</li>
+        <li>"How is platform engineering scoped here — is the Tech Lead a player-coach, or more of an architect?"</li>
+        <li>"What does success look like in the first six months — concretely?"</li>
+      </ul>
+    </li>
+    <li>End with: "Based on what I've heard, here are the first three things I'd want to dig into in week one — does that align with what you're looking for?" → signals you're already operating in-role.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
