@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morning-of Cheatsheet — Kapitus Salesforce Tech Lead</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --rule:#e3e8f0; --warn:#7a5e00; --warn-bg:#fff7d6; --warn-border:#e6c548; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  header.topbar .left .crumbs{font-size:11px;opacity:0.75;margin-bottom:2px}
+  header.topbar .left .crumbs a{color:white;text-decoration:none;opacity:0.75}
+  header.topbar .left .crumbs a:hover{opacity:1;text-decoration:underline}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.8;margin-top:2px}
+  header.topbar button{background:var(--accent);color:white;border:0;border-radius:5px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:0.3px}
+  header.topbar button:hover{background:#0d7adb}
+  main{max-width:1280px;margin:14px auto;padding:0 16px 60px}
+  .anchors-strip{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:10px 14px;margin-bottom:14px}
+  .anchors-strip h2{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.7px;color:var(--muted);font-weight:600}
+  .pillrow{display:flex;flex-wrap:wrap;gap:6px}
+  .pill{background:var(--code-bg);border:1px solid var(--code-border);border-radius:999px;padding:2px 9px;font-size:11.5px;color:var(--muted)}
+  h2.group{color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:0.8px;border-bottom:2px solid var(--accent);padding-bottom:4px;margin:18px 0 10px;display:inline-block}
+  .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:10px 13px;page-break-inside:avoid;break-inside:avoid}
+  .card .num{font-size:10px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent);font-weight:600;margin-bottom:2px}
+  .card h3{margin:0 0 6px;font-size:13px;color:var(--navy);font-weight:600;line-height:1.3}
+  .card .fu{background:var(--warn-bg);border-left:2px solid var(--warn-border);padding:4px 8px;font-size:11.5px;color:var(--warn);border-radius:0 3px 3px 0;margin:6px 0}
+  .card .fu strong{font-weight:600}
+  .card .anchor{background:#eaf6ff;border-left:2px solid var(--accent);padding:5px 9px;font-size:11.5px;border-radius:0 3px 3px 0;margin-top:6px;line-height:1.4}
+  .card .pillrow{margin:4px 0 6px}
+  .card .pill{font-size:11px;padding:1px 7px}
+  .card code{background:var(--code-bg);border:1px solid var(--code-border);border-radius:3px;padding:0 4px;font-size:11px;font-family:"SF Mono",Menlo,Consolas,monospace}
+  .deep .card h3{font-size:12.5px}
+  .closing{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:10px 14px;margin-top:14px}
+  .closing h2{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.7px;color:var(--muted);font-weight:600}
+  .closing ol{margin:4px 0 0;padding-left:20px;font-size:12px}
+  .closing li{margin:3px 0}
+
+  @media print {
+    body{background:white;font-size:9.5px;line-height:1.35}
+    header.topbar{background:white;color:var(--ink);padding:0 0 6px;border-bottom:1.5px solid var(--navy)}
+    header.topbar .crumbs,header.topbar button{display:none}
+    header.topbar h1{font-size:13px;color:var(--navy)}
+    header.topbar .sub{font-size:10px;color:var(--muted);opacity:1}
+    main{margin:0;padding:6px 8px;max-width:none}
+    h2.group{font-size:9px;margin:10px 0 5px}
+    .grid{gap:5px;grid-template-columns:repeat(3,1fr)}
+    .card{padding:5px 7px;border:0.5px solid var(--rule);border-radius:3px}
+    .card .num{font-size:7.5px;margin-bottom:1px}
+    .card h3{font-size:10px;margin-bottom:3px}
+    .card .fu,.card .anchor{font-size:9px;padding:3px 5px}
+    .card .pill{font-size:8.5px;padding:0 5px}
+    .anchors-strip,.closing{padding:5px 8px}
+    .anchors-strip h2,.closing h2{font-size:8.5px}
+    .pill{font-size:9px}
+    .closing ol{font-size:9.5px}
+    @page{size:letter;margin:0.4in}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="left">
+    <div class="crumbs"><a href="index.html">Study</a> · <a href="interview-prep.html">Interview Prep</a> · Cheatsheet</div>
+    <h1>Morning-of Cheatsheet — Kapitus Salesforce Tech Lead</h1>
+    <div class="sub">No prose. Pills, follow-up traps, anchor lines only. Designed to print on one to two pages.</div>
+  </div>
+  <button onclick="window.print()">Print</button>
+</header>
+
+<main>
+
+<section class="anchors-strip">
+  <h2>Story anchors — pick before each answer</h2>
+  <div class="pillrow">
+    <span class="pill">VA case management</span>
+    <span class="pill">Experience Cloud partner portal</span>
+    <span class="pill">Bulk API + S3 ingestion</span>
+    <span class="pill">2GP pipeline (SFDX + GH Actions)</span>
+    <span class="pill">Jest standards rollout</span>
+    <span class="pill">Playwright E2E</span>
+    <span class="pill">Apex / LWC perf optimization</span>
+    <span class="pill">Mentoring &amp; code review at scale</span>
+  </div>
+</section>
+
+<h2 class="group">Behavioral &amp; design — Q1–Q10</h2>
+<div class="grid">
+
+  <div class="card">
+    <div class="num">Q1 · Intro</div>
+    <h3>Tell me about yourself + why Kapitus.</h3>
+    <div class="fu"><strong>Trap:</strong> resume read-back. Map XC / Apex+LWC / DevOps / Integrations directly to fintech.</div>
+    <div class="anchor">Close: "Partner-driven distribution + SMB credit decisioning — that gap is what I've spent the last few years closing."</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q2 · End-to-end design</div>
+    <h3>A SF system you designed end-to-end.</h3>
+    <div class="fu"><strong>Trap:</strong> "Why not X?" + "What would you change?" Have both ready.</div>
+    <div class="pillrow"><span class="pill">data model</span><span class="pill">integration boundary</span><span class="pill">UX (LWC/Flow/Aura)</span><span class="pill">release strategy</span></div>
+    <div class="anchor">Close: "I'd move X from Flow to Apex because volume crossed N/day" — show you understand <em>thresholds</em>, not just patterns.</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q3 · Loan intake</div>
+    <h3>Design a SF-based SMB loan intake.</h3>
+    <div class="fu"><strong>Frame first:</strong> "Most SMB lenders rely on broker/partner submission, not direct consumer intake — so I'd design partner-API-first."</div>
+    <div class="pillrow"><span class="pill">partner API</span><span class="pill">broker community</span><span class="pill">Plaid/bureau/KYC</span><span class="pill">state lending</span><span class="pill">idempotency</span></div>
+    <div class="anchor">Volunteer: state limits, idempotent partner API, soft- vs hard-decline so brokers can re-submit.</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q4 · Integrations</div>
+    <h3>SF ↔ underwriting / banking / partner systems.</h3>
+    <div class="fu"><strong>Trap:</strong> 5x traffic blows your callout limit. What now?</div>
+    <div class="pillrow"><span class="pill">Named Creds</span><span class="pill">HttpCalloutMock</span><span class="pill">Bulk 2.0</span><span class="pill">Pub/Sub API</span><span class="pill">circuit breaker</span></div>
+    <div class="anchor">Short: queueable + chain to spread callouts; Platform Cache dedupe. Medium: middleware to absorb bursts. Long: renegotiate batched submission.</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q5 · Delivery quality</div>
+    <h3>A time you improved release quality.</h3>
+    <div class="fu"><strong>Trap:</strong> "What did the team push back on?" Don't pretend Day-1 love.</div>
+    <div class="pillrow"><span class="pill">2GP</span><span class="pill">GH Actions</span><span class="pill">Jest</span><span class="pill">Playwright</span><span class="pill">validate-only deploy</span></div>
+    <div class="anchor">"Two seniors preferred change sets. Paired on the first three deploys; they converted themselves by week three."</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q6 · Security &amp; governance</div>
+    <h3>SF security in a regulated environment.</h3>
+    <div class="fu"><strong>Trap:</strong> "Brokers can see other brokers' apps — find &amp; fix?"</div>
+    <div class="pillrow"><span class="pill">OWD Private</span><span class="pill">role hierarchy</span><span class="pill">criteria sharing</span><span class="pill">Apex Managed</span><span class="pill">FLS / WITH SECURITY_ENFORCED</span><span class="pill">runAs tests</span><span class="pill">Shield</span><span class="pill">Event Monitoring</span></div>
+    <div class="anchor">Query <code>__Share</code> for the leaking record → check RowCause. Add a <code>System.runAs(brokerUser)</code> test that asserts they see <em>only</em> their own.</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q7 · Apex/LWC perf</div>
+    <h3>A complex perf issue you solved.</h3>
+    <div class="fu"><strong>Trap:</strong> "How did you prove the fix + prevent regressions?"</div>
+    <div class="pillrow"><span class="pill">Dev Console Limits tab</span><span class="pill">Query Plan</span><span class="pill">Replay Debugger</span><span class="pill">Lightning Usage</span><span class="pill">perf-test CI gate</span></div>
+    <div class="anchor">"Instrument first, optimize second. We log query count + heap to <code>Perf_Log__c</code> in hot paths so degradation shows up in dashboards, not tickets."</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q8 · Lead + hands-on</div>
+    <h3>Leading engineers while staying hands-on.</h3>
+    <div class="fu"><strong>Trap:</strong> bottleneck signals — long PR queue, can't delegate.</div>
+    <div class="pillrow"><span class="pill">4h PR-review SLA</span><span class="pill">weekly office hour</span><span class="pill">design doc gate</span></div>
+    <div class="anchor">"Engineer writes a 1-page design doc; two engineers + I review. If we three agree, design's done — I don't re-review PR architecture. Queue went 30 → 6."</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q9 · Disagreement</div>
+    <h3>Technical disagreement with stakes.</h3>
+    <div class="fu"><strong>Trap:</strong> "What if you'd been wrong?" Have a real wrong-answer story ready.</div>
+    <div class="pillrow"><span class="pill">curious first</span><span class="pill">small experiment</span><span class="pill">written decision</span></div>
+    <div class="anchor">"Argued queueable over future. Hit chaining limit at 2 months — answer was Platform Events. Wrote post-mortem, presented at all-hands. Now I deliberately ask 'case <em>against</em>?' before committing."</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Q10 · First 90 days</div>
+    <h3>Inherit a messy SF org — what now?</h3>
+    <div class="pillrow"><span class="pill">D1–30 listen + measure</span><span class="pill">D31–60 stabilize</span><span class="pill">D61–90 invest</span></div>
+    <div class="anchor">"Junior leads come in swinging and break trust. Senior leads measure first, fix the bleeding, then invest. That's the distinction I'd bring."</div>
+  </div>
+
+</div>
+
+<h2 class="group">Technical deep-dives</h2>
+<div class="grid deep">
+
+  <div class="card">
+    <div class="num">FSC · Party model</div>
+    <h3>Financial Services Cloud</h3>
+    <div class="pillrow"><span class="pill">Person Accounts</span><span class="pill">Household</span><span class="pill">Financial Account</span><span class="pill">Asset / Liability</span><span class="pill">Party / Relationship / Role</span><span class="pill">Action Plans</span></div>
+    <div class="fu"><strong>Probe:</strong> "FSC at Kapitus or roll-your-own?"</div>
+    <div class="anchor">"Default to FSC if licensing fits — Party model is the shape SMB lenders need. Skip it and you rebuild Household + Asset/Liability over 2 years. Gate on license cost + existing org entrenchment."</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Flow · Order of execution</div>
+    <h3>Record-triggered: BEFORE vs AFTER save</h3>
+    <div class="pillrow"><span class="pill">BEFORE = same-record only</span><span class="pill">AFTER = DML, events, async</span><span class="pill">flow fires AFTER triggers in its phase</span></div>
+    <div class="fu"><strong>Probe:</strong> Field update on every Opportunity save — where?</div>
+    <div class="anchor">"Before-save flow if same-record only — fastest, no Apex needed. Move to Apex trigger for cross-object logic or governor-sensitive bulk. Declarative until volume or complexity forces the move."</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Async Apex</div>
+    <h3>Future · Queueable · Batch · Schedulable</h3>
+    <div class="pillrow"><span class="pill">Queueable chain depth 5 (test)</span><span class="pill">Batch scope 200 default</span><span class="pill">100 scheduled jobs / org</span><span class="pill">no batch order guarantee</span><span class="pill">Database.saveResult</span></div>
+    <div class="fu"><strong>Probe:</strong> 5M loans, callout each, tonight. Walk it.</div>
+    <div class="anchor">Schedulable → Batch(200) w/ <code>Database.AllowsCallouts</code> → log failures via <code>saveResult</code> → finish() chains Queueable that emits <code>Bureau_Refresh_Complete__e</code>. Throttle to <em>partner</em> rate, not SF limit.</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Event-driven</div>
+    <h3>Platform Events · CDC · Pub/Sub API</h3>
+    <div class="pillrow"><span class="pill">Standard 3-day</span><span class="pill">High-volume 1-day best-effort</span><span class="pill">CDC = diff, not full record</span><span class="pill">Pub/Sub = gRPC, replaces CometD</span><span class="pill">Replay ID</span></div>
+    <div class="fu"><strong>Probe:</strong> Subscriber offline 36h — how does it catch up?</div>
+    <div class="anchor">Inside retention: reconnect by replay ID, SF streams the gap. Past retention: fall back to incremental Bulk query by <code>LastModifiedDate</code>, then resume stream from now. Persist replay ID on every successful event.</div>
+  </div>
+
+  <div class="card">
+    <div class="num">Einstein / Agentforce</div>
+    <h3>AI on platform</h3>
+    <div class="pillrow"><span class="pill">Bots</span><span class="pill">Agentforce</span><span class="pill">Prompt Builder</span><span class="pill">Prediction Builder</span><span class="pill"><code>ai__</code></span><span class="pill">Trust Layer</span><span class="pill">FCRA / ECOA</span></div>
+    <div class="fu"><strong>Probe:</strong> Where would AI <em>not</em> belong here?</div>
+    <div class="anchor">"Anywhere output triggers adverse action — FCRA requires explainable reasons. AI ranks &amp; summarizes; a human signs the credit decision. Pilot Agentforce on tier-1 servicing; success = 30%+ drop in contact rate before scaling."</div>
+  </div>
+
+</div>
+
+<section class="closing">
+  <h2>Closing posture — questions for them</h2>
+  <ol>
+    <li>"What's the current state of your release process — what would it take to cut deploy time in half?"</li>
+    <li>"How is platform engineering scoped here — Tech Lead as player-coach, or architect?"</li>
+    <li>"What does success look like in the first six months — concretely?"</li>
+    <li>End with: <em>"Here are the first three things I'd want to dig into in week one — does that align?"</em> Signals you're already operating in-role.</li>
+  </ol>
+</section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Behavioral — Ready-to-Deliver Answers · Kapitus Salesforce Tech Lead</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --quote-bg:#f4f9ff; --quote-border:#bbd9f8; --warn:#7a5e00; --warn-bg:#fff7d6; --warn-border:#e6c548; --danger-bg:#fdecec; --danger-border:#e4a0a0; --danger:#922; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:18px 24px;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar .crumbs{font-size:12px;opacity:0.75;margin-bottom:4px}
+  header.topbar .crumbs a{color:white;text-decoration:none;opacity:0.75}
+  header.topbar .crumbs a:hover{opacity:1;text-decoration:underline}
+  header.topbar h1{margin:0;font-size:22px;font-weight:600}
+  header.topbar .sub{font-size:13px;opacity:0.8;margin-top:4px}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 90px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:0;height:100vh}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.q{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:24px}
+  section.q .qnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.q h2{margin:4px 0 14px;font-size:19px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block;line-height:1.3}
+  section.q h3{color:var(--navy);font-size:13px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.q ul,section.q ol{margin:8px 0 12px;padding-left:22px}
+  section.q li{margin:6px 0}
+  .probe{background:var(--warn-bg);border-left:3px solid var(--warn-border);padding:8px 12px;margin:8px 0 12px;font-size:13.5px;border-radius:0 4px 4px 0;color:var(--warn)}
+  .probe strong{color:#5d4400}
+  .anchor-story{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:10px 0 14px;border-radius:0 6px 6px 0;font-size:14px}
+  .anchor-story strong{color:var(--accent)}
+  .answer{background:var(--quote-bg);border:1px solid var(--quote-border);border-radius:8px;padding:16px 20px;margin:12px 0;font-size:14.5px;line-height:1.6}
+  .answer .label{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);font-weight:600;margin-bottom:8px;display:block}
+  .answer p{margin:8px 0}
+  .answer p:first-of-type{margin-top:0}
+  .answer p:last-child{margin-bottom:0}
+  .star{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0 14px}
+  .star .step{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:10px 14px}
+  .star .step h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.7px}
+  .star .step p{margin:0;font-size:13px;line-height:1.5}
+  .signal{background:#eef9f1;border-left:3px solid var(--accent);padding:8px 14px;margin:10px 0 4px;border-radius:0 4px 4px 0;font-size:13.5px}
+  .signal strong{color:#1d6a3a}
+  .avoid{background:var(--danger-bg);border-left:3px solid var(--danger-border);padding:8px 14px;margin:8px 0;border-radius:0 4px 4px 0;font-size:13.5px;color:var(--danger)}
+  .avoid strong{color:#600}
+  .intro{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px}
+  .intro h2{margin:0 0 10px;color:var(--navy);font-size:18px;border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  .intro p{margin:0 0 8px;font-size:14px;color:var(--muted)}
+  .rules{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:10px 16px;margin:8px 0 12px}
+  .rules ol{margin:4px 0;padding-left:22px}
+  .rules li{font-size:13.5px;margin:4px 0}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="crumbs"><a href="index.html">Study</a> · <a href="interview-prep.html">Interview Prep</a> · Behavioral</div>
+  <h1>Behavioral — Ready-to-Deliver Answers</h1>
+  <div class="sub">Kapitus Salesforce Tech Lead · 15 questions · word-for-word answers anchored to your real projects</div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <nav class="toc" id="toc">
+    <h3>How to use</h3>
+    <ul>
+      <li><a href="#intro">Read this first</a></li>
+    </ul>
+    <h3>Questions</h3>
+    <ul>
+      <li><a href="#q-self">Tell me about yourself</a></li>
+      <li><a href="#q-disagree-mgr">Disagreement w/ manager</a></li>
+      <li><a href="#q-led-team">Led a team</a></li>
+      <li><a href="#q-failed">A time you failed</a></li>
+      <li><a href="#q-pressure">Worked well under pressure</a></li>
+      <li><a href="#q-conflict-peer">Conflict with a teammate</a></li>
+      <li><a href="#q-decision">Difficult decision</a></li>
+      <li><a href="#q-above">Went above and beyond</a></li>
+      <li><a href="#q-deadline">Missed a deadline</a></li>
+      <li><a href="#q-feedback">Tough feedback</a></li>
+      <li><a href="#q-unknown">Don't know the answer</a></li>
+      <li><a href="#q-explain">Explain to non-technical</a></li>
+      <li><a href="#q-prioritize">Prioritize under load</a></li>
+      <li><a href="#q-anticipate">Anticipated a problem</a></li>
+      <li><a href="#q-future">Where in 3–5 years</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="intro" id="intro">
+  <h2>Read this first</h2>
+  <p>These answers are <strong>word-for-word ready</strong>, but the goal is rehearsal — not recitation. Memorize the <em>shape</em> of each answer and the <em>specific facts</em> (numbers, project names, technical decisions) so you can deliver naturally under pressure.</p>
+  <p>One discipline that runs through every answer: <strong>say "I," not "we did."</strong> That's the single biggest behavioral interview mistake. Every answer here points to <em>your</em> specific result, because you actually have individual ownership to point to.</p>
+  <p>Time budget: 90–120 seconds per answer. If you're at 60 seconds you're rushing; past 150 they're checking out. Companion: <a href="interview-prep.html" style="color:var(--accent)">strategy &amp; deep-dives</a> for technical questions and <a href="cheatsheet.html" style="color:var(--accent)">morning-of cheatsheet</a> for fast review.</p>
+</section>
+
+<section class="q" id="q-self">
+  <div class="qnum">Question 1</div>
+  <h2>Tell me about yourself.</h2>
+  <div class="probe"><strong>The trap:</strong> chronological resume read-back. They want a <em>narrative arc</em>, not a history lesson. 60–90 seconds max.</div>
+  <div class="answer">
+    <span class="label">Word-for-word answer</span>
+    <p>"I'm a platform engineer with a depth-in, breadth-around background in Salesforce. I started as an implementation consultant doing Salesforce admin and dev work — that gave me the ground-level understanding of how ops and sales actually use the platform. From there I migrated into building — I led the 2GP/SFDX platform engineering practice at my last role, where I moved an org from Change Sets to source-driven development and cut deployment time by roughly X%."</p>
+    <p>"My anchor work over the last few years has been in three areas: Experience Cloud portals for partner and client-facing workflows, high-volume integration pipelines handling bank data and credit bureau feeds, and the developer tooling chain itself — SFDX, GitHub Actions, Jest standards."</p>
+    <p>"What pulls me to Kapitus specifically is the combination of partner-driven distribution and small-business credit decisioning — both areas where Salesforce is either a liability or a strategic asset depending on how it's architected. That gap is exactly what I've spent the last few years closing."</p>
+  </div>
+  <div class="signal"><strong>Key signal:</strong> end with <em>why this specific role</em>, not a generic "I'm excited to join."</div>
+</section>
+
+<section class="q" id="q-disagree-mgr">
+  <div class="qnum">Question 2</div>
+  <h2>Tell me about a time you had a disagreement with your manager.</h2>
+  <div class="probe"><strong>They're probing:</strong> do you ship products, or do you just have opinions?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> the Change Set → source-driven migration. Two senior engineers pushed back. You paired, didn't dictate. By week three they converted themselves.</div>
+  <div class="star">
+    <div class="step"><h4>S — Situation</h4><p>Tech Lead role, deciding to move the team from Change Sets to SFDX source-driven development. Two senior engineers pushed back hard.</p></div>
+    <div class="step"><h4>T — Task</h4><p>Create alignment through evidence, not force the migration. They needed to convert voluntarily or we'd get surface-level compliance and broken deploys.</p></div>
+    <div class="step"><h4>A — Action</h4><p>I didn't argue. I paired with each of them on their first three deploys side-by-side. I asked them to note what they noticed — everything the diff showed that Change Sets hid. By the third deploy, both said, "I didn't realize how much we weren't seeing before." Wrote the contributor docs afterward so the on-ramp was self-serve.</p></div>
+    <div class="step"><h4>R — Result</h4><p>No one was forced. Deploy frequency increased. The senior who pushed back hardest became a champion for the next team adopting it from scratch.</p></div>
+  </div>
+  <div class="avoid"><strong>Avoid:</strong> framing this as "I was right and they were wrong." That's a different question.</div>
+</section>
+
+<section class="q" id="q-led-team">
+  <div class="qnum">Question 3</div>
+  <h2>Tell me about a time you led a team.</h2>
+  <div class="probe"><strong>They're probing:</strong> are you a bottleneck or a multiplier?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> the 2GP pipeline rollout — docs, office hours, pairing in the first month. Or the Playwright / Jest standards rollout.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>Team of 4–5 engineers shipping Salesforce across multiple modules. Releases were taking 8+ hours and failing unpredictably. I was the platform engineering owner.</p></div>
+    <div class="step"><h4>T</h4><p>Establish the tooling and conventions — SFDX, CI, test standards, contributor docs — while keeping feature delivery alive.</p></div>
+    <div class="step"><h4>A</h4><p>Phased rollout. Weeks 1–2: brought CI up silently and ran it alongside the existing process. Week 3: showed the diff to the team — what source-driven caught that Change Sets missed. Week 4: paired on the first three real deploys with each engineer; weekly office hours for questions. Wrote the contributor doc so it was self-serve after.</p></div>
+    <div class="step"><h4>R</h4><p>Deploy failures dropped significantly. Feature team shipped a release two weeks ahead of schedule in the first quarter after adoption. Team velocity became easier to estimate because the pipeline was reliable.</p></div>
+  </div>
+  <div class="signal"><strong>The detail that sells:</strong> "I aimed for a 4-hour code review SLA from day one. Fast unblock > perfect review."</div>
+</section>
+
+<section class="q" id="q-failed">
+  <div class="qnum">Question 4</div>
+  <h2>Tell me about a time you failed.</h2>
+  <div class="probe"><strong>They're probing:</strong> do you blame others? Do you learn from it? Frame around a <em>specific technical lesson</em>, not a character flaw.</div>
+  <div class="anchor-story"><strong>Anchor:</strong> the queueable-vs-Platform-Events story. You argued strongly for queueables over future methods, then hit a chaining depth limit you hadn't accounted for. The right answer was Platform Events. You wrote the post-mortem and presented it at engineering all-hands.</div>
+  <div class="answer">
+    <span class="label">Delivery</span>
+    <p>"On a project a couple years back I argued strongly for queueables over future methods for a chained workflow. Two months in we hit a chaining depth limit I hadn't anticipated, and the right architectural answer was actually Platform Events with explicit subscribers. I wrote the post-mortem and presented it at engineering all-hands rather than letting it quietly resolve."</p>
+    <p>"The structural change I made afterward: in every architectural review I lead now, I deliberately ask 'what's the case <em>against</em>?' before committing — out loud, with the team. It turns architectural decisions from advocacy into discovery."</p>
+  </div>
+  <div class="signal"><strong>What this shows:</strong> you were wrong, you owned it publicly, you changed how you run architectural reviews.</div>
+  <div class="avoid"><strong>Avoid:</strong> "I was working too hard and missed a deadline." That's a process failure, not a technical one — they can Google that.</div>
+</section>
+
+<section class="q" id="q-pressure">
+  <div class="qnum">Question 5</div>
+  <h2>Tell me about a time you worked well under pressure.</h2>
+  <div class="probe"><strong>They're probing:</strong> can you ship when things are on fire?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> a production incident you've owned. SOQL limit fire in a high-traffic org that you diagnosed and resolved while communicating updates to the team.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>Production incident — a flow-triggering Apex job was firing twice per record update, compounding queue depth across 50k+ records. Page loads were backing up.</p></div>
+    <div class="step"><h4>T</h4><p>Owned the immediate diagnosis and the fix while preventing a full rollback.</p></div>
+    <div class="step"><h4>A</h4><p>Stopped the bleeding with a Platform Cache dedup at the trigger level. Fixed the root cause — an unbulkified loop in an invocable Apex action feeding the flow. Patch deployed within 3 hours.</p></div>
+    <div class="step"><h4>R</h4><p>No data corruption. Queue depth normalized within the hour. Added a regression test to CI that asserts maximum query count per transaction — caught the same pattern in another org on the next run.</p></div>
+  </div>
+  <div class="signal"><strong>Signal this:</strong> "I'm calmer in incidents than I am planning. Diagnosing is where I operate best."</div>
+</section>
+
+<section class="q" id="q-conflict-peer">
+  <div class="qnum">Question 6</div>
+  <h2>Tell me about a time you had a conflict with a teammate.</h2>
+  <div class="probe"><strong>They're probing:</strong> do you ego-trip or do you actually collaborate? The <em>R</em> must include "the relationship was better after" — not just "we resolved it."</div>
+  <div class="anchor-story"><strong>Anchor:</strong> disagreement on architectural approach for a flow or integration boundary — who owned what scope on the Experience Cloud portal or the Bulk API pipeline.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>A senior dev wanted to wire an Apex invocable method directly to a Flow's decision element in a way that would make it untestable without deploying. I needed the same logic callable from a Queueable.</p></div>
+    <div class="step"><h4>T</h4><p>Get to a design that works for the immediate Flow call <em>and</em> is architected to be callable from async.</p></div>
+    <div class="step"><h4>A</h4><p>Shared a one-page design doc with both approaches outlined. Brought it to a 30-minute sync — not to persuade, to understand. Proposed extracting the core logic into a domain class with <code>WITH SECURITY_ENFORCED</code> — the Flow call becomes the UI layer, the domain method becomes the async layer. Minimal extra work, huge architectural win.</p></div>
+    <div class="step"><h4>R</h4><p>He shipped his Flow on time. I got my async callable for free. We haven't had that type of friction again on new builds because we both default to design-doc-first now.</p></div>
+  </div>
+</section>
+
+<section class="q" id="q-decision">
+  <div class="qnum">Question 7</div>
+  <h2>Tell me about a time you made a difficult decision.</h2>
+  <div class="probe"><strong>They're probing:</strong> do you think in tradeoffs or just pick the comfortable path?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> the 2GP vs unlocked-packages decision. Or "do we use a managed package or build it ourselves" on a recent project.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>Inherited an org with 12 change sets per month, no source tracking, no rollback path. New feature work was blocked by fear of deploys.</p></div>
+    <div class="step"><h4>T</h4><p>Decide: incremental improvement (add CI to the existing process) or full migration to packages. Incremental was safer short-term; full migration was the only path to repeatable, auditable releases in a regulated environment.</p></div>
+    <div class="step"><h4>A</h4><p>Mapped the cost of each path explicitly — timeline, risk, team disruption — and presented to the CTO and two senior engineers in a 45-minute design review. Recommended 2GP unlocked packages as the first step. Asked for their objections specifically before they could raise them.</p></div>
+    <div class="step"><h4>R</h4><p>Migration took 6 weeks longer than my optimistic estimate. But it was done before our next compliance audit. Auditors could see the full lineage of every component. Deploy failures dropped roughly 60% in the first quarter after.</p></div>
+  </div>
+  <div class="signal"><strong>The line they want to hear:</strong> "I was wrong about the timeline estimate, I updated the team, and we still delivered the right outcome." Shows tradeoff thinking, not opinion-defense.</div>
+</section>
+
+<section class="q" id="q-above">
+  <div class="qnum">Question 8</div>
+  <h2>Describe a time when you went above and beyond.</h2>
+  <div class="probe"><strong>They're probing:</strong> are you someone who does what they're asked, or do you see problems and fix them?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> the Playwright E2E framework rollout. Nobody asked for it. You identified a gap in test coverage, scoped the tool, ran it yourself in parallel for 3 weeks while shipping features, then wrote the docs and handed it off.</div>
+  <div class="star">
+    <div class="step"><h4>The gap</h4><p>CI tested Apex and Jest but no revenue-critical user paths end-to-end — the payment flow, the loan submission flow, the partner document upload.</p></div>
+    <div class="step"><h4>The move</h4><p>Scoped Playwright, added it to GitHub Actions, wrote the test suite in spare cycles without telling anyone, demonstrated 5 critical paths passing before making it official.</p></div>
+    <div class="step"><h4>Outcome</h4><p>Within 6 weeks it caught a regression in the partner portal auth flow that Apex unit tests wouldn't have caught.</p></div>
+  </div>
+  <div class="signal"><strong>What you signal:</strong> you see systemic risk and move to mitigate it without being asked.</div>
+</section>
+
+<section class="q" id="q-deadline">
+  <div class="qnum">Question 9</div>
+  <h2>Tell me about a time you missed a deadline.</h2>
+  <div class="probe"><strong>They're probing:</strong> maturity more than technical skill.</div>
+  <div class="rules">
+    <ol>
+      <li><strong>If you say "I never missed a deadline" — you're done.</strong> That's not believable.</li>
+      <li>Don't lead with an excuse. Ever.</li>
+      <li>Show what you <em>did about it</em> before you say what happened.</li>
+    </ol>
+  </div>
+  <div class="anchor-story"><strong>Anchor:</strong> the Bulk API + S3 pipeline delivery, where data mapping took longer than estimated because the client's legacy system had unexpected field structures.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>8-week timeline for a Bulk API → S3 ingestion pipeline. At week 5 I realized the client's data mapping was a 3-week problem, not a 1-week problem.</p></div>
+    <div class="step"><h4>T</h4><p>Communicate early — before the miss was certain — so the team and stakeholder could plan.</p></div>
+    <div class="step"><h4>A</h4><p>Called a 30-minute sync with the PM the moment I saw the gap. Showed the specific fields causing the issue, what I'd need from the client to fix them, and proposed a phased delivery: ingestion live on time, enrichment completed in week 9. Wrote it up formally so expectations were set.</p></div>
+    <div class="step"><h4>R</h4><p>Stakeholder was frustrated but thanked me for the 2-week heads-up instead of a 48-hour surprise. Phase 2 shipped on schedule. We never had that specific client miss again because I changed how I estimate — I pad data mapping and exception handling in the first cut now.</p></div>
+  </div>
+  <div class="signal"><strong>Meta-point:</strong> "After that I changed how I estimate — I now always run a data quality check in week 1 before locking my estimate."</div>
+</section>
+
+<section class="q" id="q-feedback">
+  <div class="qnum">Question 10</div>
+  <h2>Describe a time you received tough feedback.</h2>
+  <div class="probe"><strong>They're probing:</strong> can you take real feedback without going defensive?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> from code review ("this needs to be bulkified"), from a manager review on estimate accuracy, or from a peer about your PR review style being too picky.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>A senior engineer told me in a 1:1 that my PR review comments were too numerous and too detailed — that it felt like I was creating more work than the comments were worth.</p></div>
+    <div class="step"><h4>T</h4><p>Hear it without getting defensive immediately.</p></div>
+    <div class="step"><h4>A</h4><p>Asked for a specific example so I could calibrate. Then shut up for thirty seconds. Then said, "Can you give me a few specific cases where you think the comments were more burden than helpful?" Ended up agreeing on two categories: style preferences I was marking as requirements, and comments where I was rewording rather than explaining the underlying principle. Stopped doing both.</p></div>
+    <div class="step"><h4>R</h4><p>Review turnaround time went down. One engineer said explicitly that it felt more like a conversation now — and started sending me drafts earlier in the process, letting me catch bigger issues before the PR existed. Small negative → structural improvement.</p></div>
+  </div>
+  <div class="signal"><strong>What you signal:</strong> you calibrate when given real data.</div>
+</section>
+
+<section class="q" id="q-unknown">
+  <div class="qnum">Question 11</div>
+  <h2>How do you handle a situation where you don't know the answer?</h2>
+  <div class="probe"><strong>They're probing:</strong> "I don't know" is fine — they want to see what you do <em>next</em>.</div>
+  <div class="answer">
+    <span class="label">Word-for-word answer</span>
+    <p>"On a platform as broad as Salesforce, not knowing something specific is a given. What I do with that gap is what matters. The pattern I use: first, I check the immediate resource — Salesforce documentation and the relevant topic in the developer guide are almost always the fastest path to a correct answer. If that's insufficient, I look for anyone on the team who's touched that area before. If no one has, I scope the problem — what does the specific error or behavior tell me — and bring a proposed direction <em>before</em> I start building, not after I've made the wrong assumption."</p>
+    <p>"The honest version: I've walked into several architecture syncs in the last year where I didn't know the right answer — Platform Events vs CDC, when to use Custom Metadata vs Custom Settings, scope limits on Batchable. In each case I treated the gap as a research task, not an embarrassment."</p>
+  </div>
+  <div class="signal"><strong>What you signal:</strong> you know the platform too well to pretend you know everything. And you have a system.</div>
+</section>
+
+<section class="q" id="q-explain">
+  <div class="qnum">Question 12</div>
+  <h2>Tell me about a time you explained a complex technical concept to someone non-technical.</h2>
+  <div class="probe"><strong>They're probing:</strong> do you see explanation as part of the job, or a distraction from it?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> explaining to ops or PM why Flow + Apex hybrid was right vs all-declarative. Or explaining to a compliance stakeholder why field-level encryption needed to be on.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>Lending ops team didn't understand why their desired auto-routing rule couldn't just be a formula field. They saw it as "simple." Config was causing the account to lock randomly when routing under load.</p></div>
+    <div class="step"><h4>T</h4><p>Explain why the formula was hitting a governor limit under load — without making them feel like they didn't know the platform.</p></div>
+    <div class="step"><h4>A</h4><p>Didn't start with "here's the governor limit issue." Started with: "Walk me through exactly what happens when a loan app comes in and the routing fires." They talked through the scenario. Then I said: "When that routing fires for 200 accounts at once, the system has a specific budget for how many field updates it can do in one breath. Your formula is spending that budget on something that doesn't actually resolve the routing — it's the formula itself causing the lock." Drew a before/after diagram, no code.</p></div>
+    <div class="step"><h4>R</h4><p>Ops lead said, "I never understood why IT kept saying that rule was 'too complex' — now I get it." The fix shipped without further escalation.</p></div>
+  </div>
+  <div class="signal"><strong>What you signal:</strong> you see the explanation as part of the job, not a distraction from it.</div>
+</section>
+
+<section class="q" id="q-prioritize">
+  <div class="qnum">Question 13</div>
+  <h2>Give an example of a time you had to prioritize your tasks under heavy workload.</h2>
+  <div class="probe"><strong>They're probing:</strong> are you a hero, or a manager of your own time?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> two or three mid-sized projects coming due simultaneously, or a production incident landing in the middle of a planned release.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>Mid-way through a Flow optimization sprint when a production issue surfaced in a different module — SOQL row limit being hit on a scheduled job processing 50k+ partner applications.</p></div>
+    <div class="step"><h4>T</h4><p>Diagnose the production issue without letting the sprint slip.</p></div>
+    <div class="step"><h4>A</h4><p>Scoped the production issue for 90 minutes, found the root cause (an untested schedulable running a query without a LIMIT clause), pushed a one-line fix via GitHub Actions validate. Got back into the sprint flow and shipped the Flow work on time. Key mechanic: at my 1:1 that Thursday I told my manager I'd taken 90 minutes on an incident <em>and</em> we were still on track — proactively, not waiting for him to ask.</p></div>
+    <div class="step"><h4>R</h4><p>Production fix prevented a data escalation that would have required weekend work for the team. Sprint delivered on time. I updated the CI runbook to include "untested scheduled jobs" as a pre-deploy check.</p></div>
+  </div>
+  <div class="signal"><strong>What you signal:</strong> you communicate proactively before schedule impact is a surprise.</div>
+</section>
+
+<section class="q" id="q-anticipate">
+  <div class="qnum">Question 14</div>
+  <h2>Tell me about a time you anticipated a problem and took preventive measures.</h2>
+  <div class="probe"><strong>They're probing:</strong> do you see systemic risk early, or only after the fire?</div>
+  <div class="anchor-story"><strong>Anchor:</strong> load testing before the Bulk API went live. Or adding regression-locked perf tests to CI before another performance issue could happen.</div>
+  <div class="star">
+    <div class="step"><h4>S</h4><p>After the first production performance incident with the loan intake flow, I knew we had 6 more scheduled jobs in the org with similar patterns — same query structure, same trigger interaction.</p></div>
+    <div class="step"><h4>T</h4><p>Owned the production fix, but the real job was making sure the team never saw that particular incident in their queue again.</p></div>
+    <div class="step"><h4>A</h4><p>Spent a week adding a perf-test suite to CI — one test per scheduled job that asserts SOQL count stays under a threshold and heap stays under 4MB. Ran it against a full data snapshot. Found two more jobs that would have hit the same wall at production load.</p></div>
+    <div class="step"><h4>R</h4><p>The suite caught a regression three months later on a new job a different engineer had written. The incident happened in CI, not production. Best hour of preventive engineering I've done.</p></div>
+  </div>
+  <div class="signal"><strong>Why this answer is strong:</strong> it doubles as an example of the "instrument first, optimize second" principle you'll reference elsewhere.</div>
+</section>
+
+<section class="q" id="q-future">
+  <div class="qnum">Question 15</div>
+  <h2>Where do you see yourself in 3–5 years?</h2>
+  <div class="probe"><strong>This one is behavioral, not aspirational.</strong> The real question: are you a flight risk? Do you know what growth looks like? Are you honest?</div>
+  <div class="answer">
+    <span class="label">Word-for-word answer (Tech Lead framing)</span>
+    <p>"Building platform engineering practices at a company where Salesforce is a genuine competitive asset, not just a system of record. By that I mean: the team can ship reliably, the org is auditable, and the developers working in it are solving interesting problems rather than fighting the tooling. In three years, I'd want to have directly grown at least one person on my team into the next Tech Lead role — that means the platform is stable enough that I've been able to push ownership downward instead of staying the single point of failure."</p>
+    <p>"More personally: I've spent the last few years building the foundations. I want to spend the next few building the teams and systems that make those foundations sustainable in a way that outlasts me being the one holding them together."</p>
+  </div>
+  <div class="signal"><strong>What you signal:</strong> you're not just management; you're a multiplier. And you're thinking about the org after you, not just while you're there.</div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
