@@ -73,6 +73,18 @@
       <li><a href="#q9">9. Disagreement</a></li>
       <li><a href="#q10">10. First 90 days</a></li>
     </ul>
+    <h3>Technical deep-dives</h3>
+    <ul>
+      <li><a href="#dd-fsc">FSC / Party model</a></li>
+      <li><a href="#dd-flows">Record-triggered Flows</a></li>
+      <li><a href="#dd-async">Async Apex</a></li>
+      <li><a href="#dd-events">Platform Events / CDC / Pub-Sub</a></li>
+      <li><a href="#dd-ai">Einstein / Agentforce</a></li>
+    </ul>
+    <h3>Wrap</h3>
+    <ul>
+      <li><a href="#closing">Closing posture</a></li>
+    </ul>
   </nav>
 </aside>
 
@@ -165,9 +177,11 @@
 <section class="q" id="q3">
   <div class="qnum">Question 3</div>
   <h2>Design a Salesforce-based loan application intake system for small businesses.</h2>
+  <h3>Frame the business model first</h3>
+  <p style="margin:6px 0 12px;font-size:14px;">Open with: "Most small-business lenders rely on broker/partner submission rather than direct consumer intake, so I'd design partner-API-first — but with a self-serve fallback for the long tail." This signals you understand <em>how Kapitus actually books loans</em>, which is worth more than the architecture diagram in this answer.</p>
   <h3>What they want to hear (in roughly this order)</h3>
   <ol>
-    <li><strong>Channels:</strong> Experience Cloud public site (self-serve), Partner Community (broker), agent-assisted (Sales Cloud), inbound API (marketplace integrations).</li>
+    <li><strong>Channels (primary → secondary):</strong> Inbound partner/marketplace API (broker LOS, ISO networks), Partner Community for broker-assisted submission, agent-assisted (Sales Cloud) for white-glove deals, Experience Cloud public site for direct/self-serve as a smaller channel.</li>
     <li><strong>Data model:</strong>
       <ul>
         <li><code>Account</code> = Business; <code>Contact</code> = Principal/Guarantor (with multiple per business).</li>
@@ -366,6 +380,157 @@
   <div class="anchor">
     <h4>What they're really testing</h4>
     <p>Patience + judgment. Junior leads come in swinging and break trust. Senior leads measure first, fix the bleeding, then invest. Show that distinction.</p>
+  </div>
+</section>
+
+<section class="q" id="dd-fsc">
+  <div class="qnum">Deep-dive · Industry data model</div>
+  <h2>Financial Services Cloud &amp; Party Architecture</h2>
+  <p style="margin:6px 0 12px;font-size:14px;color:var(--muted);">Non-negotiable for a fintech-lending Tech Lead loop. Walking in without FSC vocabulary signals "vanilla CRM only."</p>
+  <h3>The model in one paragraph</h3>
+  <p style="margin:6px 0 12px;font-size:14px;">FSC sits on top of Sales Cloud and reshapes the data model around <strong>parties</strong> (people + organizations + the relationships between them) rather than the standard Account/Contact dyad. The core add-ons are <strong>Person Accounts</strong>, <strong>Household</strong>, <strong>Financial Account</strong>, <strong>Asset/Liability</strong>, <strong>Goal</strong>, <strong>Card</strong>, and <strong>Loan</strong>. Industries Cloud (FSC included) layers <strong>Party / Party Relationship / Party Role</strong> objects for n-to-n party graphs — beneficial owners, guarantors, related entities — which standard Account hierarchies can't model cleanly.</p>
+  <h3>Pills to drop</h3>
+  <div class="pillrow">
+    <span class="pill">Person Accounts</span>
+    <span class="pill">Household</span>
+    <span class="pill">Financial Account</span>
+    <span class="pill">Asset / Liability</span>
+    <span class="pill">Party / Party Relationship</span>
+    <span class="pill">Party Role</span>
+    <span class="pill">Action Plans</span>
+    <span class="pill">Rollups (Asset/Liability)</span>
+  </div>
+  <h3>When you'd use FSC vs roll-your-own</h3>
+  <ul>
+    <li><strong>FSC</strong> when you're greenfield and can take the licensing line item — you inherit Person Accounts, Household rollups, Action Plans, and a release cadence Salesforce maintains for you.</li>
+    <li><strong>Custom Party model</strong> when the existing org has deep custom relationships and FSC's opinions would force a migration. Cheaper short term, more code to maintain.</li>
+    <li><strong>For Kapitus specifically:</strong> small-business borrowers are usually <em>organizations with multiple principals/guarantors</em> — a Party Group graph rather than a single Account. FSC's Party Relationship object handles that natively; standard SF requires a custom junction with a sharing model attached.</li>
+  </ul>
+  <div class="followup"><strong>Likely follow-up:</strong> Would you use FSC at Kapitus or build your own?</div>
+  <div class="anchor">
+    <h4>Sharp answer</h4>
+    <p>"My default is FSC if the licensing fits the deal size — the Party model is exactly the shape a small-business lender needs, and skipping it means you'll rebuild Household and Asset/Liability over the next two years. The gating question is license cost per underwriter and whether the existing org is too entrenched in standard Accounts to migrate cleanly. I'd want to see your contact and license breakdown in week one before committing."</p>
+  </div>
+</section>
+
+<section class="q" id="dd-flows">
+  <div class="qnum">Deep-dive · Automation</div>
+  <h2>Record-triggered Flows — BEFORE vs AFTER save</h2>
+  <p style="margin:6px 0 12px;font-size:14px;color:var(--muted);">Every senior SF interview in 2026 probes this distinction. Most candidates fumble it because Salesforce changed the order of execution and the official docs are split across releases.</p>
+  <h3>Side-by-side</h3>
+  <div class="star">
+    <div class="step"><h4>BEFORE save</h4><p>Fires <em>before</em> the DB write. Same-record field updates only — no DML, no callouts. Faster (no second save). No rollback from inside the flow. Replaces most workflow rules &amp; simple before-insert triggers.</p></div>
+    <div class="step"><h4>AFTER save</h4><p>Fires <em>after</em> the DB write but before commit. Can do DML on <em>other</em> records, send Platform Events, call subflows, schedule async work. Use for related-record updates, callouts (async only), event emission.</p></div>
+  </div>
+  <h3>Order of execution (the part that trips people up)</h3>
+  <ol>
+    <li>System validation rules + load original record</li>
+    <li><strong>Before-save flows</strong></li>
+    <li>Apex <strong>before</strong> triggers</li>
+    <li>Custom validation rules</li>
+    <li>Record saved to DB (not yet committed)</li>
+    <li>Apex <strong>after</strong> triggers</li>
+    <li><strong>After-save flows</strong></li>
+    <li>Assignment / auto-response / workflow rules</li>
+    <li>Roll-up summary + parent recalc</li>
+    <li>Commit</li>
+  </ol>
+  <p style="margin:6px 0 12px;font-size:14px;"><strong>The gotcha:</strong> flow fires <em>after</em> Apex triggers in its phase, not before. Engineers assume "flow first" and then can't explain why their Apex saw a stale value.</p>
+  <div class="followup"><strong>Likely follow-up:</strong> Where would you put a field update that fires on every Opportunity save?</div>
+  <div class="anchor">
+    <h4>Sharp answer</h4>
+    <p>"Before-save flow if it's same-record only — fastest path, no recursion risk, no Apex needed. I move to Apex trigger once it crosses cross-object logic, governor-sensitive bulk patterns (>200 records per transaction in a hot path), or anywhere the team will need to unit-test the path with mocks. Rule of thumb: declarative until volume or complexity forces the move."</p>
+  </div>
+</section>
+
+<section class="q" id="dd-async">
+  <div class="qnum">Deep-dive · Async Apex</div>
+  <h2>Future · Queueable · Batch · Schedulable</h2>
+  <p style="margin:6px 0 12px;font-size:14px;color:var(--muted);">Tech Lead staple. Be ready for "I have N million records and a callout per record — how?"</p>
+  <h3>The four flavors</h3>
+  <div class="star">
+    <div class="step"><h4>@future</h4><p>Stateless. No chaining. Only primitive params (no sObjects). Mostly legacy — prefer Queueable unless you literally need <code>@future(callout=true)</code> from a trigger context.</p></div>
+    <div class="step"><h4>Queueable</h4><p>Returns a Job ID. Accepts sObjects + complex types. Chainable (depth limit of <strong>5</strong> in tests; effectively unlimited in prod). Implements <code>Database.AllowsCallouts</code> for HTTP.</p></div>
+    <div class="step"><h4>Batch</h4><p>For >50M records. Scope size 1–2000 (default 200). <code>start → execute → finish</code>. No guaranteed order across batches. Heap resets per <code>execute()</code>. Stateful via <code>Database.Stateful</code>.</p></div>
+    <div class="step"><h4>Schedulable</h4><p>Cron-based via <code>System.schedule()</code>. <strong>100 scheduled jobs per org</strong> ceiling. <code>System.scheduleBatch()</code> for one-shot fire-and-forget.</p></div>
+  </div>
+  <h3>Critical patterns</h3>
+  <ul>
+    <li><strong>Bulk + callouts:</strong> Batch with scope 200, implements <code>Database.AllowsCallouts</code>, finish-method chains a Queueable for cleanup. Track failures in <code>Integration_Log__c</code> via <code>Database.saveResult</code>.</li>
+    <li><strong>Database.saveResult</strong> — <code>Database.insert(records, false)</code> returns per-record success/error without rolling back the whole transaction. Critical for partial-success ingestion pipelines.</li>
+    <li><strong>Test.startTest() / stopTest()</strong> — forces all queued async work to run synchronously inside the block. Without it, async tests assert against unrun jobs.</li>
+    <li><strong>No guaranteed order</strong> in batch — never write logic that depends on batch N finishing before batch M.</li>
+  </ul>
+  <div class="followup"><strong>Likely follow-up:</strong> 5 million loans need a credit-bureau refresh tonight. Walk me through it.</div>
+  <div class="anchor">
+    <h4>Sharp answer</h4>
+    <p>"Schedulable kicks off a Batch with scope 200, <code>Database.AllowsCallouts</code> on the batch class. Each <code>execute()</code> calls the bureau, writes results, and on partial-success writes the failures to <code>Integration_Log__c</code> via <code>Database.saveResult</code>. <code>finish()</code> chains a Queueable that emits a Platform Event (<code>Bureau_Refresh_Complete__e</code>) so downstream systems pick it up. Idempotency key on the bureau side so re-runs after partial failure are safe. Throttling: scope size tuned to stay under the partner's per-minute rate limit — not the SF callout limit."</p>
+  </div>
+</section>
+
+<section class="q" id="dd-events">
+  <div class="qnum">Deep-dive · Event-driven</div>
+  <h2>Platform Events · Change Data Capture · Pub/Sub API</h2>
+  <p style="margin:6px 0 12px;font-size:14px;color:var(--muted);">For a fintech the integration matrix matters as much as the data model. Lending platforms generate enormous event streams — application created, document uploaded, decision rendered, loan funded, payment posted, payment missed.</p>
+  <h3>The three mechanisms</h3>
+  <div class="star">
+    <div class="step"><h4>Platform Events</h4><p>You define them (<code>Event__e</code>). Subscribe from Apex, Flow, LWC empAPI, or external. <strong>Standard</strong> (3-day retention, durable) vs <strong>High-volume</strong> (1 day, best-effort). Publish via DML or Apex <code>EventBus.publish()</code>.</p></div>
+    <div class="step"><h4>Change Data Capture</h4><p>Auto-generated events on SObject create/update/delete/undelete. Subscribers receive the diff, not the full record. Perfect when you just need "row N changed" without inventing business events.</p></div>
+    <div class="step"><h4>Pub/Sub API (gRPC)</h4><p>Newer transport that replaces CometD/Streaming API. Bi-directional. Higher throughput. Subscribers maintain <strong>Replay ID</strong> for guaranteed-delivery semantics.</p></div>
+  </div>
+  <h3>Replay ID — the gotcha they'll probe</h3>
+  <ul>
+    <li>Every event has a monotonically increasing replay ID per channel.</li>
+    <li>Subscribers persist the last successfully processed replay ID.</li>
+    <li>On reconnect, they request "everything after X." Salesforce streams the gap.</li>
+    <li><strong>If the gap is older than the retention window</strong> (1 or 3 days), the events are gone — subscriber must fall back to a Bulk-query catchup for the missed range.</li>
+    <li>This is why "best-effort delivery" on high-volume mode is not a marketing line — it's an honest statement about retention math.</li>
+  </ul>
+  <h3>Picking between them</h3>
+  <ul>
+    <li><strong>CDC</strong> if downstream just needs "row changed, here's the diff." Lowest engineering cost.</li>
+    <li><strong>Platform Events</strong> when you want <em>business semantics</em> — <code>Loan_Funded__e</code>, <code>Payment_Missed__e</code> — so subscribers don't have to interpret what an Opportunity status change means.</li>
+    <li><strong>Pub/Sub API</strong> as the transport for either, especially when throughput is high or you need bi-directional flow.</li>
+  </ul>
+  <div class="followup"><strong>Likely follow-up:</strong> A downstream analytics system goes offline for 36 hours. How does it catch up?</div>
+  <div class="anchor">
+    <h4>Sharp answer</h4>
+    <p>"If the event channel is standard-volume (3-day retention) and we're inside the window, the subscriber reconnects with its last replay ID and Salesforce streams the gap. If we're outside the window or on high-volume mode, the replay ID lookup fails — at that point the subscriber falls back to an incremental Bulk query keyed on <code>LastModifiedDate</code> for the missed range, then resumes the event stream from <em>now</em>. The discipline is: persist your replay ID on every successful event, and have the catchup path written before you need it."</p>
+  </div>
+</section>
+
+<section class="q" id="dd-ai">
+  <div class="qnum">Deep-dive · AI on platform</div>
+  <h2>Einstein, Agentforce, Prompt Builder, Prediction Builder</h2>
+  <p style="margin:6px 0 12px;font-size:14px;color:var(--muted);">In 2026 you <em>will</em> be asked where AI fits — particularly at a fintech where servicing volume and document-heavy underwriting are obvious wins. Have one concrete take per surface.</p>
+  <h3>The four surfaces</h3>
+  <div class="star">
+    <div class="step"><h4>Einstein Bots</h4><p>NLP-driven self-service chat across web, mobile, SMS, WhatsApp. Intents + entities + confidence-based handoff. Fintech fit: payment-status, loan-app-status, statement requests.</p></div>
+    <div class="step"><h4>Agentforce</h4><p>CRM-grounded AI agents (formerly Einstein Copilot). Topics + Actions + Prompts. Goes beyond Bots' decision trees — can reason over related records and call platform actions.</p></div>
+    <div class="step"><h4>Prompt Builder</h4><p>Reusable prompt templates grounded in record context. Output to fields, emails, or Apex actions. Fintech fit: summarize uploaded bank statements; draft adverse-action explanations.</p></div>
+    <div class="step"><h4>Einstein Prediction Builder</h4><p>Binary or numeric predictions on a custom object. Fintech fit: default risk, prepayment likelihood, broker conversion. <strong>But:</strong> not for the credit decision itself — FCRA/ECOA require explainable, human-reviewed adverse action.</p></div>
+  </div>
+  <h3>Concrete opinions to bring (pick one per surface)</h3>
+  <ul>
+    <li><strong>Bots/Agentforce:</strong> "I'd pilot Agentforce on tier-1 servicing — payment lookup, statement requests, app status. Success metric: 30%+ drop in contact rate to live agents before scaling. If the bot doesn't move that number, the bot's wrong, not the customer."</li>
+    <li><strong>Prompt Builder:</strong> "Document summarization on uploaded bank statements is the highest-ROI starting point — underwriter saves 15 minutes per file. Wrap it with a confidence threshold so the underwriter still reviews edge cases."</li>
+    <li><strong>Prediction Builder:</strong> "Use it for <em>prioritization</em>, never for the decision. Score the queue so underwriters see likely-fund-able apps first. The credit decision itself stays explainable + reviewable for FCRA compliance."</li>
+  </ul>
+  <h3>Vocabulary they'll listen for</h3>
+  <div class="pillrow">
+    <span class="pill"><code>ai__</code> namespace</span>
+    <span class="pill">Topics / Actions</span>
+    <span class="pill">Grounding</span>
+    <span class="pill">Prompt templates</span>
+    <span class="pill">Trust Layer</span>
+    <span class="pill">Zero-retention models</span>
+    <span class="pill">Confidence threshold</span>
+    <span class="pill">FCRA / ECOA</span>
+  </div>
+  <div class="followup"><strong>Likely follow-up:</strong> Where would AI <em>not</em> belong in this platform?</div>
+  <div class="anchor">
+    <h4>Sharp answer</h4>
+    <p>"Anywhere the output triggers an adverse action against a borrower — declines, rate increases, withdrawn offers. FCRA requires the consumer to receive a specific reason, and ECOA requires an explainable model. A black-box LLM output isn't defensible. The pattern I'd push is: AI ranks and summarizes; a human signs the decision. Use the model to make underwriters fast, not to replace them at the regulated boundary."</p>
   </div>
 </section>
 
