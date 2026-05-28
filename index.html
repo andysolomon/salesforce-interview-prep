@@ -93,6 +93,7 @@
     max-width: 640px;
   }
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <header class="topbar">
@@ -101,7 +102,17 @@
 </header>
 
 <main>
-  <p class="intro">Organized by module → topic. Each topic page contains the full lecture content as searchable, sidebar-navigable HTML, plus an interview-focused cheatsheet.</p>
+  <section class="hero-intro">
+    <div class="hero-copy">
+      <p class="hero-kicker">Private study library</p>
+      <p class="intro">A quiet, high-signal reading room for interview prep. Start with strategy, drill the behavioral answers, then drop into the module transcriptions when you need raw detail, examples, or exact platform language.</p>
+    </div>
+    <div class="hero-stats" aria-label="Study library overview">
+      <div class="hero-stat"><strong>5</strong><span>core entry points across strategy, delivery, and reference review</span></div>
+      <div class="hero-stat"><strong>7</strong><span>module topics transcribed into searchable long-form pages</span></div>
+      <div class="hero-stat"><strong>1</strong><span>morning-of cheatsheet built for fast recall and printing</span></div>
+    </div>
+  </section>
 
   <h2>Interview Prep</h2>
   <ul class="modules">
@@ -141,5 +152,6 @@
     </li>
   </ul>
 </main>
+<script src="theme.js"></script>
 </body>
 </html>
