@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integration Architect — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    · Topic
+  </div>
+  <h1>Integration Architect</h1>
+  <div class="sub">The 5 integration patterns, mechanisms, authentication, and design trade-offs · a must-have competency in the Fed JD</div>
+  <div class="actions"><a href="https://trailhead.salesforce.com/help?path=credentials/&cred=integration-architect" target="_blank" rel="noopener">Official exam guide</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#fed-map">Why this maps to the Fed role</a></li>
+      <li><a href="#blueprint">Exam blueprint</a></li>
+    </ul>
+    <h3>The 5 patterns</h3>
+    <ul>
+      <li><a href="#patterns-overview">Pattern selection matrix</a></li>
+      <li><a href="#req-reply">1 · Request &amp; Reply</a></li>
+      <li><a href="#fire-forget">2 · Fire &amp; Forget</a></li>
+      <li><a href="#batch-sync">3 · Batch Data Sync</a></li>
+      <li><a href="#remote-callin">4 · Remote Call-In</a></li>
+      <li><a href="#ui-update">5 · UI Update on Data Change</a></li>
+    </ul>
+    <h3>Mechanisms</h3>
+    <ul>
+      <li><a href="#apis">REST · SOAP · Bulk · GraphQL</a></li>
+      <li><a href="#events">Platform Events · CDC · Pub/Sub</a></li>
+      <li><a href="#outbound">Outbound: callouts &amp; messaging</a></li>
+      <li><a href="#connect">Salesforce Connect (OData)</a></li>
+    </ul>
+    <h3>Auth &amp; security</h3>
+    <ul>
+      <li><a href="#named-creds">Named &amp; External Credentials</a></li>
+      <li><a href="#oauth">OAuth flows &amp; JWT</a></li>
+    </ul>
+    <h3>Design &amp; build</h3>
+    <ul>
+      <li><a href="#middleware">Middleware (MuleSoft / ESB)</a></li>
+      <li><a href="#reliability">Idempotency &amp; error handling</a></li>
+      <li><a href="#limits">Limits &amp; performance</a></li>
+      <li><a href="#maintain">Maintaining integrations</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover integration architect patterns mechanisms">
+  <div class="pgnum" style="color:#cbd6e6">Architect Certification Guide</div>
+  <h2>Integration Architect</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Connect Salesforce to a heterogeneous landscape: the five enterprise patterns, the mechanism for each, authentication, and the reliability concerns that separate a working integration from a robust one.</p>
+</section>
+
+<section class="slide" id="fed-map" data-search="fed federal reserve chicago job description integration patterns connectors third party heterogenous datacenter cloud saas must have">
+  <div class="pgnum">Orientation · Why this guide</div>
+  <h2>Why this maps to the Fed-Chicago role</h2>
+  <table class="dttable">
+    <thead><tr><th>JD phrase</th><th>Covered in</th></tr></thead>
+    <tbody>
+      <tr><td>"Must have experience in Salesforce Integration patterns"</td><td>The 5 patterns (whole top section)</td></tr>
+      <tr><td>"Creates Integrations and/or Connectors between Salesforce and FRS and other 3rd-party applications"</td><td>Mechanisms · Outbound · Connect</td></tr>
+      <tr><td>"integrating Salesforce with 3rd party solutions… heterogeneous datacenter, cloud, and SaaS environments"</td><td>Middleware · pattern selection</td></tr>
+      <tr><td>"Partner with Information Security… security configurations and controls"</td><td>Named/External Credentials · OAuth</td></tr>
+    </tbody>
+  </table>
+  <div class="fed">
+    <h4>Your proof points</h4>
+    <p>You built a <strong>Bulk API 2.0 → Amazon S3</strong> streaming pipeline and <strong>Java-based connected apps</strong> for external clients. Those are textbook Batch Data Sync and Remote Call-In — name the pattern when you tell the story.</p>
+  </div>
+</section>
+
+<section class="slide" id="blueprint" data-search="exam blueprint evaluate current system landscape business needs translate requirements design build maintain integration">
+  <div class="pgnum">Blueprint · 6 stages</div>
+  <h2>The exam blueprint</h2>
+  <p class="lede">The official credential walks the integration delivery lifecycle. This guide front-loads the pattern/mechanism knowledge those stages depend on.</p>
+  <table class="dttable">
+    <thead><tr><th>Stage</th><th>Focus</th></tr></thead>
+    <tbody>
+      <tr><td>Evaluate the current system landscape</td><td>Standards, limits, boundaries, protocols, auth needs</td></tr>
+      <tr><td>Evaluate business needs</td><td>Data volume, timing, criticality, security requirements</td></tr>
+      <tr><td>Translate needs to integration requirements</td><td>Map needs → the right pattern &amp; mechanism</td></tr>
+      <tr><td>Design integration solutions</td><td>Patterns, middleware, error handling, security</td></tr>
+      <tr><td>Build solution</td><td>APIs, events, callouts, auth, idempotency</td></tr>
+      <tr><td>Maintain integration</td><td>Monitoring, versioning, error recovery, deprecation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===== PATTERNS ===== -->
+<section class="slide title-slide" id="patterns-title"><div class="pgnum" style="color:#cbd6e6">Core</div><h2>The Five Integration Patterns</h2></section>
+
+<section class="slide" id="patterns-overview" data-search="pattern selection matrix timing synchronous asynchronous direction source target volume request reply fire forget batch data sync remote call in ui update">
+  <div class="pgnum">Patterns · Selection matrix</div>
+  <h2>Pick the pattern by timing &amp; direction</h2>
+  <p class="lede">Salesforce's "Integration Patterns and Practices" defines five canonical patterns. The exam is essentially: <em>given a scenario, pick the right one</em>.</p>
+  <table class="dttable">
+    <thead><tr><th>Pattern</th><th>Timing</th><th>Direction</th><th>One-liner</th></tr></thead>
+    <tbody>
+      <tr><td>Request &amp; Reply</td><td>Synchronous</td><td>SF → external</td><td>SF calls out and waits for the answer now</td></tr>
+      <tr><td>Fire &amp; Forget</td><td>Asynchronous</td><td>SF → external</td><td>SF notifies; doesn't wait for a response</td></tr>
+      <tr><td>Batch Data Sync</td><td>Async / scheduled</td><td>Both</td><td>Bulk move large data sets on a schedule</td></tr>
+      <tr><td>Remote Call-In</td><td>Sync or async</td><td>External → SF</td><td>External system creates/reads/updates SF data</td></tr>
+      <tr><td>UI Update on Data Change</td><td>Async (push)</td><td>SF → SF UI</td><td>Push data changes to the UI without refresh</td></tr>
+    </tbody>
+  </table>
+  <div class="interview">
+    <h4>Interview reflex</h4>
+    <p>Decision order: <strong>Who initiates? → Do we need the answer synchronously? → What's the data volume? → What's the reliability requirement?</strong> Those four questions land you on the right pattern every time.</p>
+  </div>
+</section>
+
+<section class="slide" id="req-reply" data-search="request reply synchronous callout rest soap apex http external service named credential user waits validation real time">
+  <div class="pgnum">Pattern 1 · Request &amp; Reply</div>
+  <h2>Request &amp; Reply (synchronous)</h2>
+  <p class="lede">Salesforce calls an external system and <strong>blocks for the response</strong> — the user or process needs the answer immediately.</p>
+  <div class="cards">
+    <div class="card"><h4>When</h4><p>Real-time validation, a credit/KYC check, fetching a live quote, address verification.</p></div>
+    <div class="card"><h4>Mechanism</h4><p>Apex synchronous callout (REST/SOAP) via a <strong>Named Credential</strong>; External Services / Flow HTTP callout; Lightning component invoking Apex.</p></div>
+    <div class="card"><h4>Watch out</h4><p>Callout timeout (max 120s, default 10s); counts against per-transaction callout limits; user waits — keep it fast.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>A loan/underwriting check that must return before the user proceeds is Request &amp; Reply. If the external system is slow or unreliable, argue for moving it to <strong>Fire &amp; Forget</strong> + status callback instead — that judgment is what they're testing.</p>
+  </div>
+</section>
+
+<section class="slide" id="fire-forget" data-search="fire and forget asynchronous platform event outbound message future queueable no response notify decouple reliability">
+  <div class="pgnum">Pattern 2 · Fire &amp; Forget</div>
+  <h2>Fire &amp; Forget (asynchronous)</h2>
+  <p class="lede">Salesforce <strong>notifies</strong> an external system and moves on — it doesn't wait for or need an immediate response.</p>
+  <div class="cards">
+    <div class="card"><h4>When</h4><p>Notify a downstream system of a new record; trigger a workflow elsewhere; decouple from a slow/unreliable endpoint.</p></div>
+    <div class="card"><h4>Mechanism</h4><p><strong>Platform Events</strong> (preferred, modern), <strong>Outbound Messages</strong> (declarative, guaranteed retry), or async Apex callout (<code>@future</code>/Queueable).</p></div>
+    <div class="card"><h4>Watch out</h4><p>You don't get the result synchronously — design a callback or event for the response if you need confirmation.</p></div>
+  </div>
+  <div class="note"><strong>Platform Events vs Outbound Messages:</strong> Outbound Messages are declarative and retry for 24h but only send a fixed SOAP message to one endpoint. Platform Events are the flexible, modern, pub/sub choice.</div>
+</section>
+
+<section class="slide" id="batch-sync" data-search="batch data synchronization bulk api 2.0 etl scheduled large data volume integration middleware extract load delta sync replication">
+  <div class="pgnum">Pattern 3 · Batch Data Sync</div>
+  <h2>Batch Data Synchronization</h2>
+  <p class="lede">Move <strong>large data sets</strong> between Salesforce and external systems, usually on a schedule, often via middleware/ETL.</p>
+  <div class="cards">
+    <div class="card"><h4>When</h4><p>Nightly replication, data warehouse loads, master-data sync, seeding analytics.</p></div>
+    <div class="card"><h4>Mechanism</h4><p><strong>Bulk API 2.0</strong> (inbound), scheduled Apex + callouts (outbound), or middleware (MuleSoft/ETL). Use <strong>delta</strong> sync on a modified-date watermark.</p></div>
+    <div class="card"><h4>Watch out</h4><p>Use Bulk API (not REST row-by-row) for volume; PK chunking for large extracts; idempotent upserts on an External ID.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This is <em>your</em> pattern — the <strong>Bulk API 2.0 → S3</strong> pipeline. Mention <strong>upsert on External ID</strong> and <strong>PK chunking</strong> to show you handle scale and idempotency, not just the happy path.</p>
+  </div>
+</section>
+
+<section class="slide" id="remote-callin" data-search="remote call in external system inbound rest soap apex web service connected app oauth composite api upsert external id">
+  <div class="pgnum">Pattern 4 · Remote Call-In</div>
+  <h2>Remote Call-In (inbound to Salesforce)</h2>
+  <p class="lede">An <strong>external system initiates</strong> — creating, retrieving, updating, or deleting Salesforce data.</p>
+  <div class="cards">
+    <div class="card"><h4>When</h4><p>A partner portal pushes records in; an external app reads/writes SF data; a webhook lands in SF.</p></div>
+    <div class="card"><h4>Mechanism</h4><p>Standard <strong>REST/SOAP API</strong>, <strong>Apex REST</strong>/<strong>Apex SOAP</strong> web services for custom endpoints, <strong>Composite API</strong> to batch related calls, all behind a <strong>Connected App</strong> + OAuth.</p></div>
+    <div class="card"><h4>Watch out</h4><p>Authentication &amp; authorization, API limits, idempotency (<code>upsert</code> on External ID to avoid duplicates on retry).</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Your <strong>Java connected apps for external clients</strong> are Remote Call-In. Pair with JWT bearer auth (server-to-server, no interactive login) — a common, secure choice for system integrations.</p>
+  </div>
+</section>
+
+<section class="slide" id="ui-update" data-search="ui update based on data changes push streaming api platform events changedatacapture lightning empapi lwc subscribe real time refresh">
+  <div class="pgnum">Pattern 5 · UI Update on Data Change</div>
+  <h2>UI Update Based on Data Changes</h2>
+  <p class="lede">When data changes (often from an external system), <strong>push the update to the Salesforce UI</strong> without a manual refresh.</p>
+  <div class="cards">
+    <div class="card"><h4>When</h4><p>A back-office update should appear live on an agent's screen; collaborative real-time dashboards.</p></div>
+    <div class="card"><h4>Mechanism</h4><p><strong>Streaming API</strong> / <strong>Platform Events</strong> / <strong>Change Data Capture</strong>, consumed in an LWC via the <code>empApi</code> module / <code>lightning/empApi</code>.</p></div>
+    <div class="card"><h4>Watch out</h4><p>Event delivery limits; replay/durability; this pushes to the UI, it's not a data-integration channel by itself.</p></div>
+  </div>
+</section>
+
+<!-- ===== MECHANISMS ===== -->
+<section class="slide title-slide" id="mech-title"><div class="pgnum" style="color:#cbd6e6">Mechanisms</div><h2>Integration Mechanisms</h2></section>
+
+<section class="slide" id="apis" data-search="rest api soap api bulk api 2.0 graphql composite api row limits synchronous asynchronous when to use connect rest">
+  <div class="pgnum">Mechanisms · APIs</div>
+  <h2>REST · SOAP · Bulk · GraphQL</h2>
+  <table class="dttable">
+    <thead><tr><th>API</th><th>Best for</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>REST API</td><td>Mobile/web, small-to-medium synchronous ops</td><td>JSON, simple, the default for most call-ins</td></tr>
+      <tr><td>SOAP API</td><td>Strongly-typed enterprise/legacy clients</td><td>WSDL contract; still common in financial systems</td></tr>
+      <tr><td>Bulk API 2.0</td><td>Large data volumes (10k+ rows)</td><td>Async, jobs &amp; batches, PK chunking, CSV</td></tr>
+      <tr><td>Composite API</td><td>Multiple related calls in one round-trip</td><td>Reduces API calls; sub-request references</td></tr>
+      <tr><td>GraphQL API</td><td>Client-shaped queries, fewer round-trips</td><td>Newer; fetch exactly the fields you need</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="events" data-search="platform events change data capture cdc pub sub api grpc streaming replay id durable event bus high volume publish subscribe">
+  <div class="pgnum">Mechanisms · Event-driven</div>
+  <h2>Platform Events · CDC · Pub/Sub API</h2>
+  <div class="cards">
+    <div class="card"><h4>Platform Events</h4><p>Custom, schema-defined events you publish/subscribe. Best when <em>you</em> define the message contract. Publish from Apex, Flow, or API.</p></div>
+    <div class="card"><h4>Change Data Capture</h4><p>Salesforce <em>auto-publishes</em> create/update/delete/undelete on selected objects. Best for replicating record changes downstream without custom code.</p></div>
+    <div class="card"><h4>Pub/Sub API</h4><p>Single <strong>gRPC</strong> interface to publish &amp; subscribe to both, with efficient binary payloads and flow-controlled streaming.</p></div>
+  </div>
+  <div class="note"><strong>Replay ID</strong> is the gotcha: subscribers track a Replay ID to resume after disconnect. Events are retained ~72 hours — a subscriber down longer than that <strong>loses</strong> the missed events. Design for it.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>"Platform Events vs CDC?" — If you control the contract and want a purpose-built message → Platform Events. If you just want "tell me when these records change" → CDC. Both ride the same event bus and Pub/Sub API.</p>
+  </div>
+</section>
+
+<section class="slide" id="outbound" data-search="outbound messages apex callouts future queueable named credential workflow guaranteed delivery retry soap declarative external service flow http">
+  <div class="pgnum">Mechanisms · Outbound</div>
+  <h2>Outbound: callouts &amp; messaging</h2>
+  <div class="cards">
+    <div class="card"><h4>Apex Callouts</h4><p>REST/SOAP from Apex. Synchronous (Request &amp; Reply) or async via <code>@future(callout=true)</code> / Queueable. Always through a Named Credential.</p></div>
+    <div class="card"><h4>Outbound Messages</h4><p>Declarative, fires a SOAP message on record change with <strong>guaranteed retry up to 24h</strong>. Limited &amp; legacy but reliable.</p></div>
+    <div class="card"><h4>External Services / Flow</h4><p>Register an OpenAPI schema → invoke as an action in Flow. Low-code Request &amp; Reply.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="connect" data-search="salesforce connect odata external objects virtual data no copy real time access cross org adapter heterogeneous">
+  <div class="pgnum">Mechanisms · Salesforce Connect</div>
+  <h2>Salesforce Connect (external objects / OData)</h2>
+  <p class="lede">Access external data <strong>in real time without copying it</strong> into Salesforce, via OData (or a custom Apex adapter).</p>
+  <div class="cards">
+    <div class="card"><h4>When</h4><p>Data must stay in the system of record (compliance, volume), but users need to see/relate it live in Salesforce.</p></div>
+    <div class="card"><h4>How</h4><p><strong>External Objects</strong> (<code>__x</code>) map to remote tables; queried on demand, no storage consumed.</p></div>
+    <div class="card"><h4>Watch out</h4><p>Performance depends on the remote system; limited write support; not for high-frequency transactional writes.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For a central bank that must keep sensitive data in a system of record, Salesforce Connect is a strong "don't replicate the data" answer — minimize where regulated data lives.</p>
+  </div>
+</section>
+
+<!-- ===== AUTH ===== -->
+<section class="slide title-slide" id="auth-title"><div class="pgnum" style="color:#cbd6e6">Auth &amp; Security</div><h2>Authentication &amp; Authorization</h2></section>
+
+<section class="slide" id="named-creds" data-search="named credentials external credentials principal authentication endpoint secret management per user named principal callout no hardcoded credentials">
+  <div class="pgnum">Auth · Named Credentials</div>
+  <h2>Named &amp; External Credentials</h2>
+  <p class="lede">The modern, secure way to do callouts: <strong>never hardcode endpoints or secrets in Apex</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Named Credential</h4><p>Defines the callout <strong>endpoint</strong> + which External Credential authenticates it. Reference as <code>callout:My_Named_Cred</code>.</p></div>
+    <div class="card"><h4>External Credential</h4><p>The newer split: holds the <strong>authentication protocol</strong> (OAuth, JWT, Basic, API key) and principals; secrets live in protected named principals.</p></div>
+    <div class="card"><h4>Why</h4><p>Secrets are encrypted &amp; managed by the platform; per-user or per-org named principals; auth handled automatically on each callout.</p></div>
+  </div>
+  <pre class="code">HttpRequest req = <span class="k">new</span> HttpRequest();
+req.setEndpoint(<span class="s">'callout:Underwriting_API/v1/score'</span>); <span class="c">// no URL or secret in code</span>
+req.setMethod(<span class="s">'POST'</span>);
+HttpResponse res = <span class="k">new</span> Http().send(req);</pre>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>"Partner with Information Security to develop security configurations" → Named/External Credentials are the platform-native control: no secrets in source, encrypted at rest, auditable. Exactly what InfoSec wants to hear.</p>
+  </div>
+</section>
+
+<section class="slide" id="oauth" data-search="oauth 2.0 flows jwt bearer web server flow user agent client credentials refresh token connected app scopes server to server authorization">
+  <div class="pgnum">Auth · OAuth flows</div>
+  <h2>OAuth 2.0 flows — pick by scenario</h2>
+  <table class="dttable">
+    <thead><tr><th>Flow</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><strong>JWT Bearer</strong></td><td>Server-to-server, <strong>no interactive login</strong>; pre-authorized cert-based trust. Ideal for system integrations.</td></tr>
+      <tr><td>Web Server (auth code)</td><td>A server-side app acting on behalf of a user who logs in.</td></tr>
+      <tr><td>Client Credentials</td><td>Pure machine-to-machine where one integration user owns the access.</td></tr>
+      <tr><td>Refresh Token</td><td>Long-lived access by exchanging a refresh token for new access tokens.</td></tr>
+      <tr><td>User-Agent</td><td>Browser/mobile public clients (legacy; prefer PKCE/auth-code now).</td></tr>
+    </tbody>
+  </table>
+  <div class="note">A <strong>Connected App</strong> defines OAuth scopes, IP/refresh policies, and which flows are allowed — it's the authorization boundary for any external system calling in.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>For a backend integration with no human in the loop, lead with <strong>JWT Bearer</strong>: a certificate establishes trust, no password is stored or sent, and access is scoped &amp; revocable via the Connected App. You've set this up — it's an ARC skill in your toolkit.</p>
+  </div>
+</section>
+
+<!-- ===== DESIGN & BUILD ===== -->
+<section class="slide title-slide" id="design-title"><div class="pgnum" style="color:#cbd6e6">Design &amp; Build</div><h2>Design, Build &amp; Maintain</h2></section>
+
+<section class="slide" id="middleware" data-search="middleware esb muleSoft anypoint api led connectivity orchestration transformation point to point spaghetti decouple integration layer">
+  <div class="pgnum">Design · Middleware</div>
+  <h2>When to introduce middleware (MuleSoft / ESB)</h2>
+  <p class="lede">Point-to-point integrations multiply into spaghetti. Middleware decouples systems behind a managed integration layer.</p>
+  <div class="cards">
+    <div class="card"><h4>Use middleware when</h4><p>Many systems, protocol/format translation, orchestration across systems, centralized monitoring &amp; throttling, reuse via APIs.</p></div>
+    <div class="card"><h4>MuleSoft API-led</h4><p>System APIs → Process APIs → Experience APIs. Reusable building blocks instead of one-off connections.</p></div>
+    <div class="card"><h4>Direct (no middleware)</h4><p>Simple, low-volume, one-to-one integration where a managed layer is overkill.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>"Heterogeneous datacenter, cloud, and SaaS environments" (JD) is the classic case <em>for</em> middleware. Be ready to argue both sides — when an ESB earns its keep vs. when it's unnecessary overhead.</p>
+  </div>
+</section>
+
+<section class="slide" id="reliability" data-search="idempotency error handling retry dead letter queue guaranteed delivery exactly once at least once duplicate external id upsert compensating transaction">
+  <div class="pgnum">Build · Reliability</div>
+  <h2>Idempotency &amp; error handling</h2>
+  <ul>
+    <li><strong>Idempotency</strong> — design so a retry can't create duplicates. Use <code>upsert</code> on an <strong>External ID</strong>; have the caller pass a unique request key.</li>
+    <li><strong>Delivery semantics</strong> — most async integrations are <em>at-least-once</em>, so consumers must dedupe. True exactly-once is rare and expensive.</li>
+    <li><strong>Retry &amp; back-off</strong> — exponential back-off; a dead-letter queue / error table for messages that exhaust retries.</li>
+    <li><strong>Error visibility</strong> — log failures (Platform Event → log object) and alert; never swallow integration exceptions silently.</li>
+  </ul>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This connects to the "paved road" platform idea: a reusable <strong>callout framework</strong> with built-in retry, logging, and idempotency means every app team's integration is reliable by default.</p>
+  </div>
+</section>
+
+<section class="slide" id="limits" data-search="governor limits api limits callout limits 100 callouts 120 second timeout daily api request limit concurrent long running heap bulk performance">
+  <div class="pgnum">Build · Limits</div>
+  <h2>Limits &amp; performance to respect</h2>
+  <table class="dttable">
+    <thead><tr><th>Limit</th><th>Value (know the shape)</th></tr></thead>
+    <tbody>
+      <tr><td>Callouts per transaction</td><td>100 max</td></tr>
+      <tr><td>Callout timeout</td><td>10s default, 120s max total per transaction</td></tr>
+      <tr><td>Daily API request limit</td><td>Org-wide, edition + license based — monitor it</td></tr>
+      <tr><td>Concurrent long-running requests</td><td>Synchronous calls > 5s are capped (e.g. 25 concurrent)</td></tr>
+      <tr><td>Bulk vs REST</td><td>Use Bulk API for volume — don't loop REST row-by-row</td></tr>
+    </tbody>
+  </table>
+  <div class="note">You can't make callouts <em>after</em> DML in the same transaction (uncommitted work) — restructure with async (Queueable) or commit first. Classic exam &amp; real-world trap.</div>
+</section>
+
+<section class="slide" id="maintain" data-search="maintain integration monitoring versioning api version deprecation event monitoring observability backward compatibility contract testing alerts">
+  <div class="pgnum">Maintain · Operations</div>
+  <h2>Maintaining integrations over time</h2>
+  <ul>
+    <li><strong>Versioning</strong> — pin API versions; plan for Salesforce retiring old API versions; version your own Apex REST endpoints.</li>
+    <li><strong>Monitoring</strong> — Event Monitoring, integration logs, dashboards on error rate &amp; latency; alert on failures.</li>
+    <li><strong>Backward compatibility</strong> — additive changes to contracts; contract tests so a downstream change doesn't break consumers.</li>
+    <li><strong>Deprecation</strong> — communicate, dual-run, then sunset old endpoints.</li>
+  </ul>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet integration patterns mechanisms auth limits memorize quick reference exam traps">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>The 5 patterns (one line each)</h3>
+  <ul>
+    <li><strong>Request &amp; Reply</strong> — SF calls out, waits (sync). Real-time validation.</li>
+    <li><strong>Fire &amp; Forget</strong> — SF notifies, moves on (async). Platform Events / Outbound Messages.</li>
+    <li><strong>Batch Data Sync</strong> — bulk, scheduled, both directions. Bulk API 2.0 / ETL.</li>
+    <li><strong>Remote Call-In</strong> — external system writes/reads SF. REST/SOAP + Connected App.</li>
+    <li><strong>UI Update on Data Change</strong> — push to UI. Streaming / PE / CDC via empApi.</li>
+  </ul>
+
+  <h3>Event mechanisms</h3>
+  <ul>
+    <li><strong>Platform Events</strong> — you define the contract.</li>
+    <li><strong>CDC</strong> — auto record-change events, no code.</li>
+    <li><strong>Pub/Sub API</strong> — one gRPC interface for both. Watch the <strong>Replay ID</strong> + ~72h retention.</li>
+  </ul>
+
+  <h3>Auth</h3>
+  <ul>
+    <li><strong>Named + External Credentials</strong> — no secrets in code; <code>callout:Name</code>.</li>
+    <li><strong>JWT Bearer</strong> — server-to-server, no interactive login (default for backend integrations).</li>
+    <li><strong>Connected App</strong> — defines OAuth scopes &amp; policies for inbound.</li>
+  </ul>
+
+  <h3>Reliability</h3>
+  <ul>
+    <li>Idempotency via <strong>upsert on External ID</strong>.</li>
+    <li>Assume <strong>at-least-once</strong> delivery → consumers dedupe.</li>
+    <li>Retry with back-off + dead-letter/error log.</li>
+  </ul>
+
+  <h3>Traps to memorize</h3>
+  <ul>
+    <li><strong>No callout after DML</strong> in the same transaction (uncommitted work error).</li>
+    <li>Max <strong>100 callouts</strong>/transaction; <strong>120s</strong> total timeout.</li>
+    <li>Use <strong>Bulk API</strong> for volume, not row-by-row REST.</li>
+    <li><strong>Outbound Messages</strong> retry 24h but only send a fixed SOAP payload to one endpoint.</li>
+    <li><strong>Salesforce Connect</strong> = real-time, no data copied (external objects <code>__x</code>).</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../theme.js"></script>
+</body>
+</html>

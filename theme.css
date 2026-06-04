@@ -657,6 +657,44 @@ section.slide::before {
   .page-longform pre.code {
     max-width: none;
   }
+
+  /* Wide data tables: scroll inside their own box instead of overflowing the page */
+  table.dttable {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 12px;
+  }
+
+  table.dttable th,
+  table.dttable td {
+    word-break: break-word;
+  }
+
+  /* Card and module/topic grids collapse to a single column on narrow screens */
+  .cards,
+  .page-library ul.modules,
+  .page-module-index ul.topics {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Belt-and-suspenders: never let a stray wide element create horizontal page scroll.
+   Use clip (not hidden) so it doesn't turn body into a scroll container and break
+   the sticky header / sidebar. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+main,
+section.slide,
+section.q,
+.intro {
+  min-width: 0;
 }
 
 @media print {

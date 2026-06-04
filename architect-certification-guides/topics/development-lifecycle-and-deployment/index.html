@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Development Lifecycle &amp; Deployment Architect — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    · Topic
+  </div>
+  <h1>Development Lifecycle &amp; Deployment Architect</h1>
+  <div class="sub">Salesforce DevOps, ALM, environment strategy, packaging &amp; release governance · structured to the official 8-section exam blueprint</div>
+  <div class="actions"><a href="https://trailhead.salesforce.com/help?path=credentials/&cred=development-lifecycle-and-deployment-architect" target="_blank" rel="noopener">Official exam guide</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#fed-map">Why this maps to the Fed role</a></li>
+      <li><a href="#blueprint">Exam blueprint (8 sections)</a></li>
+    </ul>
+    <h3>1 · Application Lifecycle Mgmt</h3>
+    <ul>
+      <li><a href="#methodologies">Methodologies &amp; risk</a></li>
+      <li><a href="#governance-maturity">Governance by maturity</a></li>
+    </ul>
+    <h3>2 · Planning</h3>
+    <ul>
+      <li><a href="#alm-maturity">ALM maturity assessment</a></li>
+      <li><a href="#env-risks">Environment risks &amp; mitigation</a></li>
+      <li><a href="#governance-framework">Governance framework</a></li>
+      <li><a href="#release-strategy">Salesforce release strategy</a></li>
+    </ul>
+    <h3>3 · System Design</h3>
+    <ul>
+      <li><a href="#agile-tools">Agile tooling</a></li>
+      <li><a href="#org-strategy">Org strategy (single vs multi)</a></li>
+      <li><a href="#sandbox-strategy">Sandbox strategy &amp; types</a></li>
+      <li><a href="#deploy-tools">Deployment tools compared</a></li>
+    </ul>
+    <h3>4 · Building</h3>
+    <ul>
+      <li><a href="#branching">Branching, versioning, merging</a></li>
+      <li><a href="#dev-model">Dev model: org vs package</a></li>
+      <li><a href="#test-data-build">Test data &amp; unit tests</a></li>
+      <li><a href="#code-quality">Code quality &amp; static analysis</a></li>
+    </ul>
+    <h3>5 · Deploying</h3>
+    <ul>
+      <li><a href="#metadata-tooling">Metadata vs Tooling API</a></li>
+      <li><a href="#pre-post">Pre / post-deploy steps</a></li>
+      <li><a href="#reference-data">Technical reference data</a></li>
+    </ul>
+    <h3>6 · Testing</h3>
+    <ul>
+      <li><a href="#test-methodology">Testing methodology</a></li>
+      <li><a href="#coverage">Execution &amp; coverage rules</a></li>
+      <li><a href="#secure-test-data">Secure test data strategy</a></li>
+    </ul>
+    <h3>7 · Releasing</h3>
+    <ul>
+      <li><a href="#packages">Package types compared</a></li>
+      <li><a href="#release-mgmt">Release management strategy</a></li>
+    </ul>
+    <h3>8 · Operating</h3>
+    <ul>
+      <li><a href="#prod-changes">Changes directly in prod</a></li>
+      <li><a href="#drift">Reconciling drift into ALM</a></li>
+      <li><a href="#multi-org">Multi-org release artifacts</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cli">sf CLI quick reference</a></li>
+      <li><a href="#exam-strategy">Exam strategy &amp; tips</a></li>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover development lifecycle deployment architect devops alm">
+  <div class="pgnum" style="color:#cbd6e6">Architect Certification Guide</div>
+  <h2>Development Lifecycle &amp; Deployment</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Salesforce DevOps end-to-end: methodologies, environment &amp; sandbox strategy, source-driven development, packaging, automated testing, and release governance — the spine of a Platform Engineer role.</p>
+</section>
+
+<section class="slide" id="fed-map" data-search="federal reserve fed chicago platform engineer job description devops ci cd gitlab release governance auditability mapping">
+  <div class="pgnum">Orientation · Why this guide</div>
+  <h2>Why this maps to the Fed-Chicago Platform Engineer role</h2>
+  <p class="lede">This certification is the closest formal credential to the job description's #1 competency. Use these talking points verbatim.</p>
+  <table class="dttable">
+    <thead><tr><th>JD competency / phrase</th><th>Covered in section</th></tr></thead>
+    <tbody>
+      <tr><td>"Salesforce DevOps &amp; CI/CD — source-driven development, Salesforce CLI, pipelines, sandbox strategies, branching, automated testing"</td><td>§3 System Design, §4 Building</td></tr>
+      <tr><td>"versioning, branching models"</td><td>§4 Building — branching</td></tr>
+      <tr><td>"release governance using SFDX + CI/CD," "change-management controls, auditability"</td><td>§7 Releasing, §8 Operating</td></tr>
+      <tr><td>"Develops and maintains automation for deployments to reduce manual processes"</td><td>§5 Deploying, §3 deploy tools</td></tr>
+      <tr><td>"Performs new Salesforce release evaluations and assess impact"</td><td>§2 Planning — release strategy</td></tr>
+      <tr><td>"automated testing… static analysis, unit testing, test automation"</td><td>§4 code quality, §6 Testing</td></tr>
+    </tbody>
+  </table>
+  <div class="fed">
+    <h4>How to use it in the room</h4>
+    <p>You already <em>did</em> most of this — 2GP pipelines across 33+ repos, GitHub Actions, SonarQube. This guide gives you the vendor-neutral vocabulary (ALM maturity, governance frameworks, sandbox-to-release mapping) to discuss it at the <strong>architect</strong> altitude they expect from a Platform Engineer.</p>
+  </div>
+</section>
+
+<section class="slide" id="blueprint" data-search="exam blueprint sections objectives application lifecycle management planning system design building deploying testing releasing operating">
+  <div class="pgnum">Blueprint · 8 sections, 25 objectives</div>
+  <h2>The exam blueprint</h2>
+  <p class="lede">Salesforce structures this credential around the delivery lifecycle, in order. Weightings are near-even — no section is safe to skip. (Source: official exam guide / SalesforceBen.)</p>
+  <table class="dttable">
+    <thead><tr><th>#</th><th>Section</th><th>Weight</th><th>Core question it answers</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Application Lifecycle Management</td><td>8%</td><td>Which methodology &amp; governance fit this customer's risk and maturity?</td></tr>
+      <tr><td>2</td><td>Planning</td><td>13%</td><td>What people/process/tech &amp; risk mitigations does delivery need?</td></tr>
+      <tr><td>3</td><td>System Design</td><td>15%</td><td>What org, sandbox, and deployment-tool strategy supports it?</td></tr>
+      <tr><td>4</td><td>Building</td><td>14%</td><td>How do source control, dev model, test data, and quality gates work?</td></tr>
+      <tr><td>5</td><td>Deploying</td><td>14%</td><td>How do Metadata/Tooling APIs move change, incl. the non-API steps?</td></tr>
+      <tr><td>6</td><td>Testing</td><td>14%</td><td>What test methodology, coverage, and data strategy ensure quality?</td></tr>
+      <tr><td>7</td><td>Releasing</td><td>13%</td><td>Which packaging &amp; release-management strategy ships it safely?</td></tr>
+      <tr><td>8</td><td>Operating</td><td>10%</td><td>How do you handle prod changes, drift, and multi-org artifacts?</td></tr>
+    </tbody>
+  </table>
+  <div class="note">This credential is a prerequisite for the <strong>System Architect</strong> designation and part of the path toward <strong>CTA</strong> — it sits at the architect altitude, which is exactly the level a Fed Platform Engineer is expected to operate at.</div>
+</section>
+
+<!-- ============ SECTION 1 ============ -->
+<section class="slide title-slide" id="s1-title"><div class="pgnum" style="color:#cbd6e6">Section 1</div><h2>Application Lifecycle Management</h2></section>
+
+<section class="slide" id="methodologies" data-search="development methodologies waterfall agile hybrid scrum kanban safe risk benefit assess governance">
+  <div class="pgnum">§1.1 · Methodologies &amp; risk</div>
+  <h2>Choosing a development methodology</h2>
+  <p class="lede">Match the methodology to project risk, requirement volatility, and the customer's appetite for iteration.</p>
+  <div class="cards">
+    <div class="card"><h4>Waterfall</h4><p>Sequential, fixed scope. Fits stable, well-understood, compliance-heavy requirements. Risk: late feedback, expensive change.</p></div>
+    <div class="card"><h4>Agile (Scrum/Kanban)</h4><p>Iterative, incremental, feedback-driven. Fits evolving requirements. Risk: scope drift without strong governance.</p></div>
+    <div class="card"><h4>Hybrid / SAFe</h4><p>Agile teams inside a planned governance shell. Scaled Agile Framework (SAFe) coordinates multiple teams via Agile Release Trains &amp; PI planning. Fits large regulated enterprises.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The JD lists "SAFe highly desired." Be ready to say you've worked in <strong>PI planning</strong> and <strong>Agile Release Trains</strong>, delivering in increments while honoring enterprise change-management gates — agile execution, governed release.</p>
+  </div>
+</section>
+
+<section class="slide" id="governance-maturity" data-search="governance strategy customer maturity center of excellence coe steering committee standards lightweight heavyweight">
+  <div class="pgnum">§1.2 · Governance by maturity</div>
+  <h2>Right-sizing governance to maturity</h2>
+  <p>Governance should scale with the organization's <strong>ALM maturity</strong>. Over-governing a small shop kills velocity; under-governing an enterprise creates uncontrolled risk.</p>
+  <table class="dttable">
+    <thead><tr><th>Maturity</th><th>Symptoms</th><th>Right-sized governance</th></tr></thead>
+    <tbody>
+      <tr><td>Low</td><td>Changes made in prod, no source control, no tests</td><td>Introduce version control, a single sandbox tier, basic deployment checklist</td></tr>
+      <tr><td>Medium</td><td>Some CI, inconsistent standards across teams</td><td>Center of Excellence (CoE), coding standards, PR + review, defined sandbox tiers</td></tr>
+      <tr><td>High</td><td>Multiple streams, packages, automated pipelines</td><td>Architecture review board, release trains, automated quality gates, package strategy</td></tr>
+    </tbody>
+  </table>
+  <div class="note">A <strong>Center of Excellence (CoE)</strong> and a <strong>steering committee</strong> are the canonical Salesforce answers for "who owns governance." The CoE sets standards/patterns; the steering committee prioritizes and arbitrates.</div>
+</section>
+
+<!-- ============ SECTION 2 ============ -->
+<section class="slide title-slide" id="s2-title"><div class="pgnum" style="color:#cbd6e6">Section 2</div><h2>Planning</h2></section>
+
+<section class="slide" id="alm-maturity" data-search="alm maturity assessment people process technology tooling source control ci cd capability">
+  <div class="pgnum">§2.1 · ALM maturity assessment</div>
+  <h2>Assess people, process &amp; technology</h2>
+  <p class="lede">Before recommending anything, diagnose the three pillars.</p>
+  <div class="cards">
+    <div class="card"><h4>People</h4><p>Skills, roles (admin/dev/release manager/architect), team topology, who can deploy, training needs.</p></div>
+    <div class="card"><h4>Process</h4><p>Branching model, review gates, definition of done, change approval, release cadence, incident handling.</p></div>
+    <div class="card"><h4>Technology</h4><p>Source control, CI/CD tooling, sandbox inventory, packaging, static analysis, backup/monitoring.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked "where do you start with a messy org," lead with <em>assessment</em>: "I'd baseline ALM maturity across people, process, and tech before changing anything — you can't fix what you haven't measured." This signals architect-level judgment.</p>
+  </div>
+</section>
+
+<section class="slide" id="env-risks" data-search="environment risks mitigation sandbox drift refresh data exposure governor limits dependency conflicts mitigation strategies">
+  <div class="pgnum">§2.2 · Environment risks &amp; mitigation</div>
+  <h2>Environment risks and how to mitigate them</h2>
+  <table class="dttable">
+    <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Config drift (changes made directly in sandboxes/prod)</td><td>Source control as the source of truth; regular drift detection; back-merge process</td></tr>
+      <tr><td>Stale sandboxes diverging from prod</td><td>Scheduled refresh cadence; seed with representative data on refresh</td></tr>
+      <tr><td>Sensitive data exposure in lower environments</td><td>Data masking / Salesforce Data Mask on Full/Partial sandboxes</td></tr>
+      <tr><td>Dependency conflicts between parallel streams</td><td>Package boundaries, integration sandbox, trunk-based merges</td></tr>
+      <tr><td>Failed prod deploy (insufficient coverage)</td><td>Validate-only deploys (check-only) with RunLocalTests before the window</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide" id="governance-framework" data-search="governance framework architecture review board change advisory board release management roles standards documentation">
+  <div class="pgnum">§2.3 · Governance framework</div>
+  <h2>Recommending a governance framework</h2>
+  <ul>
+    <li><strong>Architecture Review Board</strong> — approves designs, enforces patterns, prevents tech debt.</li>
+    <li><strong>Change Advisory Board (CAB)</strong> — approves what goes to prod and when (classic ITIL change control).</li>
+    <li><strong>Release management role</strong> — owns the pipeline, environments, and the release calendar.</li>
+    <li><strong>Standards &amp; documentation</strong> — naming conventions, coding standards, the "paved road" patterns teams must use.</li>
+  </ul>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>"Change-management controls, auditability, and release governance" is a verbatim JD requirement. The CAB + an audit trail of every deployment (who/what/when, tied to a ticket) is exactly the answer a regulated institution wants to hear.</p>
+  </div>
+</section>
+
+<section class="slide" id="release-strategy" data-search="salesforce release strategy spring summer winter major releases sandbox preview non-preview release notes critical updates release readiness">
+  <div class="pgnum">§2.4 · Salesforce release strategy</div>
+  <h2>Managing the three annual platform releases</h2>
+  <p class="lede">Salesforce ships <strong>three major releases a year — Spring, Summer, Winter</strong> — automatically to every org. The JD calls this out: "Performs new Salesforce release evaluations and assess impact."</p>
+  <div class="cards">
+    <div class="card"><h4>Preview windows</h4><p>Sandboxes on <strong>preview instances</strong> get the new release weeks early — use them to test against the upcoming version before prod upgrades.</p></div>
+    <div class="card"><h4>Release notes &amp; readiness</h4><p>Review release notes, the Release Readiness webinars, and the "Release Updates" / enforcement timeline in Setup.</p></div>
+    <div class="card"><h4>Regression</h4><p>Run automated regression (Apex + UI/Playwright) in a preview sandbox; triage any breaking changes and required updates.</p></div>
+  </div>
+  <div class="note">Know the difference: <strong>Preview vs Non-Preview instances</strong>. Refreshing a sandbox at the right time determines whether it lands on the current or next release — a classic exam trap.</div>
+</section>
+
+<!-- ============ SECTION 3 ============ -->
+<section class="slide title-slide" id="s3-title"><div class="pgnum" style="color:#cbd6e6">Section 3</div><h2>System Design</h2></section>
+
+<section class="slide" id="agile-tools" data-search="agile tools jira azure devops gitlab backlog user stories ci integration traceability">
+  <div class="pgnum">§3.1 · Agile tooling</div>
+  <h2>Tools that support an agile process</h2>
+  <ul>
+    <li><strong>Work tracking</strong> — Jira, Azure DevOps, GitLab Issues: backlog, sprints, user stories with acceptance criteria.</li>
+    <li><strong>Source &amp; CI</strong> — Git provider (the JD uses <strong>GitLab</strong>) with merge requests and pipelines wired to stories.</li>
+    <li><strong>Traceability</strong> — link commit → MR → story → deployment so every prod change is auditable back to a requirement.</li>
+  </ul>
+  <div class="fed">
+    <h4>Fed angle (GitLab)</h4>
+    <p>Your résumé is GitHub Actions; they run <strong>GitLab CI</strong>. Same concepts, different file: <code>.github/workflows/*.yml</code> → <code>.gitlab-ci.yml</code> with <code>stages:</code> and <code>jobs</code>. Say that out loud — it shows you transfer the pattern, not just the tool.</p>
+  </div>
+</section>
+
+<section class="slide" id="org-strategy" data-search="org strategy single org multi org consolidation divisional regulatory data residency advantages disadvantages">
+  <div class="pgnum">§3.2 · Org strategy</div>
+  <h2>Single-org vs multi-org</h2>
+  <table class="dttable">
+    <thead><tr><th></th><th>Single-org</th><th>Multi-org</th></tr></thead>
+    <tbody>
+      <tr><td>Pros</td><td>360° view, shared data &amp; processes, lower license/admin overhead, easier reporting</td><td>Isolation for regulatory/data-residency needs, independent release cadences, smaller blast radius</td></tr>
+      <tr><td>Cons</td><td>Governor/limit contention, complex sharing, change coordination across teams</td><td>Duplicated metadata, harder cross-org reporting, integration overhead</td></tr>
+      <tr><td>Choose when</td><td>One business with shared customers/processes</td><td>Distinct regulatory boundaries, M&amp;A, or autonomous business units</td></tr>
+    </tbody>
+  </table>
+  <div class="note">For multi-org, <strong>shared release artifacts</strong> (common unlocked packages) keep the orgs consistent — see §8 Operating.</div>
+</section>
+
+<section class="slide" id="sandbox-strategy" data-search="sandbox types developer developer pro partial copy full refresh interval data storage seeding strategy streams staging hotfix">
+  <div class="pgnum">§3.3 · Sandbox strategy &amp; types</div>
+  <h2>Sandbox types — know this table cold</h2>
+  <table class="dttable">
+    <thead><tr><th>Type</th><th>Data</th><th>Storage</th><th>Refresh interval</th><th>Typical use</th></tr></thead>
+    <tbody>
+      <tr><td>Developer</td><td>Metadata only (no records)</td><td>~200 MB</td><td>1 day</td><td>Individual dev / unit work</td></tr>
+      <tr><td>Developer Pro</td><td>Metadata only</td><td>~1 GB</td><td>1 day</td><td>Larger dev, integration, test data sets</td></tr>
+      <tr><td>Partial Copy</td><td>Metadata + sample of data (templated)</td><td>5 GB</td><td>5 days</td><td>QA, UAT, integration testing</td></tr>
+      <tr><td>Full</td><td>Full copy incl. all data</td><td>= production</td><td>29 days</td><td>Staging, performance, load, final UAT</td></tr>
+    </tbody>
+  </table>
+  <h3>A layered environment strategy</h3>
+  <pre class="code">Dev sandboxes ──▶ Integration (Dev Pro) ──▶ QA/UAT (Partial) ──▶ Staging (Full) ──▶ Production
+        ▲                                                                              │
+        └────────────────────── Hotfix sandbox (Full or Partial) ◀─────────────────────┘</pre>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The exam loves "design a sandbox strategy for multiple project streams + training + staging + hotfix." Answer with the layered diagram above, and call out that <strong>hotfixes branch from production's state</strong> in a dedicated Full/Partial sandbox so urgent fixes don't carry in-flight features.</p>
+  </div>
+</section>
+
+<section class="slide" id="deploy-tools" data-search="deployment tools change sets metadata api ant migration tool sfdx sf cli packages unlocked tooling api comparison pros cons">
+  <div class="pgnum">§3.4 · Deployment tools compared</div>
+  <h2>Components &amp; tools of a deployment strategy</h2>
+  <table class="dttable">
+    <thead><tr><th>Tool</th><th>Model</th><th>Strengths</th><th>Limits</th></tr></thead>
+    <tbody>
+      <tr><td>Change Sets</td><td>Declarative, org-to-org</td><td>No code, point-and-click, needs deployment connection</td><td>No deletes, no version control, slow, manual, not repeatable</td></tr>
+      <tr><td>Metadata API</td><td>Programmatic, full metadata</td><td>Deploy/retrieve at scale, scriptable, supports destructive changes</td><td>Not all metadata covered; component-level</td></tr>
+      <tr><td>Salesforce CLI (sf)</td><td>Source-driven (DX)</td><td>Scratch orgs, source tracking, packaging, CI/CD native</td><td>Learning curve; source format conversion</td></tr>
+      <tr><td>Unlocked Packages</td><td>Versioned artifacts</td><td>Modular, upgradeable, dependency-aware, repeatable</td><td>Requires package decomposition discipline</td></tr>
+      <tr><td>Ant Migration Tool</td><td>Legacy MD API wrapper</td><td>Scriptable CI for older setups</td><td>Deprecated direction; prefer sf CLI</td></tr>
+    </tbody>
+  </table>
+  <div class="note">The modern recommended spine: <strong>source format in Git + sf CLI + unlocked packages, orchestrated by CI/CD</strong>, with <code>sf project deploy</code> for change-set-style metadata deploys and <code>sf package</code> for artifact-based delivery.</div>
+</section>
+
+<!-- ============ SECTION 4 ============ -->
+<section class="slide title-slide" id="s4-title"><div class="pgnum" style="color:#cbd6e6">Section 4</div><h2>Building</h2></section>
+
+<section class="slide" id="branching" data-search="source control branching versioning merging gitflow feature branch trunk based development release hotfix merge conflict strategy">
+  <div class="pgnum">§4.1 · Branching, versioning, merging</div>
+  <h2>Source control branching models</h2>
+  <div class="cards">
+    <div class="card"><h4>GitFlow</h4><p><code>main</code> + <code>develop</code> + <code>feature/*</code> + <code>release/*</code> + <code>hotfix/*</code>. Strong control, more overhead. Fits scheduled enterprise releases.</p></div>
+    <div class="card"><h4>GitHub Flow</h4><p><code>main</code> + short-lived <code>feature/*</code> merged via PR. Simple, continuous-delivery friendly.</p></div>
+    <div class="card"><h4>Trunk-based</h4><p>Tiny, frequent merges to trunk behind feature flags. Lowest merge pain, needs strong automated tests + flags.</p></div>
+  </div>
+  <h3>Mapping branches to environments</h3>
+  <pre class="code"><span class="c"># common enterprise pattern</span>
+feature/W-123  ──▶ scratch org / dev sandbox     (build &amp; unit test)
+develop        ──▶ integration sandbox            (continuous integration)
+release/2026.6 ──▶ UAT / staging sandbox          (validate-only deploy)
+main           ──▶ production                      (tagged release)
+hotfix/*       ──▶ from main, fast-track to prod, then back-merge to develop</pre>
+  <div class="note">"Versioning" on Salesforce = <strong>package version numbers</strong> (<code>1.2.0.NEXT</code>) for unlocked packages, plus Git tags for releases. Merging discipline (rebase vs merge, conflict resolution on metadata XML) is a frequent exam theme.</div>
+</section>
+
+<section class="slide" id="dev-model" data-search="development model org based package based scratch org sandbox source tracking source of truth metadata format dx">
+  <div class="pgnum">§4.2 · Dev model: org-based vs package-based</div>
+  <h2>Org-based vs package-based development</h2>
+  <table class="dttable">
+    <thead><tr><th></th><th>Org-based (org development model)</th><th>Package-based (package development model)</th></tr></thead>
+    <tbody>
+      <tr><td>Source of truth</td><td>A sandbox/prod org's metadata</td><td>Source control + versioned packages</td></tr>
+      <tr><td>Environment</td><td>Sandboxes</td><td>Scratch orgs (ephemeral, source-defined)</td></tr>
+      <tr><td>Best for</td><td>Existing, hard-to-modularize orgs; admins</td><td>Modular, greenfield, multi-team, reuse</td></tr>
+      <tr><td>Tooling</td><td>Change sets / MD API + source tracking</td><td>sf CLI, scratch orgs, unlocked packages</td></tr>
+    </tbody>
+  </table>
+  <h3>Scratch orgs vs sandboxes</h3>
+  <div class="cards">
+    <div class="card"><h4>Scratch org</h4><p>Ephemeral (≤30 days), source-driven, defined by a <code>scratch-def.json</code> with features/settings. Perfect for CI and clean-room builds.</p></div>
+    <div class="card"><h4>Sandbox</h4><p>Long-lived copy of a real org (with or without data). Needed when you must test against prod-like config/data.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="test-data-build" data-search="test data strategy unit test positive negative permission based large data volume testsetup test.loaddata mock stub httpcalloutmock runas">
+  <div class="pgnum">§4.3 · Test data &amp; unit tests</div>
+  <h2>Building a test data &amp; unit-test strategy</h2>
+  <p class="lede">Quality code needs tests across four dimensions the exam names explicitly:</p>
+  <div class="cards">
+    <div class="card"><h4>Positive</h4><p>Valid inputs produce expected results.</p></div>
+    <div class="card"><h4>Negative</h4><p>Invalid inputs are handled — assert exceptions, error paths.</p></div>
+    <div class="card"><h4>Permission-based</h4><p><code>System.runAs()</code> for personas; verify CRUD/FLS and sharing enforcement per profile/permission set.</p></div>
+    <div class="card"><h4>Large data volume</h4><p>Bulkified tests (200+ records) to prove no governor-limit failures.</p></div>
+  </div>
+  <pre class="code"><span class="a">@TestSetup</span>
+<span class="k">static void</span> makeData(){
+  <span class="c">// create once, shared by all test methods — avoids MIXED_DML and re-creation</span>
+  insert TestFactory.accounts(200);
+}
+<span class="a">@IsTest</span>
+<span class="k">static void</span> sharesEnforcedForReadOnlyPersona(){
+  User u = TestFactory.readOnlyUser();
+  System.runAs(u){
+    Test.startTest();
+    <span class="c">// assert the persona cannot edit / cannot see restricted fields</span>
+    Test.stopTest();
+  }
+}</pre>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This is your VA/PSIP wheelhouse: <strong>persona-based, least-privilege testing</strong> with <code>runAs</code>, <code>@TestSetup</code> to kill <code>MIXED_DML</code>, and <code>Security.stripInaccessible()</code> in the code under test. Lead with it.</p>
+  </div>
+</section>
+
+<section class="slide" id="code-quality" data-search="code quality coding standards pull request code review static code analysis pmd salesforce code analyzer graph engine sonarqube apex pmd ruleset">
+  <div class="pgnum">§4.4 · Code quality &amp; static analysis</div>
+  <h2>Ensuring delivery of quality code</h2>
+  <div class="cards">
+    <div class="card"><h4>Coding standards</h4><p>Naming, trigger frameworks (one trigger/object), bulkification, no SOQL/DML in loops, separation of concerns (fflib service/selector/UoW).</p></div>
+    <div class="card"><h4>Pull / merge requests</h4><p>Required reviewers, CODEOWNERS, branch protection — no direct pushes to protected branches.</p></div>
+    <div class="card"><h4>Code review</h4><p>Human review for design &amp; security; checklists for CRUD/FLS, sharing, exception handling.</p></div>
+    <div class="card"><h4>Static analysis</h4><p><strong>Salesforce Code Analyzer</strong> (<code>sf scanner run</code>) wraps PMD, ESLint, RetireJS, plus the <strong>Graph Engine (DFA)</strong> for data-flow security (SOQL injection, missing CRUD/FLS). SonarQube for org-wide quality gates.</p></div>
+  </div>
+  <pre class="code"><span class="c"># run all engines, fail the pipeline on high-severity findings</span>
+sf scanner run --target force-app --engine pmd,eslint --severity-threshold 2
+sf scanner run dfa --target force-app --projectdir .  <span class="c"># graph engine: security data-flow</span></pre>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>"Ensure code quality through static analysis, unit testing and test automation" is a JD bullet. You ran <strong>SonarQube</strong> in production pipelines — pair that story with PMD + Graph Engine to show defense-in-depth on quality.</p>
+  </div>
+</section>
+
+<!-- ============ SECTION 5 ============ -->
+<section class="slide title-slide" id="s5-title"><div class="pgnum" style="color:#cbd6e6">Section 5</div><h2>Deploying</h2></section>
+
+<section class="slide" id="metadata-tooling" data-search="metadata api tooling api capabilities limits asynchronous deploy retrieve component crud development tools rest soap">
+  <div class="pgnum">§5.1 · Metadata vs Tooling API</div>
+  <h2>Metadata API vs Tooling API</h2>
+  <table class="dttable">
+    <thead><tr><th></th><th>Metadata API</th><th>Tooling API</th></tr></thead>
+    <tbody>
+      <tr><td>Purpose</td><td>Move metadata between orgs (deploy/retrieve) in bulk</td><td>Build dev tools; granular, per-component CRUD</td></tr>
+      <tr><td>Granularity</td><td>Whole components / packages</td><td>Individual fields, classes, members</td></tr>
+      <tr><td>Mode</td><td>Asynchronous (deploy job), supports check-only &amp; destructive changes</td><td>Fast, often synchronous, ideal for IDE-style edits</td></tr>
+      <tr><td>Used by</td><td>sf CLI deploys, CI/CD, change sets (under the hood)</td><td>VS Code extensions, code completion, debug</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Not all metadata types are supported by the Metadata API — those gaps become <strong>manual pre/post-deploy steps</strong> (next slide).</div>
+</section>
+
+<section class="slide" id="pre-post" data-search="pre post deployment steps manual steps not supported metadata api activate remote site settings named credential record types picklist standard value sets deferred sharing">
+  <div class="pgnum">§5.2 · Pre / post-deploy steps</div>
+  <h2>Handling pre- and post-deployment steps</h2>
+  <p class="lede">Some changes can't ride the API — plan them into a runbook.</p>
+  <div class="cards">
+    <div class="card"><h4>Pre-deploy</h4><p>Disable automations/jobs that would conflict; defer sharing recalculation for large changes; communicate downtime.</p></div>
+    <div class="card"><h4>Manual / not API-supported</h4><p>Some standard picklist value sets, certain settings, secrets/credentials, marking flows/processes active, post-install data.</p></div>
+    <div class="card"><h4>Post-deploy</h4><p>Activate Flows, re-enable jobs, run post-install scripts/data loads, smoke test, re-enable sharing recalculation.</p></div>
+  </div>
+  <div class="note">Unlocked &amp; managed packages support a <strong>post-install Apex script</strong>; for org deploys, encode manual steps in a versioned runbook so they're repeatable and auditable.</div>
+</section>
+
+<section class="slide" id="reference-data" data-search="technical reference data custom metadata types custom settings data deployment sfdmu data loader migration records configuration data">
+  <div class="pgnum">§5.3 · Technical reference data</div>
+  <h2>Managing &amp; deploying technical reference data</h2>
+  <p class="lede">"Reference data" = configuration-as-data that the app depends on (rate tables, mappings, country codes).</p>
+  <div class="cards">
+    <div class="card"><h4>Custom Metadata Types</h4><p><strong>Deploys like metadata</strong> — records travel with the package, are testable, and are visible in source control. The preferred home for config.</p></div>
+    <div class="card"><h4>Custom Settings</h4><p>List/Hierarchy. Data does <em>not</em> deploy with metadata — must be loaded per environment.</p></div>
+    <div class="card"><h4>Record data</h4><p>Use <code>sf data tree</code>, Data Loader, or the SFDMU plugin to seed reference records into each org.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>"Where does configuration belong?" Strong answer: <strong>Custom Metadata Types</strong> — because the records deploy with the package, are environment-portable, and keep config out of code. Reserve Custom Settings for per-org or user/profile-specific values.</p>
+  </div>
+</section>
+
+<!-- ============ SECTION 6 ============ -->
+<section class="slide title-slide" id="s6-title"><div class="pgnum" style="color:#cbd6e6">Section 6</div><h2>Testing</h2></section>
+
+<section class="slide" id="test-methodology" data-search="testing methodology unit integration system uat regression performance load smoke end to end playwright selenium recommend">
+  <div class="pgnum">§6.1 · Testing methodology</div>
+  <h2>Recommending a testing methodology</h2>
+  <table class="dttable">
+    <thead><tr><th>Layer</th><th>What it proves</th><th>Tooling</th></tr></thead>
+    <tbody>
+      <tr><td>Unit</td><td>Apex/LWC logic in isolation</td><td>Apex tests, Jest (LWC)</td></tr>
+      <tr><td>Integration</td><td>Components + external systems interact</td><td>Mocks (HttpCalloutMock), integration sandbox</td></tr>
+      <tr><td>System / E2E</td><td>Full user journeys work end-to-end</td><td>Playwright / Selenium UI automation</td></tr>
+      <tr><td>UAT</td><td>Business accepts the behavior</td><td>Partial/Full sandbox with representative data</td></tr>
+      <tr><td>Regression</td><td>New change didn't break old behavior</td><td>Automated suite re-run each release</td></tr>
+      <tr><td>Performance / load</td><td>Holds up at volume (LDV)</td><td>Full sandbox, load tooling</td></tr>
+    </tbody>
+  </table>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>You introduced <strong>Playwright</strong> for browser E2E and set <strong>Jest standards</strong> with a templated guide — that's the full pyramid, unit → E2E. Use it to answer any "how do you ensure quality" question.</p>
+  </div>
+</section>
+
+<section class="slide" id="coverage" data-search="test execution coverage requirements 75 percent production deployment runlocaltests runspecifiedtests runalltestsinorg notestrun trigger coverage test levels">
+  <div class="pgnum">§6.2 · Execution &amp; coverage rules</div>
+  <h2>Test execution methodology &amp; coverage</h2>
+  <div class="cards">
+    <div class="card"><h4>The 75% rule</h4><p>Production deployments require <strong>≥75% org-wide Apex coverage</strong>, and every trigger must have <em>some</em> coverage. (Coverage is a gate, not a quality measure — assert behavior, don't pad lines.)</p></div>
+    <div class="card"><h4>Deployment test levels</h4><p><code>NoTestRun</code> (sandbox only) · <code>RunSpecifiedTests</code> · <code>RunLocalTests</code> (excludes managed-package tests) · <code>RunAllTestsInOrg</code>.</p></div>
+  </div>
+  <pre class="code"><span class="c"># validate-only ("check only") deploy with local tests before the release window</span>
+sf project deploy start --dry-run --test-level RunLocalTests --target-org prod</pre>
+  <div class="note"><strong>RunLocalTests</strong> is the usual production choice — it runs all your org's tests but skips installed managed-package tests you don't own.</div>
+</section>
+
+<section class="slide" id="secure-test-data" data-search="secure test data strategy data mask masking anonymization representative data sandbox seeding pii sensitive sfdmu synthetic data">
+  <div class="pgnum">§6.3 · Secure test data strategy</div>
+  <h2>A unified, secure test-data strategy</h2>
+  <p class="lede">Use <strong>representative</strong> data throughout the lifecycle <strong>without</strong> exposing sensitive records in lower environments.</p>
+  <div class="cards">
+    <div class="card"><h4>Mask</h4><p><strong>Salesforce Data Mask</strong> anonymizes PII in Full/Partial sandboxes after refresh (replace, delete, or randomize).</p></div>
+    <div class="card"><h4>Synthesize</h4><p>Generate synthetic data via factories / SFDMU when real data is too sensitive to copy at all.</p></div>
+    <div class="card"><h4>Subset</h4><p>Partial Copy templates pull a representative slice rather than the full data set.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a central bank, "representative data in a secure manner" is non-negotiable. Lead with <strong>Data Mask + synthetic factories</strong> so no production PII/financial data ever lands in a dev or QA sandbox.</p>
+  </div>
+</section>
+
+<!-- ============ SECTION 7 ============ -->
+<section class="slide title-slide" id="s7-title"><div class="pgnum" style="color:#cbd6e6">Section 7</div><h2>Releasing</h2></section>
+
+<section class="slide" id="packages" data-search="package types managed unmanaged unlocked 2gp first generation second generation namespace upgradeable ip protection appexchange use cases">
+  <div class="pgnum">§7.1 · Package types compared</div>
+  <h2>Managed vs unmanaged vs unlocked</h2>
+  <table class="dttable">
+    <thead><tr><th>Type</th><th>Upgradeable?</th><th>IP protected?</th><th>Editable in target org?</th><th>Use case</th></tr></thead>
+    <tbody>
+      <tr><td>Unmanaged</td><td>No</td><td>No</td><td>Yes (components unlocked)</td><td>One-time templates, sample code, open distribution</td></tr>
+      <tr><td>Managed (2GP)</td><td>Yes</td><td>Yes (namespaced, code hidden)</td><td>No</td><td>ISV / AppExchange products</td></tr>
+      <tr><td>Unlocked</td><td>Yes</td><td>No</td><td>No (managed by package)</td><td><strong>Internal org dev — modular, versioned platform components</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>For an <em>internal</em> enterprise platform, the right answer is almost always <strong>unlocked packages</strong> — you get versioning, dependencies, and upgradeability without the IP-protection overhead of managed packages (which are for ISVs selling on AppExchange). Most candidates conflate these; you won't.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This is your "platform enablers / reusable components" story (last conversation's paved-road idea). Unlocked packages <em>are</em> the explicit APIs/abstractions the JD asks you to deliver to app teams.</p>
+  </div>
+</section>
+
+<section class="slide" id="release-mgmt" data-search="release management strategy release train cadence calendar staging hotfix promotion environments mapping continuous delivery">
+  <div class="pgnum">§7.2 · Release management strategy</div>
+  <h2>Mapping sandboxes to a release plan</h2>
+  <p class="lede">A release strategy ties branching → environments → cadence, with separate lanes for features and hotfixes.</p>
+  <pre class="code"><span class="c"># release train model</span>
+Sprint work ─▶ develop ─▶ Integration sbx ─▶ release/* ─▶ UAT (Partial) ─▶ Staging (Full) ─▶ PROD
+Urgent fix  ─▶ hotfix/* ─────────────────────────────────────────────────▶ Staging ─▶ PROD
+                                                                              └─ back-merge to develop</pre>
+  <ul>
+    <li><strong>Multiple project streams</strong> → feature branches + integration sandbox to surface conflicts early.</li>
+    <li><strong>Training</strong> → a dedicated training sandbox refreshed to the release candidate.</li>
+    <li><strong>Hotfixes</strong> → branch from prod state, fast-track, then back-merge so the fix isn't lost next release.</li>
+  </ul>
+</section>
+
+<!-- ============ SECTION 8 ============ -->
+<section class="slide title-slide" id="s8-title"><div class="pgnum" style="color:#cbd6e6">Section 8</div><h2>Operating</h2></section>
+
+<section class="slide" id="prod-changes" data-search="changes directly in production implications risk untracked drift emergency hotfix declarative admin configuration governance audit">
+  <div class="pgnum">§8.1 · Changes directly in prod</div>
+  <h2>Implications of changing prod directly</h2>
+  <ul>
+    <li>Creates <strong>config drift</strong> — source control no longer matches reality, so the next deploy can overwrite the change.</li>
+    <li>Bypasses <strong>review, testing, and audit</strong> — unacceptable in a regulated environment.</li>
+    <li>Sometimes necessary (emergency hotfix, admin-only declarative tweaks) — but must be <strong>captured back into ALM</strong>.</li>
+  </ul>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>"No cowboy deploys" is itself a feature at a central bank. The right posture: even emergency prod changes are logged, ticketed, and back-merged into source — drift is detected, not tolerated.</p>
+  </div>
+</section>
+
+<section class="slide" id="drift" data-search="reconcile drift integrate production changes back into alm source control retrieve back-merge detection diff continuous reconciliation">
+  <div class="pgnum">§8.2 · Reconciling drift into ALM</div>
+  <h2>Integrating prod changes back into the lifecycle</h2>
+  <ol>
+    <li><strong>Detect</strong> — diff prod metadata against source control (scheduled <code>sf project retrieve</code> + diff, or a DevOps tool's drift report).</li>
+    <li><strong>Capture</strong> — retrieve the changed components into a branch.</li>
+    <li><strong>Reconcile</strong> — merge into <code>develop</code> so lower environments and the next release include the fix.</li>
+    <li><strong>Prevent</strong> — tighten who can edit prod; route changes through the pipeline.</li>
+  </ol>
+  <div class="note">The failure mode to name: a hotfix made only in prod gets <strong>silently reverted</strong> by the next scheduled deploy because source control never learned about it.</div>
+  <div class="interview">
+    <h4>Exam detail</h4>
+    <p>The Operating section specifically tests the <strong>Apex Metadata API</strong> — the ability to <em>create/update metadata (e.g. records of Custom Metadata Types) programmatically from Apex</em>, including in managed-package post-install scripts. Know that it's deploy-only (no retrieve) and runs asynchronously.</p>
+  </div>
+</section>
+
+<section class="slide" id="multi-org" data-search="multi org common release artifacts shared unlocked package dependency version consistency core package distribute multiple orgs">
+  <div class="pgnum">§8.3 · Multi-org release artifacts</div>
+  <h2>Managing common artifacts across multiple orgs</h2>
+  <ul>
+    <li>Factor shared functionality into <strong>common unlocked packages</strong> with explicit version numbers.</li>
+    <li>Each org installs the <strong>same package version</strong> → guaranteed consistency, controlled upgrades per org.</li>
+    <li>Manage <strong>dependencies</strong> explicitly (a base "core" package others depend on) so upgrades roll out in order.</li>
+    <li>A central pipeline builds the artifact once and promotes it to each org's release lane.</li>
+  </ul>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This is the literal "platform" in Platform Engineer: a versioned core package every application team consumes — increasing adoption, consistency, and operational efficiency, exactly as the JD frames the role.</p>
+  </div>
+</section>
+
+<!-- ============ REFERENCE ============ -->
+<section class="slide" id="cli" data-search="sf cli quick reference commands project deploy retrieve org create scratch package version create install data tree apex run test">
+  <div class="pgnum">Reference · sf CLI</div>
+  <h2>sf CLI quick reference</h2>
+<pre class="code"><span class="c"># scratch org from definition</span>
+sf org create scratch -f config/project-scratch-def.json -a dev --duration-days 7
+<span class="c"># push/pull source (DX source tracking)</span>
+sf project deploy start --source-dir force-app --target-org dev
+sf project retrieve start --metadata ApexClass:MyClass --target-org prod
+<span class="c"># validate-only deploy with tests (no changes committed)</span>
+sf project deploy start --dry-run --test-level RunLocalTests -o prod
+<span class="c"># run apex tests + coverage</span>
+sf apex run test --code-coverage --result-format human -o dev
+<span class="c"># unlocked package: create a version, then install</span>
+sf package version create -p "Core" -x --installation-key-bypass -w 30
+sf package install --package Core@1.2.0-1 -o prod -w 20
+<span class="c"># seed reference data</span>
+sf data tree import --plan data/plan.json -o dev
+<span class="c"># static analysis</span>
+sf scanner run --target force-app --severity-threshold 2</pre>
+</section>
+
+<section class="slide" id="exam-strategy" data-search="exam strategy tips scenario based process of elimination mark for review standard feature best practice retake policy weightings draw diagram cheat sheet">
+  <div class="pgnum">Reference · Exam strategy</div>
+  <h2>Exam-day strategy (if you sit the cert)</h2>
+  <p class="lede">Distilled from SalesforceBen's guide — these also double as good interview discipline.</p>
+  <div class="cards">
+    <div class="card"><h4>Read scenarios twice</h4><p>The answer <strong>options</strong> often reveal what's being tested. Identify the real constraint (volume? timing? risk?) before choosing.</p></div>
+    <div class="card"><h4>Process of elimination</h4><p>Salesforce plants answers that mix unrelated features or aren't best practice. Cut the obviously wrong, then decide between the survivors.</p></div>
+    <div class="card"><h4>Prefer the standard feature</h4><p>Curveballs look correct but aren't best practice. Favor a standard platform capability over a custom build when one exists.</p></div>
+    <div class="card"><h4>Mark for review</h4><p>Flag doubtful questions, finish the rest, then revisit — later questions often jog the answer.</p></div>
+  </div>
+  <ul>
+    <li><strong>Weightings are near-even</strong> (8–15%) — study all eight sections; don't bet on skipping one.</li>
+    <li>This is <strong>scenario-heavy and hands-on</strong>: examiners assume you've actually run SFDX, scratch orgs, and GitHub flows — which you have.</li>
+    <li><strong>Retakes</strong> are half price, up to three attempts per release; reschedule fast so the material stays fresh.</li>
+    <li>Master revision list = the <strong>official Trailhead exam guide</strong> + the "Architect Dev Lifecycle &amp; Deployment" trailmix.</li>
+  </ul>
+  <div class="fed">
+    <h4>Interview crossover</h4>
+    <p>Even if you don't sit the exam before Thursday, these habits transfer: when they give you a scenario, name the constraint out loud, reason by elimination, and default to standard platform features. That's exactly how a senior architect thinks on their feet.</p>
+  </div>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet quick reference sandbox types packages deployment tools test levels branching coverage exam traps memorize">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>Sandbox types (memorize)</h3>
+  <table class="dttable">
+    <thead><tr><th>Type</th><th>Data</th><th>Storage</th><th>Refresh</th></tr></thead>
+    <tbody>
+      <tr><td>Developer</td><td>metadata only</td><td>200 MB</td><td>1 day</td></tr>
+      <tr><td>Developer Pro</td><td>metadata only</td><td>1 GB</td><td>1 day</td></tr>
+      <tr><td>Partial Copy</td><td>+ sample data</td><td>5 GB</td><td>5 days</td></tr>
+      <tr><td>Full</td><td>full data copy</td><td>= prod</td><td>29 days</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Packages</h3>
+  <ul>
+    <li><strong>Unmanaged</strong> — not upgradeable, editable in target, no IP protection → templates.</li>
+    <li><strong>Managed (2GP)</strong> — upgradeable, namespaced, IP-protected → ISV/AppExchange.</li>
+    <li><strong>Unlocked</strong> — upgradeable, no IP protection → <em>internal modular platform dev</em>.</li>
+  </ul>
+
+  <h3>Deployment test levels</h3>
+  <ul>
+    <li><code>NoTestRun</code> — sandbox only.</li>
+    <li><code>RunSpecifiedTests</code> — named classes (each component needs 75%).</li>
+    <li><code>RunLocalTests</code> — all org tests, excludes managed pkg → <strong>usual prod choice</strong>.</li>
+    <li><code>RunAllTestsInOrg</code> — everything incl. managed packages.</li>
+  </ul>
+
+  <h3>Production deploy gate</h3>
+  <p>≥ <strong>75% org-wide Apex coverage</strong>; every trigger has some coverage; all tests pass.</p>
+
+  <h3>Branching models</h3>
+  <ul>
+    <li><strong>GitFlow</strong> — main/develop/feature/release/hotfix → scheduled enterprise releases.</li>
+    <li><strong>GitHub Flow</strong> — main + feature via PR → continuous delivery.</li>
+    <li><strong>Trunk-based</strong> — tiny merges + feature flags → highest velocity, needs strong tests.</li>
+  </ul>
+
+  <h3>Where config belongs</h3>
+  <ul>
+    <li><strong>Custom Metadata Types</strong> — config-as-data that <em>deploys with metadata</em> (preferred).</li>
+    <li><strong>Custom Settings</strong> — per-org/user/profile values; data loaded per environment.</li>
+  </ul>
+
+  <h3>Exam traps to memorize</h3>
+  <ul>
+    <li>Change Sets <strong>can't delete</strong> components and have no version control.</li>
+    <li>Sandbox <strong>preview vs non-preview</strong> determines which release it lands on — time refreshes accordingly.</li>
+    <li>Hotfixes branch from <strong>prod state</strong> and must be <strong>back-merged</strong> or they vanish on next deploy.</li>
+    <li>Unlocked = internal; Managed = ISV. Don't mix them up.</li>
+    <li>Custom <strong>Setting</strong> data does <em>not</em> deploy; Custom <strong>Metadata</strong> records do.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../theme.js"></script>
+</body>
+</html>

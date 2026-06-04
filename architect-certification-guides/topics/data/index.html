@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Architect — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    · Topic
+  </div>
+  <h1>Data Architect</h1>
+  <div class="sub">Data modeling, Large Data Volumes, indexing &amp; query performance, governance, migration, and Data Cloud · supports the JD's data-architecture competency</div>
+  <div class="actions"><a href="https://trailhead.salesforce.com/help?path=credentials/&cred=data-architect" target="_blank" rel="noopener">Official exam guide</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#fed-map">Why this maps to the Fed role</a></li>
+      <li><a href="#blueprint">Exam blueprint</a></li>
+    </ul>
+    <h3>1 · Data Modeling</h3>
+    <ul>
+      <li><a href="#relationships">Relationships &amp; design</a></li>
+      <li><a href="#external-id">External IDs &amp; keys</a></li>
+    </ul>
+    <h3>2 · Master Data Mgmt</h3>
+    <ul>
+      <li><a href="#mdm">MDM &amp; golden records</a></li>
+      <li><a href="#dedupe">Dedup &amp; data quality</a></li>
+    </ul>
+    <h3>3 · Salesforce Data Mgmt</h3>
+    <ul>
+      <li><a href="#big-objects">Big Objects &amp; archiving</a></li>
+      <li><a href="#backup">Backup &amp; restore</a></li>
+    </ul>
+    <h3>4 · Data Governance</h3>
+    <ul>
+      <li><a href="#governance">Governance &amp; stewardship</a></li>
+      <li><a href="#security">Encryption &amp; compliance</a></li>
+    </ul>
+    <h3>5 · Large Data Volumes</h3>
+    <ul>
+      <li><a href="#ldv">LDV fundamentals</a></li>
+      <li><a href="#indexing">Indexing &amp; selective queries</a></li>
+      <li><a href="#query-plan">Query Plan tool</a></li>
+      <li><a href="#skew">Data skew</a></li>
+    </ul>
+    <h3>6 · Data Migration</h3>
+    <ul>
+      <li><a href="#migration">Migration strategy</a></li>
+      <li><a href="#data-cloud">Data Cloud touchpoint</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<section class="slide title-slide" id="cover" data-search="cover data architect large data volume modeling governance migration">
+  <div class="pgnum" style="color:#cbd6e6">Architect Certification Guide</div>
+  <h2>Data Architect</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Design schemas that scale, keep queries selective at volume, govern and protect sensitive data, and migrate it safely — the data-architecture half of a senior platform role.</p>
+</section>
+
+<section class="slide" id="fed-map" data-search="fed federal reserve chicago job description large data volumes indexing query performance schema optimization sharing security data cloud preferred">
+  <div class="pgnum">Orientation · Why this guide</div>
+  <h2>Why this maps to the Fed-Chicago role</h2>
+  <table class="dttable">
+    <thead><tr><th>JD phrase</th><th>Covered in</th></tr></thead>
+    <tbody>
+      <tr><td>"Understanding of large data volumes, indexing and query performance"</td><td>§5 Large Data Volumes</td></tr>
+      <tr><td>"Strong knowledge of Salesforce limits… scalable patterns… schema optimization"</td><td>§1 Modeling, §5 LDV</td></tr>
+      <tr><td>"sharing/model security"</td><td>§4 Governance &amp; security</td></tr>
+      <tr><td>"backup… encryption" (platform patterns)</td><td>§3 Backup/restore, §4 encryption</td></tr>
+      <tr><td>"Experience in Data Cloud is preferred"</td><td>§6 Data Cloud touchpoint</td></tr>
+    </tbody>
+  </table>
+  <div class="fed">
+    <h4>Priority note</h4>
+    <p>This is the <em>supporting</em> guide for the JD. Highest-yield slices for the interview: <strong>LDV + selective queries + indexing + the Query Plan tool</strong>, <strong>backup/restore</strong>, and a one-paragraph <strong>Data Cloud</strong> answer. Skim the rest.</p>
+  </div>
+</section>
+
+<section class="slide" id="blueprint" data-search="exam blueprint data modeling master data management salesforce data management governance large data volume migration sections">
+  <div class="pgnum">Blueprint · 6 sections</div>
+  <h2>The exam blueprint</h2>
+  <table class="dttable">
+    <thead><tr><th>Section</th><th>Focus</th></tr></thead>
+    <tbody>
+      <tr><td>Data Modeling / Database Design</td><td>Objects, relationships, keys, normalization vs denormalization</td></tr>
+      <tr><td>Master Data Management</td><td>Golden records, system of record, dedup, survivorship</td></tr>
+      <tr><td>Salesforce Data Management</td><td>Big Objects, archiving, backup &amp; restore, storage</td></tr>
+      <tr><td>Data Governance</td><td>Ownership, stewardship, quality, security, compliance</td></tr>
+      <tr><td>Large Data Volume Considerations</td><td>Indexing, selective queries, skew, performance at scale</td></tr>
+      <tr><td>Data Migration</td><td>ETL, load order, Bulk API, validation, cutover</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 1 MODELING -->
+<section class="slide title-slide" id="s1-title"><div class="pgnum" style="color:#cbd6e6">Section 1</div><h2>Data Modeling</h2></section>
+
+<section class="slide" id="relationships" data-search="relationships lookup master detail junction many to many roll up summary hierarchy normalization denormalization schema design cardinality">
+  <div class="pgnum">§1.1 · Relationships &amp; design</div>
+  <h2>Relationships &amp; schema design</h2>
+  <table class="dttable">
+    <thead><tr><th>Relationship</th><th>Behavior</th></tr></thead>
+    <tbody>
+      <tr><td>Lookup</td><td>Loose link; child can exist without parent; flexible sharing.</td></tr>
+      <tr><td>Master-Detail</td><td>Tight; child inherits owner &amp; sharing from parent; enables roll-up summaries; cascade delete.</td></tr>
+      <tr><td>Junction (2× M-D)</td><td>Resolves many-to-many between two parents.</td></tr>
+      <tr><td>Hierarchical</td><td>Self-lookup on User only (e.g. manager).</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Trade-off: master-detail gives roll-ups &amp; inherited sharing but couples the records tightly. Lookups are flexible but you implement roll-ups yourself (or via tools). Pick by sharing &amp; lifecycle needs.</div>
+</section>
+
+<section class="slide" id="external-id" data-search="external id unique field upsert idempotent integration foreign key migration data loader index automatically indexed">
+  <div class="pgnum">§1.2 · External IDs &amp; keys</div>
+  <h2>External IDs — the integration &amp; migration linchpin</h2>
+  <ul>
+    <li>An <strong>External ID</strong> field holds the record's key from a source system; mark it <strong>Unique</strong>.</li>
+    <li>Enables <strong>upsert</strong> — match on the external key to insert-or-update, which is <strong>idempotent</strong> (safe to retry).</li>
+    <li>External ID fields are <strong>automatically indexed</strong> → keeps lookups selective at volume.</li>
+    <li>Critical for migration: load parents first, capture their IDs, then resolve child relationships by external key.</li>
+  </ul>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This ties your Integration story together: upsert-on-External-ID is how your Bulk API pipelines stay idempotent and how migrations re-run safely.</p>
+  </div>
+</section>
+
+<!-- 2 MDM -->
+<section class="slide title-slide" id="s2-title"><div class="pgnum" style="color:#cbd6e6">Section 2</div><h2>Master Data Management</h2></section>
+
+<section class="slide" id="mdm" data-search="master data management golden record system of record system of truth consolidation hub registry style centralized federated survivorship">
+  <div class="pgnum">§2.1 · MDM &amp; golden records</div>
+  <h2>MDM: the single source of truth</h2>
+  <div class="cards">
+    <div class="card"><h4>System of Record</h4><p>The authoritative source for a given data domain (e.g. the core banking system for accounts).</p></div>
+    <div class="card"><h4>Golden Record</h4><p>The consolidated, deduplicated, best-version record assembled from multiple sources.</p></div>
+    <div class="card"><h4>MDM styles</h4><p>Registry (index/point to sources), Consolidation (gather &amp; clean), Centralized/Hub (master lives in one place), Coexistence (sync both ways).</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Always establish <strong>which system owns which field</strong>. "Salesforce is system of record for X, the core system owns Y" prevents the bidirectional-sync wars that wreck integrations.</p>
+  </div>
+</section>
+
+<section class="slide" id="dedupe" data-search="duplicate management matching rules duplicate rules data quality survivorship merge standardization third party tools dun bradstreet">
+  <div class="pgnum">§2.2 · Dedup &amp; data quality</div>
+  <h2>Deduplication &amp; data quality</h2>
+  <ul>
+    <li><strong>Duplicate Management</strong> — Matching Rules + Duplicate Rules block or warn on dupes at entry.</li>
+    <li><strong>Survivorship</strong> — rules deciding which field value wins when merging (most recent, most complete, source priority).</li>
+    <li><strong>Standardization</strong> — normalize formats (phone, address) on the way in; validation rules + flows.</li>
+    <li><strong>Profiling</strong> — measure completeness/accuracy; data quality dashboards &amp; scorecards.</li>
+  </ul>
+</section>
+
+<!-- 3 DATA MGMT -->
+<section class="slide title-slide" id="s3-title"><div class="pgnum" style="color:#cbd6e6">Section 3</div><h2>Salesforce Data Management</h2></section>
+
+<section class="slide" id="big-objects" data-search="big objects async soql archiving billions of records custom index storage standard big object field audit history retention">
+  <div class="pgnum">§3.1 · Big Objects &amp; archiving</div>
+  <h2>Big Objects &amp; archiving strategy</h2>
+  <div class="cards">
+    <div class="card"><h4>Big Objects</h4><p>Store <strong>billions</strong> of records cheaply with a fixed schema. Queried via <strong>Async SOQL</strong> or a defined composite index — not normal SOQL.</p></div>
+    <div class="card"><h4>Use for</h4><p>Audit trails, historical/archived transactions, IoT/event history, regulatory retention.</p></div>
+    <div class="card"><h4>Archiving pattern</h4><p>Move aged records out of standard objects (which hit LDV problems) into a Big Object or external store; keep the live object lean.</p></div>
+  </div>
+  <div class="note">Big Objects have <strong>no triggers, no standard SOQL, no sharing</strong> in the normal sense — they trade flexibility for massive scale. Define the index up front; you can't change it later easily.</div>
+</section>
+
+<section class="slide" id="backup" data-search="backup restore salesforce backup data export weekly export bulk api third party owned backup own data recycle bin disaster recovery point in time">
+  <div class="pgnum">§3.2 · Backup &amp; restore</div>
+  <h2>Backup &amp; restore (JD: "backup" pattern)</h2>
+  <p class="lede">Salesforce protects the platform, but <strong>you own your data's backup</strong> — a shared-responsibility reality every architect must state.</p>
+  <div class="cards">
+    <div class="card"><h4>Native options</h4><p>Scheduled <strong>Data Export</strong> (weekly/monthly), <strong>Salesforce Backup</strong> product, report exports, Recycle Bin (15 days, limited).</p></div>
+    <div class="card"><h4>API / custom</h4><p><strong>Bulk API 2.0</strong> extracts to external storage (e.g. S3) on a schedule — <em>your pipeline</em>.</p></div>
+    <div class="card"><h4>Restore</h4><p>Relationships &amp; record IDs are the hard part on restore — re-link via External IDs; test the restore, not just the backup.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Your <strong>Bulk API 2.0 → Amazon S3</strong> pipeline <em>is</em> a backup/DR pattern. Frame it as point-in-time export with downstream artifacts — exactly the "backup" the JD lists as a platform need.</p>
+  </div>
+</section>
+
+<!-- 4 GOVERNANCE -->
+<section class="slide title-slide" id="s4-title"><div class="pgnum" style="color:#cbd6e6">Section 4</div><h2>Data Governance</h2></section>
+
+<section class="slide" id="governance" data-search="data governance ownership stewardship policies retention classification lifecycle quality metrics roles accountability">
+  <div class="pgnum">§4.1 · Governance &amp; stewardship</div>
+  <h2>Data governance &amp; stewardship</h2>
+  <ul>
+    <li><strong>Ownership &amp; stewardship</strong> — named data stewards accountable per domain.</li>
+    <li><strong>Classification</strong> — tag fields by sensitivity (public / internal / confidential / regulated) using <strong>Data Classification</strong> metadata.</li>
+    <li><strong>Retention</strong> — policies for how long data lives, then archive/delete (ties to Big Objects).</li>
+    <li><strong>Quality metrics</strong> — completeness, accuracy, timeliness tracked and reported.</li>
+  </ul>
+</section>
+
+<section class="slide" id="security" data-search="shield platform encryption field level encryption deterministic probabilistic event monitoring data mask field audit trail compliance gdpr ccpa pii">
+  <div class="pgnum">§4.2 · Encryption &amp; compliance</div>
+  <h2>Protecting sensitive data (JD: "encryption")</h2>
+  <div class="cards">
+    <div class="card"><h4>Shield Platform Encryption</h4><p>Encrypts data <strong>at rest</strong> while preserving key functionality. Deterministic encryption allows filtering; probabilistic is stronger but un-queryable.</p></div>
+    <div class="card"><h4>Event Monitoring</h4><p>Tracks who accessed/exported what — the audit trail a regulator expects.</p></div>
+    <div class="card"><h4>Data Mask</h4><p>Anonymizes PII in sandboxes so lower environments never hold real regulated data.</p></div>
+    <div class="card"><h4>Classic encryption &amp; FLS</h4><p>Field-level security + CRUD as the first layer; encryption for data-at-rest beyond that.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Have a crisp <strong>Shield</strong> decision matrix ready: deterministic (filterable, weaker) vs probabilistic (stronger, not filterable), plus Event Monitoring for auditability. That trio answers "how do you protect sensitive data on platform" for a central bank.</p>
+  </div>
+</section>
+
+<!-- 5 LDV -->
+<section class="slide title-slide" id="s5-title"><div class="pgnum" style="color:#cbd6e6">Section 5</div><h2>Large Data Volumes</h2></section>
+
+<section class="slide" id="ldv" data-search="large data volume ldv millions records performance degradation sharing recalculation data skew query selectivity full table scan governor limits">
+  <div class="pgnum">§5.1 · LDV fundamentals</div>
+  <h2>What changes at Large Data Volume</h2>
+  <p class="lede">Past millions of records, naive patterns break. LDV is the most JD-relevant section here.</p>
+  <div class="cards">
+    <div class="card"><h4>Selective queries</h4><p>Queries must hit an <strong>index</strong> or they full-scan and time out. Selectivity is everything.</p></div>
+    <div class="card"><h4>Sharing recalculation</h4><p>Ownership/sharing changes on huge data sets are expensive; defer &amp; batch them.</p></div>
+    <div class="card"><h4>Skew</h4><p>Too many child records under one parent/owner causes lock contention &amp; slow recalcs.</p></div>
+    <div class="card"><h4>Bulkification</h4><p>Use Bulk API + batch Apex; never row-by-row at volume.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="indexing" data-search="indexing standard custom index two column composite index selective query 10 percent 30 percent threshold formula field skinny table null not indexed">
+  <div class="pgnum">§5.2 · Indexing &amp; selective queries</div>
+  <h2>Indexing &amp; query selectivity</h2>
+  <ul>
+    <li><strong>Standard indexes</strong> — Id, Name, OwnerId, CreatedDate, External IDs, lookups/master-detail, unique fields.</li>
+    <li><strong>Custom indexes</strong> — request from Salesforce for high-selectivity custom fields.</li>
+    <li><strong>Selectivity thresholds</strong> — a filter is selective if it returns roughly <strong>&lt;10%</strong> of records (first 1M) / <strong>&lt;5%</strong> beyond, under index-specific caps.</li>
+    <li><strong>Not indexed well</strong> — <code>NULL</code> values (standard indexes skip nulls), negative operators (<code>!=</code>, <code>NOT</code>, leading <code>%</code> wildcards), formula fields on non-deterministic data.</li>
+    <li><strong>Skinny tables</strong> — Salesforce-created copies of frequently-queried fields (incl. some standard) to avoid joins; great for reports/list views at volume.</li>
+  </ul>
+  <div class="note">A two-column (composite) custom index helps common filter+sort pairs. Avoid filtering on non-selective fields or you force a <strong>full table scan</strong>.</div>
+</section>
+
+<section class="slide" id="query-plan" data-search="query plan tool developer console cost cardinality leading operation index table scan selectivity optimize soql explain">
+  <div class="pgnum">§5.3 · Query Plan tool</div>
+  <h2>The Query Plan tool</h2>
+  <p class="lede">In the Developer Console (enable from preferences), Query Plan shows how the optimizer will execute a SOQL — your tuning instrument.</p>
+  <div class="cards">
+    <div class="card"><h4>Cost</h4><p>Relative cost; <strong>&lt; 1.0</strong> means it can use a selective index. Higher = trouble.</p></div>
+    <div class="card"><h4>Leading operation type</h4><p><code>Index</code> (good), <code>TableScan</code> (bad at volume), <code>Sharing</code>, <code>Other</code>.</p></div>
+    <div class="card"><h4>Cardinality</h4><p>Estimated rows the leading operation returns — drives the cost.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>"How do you fix a slow SOQL?" → "Run it through Query Plan, confirm it's hitting an index with cost &lt; 1, and if it's a TableScan, make the filter selective or request a custom index." That's a concrete, senior answer.</p>
+  </div>
+</section>
+
+<section class="slide" id="skew" data-search="data skew ownership skew lookup skew account data skew 10000 records parent record locking contention recalculation distribute">
+  <div class="pgnum">§5.4 · Data skew</div>
+  <h2>The three data skews</h2>
+  <table class="dttable">
+    <thead><tr><th>Skew</th><th>Cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>Ownership skew</td><td>One user owns &gt; ~10k records → slow sharing recalcs</td><td>Distribute ownership; place owner high/outside role hierarchy</td></tr>
+      <tr><td>Account data skew</td><td>&gt; ~10k child records under one Account → lock contention</td><td>Spread children; "bucket" placeholder parents</td></tr>
+      <tr><td>Lookup skew</td><td>Huge number of records point to one lookup value</td><td>Distribute values; reduce concurrency on that record</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Skew shows up as <strong>record-locking errors</strong> (UNABLE_TO_LOCK_ROW) under concurrent updates. The number to remember is <strong>~10,000</strong>.</div>
+</section>
+
+<!-- 6 MIGRATION -->
+<section class="slide title-slide" id="s6-title"><div class="pgnum" style="color:#cbd6e6">Section 6</div><h2>Data Migration</h2></section>
+
+<section class="slide" id="migration" data-search="data migration strategy etl extract transform load order parent child bulk api defer sharing validation rules disable triggers cutover reconciliation external id">
+  <div class="pgnum">§6.1 · Migration strategy</div>
+  <h2>Migrating data safely &amp; at scale</h2>
+  <ol>
+    <li><strong>Profile &amp; map</strong> source → target fields; cleanse before loading.</li>
+    <li><strong>Load order</strong> — parents before children; capture IDs / use External IDs to relate.</li>
+    <li><strong>Use Bulk API 2.0</strong>; consider <strong>deferring sharing recalculation</strong> &amp; disabling non-essential automation during load.</li>
+    <li><strong>Validate</strong> — reconcile counts &amp; checksums; spot-check relationships; re-enable automation.</li>
+    <li><strong>Idempotent</strong> — upsert on External ID so a re-run doesn't duplicate.</li>
+  </ol>
+  <div class="note">Turn off validation rules/triggers/workflows you don't need <em>during</em> bulk load to avoid row-by-row slowdowns &amp; spurious failures — then re-enable and run a data-quality pass.</div>
+</section>
+
+<section class="slide" id="data-cloud" data-search="data cloud customer data platform cdp data lake ingestion harmonization identity resolution calculated insights data streams unified profile zero copy">
+  <div class="pgnum">§6.2 · Data Cloud touchpoint</div>
+  <h2>Data Cloud (JD: "preferred")</h2>
+  <p class="lede">Salesforce's data platform / CDP — unify data from many sources into harmonized, queryable profiles. Know it at a conversational level.</p>
+  <div class="cards">
+    <div class="card"><h4>Ingest</h4><p><strong>Data Streams</strong> pull from Salesforce, external systems, and files into the lake; <strong>zero-copy</strong> options federate to warehouses (Snowflake/BigQuery) without moving data.</p></div>
+    <div class="card"><h4>Harmonize</h4><p>Map sources to the <strong>Data Model</strong>; <strong>Identity Resolution</strong> stitches records into a unified profile.</p></div>
+    <div class="card"><h4>Activate</h4><p><strong>Calculated Insights</strong> &amp; segments feed analytics, personalization, and back into Salesforce/agents.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>A one-paragraph answer is enough: "Data Cloud ingests via Data Streams (with zero-copy federation), harmonizes to a common model with identity resolution, and activates via Calculated Insights." For platform telemetry/logs, it's a strong cross-org analytics sink.</p>
+  </div>
+</section>
+
+<section class="slide" id="cheatsheet" data-search="cheatsheet data architect ldv indexing selectivity skew query plan backup encryption big objects external id memorize quick reference">
+  <div class="pgnum">Bonus · Quick-Reference Cheatsheet</div>
+  <h2>Quick-Reference Cheatsheet</h2>
+
+  <h3>Selective query rules</h3>
+  <ul>
+    <li>Selective ≈ filter returns <strong>&lt;10%</strong> (first 1M) / <strong>&lt;5%</strong> beyond, under index caps.</li>
+    <li>Standard indexes: <strong>Id, Name, OwnerId, CreatedDate, External IDs, lookups, unique fields</strong>.</li>
+    <li><strong>Nulls aren't in standard indexes</strong>; <code>!=</code>, <code>NOT</code>, leading <code>%</code> kill selectivity.</li>
+    <li><strong>Skinny tables</strong> &amp; <strong>custom indexes</strong> = Salesforce-side fixes (log a case).</li>
+  </ul>
+
+  <h3>Query Plan</h3>
+  <ul>
+    <li>Cost <strong>&lt; 1.0</strong> = can use selective index. Leading op <code>Index</code> good, <code>TableScan</code> bad.</li>
+  </ul>
+
+  <h3>The ~10,000 number (skew)</h3>
+  <ul>
+    <li>Ownership skew (one owner &gt;10k), Account data skew (&gt;10k children), lookup skew → locking + slow recalc.</li>
+  </ul>
+
+  <h3>Scale storage</h3>
+  <ul>
+    <li><strong>Big Objects</strong> — billions of rows, Async SOQL, no triggers/sharing, fixed index. Archive here.</li>
+  </ul>
+
+  <h3>Backup</h3>
+  <ul>
+    <li>You own it: Data Export / Salesforce Backup / <strong>Bulk API → external (S3)</strong>. Test the restore.</li>
+  </ul>
+
+  <h3>Protect</h3>
+  <ul>
+    <li><strong>Shield</strong>: deterministic (filterable) vs probabilistic (stronger). Event Monitoring = audit. Data Mask = sandboxes.</li>
+  </ul>
+
+  <h3>Migration</h3>
+  <ul>
+    <li>Parents first → External IDs → Bulk API → defer sharing/automation → reconcile → <strong>upsert = idempotent</strong>.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../theme.js"></script>
+</body>
+</html>
