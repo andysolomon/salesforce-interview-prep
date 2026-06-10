@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building — Quality Code Delivery — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Building — Quality Code Delivery</h1>
+  <div class="sub">Describe the methods to ensure the delivery of quality code: coding standards, pull requests, code review, and static code analysis · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (39 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+
+    <div class="toc-group">
+    <h3>Overview</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#ensuring-code-quality">Ensuring Code Quality</a></li>
+    </ul>
+    </div>
+
+    <div class="toc-group">
+    <h3>Coding Standards</h3>
+    <ul>
+      <li><a href="#section-coding-standards">Section: Coding Standards</a></li>
+      <li><a href="#coding-standards-overview">Coding Standards — Overview</a></li>
+      <li><a href="#coding-standards-naming">Naming &amp; Success Cloud Conventions</a></li>
+      <li><a href="#coding-standards-frameworks">Frameworks &amp; Trigger Framework</a></li>
+      <li><a href="#coding-standards-trigger-error">Trigger &amp; Error Logging Frameworks</a></li>
+      <li><a href="#coding-standards-bypass-tools">Bypass Patterns, Test Data Factory &amp; Tools</a></li>
+      <li><a href="#coding-standards-apex">Apex Best Practices &amp; TDD</a></li>
+    </ul>
+    </div>
+
+    <div class="toc-group">
+    <h3>Pull Requests</h3>
+    <ul>
+      <li><a href="#section-pull-requests">Section: Pull Requests</a></li>
+      <li><a href="#pull-requests-comparison">Pull Requests — Comparison &amp; Review</a></li>
+      <li><a href="#pull-requests-conversations">Pull Requests — Conversations &amp; Information</a></li>
+    </ul>
+    </div>
+
+    <div class="toc-group">
+    <h3>Code Review</h3>
+    <ul>
+      <li><a href="#section-code-review">Section: Code Review</a></li>
+      <li><a href="#code-review-purpose">Code Review — Purpose &amp; Preparation</a></li>
+      <li><a href="#code-review-checklist">Code Review — Checklist &amp; Effective Reviews</a></li>
+      <li><a href="#code-review-automation">Code Review — Automation &amp; Issues</a></li>
+      <li><a href="#code-review-communication">Code Review — Communication &amp; Feedback</a></li>
+      <li><a href="#code-review-evaluation">Code Review — Evaluation</a></li>
+      <li><a href="#appexchange-security-review">AppExchange Security Review</a></li>
+    </ul>
+    </div>
+
+    <div class="toc-group">
+    <h3>Static Code Analysis</h3>
+    <ul>
+      <li><a href="#section-static-analysis">Section: Static Code Analysis</a></li>
+      <li><a href="#static-analysis-overview">Static Analysis — Overview &amp; Tools</a></li>
+      <li><a href="#static-analysis-tools-detail">Static Analysis — PMD, CodeScan, Clayton</a></li>
+      <li><a href="#static-analysis-cli-scanner">Static Analysis — CLI Scanner &amp; Implementation</a></li>
+      <li><a href="#static-analysis-cicd">Static Analysis — CI/CD Integration</a></li>
+    </ul>
+    </div>
+
+    <div class="toc-group">
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Gourmet Solutions</a></li>
+    </ul>
+    </div>
+
+    <div class="toc-group">
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#requirement-3">Requirement 3</a></li>
+      <li><a href="#solution-3">Solution 3</a></li>
+      <li><a href="#requirement-4">Requirement 4</a></li>
+      <li><a href="#solution-4">Solution 4</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    </div>
+
+    <div class="toc-group">
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+    </div>
+
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER — Page 1 -->
+<section class="slide title-slide" id="cover" data-search="cover building quality code delivery coding standards pull requests code review static code analysis salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">1 / 39</div>
+  <h2>Building — Quality Code Delivery</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Describe the methods to ensure the delivery of quality code, such as coding standards, pull requests, code review, and static code analysis · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS — Page 2 -->
+<section class="slide" id="toc-slide" data-search="table of contents coding standards pull requests code review static code analysis business scenario requirements solutions">
+  <div class="pgnum">2 / 39</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#coding-standards-overview">Coding Standards</a></li>
+    <li><a class="toc-link" href="#pull-requests-comparison">Pull Requests</a></li>
+    <li><a class="toc-link" href="#code-review-purpose">Code Review</a></li>
+    <li><a class="toc-link" href="#static-analysis-overview">Static Code Analysis</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES — Page 3 -->
+<section class="slide" id="learning-objectives" data-search="learning objectives coding conventions standards consistency pull requests code quality code reviews bugs best practices static code analysis automated checks business requirements quality code delivery">
+  <div class="pgnum">3 / 39</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the use of coding conventions and standards to add consistency to code.</li>
+    <li>Describe how pull requests can be utilized to improve code quality.</li>
+    <li>Describe the use of code reviews to catch bugs and ensure code quality and adherence to best practices.</li>
+    <li>Describe how to use static code analysis tools to conduct automated code checks.</li>
+    <li>Describe the methods that can be used to ensure the delivery of quality code for various business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION — Page 4 -->
+<section class="slide" id="introduction" data-search="introduction quality code coding conventions standards pull requests git-based workflows code review quality assurance static code analysis examination code consistency security bugs integrity codebase">
+  <div class="pgnum">4 / 39</div>
+  <h2>Introduction</h2>
+  <p>There are various methods that can be utilized to ensure the delivery of <strong>quality code</strong> in Salesforce. These include the creation of <strong>coding conventions and standards</strong>, the integral process of <strong>pull requests</strong> in Git-based workflows, the practice of <strong>code review</strong> for quality assurance, and the technique of <strong>static code analysis</strong> for the examination of code. These methods can be used to improve code consistency, enhance code security, catch bugs, and significantly improve the overall integrity of the codebase.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>All four quality pillars map directly to the Federal Reserve Bank of Chicago's engineering standards: coding conventions enforce consistency across teams with high turnover; pull requests (merge requests in GitLab) enforce segregation of duties — no developer merges their own code; code review is a mandatory peer gate before any merge to main; and static analysis runs automatically in the CI pipeline, providing an auditable quality record before deployment to regulated environments.</p>
+  </div>
+</section>
+
+<!-- ENSURING CODE QUALITY — Page 5 -->
+<section class="slide" id="ensuring-code-quality" data-search="ensuring code quality coding standards pull requests code review static code analysis overview four pillars git-based workflows quality assurance vulnerabilities">
+  <div class="pgnum">5 / 39</div>
+  <h2>Ensuring Code Quality</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Coding Standards</h4>
+      <p>Coding conventions/standards are guidelines for styling and structuring code to add consistency and ensure team adherence to the same principles.</p>
+    </div>
+    <div class="card">
+      <h4>Pull Requests</h4>
+      <p>In Git-based workflows, a pull request is a proposal to merge changes from one branch into another.</p>
+    </div>
+    <div class="card">
+      <h4>Code Review</h4>
+      <p>Code review is a quality assurance activity in which one or more people check the source code to catch bugs and ensure code quality and adherence to best practices.</p>
+    </div>
+    <div class="card">
+      <h4>Static Code Analysis</h4>
+      <p>Static code analysis examines the code without executing it to identify potential vulnerabilities, coding errors, and adherence to coding standards.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: CODING STANDARDS — Page 6 -->
+<section class="slide title-slide" id="section-coding-standards" data-search="section coding standards">
+  <div class="pgnum" style="color:#cbd6e6">6 / 39</div>
+  <h2>Coding Standards</h2>
+</section>
+
+<!-- CODING STANDARDS — OVERVIEW — Page 7 -->
+<section class="slide" id="coding-standards-overview" data-search="coding standards conventions guidelines styling structuring code consistency code quality clarity complexity naming frameworks reusable maintainable best practices apex benefits standardization debugging maintenance fewer bugs higher quality customer satisfaction">
+  <div class="pgnum">7 / 39</div>
+  <h2>Coding Standards</h2>
+  <p class="lede">Coding conventions/standards are <strong>guidelines for styling and structuring code</strong> to add consistency and ensure team adherence to the same principles.</p>
+  <h3>Code Quality</h3>
+  <p>Coding conventions help maintain the <strong>clarity and quality of code</strong> in Salesforce orgs as they grow and become more complex.</p>
+  <h3>Conventions</h3>
+  <p>Coding conventions cover <strong>naming conventions for Salesforce elements</strong>, <strong>frameworks</strong> for making code <strong>reusable and maintainable</strong>, and <strong>best practices for Apex coding</strong>.</p>
+  <h3>Benefits</h3>
+  <p>Benefits of coding conventions include <strong>standardization</strong>, <strong>easier debugging and maintenance</strong>, <strong>fewer bugs</strong>, and ultimately, <strong>higher quality Salesforce solutions</strong> leading to increased customer satisfaction.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked how you enforce code quality across a multi-team org, lead with coding conventions as the foundation. Conventions create the shared mental model that makes code reviews faster and static analysis rules meaningful. Without them, every review degenerates into style debates rather than substantive quality checks.</p>
+  </div>
+</section>
+
+<!-- CODING STANDARDS — NAMING & SUCCESS CLOUD CONVENTIONS — Page 8 -->
+<section class="slide" id="coding-standards-naming" data-search="coding standards team agreement no specific tools software commitment success cloud naming conventions salesforce entities standardize component identification apex classes PascalCase namespace prefix class name optional suffix controller extension SCT_NewOrderController">
+  <div class="pgnum">8 / 39</div>
+  <h2>Coding Standards — Naming &amp; Conventions</h2>
+  <p class="lede">Coding conventions/standards are <strong>guidelines for styling and structuring code</strong> to add consistency and ensure team adherence to the same principles.</p>
+  <h3>Team Agreement</h3>
+  <p>Implementing coding conventions requires <strong>no specific tools or software</strong>, just <strong>team agreement</strong> and <strong>commitment</strong> to follow these guidelines.</p>
+  <h3>Success Cloud Conventions</h3>
+  <p>Success Cloud Naming Conventions offer guidelines for <strong>naming common Salesforce entities</strong>, aiming to <strong>standardize component identification</strong>.</p>
+  <h3>Apex Classes</h3>
+  <p>For Apex classes, <strong>naming conventions</strong> suggest using <strong>PascalCase</strong>, including a <strong>namespace prefix</strong> (if applicable), the <strong>class name</strong>, and an <strong>optional suffix</strong> indicating the class type (e.g., Controller, Extension). For example, <code>SCT_NewOrderController</code>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a central bank, consistent naming conventions are not just developer ergonomics — they are required for traceable change management. When auditors ask which Apex class implements a particular business rule, a predictable naming scheme (namespace + class name + suffix) lets the ops team answer immediately without consulting the original developer. That traceability expectation is baked into Fed IT governance requirements.</p>
+  </div>
+</section>
+
+<!-- CODING STANDARDS — FRAMEWORKS & TRIGGER FRAMEWORK — Page 9 -->
+<section class="slide" id="coding-standards-frameworks" data-search="coding standards framework reusable highly optimized structure building block development speed code clarity debugging trigger framework structured efficient trigger management scalable traceable reusable atomic bypass recursion SOQL prevention shared result sets">
+  <div class="pgnum">9 / 39</div>
+  <h2>Coding Standards — Frameworks</h2>
+  <p class="lede">Coding conventions/standards are <strong>guidelines for styling and structuring code</strong> to add consistency and ensure team adherence to the same principles.</p>
+  <h3>Framework</h3>
+  <p>A framework is a <strong>reusable, highly optimized structure</strong> that acts as a <strong>building block</strong>, offering common functionality for developers to adapt to their needs, enhancing <strong>development speed</strong>, <strong>code clarity</strong>, and <strong>debugging</strong>.</p>
+  <h3>Trigger Framework</h3>
+  <p>A trigger framework is essential for <strong>structured, efficient trigger management</strong> in Salesforce.</p>
+  <h3>Good Trigger Framework</h3>
+  <p>A good trigger framework is <strong>scalable</strong>, <strong>traceable</strong>, <strong>reusable</strong>, <strong>atomic</strong> (ability to bypass specific triggers), and <strong>optimized</strong> (minimal SOQL calls, prevention of recursion, and shared result sets).</p>
+  <div class="note">The five attributes of a good trigger framework — scalable, traceable, reusable, atomic, optimized — are a favourite exam list. Atomic (bypassable) is the one candidates most commonly forget; it is critical for data migration and integration scenarios where triggers must be suppressed for specific operations.</div>
+</section>
+
+<!-- CODING STANDARDS — TRIGGER & ERROR LOGGING FRAMEWORKS — Page 10 -->
+<section class="slide" id="coding-standards-trigger-error" data-search="coding standards recommended trigger framework kevin o'hara SFDC trigger framework large-scale projects abstract TriggerHandler base class execution prevent recursion child classes context methods error logging framework records errors structured manner debugging custom object email notifications task creation">
+  <div class="pgnum">10 / 39</div>
+  <h2>Coding Standards — Trigger &amp; Error Logging Frameworks</h2>
+  <p class="lede">Coding conventions/standards are <strong>guidelines for styling and structuring code</strong> to add consistency and ensure team adherence to the same principles.</p>
+  <h3>Recommended Trigger Framework</h3>
+  <p><strong>Kevin O'Hara's SFDC Trigger Framework</strong> is recommended for <strong>large-scale projects</strong>. It features an abstract TriggerHandler base class to handle execution and prevent recursion, with child classes overriding specific trigger context methods.</p>
+  <h3>Error Logging Framework</h3>
+  <p>An error logging framework <strong>records errors in a structured manner</strong>, aiding in debugging and maintaining Salesforce orgs. Implementations should log errors to a custom object, enabling actions such as email notifications or task creation based on errors.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Interviewers will probe your trigger architecture stance. The correct answer at architect altitude is: one trigger per object, delegating to a handler class via a framework. Kevin O'Hara's pattern is the most commonly cited. Pair it with an error logging framework (log to a custom object, not just debug logs) and you demonstrate operational maturity — errors survive the transaction and are actionable by ops staff.</p>
+  </div>
+</section>
+
+<!-- CODING STANDARDS — BYPASS PATTERNS, TEST DATA FACTORY & TOOLS — Page 11 -->
+<section class="slide" id="coding-standards-bypass-tools" data-search="coding standards bypass patterns hierarchical custom settings custom permissions disable validation rules triggers specific users profiles org test data factory reusable methods generating test data development speed reliability unit tests tools source control git salesforce extensions VS code salesforce CLI CI/CD">
+  <div class="pgnum">11 / 39</div>
+  <h2>Coding Standards — Bypass Patterns, Test Data &amp; Tools</h2>
+  <p class="lede">Coding conventions/standards are <strong>guidelines for styling and structuring code</strong> to add consistency and ensure team adherence to the same principles.</p>
+  <h3>Bypass Patterns</h3>
+  <p><strong>Hierarchical custom settings</strong> or <strong>custom permissions</strong> can be utilized to temporarily disable configurations (like validation rules or triggers) for specific users, profiles, or the entire org.</p>
+  <h3>Test Data Factory</h3>
+  <p>A test data factory contains <strong>reusable methods</strong> for <strong>generating test data</strong>, speeding up development and enhancing the reliability of unit tests.</p>
+  <h3>Tools</h3>
+  <p>Various tools can be utilized to manage code quality. These include <strong>source control system like Git</strong>, <strong>Salesforce Extensions for VS Code</strong>, <strong>Salesforce CLI</strong>, and <strong>CI/CD tool</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Bypass patterns are a change-control concern at regulated institutions. Using hierarchical custom settings to suppress triggers/validation rules for specific integration users is the auditable, reversible pattern — it leaves a configuration trail. Using a hard-coded boolean flag deep in a class is not auditable and will fail a code review. The Fed's IT risk team will want to see that bypass capability exists, is documented, and is controlled by access management (permission sets / custom permissions), not by ad hoc code edits.</p>
+  </div>
+</section>
+
+<!-- CODING STANDARDS — APEX BEST PRACTICES & TDD — Page 12 -->
+<section class="slide" id="coding-standards-apex" data-search="coding standards using apex high performance batch processing sophisticated implementation logic apex best practices bulkifying DML statements built-in limits methods writing comments SOQL queries DML statements within loops TDD test-driven development modularized flexible extensible">
+  <div class="pgnum">12 / 39</div>
+  <h2>Coding Standards — Apex Best Practices &amp; TDD</h2>
+  <p class="lede">Coding conventions/standards are <strong>guidelines for styling and structuring code</strong> to add consistency and ensure team adherence to the same principles.</p>
+  <h3>Using Apex</h3>
+  <p>Apex code should only be used for <strong>high performance batch processing</strong> needs or <strong>highly sophisticated implementation logic</strong>.</p>
+  <h3>Apex Best Practices</h3>
+  <p>There are various best practices that apply to the use of Apex code. These include <strong>bulkifying DML statements</strong>, using the <strong>built-in Limits methods</strong>, <strong>writing comments</strong> with a good balance between quality and quantity, <strong>avoiding SOQL queries</strong> and <strong>DML statements within loops</strong>, etc.</p>
+  <h3>Using TDD</h3>
+  <p><strong>Test-Driven Development</strong> can be utilized for more modularized, flexible, and extensible code.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Governor limits are the Salesforce platform's hard ceiling — bulkification and avoiding SOQL-in-loops are the two most commonly cited violations in code reviews and static analysis scans. At architect level, the answer is not just "avoid them" but "enforce avoidance via static analysis (PMD rules) and code review checklists so the pipeline catches violations before they reach the sandbox."</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: PULL REQUESTS — Page 13 -->
+<section class="slide title-slide" id="section-pull-requests" data-search="section pull requests">
+  <div class="pgnum" style="color:#cbd6e6">13 / 39</div>
+  <h2>Pull Requests</h2>
+</section>
+
+<!-- PULL REQUESTS — COMPARISON & REVIEW — Page 14 -->
+<section class="slide" id="pull-requests-comparison" data-search="pull requests git-based workflows proposal merge changes branch comparison differences source branch target branch adding modifying deleting files review collaborators discuss proposed changes team members comment code reviews quality standards at least one other developer">
+  <div class="pgnum">14 / 39</div>
+  <h2>Pull Requests — Comparison, Review &amp; Standards</h2>
+  <p class="lede">In Git-based workflows, a pull request is a <strong>proposal to merge changes</strong> from one branch into another.</p>
+  <h3>Comparison</h3>
+  <p>A pull request displays the <strong>differences</strong> between the content in the <strong>source branch</strong> and the content in the <strong>target branch</strong>. It represents a <strong>change to the code (adding, modifying, or deleting files)</strong> on a branch that the author would like to incorporate in another branch.</p>
+  <h3>Review</h3>
+  <p>In a pull request, collaborators can <strong>review</strong> and <strong>discuss the proposed set of changes</strong> before integrating them with the main codebase. <strong>Team members</strong> can be invited to <strong>comment</strong> and <strong>complete code reviews</strong>.</p>
+  <h3>Quality &amp; Standards</h3>
+  <p>Every pull request should be reviewed by <strong>at least one other developer</strong> for <strong>code quality</strong> and <strong>adherence to standards</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, GitLab merge requests serve as the mandatory segregation-of-duties control — a developer cannot merge their own feature branch to main. The "at least one other reviewer" requirement is a compensating control that satisfies both the bank's internal IT risk framework and external examination findings around code change governance. This is not a nice-to-have; it is a required control.</p>
+  </div>
+</section>
+
+<!-- PULL REQUESTS — CONVERSATIONS & INFORMATION — Page 15 -->
+<section class="slide" id="pull-requests-conversations" data-search="pull requests conversations extended conversations automated testing facilitating code review showing status automated tests information summary proposed changes commits labels milestones assignees @mentioned individual contributors teams">
+  <div class="pgnum">15 / 39</div>
+  <h2>Pull Requests — Conversations, Testing &amp; Information</h2>
+  <p class="lede">In Git-based workflows, a pull request is a <strong>proposal to merge changes</strong> from one branch into another.</p>
+  <h3>Conversations</h3>
+  <p>A pull request gives a platform for having <strong>extended conversations</strong> about the changes between two branches.</p>
+  <h3>Automated Testing</h3>
+  <p>Pull requests help write better software by <strong>facilitating code review</strong> and <strong>showing the status of any automated tests</strong>.</p>
+  <h3>Information</h3>
+  <p>In a pull request, a <strong>summary of the proposed changes</strong> can be added, the <strong>changes made by commits</strong> can be reviewed, <strong>labels, milestones, and assignees</strong> can be added, and <strong>individual contributors or teams</strong> can be @mentioned.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The combination of automated test status + human code review inside a pull request is the canonical architect answer for "how do you prevent defects from reaching production?" The pipeline fails the merge if tests fail; the peer reviewer catches logic and standards issues the automated scan misses. Both gates must pass before merge — this two-layer model is what examiners and interviewers want to hear.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: CODE REVIEW — Page 16 -->
+<section class="slide title-slide" id="section-code-review" data-search="section code review">
+  <div class="pgnum" style="color:#cbd6e6">16 / 39</div>
+  <h2>Code Review</h2>
+</section>
+
+<!-- CODE REVIEW — PURPOSE & PREPARATION — Page 17 -->
+<section class="slide" id="code-review-purpose" data-search="code review peer review quality assurance activity check source code catch bugs code quality adherence best practices purpose enhance code quality maintainability detect bugs issues early facilitate knowledge sharing preparation goals review checklist documented clearly logic decisions">
+  <div class="pgnum">17 / 39</div>
+  <h2>Code Review — Purpose &amp; Preparation</h2>
+  <p class="lede">Code review, also called <strong>peer review</strong>, is a <strong>quality assurance activity</strong> in which one or more people <strong>check the source code</strong> to catch bugs and ensure code quality and adherence to best practices.</p>
+  <h3>Purpose</h3>
+  <p>The purpose of code review is to <strong>enhance code quality</strong> and <strong>maintainability</strong>, <strong>detect bugs and issues early</strong>, and <strong>facilitate knowledge sharing</strong> across the development team.</p>
+  <h3>Preparation</h3>
+  <p>The <strong>goals</strong> of the code review process should be identified. A <strong>review checklist</strong> should be prepared. Code should be <strong>documented clearly</strong> to explain the logic and decisions.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a regulated environment, code review documentation is part of the change record. The review checklist becomes an attestation artifact — the reviewer is certifying that the code meets specific quality and security criteria. Storing that checklist result in the GitLab merge request comment thread provides the audit trail that examiners look for when tracing a production incident back to the change that introduced it.</p>
+  </div>
+</section>
+
+<!-- CODE REVIEW — CHECKLIST & EFFECTIVE REVIEWS — Page 18 -->
+<section class="slide" id="code-review-checklist" data-search="code review checklist standards best practices naming conventions formatting frameworks scalable performant secure easy to understand maintainable effective reviews logical correctness efficiency alignment project requirements governor limits bulkification GitHub tools discussions">
+  <div class="pgnum">18 / 39</div>
+  <h2>Code Review — Checklist &amp; Effective Reviews</h2>
+  <p class="lede">Code review, also called <strong>peer review</strong>, is a <strong>quality assurance activity</strong> in which one or more people <strong>check the source code</strong> to catch bugs and ensure code quality and adherence to best practices.</p>
+  <h3>Review Checklist</h3>
+  <p>A code review should check whether the code follows <strong>standards and best practices</strong>, including the use of naming conventions, correct formatting, and frameworks. Furthermore, the code should be <strong>scalable</strong>, <strong>performant</strong>, <strong>secure</strong>, <strong>easy to understand</strong>, and <strong>easily maintainable</strong>.</p>
+  <h3>Effective Reviews</h3>
+  <p>Code should be reviewed for <strong>logical correctness</strong>, <strong>efficiency</strong>, and <strong>alignment</strong> with project requirements. It should be checked for compliance with Salesforce best practices, including <strong>governor limits</strong> and <strong>bulkification</strong>. Tools like <strong>GitHub</strong> can be used for facilitating code reviews and discussions.</p>
+  <div class="note">Governor limits and bulkification appear explicitly in the Salesforce code review checklist — this is an exam favourite. Any Apex code that performs SOQL or DML inside a loop, or that does not use collections for bulk operations, should fail the review.</div>
+</section>
+
+<!-- CODE REVIEW — AUTOMATION & ISSUES — Page 19 -->
+<section class="slide" id="code-review-automation" data-search="code review automation automated static code analysis tools automated testing tools source control CI/CD processes issues multiple triggers same object duplicated logic Apex classes Visualforce pages redundant Apex code new Salesforce features">
+  <div class="pgnum">19 / 39</div>
+  <h2>Code Review — Automation &amp; Common Issues</h2>
+  <p class="lede">Code review, also called <strong>peer review</strong>, is a <strong>quality assurance activity</strong> in which one or more people <strong>check the source code</strong> to catch bugs and ensure code quality and adherence to best practices.</p>
+  <h3>Automation &amp; Resolution</h3>
+  <p>The code review process should be <strong>automated</strong> as much as possible using tools such as <strong>static code analysis tools</strong> and <strong>automated testing tools</strong>. If issues are found and need to be resolved, changes should be committed to <strong>source control</strong> and <strong>run through CI/CD processes</strong>.</p>
+  <h3>Issues</h3>
+  <p>When evaluating the code in a Salesforce org, some issues that can be expected include <strong>multiple triggers</strong> on the same object, <strong>duplicated logic</strong> across Apex classes and Visualforce pages, existence of <strong>redundant Apex code</strong> that is no longer required due to new Salesforce features, etc.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Automating as much of the review as possible via CI pipeline gates is essential in a regulated org — it removes subjectivity and provides a consistent, documented enforcement record. At the Fed, "we ran static analysis and all findings were resolved or accepted with documented rationale" is the kind of attestation that satisfies the change advisory board. Manual review alone is insufficient evidence for an audit.</p>
+  </div>
+</section>
+
+<!-- CODE REVIEW — COMMUNICATION & FEEDBACK — Page 20 -->
+<section class="slide" id="code-review-communication" data-search="code review communication specific actionable feedback code improvement positive respectful tone developers decisions reasoning incorporating feedback revised prioritizing critical changes disagreements misunderstandings discussed resolved collaboratively only be merged critical issues code meets project standards">
+  <div class="pgnum">20 / 39</div>
+  <h2>Code Review — Communication &amp; Incorporating Feedback</h2>
+  <p class="lede">Code review, also called <strong>peer review</strong>, is a <strong>quality assurance activity</strong> in which one or more people <strong>check the source code</strong> to catch bugs and ensure code quality and adherence to best practices.</p>
+  <h3>Communication</h3>
+  <p>During code reviews, <strong>specific, actionable feedback</strong> focused on code improvement should be provided. All feedback should maintain a <strong>positive and respectful tone</strong>. Developers should be encouraged to explain their <strong>decisions</strong> and <strong>reasoning</strong> when necessary.</p>
+  <h3>Incorporating Feedback</h3>
+  <p>Code should be <strong>revised</strong> based on review feedback, <strong>prioritizing critical changes</strong>. <strong>Disagreements</strong> or <strong>misunderstandings</strong> should be discussed and resolved collaboratively. Changes should <strong>only be merged</strong> after all <strong>critical issues</strong> are addressed and the <strong>code meets project standards</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The "only be merged after all critical issues are addressed" rule is the merge gate. In practice this means the pull request cannot be approved until all review threads are resolved — a feature enforced by GitLab/GitHub branch protection rules. As an architect you define the branch protection policy; as a lead you model the tone of constructive, actionable feedback that makes reviews a learning exercise, not a gatekeeping exercise.</p>
+  </div>
+</section>
+
+<!-- CODE REVIEW — EVALUATION — Page 21 -->
+<section class="slide" id="code-review-evaluation" data-search="code review evaluation effectiveness regularly evaluated feedback team members improve code reviews changes implemented feedback assessments continuous improvement process">
+  <div class="pgnum">21 / 39</div>
+  <h2>Code Review — Evaluation</h2>
+  <p class="lede">Code review, also called <strong>peer review</strong>, is a <strong>quality assurance activity</strong> in which one or more people <strong>check the source code</strong> to catch bugs and ensure code quality and adherence to best practices.</p>
+  <h3>Evaluation</h3>
+  <p>The effectiveness of the code review process should be <strong>regularly evaluated</strong>. Feedback should be solicited from team members on how to <strong>improve code reviews</strong>. <strong>Changes</strong> should be implemented to the code review process based on <strong>feedback and assessments</strong>.</p>
+  <div class="note">Treating the code review process itself as something to be continuously improved — not just the code — is the maturity marker that distinguishes an architect mindset from a developer mindset. Tracking metrics like review turnaround time, defect escape rate, and recurrent findings enables data-driven process improvement.</div>
+</section>
+
+<!-- APPEXCHANGE SECURITY REVIEW — Page 22 -->
+<section class="slide" id="appexchange-security-review" data-search="appexchange security review salesforce security team partner commitment protect customer data security review process high standards security threats common web security injection sensitive data exposure session hijacking cross-site scripting salesforce-specific CRUD FLS objects failure most common reason fail">
+  <div class="pgnum">22 / 39</div>
+  <h2>AppExchange Security Review</h2>
+  <p class="lede">The Salesforce security team conducts <strong>reviews</strong> before <strong>green-lighting solutions for the AppExchange</strong>.</p>
+  <h3>Partner Commitment</h3>
+  <p>Partners are responsible for leveraging the platform to <strong>protect customer data</strong>, with the <strong>security review process</strong> ensuring <strong>high standards</strong>.</p>
+  <h3>Security Threats</h3>
+  <p>Partners are responsible for protecting their solutions from the <strong>most common web security threats</strong>, such as injection, sensitive data exposure, session hijacking, and cross-site scripting.</p>
+  <h3>Salesforce-Specific Security</h3>
+  <p><strong>CRUD/FLS</strong> must be considered when designing a solution since it is related to how objects interact within the solution. <strong>Failure to properly enforce CRUD/FLS security</strong> is the <strong>most common reason</strong> prospect AppExchange solutions fail the security review.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>CRUD/FLS enforcement is the #1 AppExchange security review failure — memorize this. In code reviews and static analysis, PMD's Apex security category and the Salesforce Code Analyzer specifically flag CRUD/FLS violations. Enforcing it in code review means checking that every SOQL query and DML operation is preceded by an appropriate access check (Schema.sObjectType.isAccessible(), WITH SECURITY_ENFORCED, or the Security.stripInaccessible() pattern).</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: STATIC CODE ANALYSIS — Page 23 -->
+<section class="slide title-slide" id="section-static-analysis" data-search="section static code analysis">
+  <div class="pgnum" style="color:#cbd6e6">23 / 39</div>
+  <h2>Static Code Analysis</h2>
+</section>
+
+<!-- STATIC CODE ANALYSIS — OVERVIEW & TOOLS — Page 24 -->
+<section class="slide" id="static-analysis-overview" data-search="static code analysis examines code without executing identify potential vulnerabilities coding errors adherence coding standards importance code quality security performance benefits detects code issues early saves time reduces costs improves code security vulnerabilities ensures compliance best practices tools PMD CodeScan Clayton Salesforce CLI Scanner">
+  <div class="pgnum">24 / 39</div>
+  <h2>Static Code Analysis — Overview &amp; Benefits</h2>
+  <p class="lede">Static code analysis <strong>examines the code</strong> without executing it to <strong>identify potential vulnerabilities</strong>, <strong>coding errors</strong>, and <strong>adherence to coding standards</strong>.</p>
+  <h3>Importance</h3>
+  <p>Static code analysis ensures <strong>code quality</strong>, <strong>security</strong>, and <strong>performance</strong> within Salesforce applications.</p>
+  <h3>Benefits</h3>
+  <p>It <strong>detects code issues early</strong> in the development cycle, saving time and reducing costs, <strong>improves code security</strong> by identifying vulnerabilities that could be exploited, and <strong>ensures compliance with Salesforce best practices</strong> and <strong>coding standards</strong>.</p>
+  <h3>Tools</h3>
+  <p>Various Salesforce-specific tools are available for static code analysis. These include <strong>PMD</strong>, <strong>CodeScan</strong>, <strong>Clayton</strong>, and <strong>Salesforce CLI Scanner</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Static analysis in the CI pipeline is the automated quality gate that a regulated institution relies upon to produce a consistent, repeatable, documented code quality record for every change. When examiners ask "how do you know the code deployed to production meets your standards?" the answer is: "our GitLab CI pipeline runs PMD/Salesforce Code Analyzer on every merge request; the pipeline fails if critical findings exceed our defined threshold, and all findings are stored in the merge request record as evidence."</p>
+  </div>
+</section>
+
+<!-- STATIC CODE ANALYSIS — PMD, CODESCAN, CLAYTON — Page 25 -->
+<section class="slide" id="static-analysis-tools-detail" data-search="static code analysis apex PMD open-source static code analysis tool supports apex visualforce common programming flaws unused variables empty catch blocks unnecessary object creation codescan comprehensive code analysis apex visualforce lightning components clayton cloud-based code quality tool automated reviews coding standards enforcement">
+  <div class="pgnum">25 / 39</div>
+  <h2>Static Code Analysis — PMD, CodeScan &amp; Clayton</h2>
+  <p class="lede">Static code analysis <strong>examines the code</strong> without executing it to <strong>identify potential vulnerabilities</strong>, <strong>coding errors</strong>, and <strong>adherence to coding standards</strong>.</p>
+  <h3>Apex PMD</h3>
+  <p><strong>PMD</strong> is an <strong>open-source static code analysis tool</strong> that supports Apex and Visualforce. It finds <strong>common programming flaws</strong> like unused variables, empty catch blocks, unnecessary object creation, and so forth.</p>
+  <h3>CodeScan</h3>
+  <p><strong>CodeScan</strong> is a <strong>comprehensive code analysis tool</strong> specifically designed for Salesforce, covering Apex, Visualforce, and Lightning components.</p>
+  <h3>Clayton</h3>
+  <p><strong>Clayton</strong> is a <strong>cloud-based code quality tool</strong> tailored for Salesforce, offering automated reviews and coding standards enforcement.</p>
+  <div class="note">PMD is the most exam-relevant tool because it is free, open-source, and widely referenced in Salesforce documentation and the Salesforce Code Analyzer (which bundles PMD under the hood). CodeScan and Clayton are paid commercial alternatives with broader Salesforce-native coverage.</div>
+</section>
+
+<!-- STATIC CODE ANALYSIS — CLI SCANNER & IMPLEMENTATION — Page 26 -->
+<section class="slide" id="static-analysis-cli-scanner" data-search="static code analysis salesforce CLI scanner plugin salesforce CLI PMD ESLint apex visualforce lightning web components LWC aura components implementation salesforce DX seamless integration development workflow routinely check code configuration configured match project coding standards security policies">
+  <div class="pgnum">26 / 39</div>
+  <h2>Static Code Analysis — Salesforce CLI Scanner &amp; Implementation</h2>
+  <p class="lede">Static code analysis <strong>examines the code</strong> without executing it to <strong>identify potential vulnerabilities</strong>, <strong>coding errors</strong>, and <strong>adherence to coding standards</strong>.</p>
+  <h3>Salesforce CLI Scanner</h3>
+  <p><strong>Salesforce CLI Scanner</strong> is a plugin for <strong>Salesforce CLI</strong> that leverages <strong>PMD</strong> and <strong>ESLint</strong> to scan Apex, Visualforce, Lightning Web Components (LWC), and Aura components.</p>
+  <h3>Implementation</h3>
+  <p><strong>Salesforce DX</strong> can be used for a seamless integration of a <strong>static code analysis tool</strong> into the development workflow to routinely check the code.</p>
+  <h3>Configuration</h3>
+  <p>Static code analysis tools can be <strong>configured to match</strong> the <strong>project's coding standards</strong> and <strong>security policies</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The Salesforce CLI Scanner (sf scanner run) is the tool that slots into a GitLab CI job step. Because it wraps PMD and ESLint in a single CLI invocation, it can be configured once in the pipeline YAML and produces machine-readable output (JSON/CSV) that can be parsed to fail the build on critical violations. Configuring it to match the org's security policies — e.g., requiring CRUD/FLS checks — makes the pipeline a security gate, not just a style gate.</p>
+  </div>
+</section>
+
+<!-- STATIC CODE ANALYSIS — CI/CD INTEGRATION — Page 27 -->
+<section class="slide" id="static-analysis-cicd" data-search="static code analysis review address findings reviewed addressed code review process development team educated common issues prevent future coding CI/CD automated CI/CD pipelines ensure consistent code quality security checks before deployment Jenkins GitLab CI GitHub Actions code commits">
+  <div class="pgnum">27 / 39</div>
+  <h2>Static Code Analysis — CI/CD Integration</h2>
+  <p class="lede">Static code analysis <strong>examines the code</strong> without executing it to <strong>identify potential vulnerabilities</strong>, <strong>coding errors</strong>, and <strong>adherence to coding standards</strong>.</p>
+  <h3>Review &amp; Address</h3>
+  <p>Findings from the static code analysis tool can be <strong>reviewed and addressed</strong> as part of the code review process. The development team can be educated on <strong>common issues</strong> identified by the tool to <strong>prevent them in future coding</strong>.</p>
+  <h3>CI/CD</h3>
+  <p>Static code analysis can be <strong>automated as part of CI/CD pipelines</strong> to <strong>ensure consistent code quality</strong> and <strong>security checks before deployment</strong>. Tools like <strong>Jenkins</strong>, <strong>GitLab CI</strong>, and <strong>GitHub Actions</strong> can be configured to run static code analysis tools automatically on <strong>code commits</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The complete quality pipeline answer: (1) developer runs scanner locally before pushing; (2) GitLab CI job runs scanner on every commit to the feature branch; (3) merge request requires passing scan + passing tests + at least one approved peer review; (4) findings are stored in the MR as evidence. This end-to-end story demonstrates shift-left quality and gives regulators the documented control chain they require.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO — Page 28 -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">28 / 39</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO — Page 29 -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic gourmet solutions food industry US France Italy Japan gourmet product sales supply chain logistics customer engagement enhance salesforce applications new features bugs updates complexity salesforce architect coding standards pull requests code reviews static code analysis quality code maintenance codebase">
+  <div class="pgnum">29 / 39</div>
+  <h2>Business Scenario — Cosmic Gourmet Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Gourmet Solutions, a leading global provider in the food industry, with operations spanning the US, France, Italy, and Japan, leverages Salesforce to manage its intricate network of gourmet product sales, supply chain logistics, and customer engagement. As it embarks on an ambitious project to enhance its Salesforce applications — aiming to introduce new features, swiftly address bugs, and implement updates — the complexity of its development processes surges. Recognizing the need for specialized expertise, the company seeks the guidance of a Salesforce architect. This expert needs to facilitate the adoption of best practices in coding standards, pull requests, code reviews, and static code analysis, ensuring the delivery of quality code and proper maintenance of the existing codebase.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS — Page 30 -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">30 / 39</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 — Page 31 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 multiple teams different projects inconsistently named variables lack best practices bugs increasing sprint understanding code changes delays delivery new features updates architect recommend methods practices improve performance teams">
+  <div class="pgnum">31 / 39</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company has multiple teams working on different projects. During code reviews, several inconsistently named variables and lack of best practices have been identified. The number of bugs has been increasing after each sprint. They need more time to understand the code and make changes after each sprint, which often delays the delivery of new features and updates. The architect must recommend methods and practices to face these challenges and improve the performance of the teams.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 — Page 32 -->
+<section class="slide" id="solution-1" data-search="solution 1 code quality consistency define follow coding standards static code analysis tool sprint review process code reviews development standards created teams trained">
+  <div class="pgnum">32 / 39</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>In order to improve code quality and consistency, the teams should <strong>define</strong> and <strong>follow coding standards</strong>. The standards should be enforced using a <strong>static code analysis tool</strong>. The performance of the teams can be improved by implementing a <strong>sprint review process</strong> that involves code reviews. The static code analysis tool should be used before the manual reviews. Also, <strong>development standards</strong> should be created, and the teams should be <strong>trained</strong> in those standards.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This solution pattern — define standards, enforce with static analysis, then human review — is exactly the layered control approach that a regulated institution's change advisory board expects. Static analysis removes the subjective and repetitive findings so that human reviewers can focus on business logic correctness, security, and architectural alignment. Training on standards ensures the feedback loop closes: findings become learning, not just blockers.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 — Page 33 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 CI/CD pipeline CTO quality assurance techniques minimize defects code quality code security code review software licenses developers architect practices secure code reviews">
+  <div class="pgnum">33 / 39</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Most of the development teams have been using a CI/CD pipeline. The CTO would like to incorporate quality assurance techniques into the CI/CD processes to minimize defects in the applications, improve code quality, and also improve code security. In addition, the company has acquired code review software licenses to help the developers with code quality. The architect needs to recommend practices for secure code reviews.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 — Page 34 -->
+<section class="slide" id="solution-2" data-search="solution 2 static code analysis automated testing CI/CD pipelines minimize defects deployment testing sandbox manual code review pull requests secure code reviews human efforts automated checks code review software code review checklist consistency">
+  <div class="pgnum">34 / 39</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p><strong>Static code analysis</strong> and <strong>automated testing</strong> should be incorporated into the CI/CD pipelines to <strong>minimize defects</strong> in the applications. Before deployment to the testing sandbox, <strong>static code analysis</strong> and <strong>manual code review</strong> should be performed. For the improvement of code security, <strong>pull requests</strong> can be utilized for secure code reviews. <strong>Human efforts</strong> can be combined with <strong>automated checks</strong> by the code review software. A <strong>code review checklist</strong> should be generated to ensure consistency of reviews.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This solution illustrates the "shift-left" principle: quality gates run as early as possible in the pipeline (static analysis on commit, before reaching the sandbox). The checklist is what makes the human review consistent and auditable — reviewers attest to specific criteria, not just "looks good to me." This pattern directly maps to the exam scenario of "how do you improve code security in a CI/CD context."</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 3 — Page 35 -->
+<section class="slide" id="requirement-3" data-search="requirement 3 France separate salesforce org systems integration partner apex classes visualforce pages customer requirements evaluate code identify issues continuous integration process manage code quality reviewed tested validated upstream deployment process">
+  <div class="pgnum">35 / 39</div>
+  <h2>Requirement 3</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company's employees in France use a separate Salesforce org to manage its operations. It was implemented several years ago by a Salesforce Systems Integration Partner. Since then, various changes have been made to its Apex classes and Visualforce pages in response to customer requirements. The architect needs to evaluate the code and identify issues that should be addressed. In addition, the company wants to build a continuous integration process for the org to help manage code quality. All the developed code should be reviewed, tested, and validated in the upstream deployment process.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 3 — Page 36 -->
+<section class="slide" id="solution-3" data-search="solution 3 code quality issues multiple triggers same object duplicated logic apex classes visualforce pages obsolete apex classes new salesforce functionality continuous integration source control git CI/CD tool salesforce extensions VS code salesforce CLI automated testing test-driven development code reviews improve code quality">
+  <div class="pgnum">36 / 39</div>
+  <h2>Solution 3</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>When evaluating the code in the org, the architect can expect various code quality issues, such as <strong>multiple triggers</strong> on the same object, <strong>duplicated logic</strong> across Apex classes and Visualforce pages, and <strong>obsolete Apex classes</strong> that are no longer required due to the introduction of new functionality by Salesforce. For the continuous integration process, a <strong>source control system</strong> such as Git, a <strong>CI/CD tool</strong>, <strong>Salesforce Extensions for VS Code</strong>, and <strong>Salesforce CLI</strong> can be utilized. <strong>Automated testing</strong> and <strong>test-driven development</strong> should be incorporated into the process. Development teams should perform <strong>code reviews</strong> to improve code quality.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The three expected code issues — multiple triggers, duplicated logic, obsolete classes — are the signature of an org that has grown organically without governance. Identifying them systematically (via PMD scan + architectural review) and then building a CI process around Git + pipeline + code review closes the governance gap. For a Fed context: the source control system provides the immutable audit trail of every change; the pipeline enforces quality gates; and code review provides human attestation before anything reaches the production org.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 4 — Page 37 -->
+<section class="slide" id="requirement-4" data-search="requirement 4 lightning bolt solution food product management appexchange marketplace security review architect related considerations">
+  <div class="pgnum">37 / 39</div>
+  <h2>Requirement 4</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company has started working with a Salesforce partner to develop a Lightning Bolt solution for food product management for the AppExchange marketplace. The solution will be submitted for security review. The architect must provide any related considerations.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 4 — Page 38 -->
+<section class="slide" id="solution-4" data-search="solution 4 appexchange security review protected most common web security threats injection sensitive data exposure session hijacking cross-site scripting CRUD FLS objects interact failure properly enforce most common reason fail security review">
+  <div class="pgnum">38 / 39</div>
+  <h2>Solution 4</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Before submitting the solution for security review, the partner must ensure that the solution is <strong>protected</strong> from the <strong>most common web security threats</strong>, such as injection, sensitive data exposure, session hijacking, and cross-site scripting. <strong>CRUD/FLS</strong> must be considered since it is related to how objects interact within the solution. <strong>Failure to properly enforce CRUD/FLS</strong> security is the most common reason prospect AppExchange solutions fail the security review.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The CRUD/FLS failure point is the single most important fact in this slide for the exam. The architect's job before an AppExchange submission is to run the Salesforce Security Scanner and manually audit every SOQL/DML operation for access checks. The four web security threats (injection, sensitive data exposure, session hijacking, XSS) map directly to OWASP Top 10 categories — knowing both the Salesforce framing and the OWASP framing makes for a complete interview answer.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE — Page 39 -->
+<section class="slide" id="learn-more" data-search="learn more success cloud naming conventions salesforce naming conventions pull requests salesforce code review checklist appexchange security review learn secure development best practices further reading trailhead resources">
+  <div class="pgnum">39 / 39</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Success Cloud Naming Conventions</li>
+    <li>Salesforce Naming Conventions</li>
+    <li>Pull Requests</li>
+    <li>Salesforce Code Review Checklist</li>
+    <li>AppExchange Security Review</li>
+    <li>Learn Secure Development Best Practices</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key terms decision rules scenario solution patterns coding standards pull requests code review static code analysis apex best practices trigger framework PMD CRUD FLS governor limits bulkification CI/CD GitLab peer review appexchange security">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Quality Code Delivery</h2>
+
+  <h3>Four Pillars of Quality Code</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Pillar</th><th>What It Is</th><th>Key Point</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Coding Standards</strong></td>
+        <td>Guidelines for styling and structuring code</td>
+        <td>Team agreement + commitment; no special tooling required. Apex: PascalCase + namespace prefix + suffix (e.g. SCT_NewOrderController).</td>
+      </tr>
+      <tr>
+        <td><strong>Pull Requests</strong></td>
+        <td>Proposal to merge changes from one branch into another</td>
+        <td>Every PR reviewed by at least one other developer; shows diff, automated test status, and enables discussion. Segregation of duties — author cannot self-merge.</td>
+      </tr>
+      <tr>
+        <td><strong>Code Review</strong></td>
+        <td>Quality assurance activity to catch bugs and enforce best practices</td>
+        <td>Peer review; checklist covers standards, scalability, security, governor limits, bulkification. Automate first; human review catches what tools miss. Only merge after all critical issues resolved.</td>
+      </tr>
+      <tr>
+        <td><strong>Static Code Analysis</strong></td>
+        <td>Examines code without executing it</td>
+        <td>PMD (open-source, Apex/VF), CodeScan (Apex/VF/LWC), Clayton (cloud-based), Salesforce CLI Scanner (PMD + ESLint). Integrate into CI/CD on every commit.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Apex Best Practices — Quick Reference</h3>
+  <ul>
+    <li>Use Apex only for high-performance batch processing or highly sophisticated logic (prefer declarative otherwise).</li>
+    <li><strong>Bulkify DML statements</strong> — collect records in lists, perform a single DML at the end.</li>
+    <li><strong>Never SOQL or DML inside a loop</strong> — violates governor limits; caught by PMD and code review.</li>
+    <li>Use <strong>Limits methods</strong> to monitor consumption at runtime.</li>
+    <li>Write comments with a balance of quality and quantity.</li>
+    <li>Use <strong>TDD</strong> for more modularized, extensible code.</li>
+  </ul>
+
+  <h3>Trigger Framework — Five Attributes</h3>
+  <div class="cards">
+    <div class="card"><h4>Scalable</h4><p>Handles growing volume without architectural rework.</p></div>
+    <div class="card"><h4>Traceable</h4><p>Execution path is visible and debuggable.</p></div>
+    <div class="card"><h4>Reusable</h4><p>Logic shared across triggers via handler classes.</p></div>
+    <div class="card"><h4>Atomic (Bypassable)</h4><p>Specific triggers can be suppressed per user/profile/org via custom settings or custom permissions.</p></div>
+    <div class="card"><h4>Optimized</h4><p>Minimal SOQL calls, recursion prevention, shared result sets.</p></div>
+  </div>
+
+  <h3>Scenario → Solution Patterns</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Scenario</th><th>Canonical Solution</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Inconsistent naming, rising bug count, slow delivery across multiple teams</td><td>Define coding standards + enforce with static analysis tool + sprint code review process + training</td></tr>
+      <tr><td>Need to add QA to CI/CD pipeline + improve code security</td><td>Static analysis + automated testing in pipeline; pull requests for secure review; human + automated checks combined; code review checklist</td></tr>
+      <tr><td>Legacy org with unknown code quality; need to build CI process</td><td>Expect: multiple triggers per object, duplicated logic, obsolete classes. Solution: Git + CI/CD tool + Salesforce CLI + automated testing + TDD + code reviews</td></tr>
+      <tr><td>AppExchange solution submission preparation</td><td>Protect from injection/XSS/session hijacking/data exposure; enforce CRUD/FLS on all object interactions (most common failure reason)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Static Analysis Tool Comparison</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Tool</th><th>Type</th><th>Covers</th><th>Key Use</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>PMD</strong></td><td>Open-source</td><td>Apex, Visualforce</td><td>Common programming flaws (unused vars, empty catch, unnecessary object creation)</td></tr>
+      <tr><td><strong>Salesforce CLI Scanner</strong></td><td>Free Salesforce plugin</td><td>Apex, VF, LWC, Aura</td><td>PMD + ESLint in one CLI; integrates into CI pipelines via sf scanner run</td></tr>
+      <tr><td><strong>CodeScan</strong></td><td>Commercial</td><td>Apex, VF, Lightning</td><td>Comprehensive Salesforce-specific analysis</td></tr>
+      <tr><td><strong>Clayton</strong></td><td>Commercial (cloud)</td><td>Salesforce platform</td><td>Automated reviews + coding standards enforcement</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>CRUD/FLS failure is the #1 AppExchange security review failure</strong> — always check object/field access before every SOQL and DML.</li>
+    <li><strong>Static analysis runs before manual code review</strong> — automated checks first so human reviewers focus on logic, not style.</li>
+    <li><strong>PMD is open-source and Apex/VF focused</strong>; Salesforce CLI Scanner wraps PMD + ESLint for LWC/Aura too.</li>
+    <li><strong>Pull request = merge request in GitLab</strong> — same concept, different platform terminology. The "at least one reviewer" rule enforces segregation of duties.</li>
+    <li><strong>Kevin O'Hara's SFDC Trigger Framework</strong> is the recommended framework for large-scale projects; abstract TriggerHandler base class, child classes override context methods.</li>
+    <li><strong>Bypass patterns use hierarchical custom settings or custom permissions</strong> — not hard-coded booleans. Custom settings/permissions are auditable, reversible, and access-controlled.</li>
+    <li><strong>Error logging to a custom object</strong> (not just debug logs) is the production-grade pattern — errors survive the transaction and can trigger notifications or tasks.</li>
+    <li><strong>TDD produces more modularized, flexible, extensible code</strong> — exam may ask why TDD is recommended for Apex.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For the Federal Reserve Bank of Chicago Salesforce Platform Engineer role, every quality pillar maps to a specific control requirement: <strong>Coding standards</strong> ensure consistency and traceability across team changes; <strong>pull/merge requests</strong> enforce segregation of duties (no self-merge) and provide the change record; <strong>code review</strong> with a formal checklist provides the human attestation that change-advisory boards require; and <strong>static analysis in the CI pipeline</strong> produces an automated, objective, repeatable quality record for every commit — the kind of documented evidence that satisfies examiners during audits and IT risk reviews. When you can describe the full chain from coding standard to pipeline gate to merge approval to deployment, you are speaking at the architect altitude the role requires.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

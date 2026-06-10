@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing — Test Execution &amp; Coverage — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Testing — Test Execution &amp; Coverage</h1>
+  <div class="sub">Given a customer testing strategy, describe the appropriate test execution methodology and coverage requirements · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (37 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Test Execution Methodology</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#section-execution-methodology">Section: Test Execution Methodology</a></li>
+      <li><a href="#tem-test-plan">Test Plan &amp; Types of Testing</a></li>
+      <li><a href="#tem-coverage-automation">Acceptance Criteria, Coverage &amp; Automation</a></li>
+      <li><a href="#tem-monitoring-stakeholders">Monitoring &amp; Stakeholders</a></li>
+    </ul>
+    <h3>Apex Test Execution</h3>
+    <ul>
+      <li><a href="#section-apex-execution">Section: Apex Test Execution</a></li>
+      <li><a href="#apex-running">Executing Apex Unit Tests — Steps</a></li>
+      <li><a href="#apex-tools">Executing Apex Unit Tests — Tools</a></li>
+      <li><a href="#apex-groupings">Executing Apex Unit Tests — Groupings &amp; Options</a></li>
+      <li><a href="#apex-subset">Executing Apex Unit Tests — Subset &amp; Deployment</a></li>
+      <li><a href="#apex-email-callouts">Executing Apex Unit Tests — Email &amp; Callouts</a></li>
+      <li><a href="#apex-limits">Executing Apex Unit Tests — Limits &amp; Production Data</a></li>
+      <li><a href="#apex-mock-object">Using a Mock Object</a></li>
+    </ul>
+    <h3>Code Coverage</h3>
+    <ul>
+      <li><a href="#section-code-coverage">Section: Code Coverage</a></li>
+      <li><a href="#coverage-overview">Code Coverage — Overview</a></li>
+      <li><a href="#coverage-inspection">Code Coverage — Inspection &amp; Discrepancies</a></li>
+      <li><a href="#coverage-percentage">Code Coverage — Percentage Formula</a></li>
+    </ul>
+    <h3>Testing Lightning Components</h3>
+    <ul>
+      <li><a href="#section-lightning">Section: Testing Lightning Components</a></li>
+      <li><a href="#lwc-jest">Testing Lightning Web Components — Jest</a></li>
+      <li><a href="#lwc-test-file">Testing Lightning Web Components — Test File &amp; Blocks</a></li>
+      <li><a href="#lwc-shadowroot">Testing Lightning Web Components — ShadowRoot &amp; Promises</a></li>
+      <li><a href="#aura-components">Testing Aura Components</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Business Scenario — Cosmic Web Solutions</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1-part1">Requirement 1 (Part 1)</a></li>
+      <li><a href="#requirement-1-part2">Requirement 1 (Part 2)</a></li>
+      <li><a href="#solution-1-part1">Solution 1 (Part 1)</a></li>
+      <li><a href="#solution-1-part2">Solution 1 (Part 2)</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2-part1">Solution 2 (Part 1)</a></li>
+      <li><a href="#solution-2-part2">Solution 2 (Part 2)</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- PAGE 1: COVER -->
+<section class="slide title-slide" id="cover" data-search="cover testing test execution coverage salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Testing — Test Execution &amp; Coverage</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer testing strategy, describe the appropriate test execution methodology and coverage requirements · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- PAGE 2: TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents test execution methodology apex test execution code coverage testing lightning components business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#tem-test-plan">Test Execution Methodology</a></li>
+    <li><a class="toc-link" href="#apex-running">Apex Test Execution</a></li>
+    <li><a class="toc-link" href="#coverage-overview">Code Coverage</a></li>
+    <li><a class="toc-link" href="#lwc-jest">Testing Lightning Components</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1-part1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- PAGE 3: LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives test execution methodology apex unit tests code coverage lightning web components aura components coverage requirements customer requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the considerations for defining an appropriate test execution methodology.</li>
+    <li>Identify the options and considerations for executing Apex unit tests.</li>
+    <li>Describe the code coverage requirements that are applicable to the execution of Apex unit tests.</li>
+    <li>Describe how to test Lightning web components and Aura components.</li>
+    <li>Describe the appropriate test execution methodology and coverage requirements for the given customer requirements.</li>
+  </ul>
+</section>
+
+<!-- PAGE 4: INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction test execution methodology structured approach comprehensive coverage alignment best practices apex classes page developer console vs code metadata api runspecifiedtests mock object http callouts starttest stoptest governor limits jest aura accessibility javascript webdriver">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In Salesforce, a <strong>test execution methodology</strong> is essential for a structured approach to executing tests, ensuring comprehensive coverage and alignment with best practices. Various <strong>tools</strong> are available for the <strong>execution of Apex unit tests</strong>, including Apex Classes page, Developer Console, and VS Code.</p>
+  <p>When using <strong>Metadata API</strong> for a deployment, a <strong>subset of tests</strong> can be run using the <strong>RunSpecifiedTests</strong> test level. Using a <strong>mock object</strong> is necessary to test Apex code that performs <strong>HTTP callouts</strong>. The <strong>startTest()</strong> and <strong>stopTest()</strong> methods can be used to <strong>reset governor limits</strong> in Apex unit tests.</p>
+  <p>For testing Lightning components, the <strong>Jest</strong> framework can be utilized. <strong>Aura component accessibility tests</strong> can be run in two environments: <strong>JavaScript</strong> and <strong>WebDriver</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, structured test execution with documented methodology is not optional — it is a release-control requirement. Code coverage gates enforced during CI/CD deployments (e.g., GitLab pipelines) provide the automated, auditable evidence that every production change met the minimum quality bar before it was promoted. The 75% coverage floor is the statutory floor; a mature regulated org raises that bar further.</p>
+  </div>
+</section>
+
+<!-- PAGE 5: OVERVIEW -->
+<section class="slide" id="overview" data-search="overview test execution methodology code coverage apex test execution testing lightning components coverage requirements runspecifiedtests jest aura accessibility javascript webdriver">
+  <div class="pgnum">Page 5 · Overview</div>
+  <h2>Test Execution Methodology &amp; Coverage Requirements</h2>
+  <p class="lede">Four interconnected areas define the Salesforce test execution and coverage landscape.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Test Execution Methodology</h4>
+      <p>A test execution methodology should focus on aspects such as a test plan, types of testing, test scripts, code coverage, automation, monitoring, and stakeholder engagement.</p>
+    </div>
+    <div class="card">
+      <h4>Code Coverage</h4>
+      <p>Code coverage numbers are generated every time one or more tests are executed. At least <strong>75%</strong> of Apex code must be covered by unit tests for a successful deployment.</p>
+    </div>
+    <div class="card">
+      <h4>Apex Test Execution</h4>
+      <p>Various options and considerations are applicable to the execution of Apex unit tests. For instance, a subset of tests can be executed during a deployment using the <strong>RunSpecifiedTests</strong> test level.</p>
+    </div>
+    <div class="card">
+      <h4>Testing Lightning Components</h4>
+      <p>Lightning web components and Aura components can be tested using the Jest framework. Apex controller can be tested using test classes. Aura accessibility tests can be run in JavaScript and WebDriver.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 6: SECTION DIVIDER — TEST EXECUTION METHODOLOGY -->
+<section class="slide title-slide" id="section-execution-methodology" data-search="section test execution methodology">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Test Execution Methodology</h2>
+</section>
+
+<!-- PAGE 7: TEM — TEST PLAN & TYPES OF TESTING -->
+<section class="slide" id="tem-test-plan" data-search="test execution methodology test plan types of testing structured approach comprehensive coverage alignment best practices business processes configuration customization unit integration system uat user acceptance testing performance testing">
+  <div class="pgnum">Page 7 · Test Plan &amp; Types of Testing</div>
+  <h2>Test Execution Methodology</h2>
+  <p class="lede">A test execution methodology should emphasize a <strong>structured approach</strong> to executing tests within Salesforce environments, ensuring <strong>comprehensive coverage</strong> and <strong>alignment with best practices</strong>.</p>
+  <h3>Test Plan</h3>
+  <p>A test execution methodology should be based on defining a <strong>clear test plan</strong>, which should align with the customer's <strong>business processes</strong>, Salesforce <strong>configuration</strong>, and <strong>customization</strong>.</p>
+  <h3>Types of Testing</h3>
+  <p>The test plan should detail the types of testing to be conducted, such as <strong>unit</strong>, <strong>integration</strong>, <strong>system</strong>, <strong>UAT (User Acceptance Testing)</strong>, and <strong>performance testing</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The architect-altitude answer on test methodology always starts with the test plan — it is the governance document that links every test to a business process or requirement. When asked to describe an appropriate testing strategy, open with: test plan first, then test types, then coverage thresholds, then automation tooling. This shows breadth and prevents the conversation from jumping straight to implementation details.</p>
+  </div>
+</section>
+
+<!-- PAGE 8: TEM — ACCEPTANCE CRITERIA, COVERAGE & AUTOMATION -->
+<section class="slide" id="tem-coverage-automation" data-search="test execution methodology acceptance criteria coverage automation minimize defects code coverage features business processes security compliance salesforce dx cicd tools automate test execution deployment processes">
+  <div class="pgnum">Page 8 · Acceptance Criteria, Coverage &amp; Automation</div>
+  <h2>Test Execution Methodology</h2>
+  <p class="lede">A test execution methodology should emphasize a <strong>structured approach</strong> to executing tests within Salesforce environments, ensuring <strong>comprehensive coverage</strong> and <strong>alignment with best practices</strong>.</p>
+  <h3>Acceptance Criteria</h3>
+  <p>To <strong>minimize the number of defects</strong>, it is necessary to ensure that the <strong>acceptance criteria</strong> for tests are <strong>detailed</strong>.</p>
+  <h3>Coverage</h3>
+  <p>A test plan should focus on <strong>code coverage</strong>, coverage of <strong>features and business processes</strong>, and <strong>security and compliance coverage</strong>.</p>
+  <h3>Automation</h3>
+  <p><strong>Salesforce DX</strong> and <strong>CI/CD tools</strong> should be used whenever possible to automate test execution and deployment processes.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>CI/CD automation (e.g., GitLab pipelines) enforcing test execution before every deploy is a key control at a regulated institution. It removes human discretion from the "did we run tests?" question — the pipeline either passes or it doesn't, and the result is logged. Security and compliance coverage (the third coverage dimension listed here) is especially high-priority at the Fed, where access-control and data-protection logic must be exercised by tests, not merely trusted at deploy time.</p>
+  </div>
+</section>
+
+<!-- PAGE 9: TEM — MONITORING & STAKEHOLDERS -->
+<section class="slide" id="tem-monitoring-stakeholders" data-search="test execution methodology monitoring stakeholders test results reviewed adjusted business processes functionalities evolve business stakeholders engaged uat user acceptance testing solution meets business needs">
+  <div class="pgnum">Page 9 · Monitoring &amp; Stakeholders</div>
+  <h2>Test Execution Methodology</h2>
+  <p class="lede">A test execution methodology should emphasize a <strong>structured approach</strong> to executing tests within Salesforce environments, ensuring <strong>comprehensive coverage</strong> and <strong>alignment with best practices</strong>.</p>
+  <h3>Monitoring</h3>
+  <p><strong>Test results</strong> should be <strong>reviewed</strong> regularly, and tests should be <strong>adjusted</strong> as business processes and functionalities evolve.</p>
+  <h3>Stakeholders</h3>
+  <p>Business stakeholders should be kept <strong>engaged</strong> in the testing process, especially during <strong>UAT</strong>, to ensure the solution meets business needs.</p>
+  <div class="note">A test methodology is not a one-time artifact — it must evolve with the org. Tests that were valid for a Q1 release can become stale by Q3 if they are not reviewed when processes change. Build a review cadence into the methodology itself.</div>
+</section>
+
+<!-- PAGE 10: SECTION DIVIDER — APEX TEST EXECUTION -->
+<section class="slide title-slide" id="section-apex-execution" data-search="section apex test execution">
+  <div class="pgnum" style="color:#cbd6e6">Page 10 · Section</div>
+  <h2>Apex Test Execution</h2>
+</section>
+
+<!-- PAGE 11: EXECUTING APEX UNIT TESTS — STEPS -->
+<section class="slide" id="apex-running" data-search="executing apex unit tests creating test data calling test methods verifying results data not committed deleted prepare data execute methods verify results assertions">
+  <div class="pgnum">Page 11 · Executing Apex Unit Tests — Steps</div>
+  <h2>Executing Apex Unit Tests</h2>
+  <p class="lede">Running Apex unit tests involves <strong>creating test data</strong>, <strong>calling the test methods</strong>, and then <strong>verifying the results</strong>. Data is <strong>not committed</strong>, so it does not need to be <strong>deleted</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>1 · Prepare Data</h4>
+      <p>Create valid <strong>test data</strong> for testing.</p>
+    </div>
+    <div class="card">
+      <h4>2 · Execute Methods</h4>
+      <p>Execute the <strong>methods</strong> to be tested.</p>
+    </div>
+    <div class="card">
+      <h4>3 · Verify Results</h4>
+      <p>Verify the expected <strong>results</strong> using assertions.</p>
+    </div>
+  </div>
+  <div class="note">Test data is rolled back automatically — no cleanup code is needed. This is one of the exam's favorite subtle facts: Apex test data is never committed to the database, so <code>delete</code> statements at the end of test methods are unnecessary.</div>
+</section>
+
+<!-- PAGE 12: EXECUTING APEX UNIT TESTS — TOOLS -->
+<section class="slide" id="apex-tools" data-search="executing apex unit tests tools apex test execution page apex classes page run all tests developer console visual studio code code builder api soap api tooling rest api">
+  <div class="pgnum">Page 12 · Executing Apex Unit Tests — Tools</div>
+  <h2>Executing Apex Unit Tests</h2>
+  <p class="lede">Various <strong>options and considerations</strong> apply to the execution of <strong>Apex unit tests</strong> in Salesforce.</p>
+  <h3>Tools</h3>
+  <p>Apex unit tests can be run using these tools:</p>
+  <ul>
+    <li>Apex Test Execution Page</li>
+    <li>Apex Classes Page (Run All Tests)</li>
+    <li>Developer Console</li>
+    <li>Visual Studio Code</li>
+    <li>Code Builder</li>
+    <li>API (SOAP API, Tooling REST API, etc.)</li>
+  </ul>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When an interviewer asks how you run tests in a CI/CD pipeline, the answer is the API — specifically the Tooling REST API or Metadata API invoked by your pipeline tool (GitLab, GitHub Actions, etc.). The UI tools are for ad-hoc developer use. An architect must know the distinction: human-driven vs. pipeline-driven test invocation has very different auditability and repeatability properties.</p>
+  </div>
+</section>
+
+<!-- PAGE 13: EXECUTING APEX UNIT TESTS — GROUPINGS & OPTIONS -->
+<section class="slide" id="apex-groupings" data-search="executing apex unit tests groupings test options validating deploying change set some all methods test class predefined suite set all unit tests org default run local tests run all tests run specified tests">
+  <div class="pgnum">Page 13 · Executing Apex Unit Tests — Groupings &amp; Options</div>
+  <h2>Executing Apex Unit Tests</h2>
+  <p class="lede">Various <strong>options and considerations</strong> apply to the execution of <strong>Apex unit tests</strong> in Salesforce.</p>
+  <h3>Groupings</h3>
+  <p>Salesforce allows executing these groupings of unit tests:</p>
+  <ul>
+    <li>Some or all methods in a test class</li>
+    <li>A predefined suite of test classes</li>
+    <li>Some or all methods in a set of test classes</li>
+    <li>All unit tests in an org</li>
+  </ul>
+  <h3>Test Options</h3>
+  <p>When <strong>validating or deploying</strong> a change set, <strong>four test options</strong> are available:</p>
+  <ul>
+    <li>Default</li>
+    <li>Run Local Tests</li>
+    <li>Run All Tests</li>
+    <li>Run Specified Tests</li>
+  </ul>
+</section>
+
+<!-- PAGE 14: EXECUTING APEX UNIT TESTS — SUBSET & DEPLOYMENT REQUIREMENT -->
+<section class="slide" id="apex-subset" data-search="executing apex unit tests subset of tests metadata api runspecifiedtests deployoptions shorten deployment time test class individual test methods deploy call deployment requirement code coverage 75% less than 75 one specified test fails class trigger overall coverage">
+  <div class="pgnum">Page 14 · Executing Apex Unit Tests — Subset &amp; Deployment Requirement</div>
+  <h2>Executing Apex Unit Tests</h2>
+  <p class="lede">Various <strong>options and considerations</strong> apply to the execution of <strong>Apex unit tests</strong> in Salesforce.</p>
+  <h3>Subset of Tests</h3>
+  <p>When using <strong>Metadata API</strong> for a deployment, the <strong>RunSpecifiedTests</strong> test level can be set on the <strong>DeployOptions</strong> object to run a subset of tests and <strong>shorten the deployment time</strong> to production. Each <strong>test class</strong> (and <strong>not individual test methods</strong>) needs to be specified in the DeployOptions object, which is then passed as an argument to the <strong>deploy()</strong> call.</p>
+  <h3>Deployment Requirement</h3>
+  <p>A deployment fails if the <strong>code coverage</strong> of an Apex component in the deployment is <strong>less than 75%</strong>. It also fails if <strong>one of the specified tests fails</strong>. Code coverage is computed <strong>individually</strong> for each Apex <strong>class</strong> and <strong>trigger</strong> and is different from the overall code coverage percentage.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The 75% code coverage requirement is Salesforce's built-in release gate — it is not optional and cannot be waived in a production deployment. For the Fed, this functions as a policy control: no Apex component reaches production without documented test coverage. In a mature CI/CD pipeline (GitLab), the RunSpecifiedTests + DeployOptions pattern gives teams the ability to run only the tests relevant to a given changeset, which keeps pipeline duration manageable while still enforcing the per-component coverage gate.</p>
+  </div>
+</section>
+
+<!-- PAGE 15: EXECUTING APEX UNIT TESTS — EMAIL & CALLOUTS -->
+<section class="slide" id="apex-email-callouts" data-search="executing apex unit tests outbound email apex callouts cannot send cannot perform http callouts mock object httpcalloutmock interface test setmock method web service callout">
+  <div class="pgnum">Page 15 · Executing Apex Unit Tests — Email &amp; Callouts</div>
+  <h2>Executing Apex Unit Tests</h2>
+  <p class="lede">Various <strong>options and considerations</strong> apply to the execution of <strong>Apex unit tests</strong> in Salesforce.</p>
+  <h3>Outbound Email</h3>
+  <p>Apex unit tests <strong>cannot send</strong> outbound emails. When a unit test includes Apex code that sends an email message, it may run successfully, but <strong>no email</strong> is actually sent out from the org.</p>
+  <h3>Apex Callouts</h3>
+  <p>Apex unit tests <strong>cannot perform</strong> HTTP callouts. In order to test Apex code that performs callouts, a <strong>mock object</strong> needs to be created by defining a class that implements the <strong>HttpCalloutMock</strong> interface. The <strong>Test.setMock()</strong> method is used to set the mock object.</p>
+  <div class="note">This is a high-frequency exam trap: if a test class exercises code that makes a callout and no mock is set up, the test throws an error — <em>Methods defined as TestMethod do not support Web service callouts</em>. The fix is always <code>HttpCalloutMock</code> + <code>Test.setMock()</code>.</div>
+</section>
+
+<!-- PAGE 16: EXECUTING APEX UNIT TESTS — LIMITS & PRODUCTION DATA -->
+<section class="slide" id="apex-limits" data-search="executing apex unit tests limits methods resetting limits production data specific limit governor callouts heap size starttest stoptest reset governor limits new set istest seealldata true annotation generate own test data best practice">
+  <div class="pgnum">Page 16 · Executing Apex Unit Tests — Limits &amp; Production Data</div>
+  <h2>Executing Apex Unit Tests</h2>
+  <p class="lede">Various <strong>options and considerations</strong> apply to the execution of <strong>Apex unit tests</strong> in Salesforce.</p>
+  <h3>Limits Methods</h3>
+  <p>The <strong>Limits</strong> methods can be used to return the <strong>specific limit for a particular governor</strong>, such as the number of callouts that have been processed or the amount of heap size remaining.</p>
+  <h3>Resetting Limits</h3>
+  <p>The <strong>startTest()</strong> and <strong>stopTest()</strong> methods can be used to reset governor limits in Apex unit tests. A new set of governor limits is assigned to any code that executes after <strong>startTest()</strong> and before <strong>stopTest()</strong>.</p>
+  <h3>Production Data</h3>
+  <p>It is a best practice to <strong>not use the @IsTest(SeeAllData=true) annotation</strong> since the test results can differ depending on which data is available in the organization. Unit tests should <strong>generate their own test data</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Avoiding <code>@IsTest(SeeAllData=true)</code> is especially critical in a regulated environment: if tests access real production data, test outcomes become non-deterministic (dependent on what data exists at the time), and test runs in lower environments may behave differently from production. This directly undermines the auditability goal. Self-contained test data is a prerequisite for reproducible, auditable test results.</p>
+  </div>
+</section>
+
+<!-- PAGE 17: USING A MOCK OBJECT -->
+<section class="slide" id="apex-mock-object" data-search="mock object httpcalloutmock interface test setmock starttest stoptest enroll enrollment controller assertions system assertequals enrollment http callout fake response">
+  <div class="pgnum">Page 17 · Using a Mock Object</div>
+  <h2>Using a Mock Object</h2>
+  <p class="lede">The following shows an example of a <strong>mock object</strong> and how it is used in a <strong>test method</strong>.</p>
+<pre class="code"><span class="c">// A mock class that simulates the response of a successful enrollment of a student:</span>
+<span class="k">public class</span> <span class="t">EnrollHttpCalloutMock</span> <span class="k">implements</span> <span class="t">HttpCalloutMock</span> {
+    <span class="k">public</span> <span class="t">HttpResponse</span> respond(<span class="t">HTTPRequest</span> req) {
+        <span class="t">HttpResponse</span> res = <span class="k">new</span> <span class="t">HttpResponse</span>();
+        res.setHeader(<span class="s">'Content-Type'</span>, <span class="s">'application/json'</span>);
+        res.setBody(<span class="s">'{"success":true,"studentId":12345,"courseId":67,"yearLevel":3}'</span>); <span class="c">// create fake response</span>
+        res.setStatusCode(200);
+        <span class="k">return</span> res;
+    }
+}
+
+<span class="c">// Example code contained and executed inside a test method:</span>
+Test.startTest();
+Test.setMock(<span class="t">HttpCalloutMock</span>.class, <span class="k">new</span> <span class="t">EnrollHttpCalloutMock</span>());  <span class="c">// Test.setMock() called after Test.startTest() and before the callout</span>
+<span class="t">StudentApplicationWrapper</span> application = generateStudentApplication(); <span class="c">// some helper method</span>
+<span class="t">Enrollment</span> erm = <span class="t">StudentController</span>.enroll(application); <span class="c">// invoke the method to test</span>
+
+<span class="c">// verify new record created from fake data</span>
+System.assertEquals(erm.ExternalStudentId__c, 12345);
+System.assertEquals(erm.YearLevel__c, 3);
+System.assertEquals(erm.CourseId__c, 67);
+Test.stopTest();</pre>
+  <div class="note"><strong>Test.setMock()</strong> should be called <strong>after Test.startTest()</strong> and <strong>before the callout</strong>. The mock object is passed as an argument. This ordering is required — calling setMock() outside of the startTest/stopTest block will not properly intercept the callout.</div>
+</section>
+
+<!-- PAGE 18: SECTION DIVIDER — CODE COVERAGE -->
+<section class="slide title-slide" id="section-code-coverage" data-search="section code coverage">
+  <div class="pgnum" style="color:#cbd6e6">Page 18 · Section</div>
+  <h2>Code Coverage</h2>
+</section>
+
+<!-- PAGE 19: CODE COVERAGE — OVERVIEW -->
+<section class="slide" id="coverage-overview" data-search="code coverage numbers generated apex code one more tests executed covered apex code executable lines classes triggers test methods coverage requirements deploying packaging 75% pass every trigger some test coverage all classes compile code quality assert expected behaviors ensure code quality">
+  <div class="pgnum">Page 19 · Code Coverage — Overview</div>
+  <h2>Code Coverage</h2>
+  <p class="lede"><strong>Code coverage numbers</strong> are generated for Apex code every time <strong>one or more tests are executed</strong>.</p>
+  <h3>Covered Apex Code</h3>
+  <p><strong>Code coverage</strong> indicates the number of <strong>executable lines of code in Apex classes and triggers</strong> that have been exercised by test methods.</p>
+  <h3>Coverage Requirements</h3>
+  <p>Apex unit tests enable meeting the code coverage requirements for <strong>deploying</strong> or <strong>packaging Apex code</strong>. The tests must cover <strong>at least 75%</strong> of the Apex code and <strong>pass</strong>, every <strong>trigger</strong> must have <strong>some test coverage</strong>, and <strong>all classes and triggers</strong> must <strong>compile</strong> successfully.</p>
+  <h3>Code Quality</h3>
+  <p>Code coverage <strong>does not guarantee test effectiveness</strong>. Unit tests should <strong>assert all the expected behaviors</strong> and <strong>ensure code quality</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The 75% coverage floor is a hard release gate enforced by the Salesforce platform itself — no workarounds exist at deploy time. For a regulated institution, this is a floor, not a target. The Fed's own change-control posture should set internal thresholds higher (e.g., 85–90%) and enforce them in CI before the deploy even reaches Salesforce's own gate. The "coverage does not guarantee test effectiveness" caveat is critical: an org can hit 80% coverage with vacuous tests that assert nothing. Acceptance criteria quality is the complement to coverage quantity.</p>
+  </div>
+</section>
+
+<!-- PAGE 20: CODE COVERAGE — INSPECTION & DISCREPANCIES -->
+<section class="slide" id="coverage-inspection" data-search="code coverage inspection developer console tests tab refresh rerun refresh code coverage numbers not refreshed automatically apex code updated discrepancies development sandbox environment production test failures data dependencies metadata dependencies">
+  <div class="pgnum">Page 20 · Code Coverage — Inspection &amp; Discrepancies</div>
+  <h2>Code Coverage</h2>
+  <p class="lede"><strong>Code coverage numbers</strong> are generated for Apex code every time <strong>one or more tests are executed</strong>.</p>
+  <h3>Inspection</h3>
+  <p><strong>Code coverage</strong> information can be viewed in the <strong>Tests</strong> tab of the <strong>Developer Console</strong>.</p>
+  <h3>Refresh</h3>
+  <p>Tests need to be <strong>rerun</strong> to <strong>refresh code coverage numbers</strong>. They aren't refreshed automatically when Apex code is updated.</p>
+  <h3>Discrepancies</h3>
+  <p>There can be <strong>discrepancies in code coverage numbers</strong> between a <strong>development or sandbox environment and production</strong> due to reasons such as test failures, data dependencies, metadata dependencies, etc.</p>
+  <div class="note">A common gotcha: a team sees 80% coverage in their sandbox and is surprised when a deployment to production fails with sub-75% coverage on a specific component. The cause is almost always data dependencies — tests that pass in sandbox because certain records exist there, but not in production. The fix is <code>@IsTest</code> with self-contained test data generation.</div>
+</section>
+
+<!-- PAGE 21: CODE COVERAGE — PERCENTAGE FORMULA -->
+<section class="slide" id="coverage-percentage" data-search="code coverage percentage formula CCP covered lines uncovered lines not counted code comments class name definition brackets system debug statements vehicle class static integer addpassengers notifypassengers highlighted blue executable lines">
+  <div class="pgnum">Page 21 · Code Coverage — Percentage Formula</div>
+  <h2>Code Coverage — Percentage Formula</h2>
+  <p><strong>Code Coverage Percentage</strong>, which is computed when running tests, uses the formula:</p>
+  <p style="font-style:italic;background:var(--highlight);padding:8px 12px;border-radius:4px;font-size:13px;">CCP = [(number of covered lines) / (number of covered lines + number of uncovered lines)] * 100</p>
+  <h3>What is NOT counted</h3>
+  <p>The following are <strong>not counted</strong> and <strong>do not impact</strong> code coverage percentage:</p>
+  <ul>
+    <li>Code comments</li>
+    <li>Class name definition</li>
+    <li>Lines that only contain brackets</li>
+    <li><em>System.debug</em> statements</li>
+  </ul>
+  <p>Only the lines highlighted in blue (executable statements) are included in the code coverage computation.</p>
+  <pre class="code"><span class="c">// this is a class used for controlling a vehicle</span>
+<span class="k">public class</span> <span class="t">Vehicle</span> {                               <span class="c">// not counted — class name definition</span>
+
+    <span class="k">static</span> Integer maxCapacity = 4;                  <span class="c">// COUNTED — executable</span>
+
+    <span class="c">// add passengers to vehicle</span>                    <span class="c">// not counted — comment</span>
+    <span class="k">public static void</span> addPassengers(List&lt;<span class="t">Contact</span>&gt; contacts) {  <span class="c">// COUNTED</span>
+        System.debug(<span class="s">'passenger count: '</span> + contacts.size()); <span class="c">// not counted — System.debug</span>
+        <span class="k">if</span> (contacts.size() &gt; maxCapacity) {          <span class="c">// COUNTED</span>
+            System.debug(<span class="s">'Too many passengers!'</span>);    <span class="c">// not counted — System.debug</span>
+        } <span class="k">else</span> {                                      <span class="c">// not counted — bracket</span>
+            notifyPassengers(contacts);               <span class="c">// COUNTED</span>
+        }
+    }
+
+    <span class="c">// send email to vehicle passengers</span>
+    <span class="k">public static void</span> notifyPassengers(List&lt;<span class="t">Contact</span>&gt; contacts) {  <span class="c">// COUNTED</span>
+        System.debug(<span class="s">'alert passengers..'</span>);          <span class="c">// not counted — System.debug</span>
+    }
+}</pre>
+</section>
+
+<!-- PAGE 22: SECTION DIVIDER — TESTING LIGHTNING COMPONENTS -->
+<section class="slide title-slide" id="section-lightning" data-search="section testing lightning components">
+  <div class="pgnum" style="color:#cbd6e6">Page 22 · Section</div>
+  <h2>Testing Lightning Components</h2>
+</section>
+
+<!-- PAGE 23: TESTING LWC — JEST -->
+<section class="slide" id="lwc-jest" data-search="testing lightning web components jest testing framework unit tests lwc running jest tests command line ide browser connect org immediate feedback watch mode test cases component isolation public api basic user interaction clicks dom output firing events using jest salesforce dx project local javascript files vs code command line">
+  <div class="pgnum">Page 23 · Testing Lightning Web Components — Jest</div>
+  <h2>Testing Lightning Web Components</h2>
+  <p class="lede"><strong>Jest</strong> is a <strong>testing framework</strong> that can be used to write unit tests for <strong>Lightning web components</strong>.</p>
+  <h3>Running Jest Tests</h3>
+  <p>Jest tests can be run in the <strong>command line</strong> or the <strong>IDE</strong>. They <strong>don't run in the browser</strong> or <strong>connect to an org</strong>, and they give <strong>immediate feedback</strong> while coding when run in <strong>watch mode</strong>.</p>
+  <h3>Test Cases</h3>
+  <p>Jest tests can be written to test a <strong>component in isolation</strong>, its <strong>public API</strong>, <strong>basic user interaction (clicks)</strong>, <strong>DOM output</strong>, <strong>firing of events</strong>, etc.</p>
+  <h3>Using Jest</h3>
+  <p>Jest and its dependencies can be installed in a <strong>Salesforce DX</strong> project. Jest tests can be written in <strong>local JavaScript files</strong>. They can be run from <strong>VS Code</strong> or the <strong>command line</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Jest for LWC is a pure JavaScript, offline test framework — it does not make Salesforce API calls and does not require an org. This makes it ideal for a CI pipeline step that runs before any deployment: fast, isolated, no org credentials required. The architect answer is: Jest runs in CI, Apex unit tests run during deployment — two separate gates, both required.</p>
+  </div>
+</section>
+
+<!-- PAGE 24: TESTING LWC — TEST FILE & BLOCKS -->
+<section class="slide" id="lwc-test-file" data-search="testing lightning web components test file test blocks create instance import component createelement lwc describe block test suite it test block functional unit test dom reset aftereach method createelement instance appended body appendchild method">
+  <div class="pgnum">Page 24 · Testing Lightning Web Components — Test File &amp; Blocks</div>
+  <h2>Testing Lightning Web Components</h2>
+  <p class="lede"><strong>Jest</strong> is a <strong>testing framework</strong> that can be used to write unit tests for <strong>Lightning web components</strong>.</p>
+  <h3>Test File</h3>
+  <p>Each test file must import both the <strong>component</strong> to <strong>test</strong> and the <strong>createElement</strong> method from <strong>'lwc'</strong>. A <strong>describe</strong> block should be <strong>defined</strong> to create a <strong>test suite</strong> within the test file.</p>
+  <h3>Test Blocks</h3>
+  <p>An <strong><em>it</em></strong> or <strong><em>test</em></strong> block should be defined to create a single functional <strong>unit test</strong>. The DOM should be <strong>reset</strong> at the end of each unit test using the <strong>afterEach()</strong> method.</p>
+  <h3>Create Instance</h3>
+  <p>Inside the unit test, the imported <strong>createElement</strong> method can be used to create an <strong>instance</strong> of the component for testing. It should be <strong>appended</strong> to the body of the document using the <strong>appendChild()</strong> method.</p>
+</section>
+
+<!-- PAGE 25: TESTING LWC — SHADOWROOT & PROMISES -->
+<section class="slide" id="lwc-shadowroot" data-search="testing lightning web components shadowroot promises other considerations shadowroot property shadow tree select element asynchronous dom updates property change promise salesforce sfdx lwc jest test utility json file salesforce data npm run test unit watch run tests continuously during development">
+  <div class="pgnum">Page 25 · Testing Lightning Web Components — ShadowRoot &amp; Promises</div>
+  <h2>Testing Lightning Web Components</h2>
+  <p class="lede"><strong>Jest</strong> is a <strong>testing framework</strong> that can be used to write unit tests for <strong>Lightning web components</strong>.</p>
+  <h3>ShadowRoot</h3>
+  <p>When creating a unit test, the <strong>shadowRoot</strong> property of the element under test should be used to access the shadow tree. It can be used to select a particular element.</p>
+  <h3>Promises</h3>
+  <p><strong>Asynchronous DOM updates</strong> such as a property change can be tested by using a <strong>Promise</strong> in the unit test.</p>
+  <h3>Other Considerations</h3>
+  <p>To test the wire service, the <strong>@salesforce/sfdx-lwc-jest test utility</strong> can be utilized. A JSON file can be <strong>created</strong> to define the Salesforce data <strong>expected</strong> by a component. The <strong><em>npm run test:unit:watch</em></strong> command can be used to <strong>run tests continuously</strong> during development.</p>
+</section>
+
+<!-- PAGE 26: TESTING AURA COMPONENTS -->
+<section class="slide" id="aura-components" data-search="testing aura components automated testing one of testing frameworks jest utam jasmine mocha selenium webdriverio accessibility tests images without alt th element scope aura accessibility tests two environments javascript webdriver apex controller server side logic apex test class">
+  <div class="pgnum">Page 26 · Testing Aura Components</div>
+  <h2>Testing Aura Components</h2>
+  <p class="lede">One of the testing frameworks that can be used to perform <strong>automated testing of Aura components</strong>.</p>
+  <h3>Testing Tools</h3>
+  <p>Some popular testing tools that can be used to test Aura components are <strong>Jest, UTAM, Jasmine, Mocha, Selenium, and WebdriverIO</strong>.</p>
+  <h3>Accessibility Tests</h3>
+  <p>Salesforce's test tools can be utilized to check for common accessibility issues (such as <strong>images without alt</strong> attributes and <strong>th element without a scope</strong> attribute) in Aura components. <strong>Aura accessibility tests</strong> can be called in <strong>two environments: JavaScript and WebDriver</strong>.</p>
+  <h3>Apex Controller</h3>
+  <p>Server-side logic in the component's <strong>Apex controller</strong> must be tested separately using an <strong>Apex test class</strong>.</p>
+  <div class="note">A common exam trap: Jest tests for LWC/Aura do NOT cover the Apex controller — server-side logic must be tested with a separate Apex test class. Always mention both layers when describing a comprehensive Lightning component test strategy.</div>
+</section>
+
+<!-- PAGE 27: SECTION DIVIDER — BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 27 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- PAGE 28: BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic web solutions customer relationships operations separate salesforce instances branches asia south america consistent quality assurance disparities customer experience operational efficiency testing quality control methodologies salesforce architect test execution methodologies coverage needs consistent high-quality testing practices reliability deployments">
+  <div class="pgnum">Page 28 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Web Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Web Solutions manages its customer relationships and operations using separate Salesforce instances for its branches in Asia and South America. The company has encountered difficulties in maintaining a consistent quality assurance process, leading to disparities in customer experience and operational efficiency between the regions. Recognizing the need for better testing and quality control methodologies, the company turns to a Salesforce architect for guidance.</p>
+    <p style="margin-top:8px;">The architect is charged with evaluating the existing testing strategies employed by the two divisions and suggesting appropriate test execution methodologies and coverage needs for the company's requirements. The goal is to establish consistent, high-quality testing practices across both divisions, enhancing the reliability of deployments.</p>
+  </div>
+</section>
+
+<!-- PAGE 29: SECTION DIVIDER — REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 29 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- PAGE 30: REQUIREMENT 1 (PART 1) -->
+<section class="slide" id="requirement-1-part1" data-search="requirement 1 part 1 asian division 85% overall code coverage test plan sprint number defects large reduce defects acceptance criteria automated browser tests lightning web components salesforce releases dom changes updating tests">
+  <div class="pgnum">Page 30 · Requirement 1 (Part 1)</div>
+  <h2>Requirement 1 (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The development team of the company's Asian division has certain requirements related to testing and quality assurance:</p>
+    <ol>
+      <li>The Salesforce instance has <strong>85% overall code coverage</strong>. A test plan is created for each sprint, but the number of defects is still large. The architect needs to suggest a suitable approach to reduce the number of defects.</li>
+      <li>Automated browser tests are used to verify the functionality of Lightning web components. The team is concerned about the impact of Salesforce releases and needs to identify the type of changes that would require updating the tests.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- PAGE 31: REQUIREMENT 1 (PART 2) -->
+<section class="slide" id="requirement-1-part2" data-search="requirement 1 part 2 asian division web service callout test class method fails error testmethod do not support web service callouts test classes unit test apex classes triggers sandbox minimum code coverage requirement failing deploying production discrepancies">
+  <div class="pgnum">Page 31 · Requirement 1 (Part 2)</div>
+  <h2>Requirement 1 (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <ol start="3">
+      <li>A developer has written a test class to test a method that involves a web service callout. However, the test method fails and this error message is returned: <em>Methods defined as TestMethod do not support Web service callouts</em></li>
+      <li>The team has written test classes to unit test certain Apex classes and triggers. When executed in the sandbox, all the test methods pass and all the classes meet the minimum code coverage requirement. But a few of these test methods are failing when deploying the associated Apex components to production.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- PAGE 32: SOLUTION 1 (PART 1) -->
+<section class="slide" id="solution-1-part1" data-search="solution 1 part 1 reduce defects code coverage increased acceptance criteria more detailed dom changes salesforce release updating automated browser tests mock object httpcalloutmock interface test starttest web service callout">
+  <div class="pgnum">Page 32 · Solution 1 (Part 1)</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <ol>
+      <li>To reduce the number of defects, <strong>code coverage should be increased</strong> and the <strong>acceptance criteria</strong> should be <strong>more detailed</strong>.</li>
+      <li>Any <strong>DOM changes</strong> introduced in a Salesforce release could require updating the automated browser tests.</li>
+      <li>To avoid the error message, a <strong>mock object</strong> should be used to test the web service callout. The following steps should be performed within the test class:
+        <ol type="a">
+          <li>Create an Apex class that implements the <strong>HttpCalloutMock interface</strong>.</li>
+          <li>In the test method, call the <strong>Test.startTest()</strong> method.</li>
+        </ol>
+      </li>
+    </ol>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This scenario demonstrates the architect's diagnostic pattern: the team has 85% coverage but still has many defects. The diagnosis is not "more coverage" alone — it is "more detailed acceptance criteria." Coverage measures how much code is exercised; it does not measure whether the tests are actually asserting the right behaviors. An architect who gives only "raise coverage" misses the key insight that test quality (assertions, edge-case scenarios) matters as much as test quantity.</p>
+  </div>
+</section>
+
+<!-- PAGE 33: SOLUTION 1 (PART 2) -->
+<section class="slide" id="solution-1-part2" data-search="solution 1 part 2 mock object test setmock web service callout verify assertions test stoptest istence istest seealldata true annotation generate own test data not dependent org data production failing sandbox discrepancies">
+  <div class="pgnum">Page 33 · Solution 1 (Part 2)</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <ol type="a" start="3">
+      <li>Set the mock object using the <strong>Test.setMock()</strong> method.</li>
+      <li>Call the Apex method that contains the <strong>web service callout</strong>.</li>
+      <li><strong>Verify</strong> the behaviors using assertions.</li>
+      <li>Call the <strong>Test.stopTest()</strong> method.</li>
+    </ol>
+    <p style="margin-top:10px;">4. The test methods are most likely failing because of the <strong>@IsTest(SeeAllData=true)</strong> annotation and the presence of different data in production. Test methods should <strong>not use this annotation</strong> to ensure that test data is not dependent on the org's data. They should <strong>generate their own test data</strong>.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The <code>@IsTest(SeeAllData=true)</code> problem is exactly the kind of environment-to-production discrepancy that causes deployment failures at regulated institutions. Production data is different from sandbox data — always. Tests that depend on pre-existing records will fail unpredictably. Self-contained test data generation is the control that makes test results deterministic and therefore auditable across all environments, including a Fed production org.</p>
+  </div>
+</section>
+
+<!-- PAGE 34: REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 south america division governor limits apex classes testing aura components accessibility tests deployment time production specific tests metadata api runspecifiedtests deployoptions">
+  <div class="pgnum">Page 34 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The development team in South America is facing certain challenges related to testing. The developers have built new features for the sales team, but while testing the Apex classes, they are constantly hitting the <strong>governor limits</strong>. Various <strong>Aura components</strong> are utilized by these new features, but the team is unsure how to test these components. They also need to perform <strong>accessibility tests</strong> for these Aura components. In addition, the team lead would like to <strong>shorten the deployment time</strong> to production and would like considerations related to running <strong>specific tests during deployments</strong> using <strong>Metadata API</strong>.</p>
+  </div>
+</section>
+
+<!-- PAGE 35: SOLUTION 2 (PART 1) -->
+<section class="slide" id="solution-2-part1" data-search="solution 2 part 1 governor limits starttest stoptest reset governor limits apex methods testing framework jest aura components accessibility tests two environments javascript webdriver apex controllers apex test classes">
+  <div class="pgnum">Page 35 · Solution 2 (Part 1)</div>
+  <h2>Solution 2 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>While testing the Apex classes, the governor limits can be reset using the <strong>Test.startTest()</strong> and <strong>Test.stopTest()</strong> methods. Apex methods that need to be tested should be called after <strong>Test.startTest()</strong> and before <strong>Test.stopTest()</strong>.</p>
+    <p style="margin-top:8px;">The JavaScript code in Aura components can be tested using a suitable <strong>testing framework such as Jest</strong>. Server-side logic in Apex controllers should be tested using <strong>Apex test classes</strong>. Salesforce's test tools can be utilized to check for common accessibility issues in Aura components. <strong>Aura accessibility tests</strong> can be called in two environments: <strong>JavaScript and WebDriver</strong>.</p>
+  </div>
+</section>
+
+<!-- PAGE 36: SOLUTION 2 (PART 2) -->
+<section class="slide" id="solution-2-part2" data-search="solution 2 part 2 deployment time shortened subset of tests runspecifiedtests deployoptions test classes specifying test methods not supported deploy call shorten deployment time production metadata api">
+  <div class="pgnum">Page 36 · Solution 2 (Part 2)</div>
+  <h2>Solution 2 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The deployment time to production can be shortened by running a subset of tests. The <strong>RunSpecifiedTests</strong> test level can be set on the <strong>DeployOptions</strong> object. The <strong>test classes</strong> to be executed should be specified in DeployOptions; <strong>specifying test methods is not supported</strong>. The object should be passed as an argument to the <strong>deploy()</strong> call.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>RunSpecifiedTests is the pattern that enables fast, targeted deployments in a CI/CD pipeline — for example, a GitLab pipeline that deploys only a small changeset can run only the tests relevant to that change, dramatically reducing pipeline duration without sacrificing the per-component 75% gate. At the Fed, where change windows may be constrained, shorter deployment pipelines directly reduce risk. The constraint that only test classes (not individual methods) can be specified is an important implementation detail to know for the exam and for pipeline design.</p>
+  </div>
+</section>
+
+<!-- PAGE 37: LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more testing apex testing lightning web components testing components running subset tests deployment advanced apex testing lightning web components tests trailhead further reading">
+  <div class="pgnum">Page 37 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Testing Apex</li>
+    <li>Testing Lightning Web Components</li>
+    <li>Testing Components</li>
+    <li>Running a Subset of Tests in a Deployment</li>
+    <li>Apex Testing</li>
+    <li>Advanced Apex Testing</li>
+    <li>Lightning Web Components Tests</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points test execution methodology apex unit tests code coverage lightning web components aura components 75% governor limits mock httpcalloutmock seealldata runspecifiedtests deployoptions jest exam gotchas decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Test Execution &amp; Coverage</h2>
+
+  <h3>Test Execution Methodology — Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Dimension</th><th>What the Methodology Must Address</th><th>Architect Consideration</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Test Plan</strong></td>
+        <td>Aligned with business processes, configuration, and customization</td>
+        <td>Document per-sprint; revisit when processes change</td>
+      </tr>
+      <tr>
+        <td><strong>Types of Testing</strong></td>
+        <td>Unit, integration, system, UAT, performance</td>
+        <td>UAT requires active business stakeholder engagement</td>
+      </tr>
+      <tr>
+        <td><strong>Acceptance Criteria</strong></td>
+        <td>Detailed acceptance criteria minimize defects</td>
+        <td>Coverage % alone is insufficient — criteria quality matters</td>
+      </tr>
+      <tr>
+        <td><strong>Coverage</strong></td>
+        <td>Code coverage + features/business processes + security/compliance</td>
+        <td>At least 75% Apex; every trigger needs some coverage</td>
+      </tr>
+      <tr>
+        <td><strong>Automation</strong></td>
+        <td>Salesforce DX + CI/CD tools</td>
+        <td>API-driven test runs in GitLab pipelines; removes human discretion</td>
+      </tr>
+      <tr>
+        <td><strong>Monitoring</strong></td>
+        <td>Regular review and adjustment of test results</td>
+        <td>Tests must evolve with the org; stale tests are false assurance</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Apex Test Execution — Quick Reference</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Topic</th><th>Key Fact</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Test data lifecycle</td><td>Data is NOT committed; no cleanup needed</td></tr>
+      <tr><td>Tools for CI/CD</td><td>API (SOAP API, Tooling REST API) — not UI tools</td></tr>
+      <tr><td>Test groupings</td><td>Some/all methods in a class; a predefined suite; all tests in org</td></tr>
+      <tr><td>Change set test options</td><td>Default / Run Local Tests / Run All Tests / Run Specified Tests</td></tr>
+      <tr><td>RunSpecifiedTests</td><td>Set on DeployOptions; specify test CLASSES only, not methods; passed to deploy()</td></tr>
+      <tr><td>Deployment coverage gate</td><td>Fails if any Apex component in the deployment is &lt;75%; computed per class/trigger</td></tr>
+      <tr><td>Outbound email in tests</td><td>Cannot be sent; code runs but no email is actually dispatched</td></tr>
+      <tr><td>HTTP callouts in tests</td><td>Cannot perform; use HttpCalloutMock + Test.setMock()</td></tr>
+      <tr><td>Test.setMock() ordering</td><td>Must be called after Test.startTest() and before the callout</td></tr>
+      <tr><td>Governor limit reset</td><td>Test.startTest() / Test.stopTest() — new limits assigned to code in between</td></tr>
+      <tr><td>@IsTest(SeeAllData=true)</td><td>Anti-pattern — test results depend on org data; tests should generate own data</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Code Coverage — Key Rules</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Rule</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Minimum threshold</td><td>At least <strong>75%</strong> of all Apex code; computed per class and trigger</td></tr>
+      <tr><td>Trigger requirement</td><td>Every trigger must have some test coverage (even 1 line)</td></tr>
+      <tr><td>Compile requirement</td><td>All classes and triggers must compile successfully</td></tr>
+      <tr><td>What is not counted</td><td>Code comments, class name definition, bracket-only lines, System.debug statements</td></tr>
+      <tr><td>Formula</td><td>CCP = [(covered lines) / (covered lines + uncovered lines)] × 100</td></tr>
+      <tr><td>Refresh</td><td>Coverage numbers are NOT auto-refreshed; must rerun tests after code changes</td></tr>
+      <tr><td>Sandbox vs. production discrepancy</td><td>Caused by data dependencies, test failures, metadata differences; fix with self-contained test data</td></tr>
+      <tr><td>Coverage ≠ quality</td><td>High coverage with vacuous assertions is not enough; tests must assert expected behaviors</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Lightning Component Testing — Decision Guide</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>What to Test</th><th>Tool / Approach</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>LWC JavaScript (component logic, DOM, events)</td><td>Jest — local JS files, runs in CLI/IDE, no org connection</td></tr>
+      <tr><td>LWC wire service</td><td>@salesforce/sfdx-lwc-jest test utility + JSON mock data file</td></tr>
+      <tr><td>Aura component JavaScript</td><td>Jest, UTAM, Jasmine, Mocha, Selenium, WebdriverIO</td></tr>
+      <tr><td>Aura accessibility</td><td>Salesforce test tools; can run in JavaScript or WebDriver environments</td></tr>
+      <tr><td>Apex controller (server-side logic)</td><td>Apex test class — entirely separate from UI tests</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>85% coverage with many defects?</strong> The issue is not coverage quantity — it is acceptance criteria quality. Detailed acceptance criteria + more coverage together reduce defects.</li>
+    <li><strong>"Methods defined as TestMethod do not support Web service callouts"</strong> — always means you need HttpCalloutMock + Test.setMock().</li>
+    <li><strong>Tests pass in sandbox, fail in production?</strong> Almost always @IsTest(SeeAllData=true) and data differences. Fix: remove the annotation, generate own test data.</li>
+    <li><strong>DOM changes in a Salesforce release</strong> can break automated browser tests for LWC — this is the release-impact that requires test updates.</li>
+    <li><strong>RunSpecifiedTests</strong> requires test classes specified on DeployOptions — you cannot specify individual test methods.</li>
+    <li><strong>Jest tests do NOT cover Apex</strong> — server-side logic in Aura/LWC Apex controllers requires a separate Apex test class.</li>
+    <li><strong>Code coverage is computed per class and trigger</strong> — an org with 90% overall coverage can still fail a deployment if one specific class in the changeset is below 75%.</li>
+    <li><strong>System.debug statements do NOT count</strong> toward code coverage — you cannot inflate coverage by adding debug statements.</li>
+    <li><strong>Coverage numbers do not refresh automatically</strong> — always rerun tests after modifying Apex code to get accurate numbers.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve Bank of Chicago Platform Engineer, the most important themes in this deck are: (1) <strong>Code coverage as a release gate</strong> — the 75% Salesforce floor is the minimum; a mature regulated org enforces a higher internal threshold in CI (e.g., GitLab) before the change even reaches the Salesforce deploy step. (2) <strong>CI test automation</strong> — API-driven test execution in GitLab pipelines removes human discretion from the "did we test?" question, creating an auditable, repeatable quality control artifact for every production change. (3) <strong>Self-contained test data</strong> — avoiding @IsTest(SeeAllData=true) ensures tests are deterministic across all environments, which is a prerequisite for audit-grade evidence that a change was properly tested. These three controls together form the testing pillar of a defensible change management posture — exactly what Fed examiners and senior leadership expect to see documented in an architect's release governance framework.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

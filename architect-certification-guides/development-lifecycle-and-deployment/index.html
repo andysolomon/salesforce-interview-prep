@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Development Lifecycle &amp; Deployment — Deck Transcriptions</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --rule:#e3e8f0; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:18px 24px;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar .crumbs{font-size:12px;opacity:0.75;margin-bottom:4px}
+  header.topbar .crumbs a{color:white;text-decoration:none;opacity:0.75}
+  header.topbar .crumbs a:hover{opacity:1;text-decoration:underline}
+  header.topbar h1{margin:0;font-size:22px;font-weight:600}
+  header.topbar .sub{font-size:13px;opacity:0.8;margin-top:4px}
+  main{max-width:920px;margin:28px auto;padding:0 24px 80px}
+  h2{color:var(--navy);font-size:16px;text-transform:uppercase;letter-spacing:0.6px;border-bottom:2px solid var(--accent);padding-bottom:6px;margin:28px 0 14px;display:inline-block}
+  ul.topics{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+  ul.topics li{background:var(--panel);border:1px solid var(--rule);border-radius:8px;transition:border-color 0.15s,box-shadow 0.15s}
+  ul.topics li:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(21,137,238,0.1)}
+  ul.topics a{display:block;padding:16px 20px;text-decoration:none;color:var(--ink)}
+  ul.topics a .topic-title{font-weight:600;color:var(--navy);font-size:15px;margin-bottom:4px}
+  ul.topics a .topic-meta{font-size:12.5px;color:var(--muted)}
+  .pill{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:0.6px;padding:2px 7px;border-radius:4px;margin-left:8px;vertical-align:middle;font-weight:600;background:#e6f3d9;color:#3d7a18}
+  .seealso{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:18px 0 0;border-radius:0 6px 6px 0;font-size:13.5px}
+  .seealso a{color:var(--accent)}
+</style>
+<link rel="stylesheet" href="../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="crumbs"><a href="../../index.html">Study</a> · <a href="../index.html">Architect Certification Guides</a> · Module</div>
+  <h1>Development Lifecycle &amp; Deployment — Deck Transcriptions</h1>
+  <div class="sub">FocusOnForce source decks, transcribed slide-by-slide · the raw material behind the synthesized exam guide</div>
+</header>
+
+<main>
+  <section class="hero-intro">
+    <div class="hero-copy">
+      <p class="hero-kicker">Module overview</p>
+      <p class="intro">Twenty-five FocusOnForce decks for the Development Lifecycle &amp; Deployment Architect exam, transcribed in full and ordered as a course covering all seven exam domains. First the Lifecycle &amp; Planning block — methodology, development models, environment risk, governance, and Salesforce releases — then the System Design block — agile tooling, org strategy, sandbox strategy, and deployment strategy — then the Building block — source control branching/merging, test data &amp; unit tests, development model &amp; environment, and quality-code delivery — then the Deploying block — Metadata &amp; Tooling APIs, pre/post-deployment steps, and technical reference data — then the Testing block — testing methodologies, test execution &amp; coverage, and a unified test data strategy — then the Releasing block: packaging strategy (managed/unmanaged/unlocked), mapping a sandbox strategy to a release plan, and release management strategy — and finally the Operating block: the implications of direct changes in production, integrating those changes back into Application Lifecycle Management, and managing common release artifacts across a multi-org estate. Every page carries the original slide content plus interview- and Fed-angle callouts. This is the #1 most JD-aligned material for the Federal Reserve Bank of Chicago Platform Engineer role.</p>
+    </div>
+    <div class="hero-stats" aria-label="Module overview">
+      <div class="hero-stat"><strong>25</strong><span>decks across Lifecycle &amp; Planning, System Design, Building, Deploying, Testing, Releasing, and Operating</span></div>
+      <div class="hero-stat"><strong>810</strong><span>slides transcribed into searchable HTML</span></div>
+    </div>
+  </section>
+
+  <h2>Lifecycle &amp; Planning</h2>
+  <ul class="topics">
+    <li>
+      <a href="topics/application-lifecycle-management/index.html">
+        <div class="topic-title">Application Lifecycle Management <span class="pill">Start here</span></div>
+        <div class="topic-meta">59 slides · ALM phases · development methodologies (Waterfall · Agile · Scrum · Lean · Hybrid/SAFe) · governance strategies · business scenario &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/planning-development-models/index.html">
+        <div class="topic-title">Planning — Development Models</div>
+        <div class="topic-meta">51 slides · processes &amp; tools · Change Set vs Org vs Package development models · scratch orgs &amp; unlocked packages · people &amp; roles · CI/CD pipeline</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/planning-environment-risks/index.html">
+        <div class="topic-title">Planning — Environment Risks &amp; Mitigation</div>
+        <div class="topic-meta">22 slides · environment/sandbox risks · data security · governance &amp; development risks · mitigation strategies · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/planning-governance/index.html">
+        <div class="topic-title">Planning — Governance</div>
+        <div class="topic-meta">54 slides · governance framework · Center of Excellence (CoE) · ARB vs CCB · change management &amp; change control · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/planning-salesforce-releases/index.html">
+        <div class="topic-title">Planning — Salesforce Releases</div>
+        <div class="topic-meta">28 slides · Summer/Winter/Spring release cycle · sandbox preview windows · release evaluation &amp; impact assessment · risk mitigation · scenarios &amp; solutions</div>
+      </a>
+    </li>
+  </ul>
+
+  <h2>System Design</h2>
+  <ul class="topics">
+    <li>
+      <a href="topics/system-design-agile-tools/index.html">
+        <div class="topic-title">System Design — Agile Tools</div>
+        <div class="topic-meta">23 slides · advantages of agile tooling · backlog/sprint/board management · sprint velocity &amp; burndown · collaboration &amp; visibility · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/system-design-org-strategy/index.html">
+        <div class="topic-title">System Design — Org Strategy</div>
+        <div class="topic-meta">46 slides · single-org vs multi-org · business/technical/architectural considerations · consolidation &amp; governance · data residency &amp; integration · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/system-design-environment-strategy/index.html">
+        <div class="topic-title">System Design — Environment (Sandbox) Strategy</div>
+        <div class="topic-meta">30 slides · sandbox types (Developer · Developer Pro · Partial Copy · Full) · refresh intervals · mapping to project streams, training, staging &amp; hotfixes · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/system-design-deployment-strategy/index.html">
+        <div class="topic-title">System Design — Deployment Strategy</div>
+        <div class="topic-meta">35 slides · Change Sets vs Metadata API vs sf CLI vs packages · CI/CD pipelines · components &amp; tools compared · the #1 GitLab/DevOps-aligned deck · scenarios &amp; solutions</div>
+      </a>
+    </li>
+  </ul>
+
+  <h2>Building</h2>
+  <ul class="topics">
+    <li>
+      <a href="topics/building-source-control/index.html">
+        <div class="topic-title">Building — Source Control Strategies <span class="pill">GitLab-aligned</span></div>
+        <div class="topic-meta">53 slides · version control &amp; Git fundamentals · centralized vs feature/GitFlow vs trunk-based branching · versioning, merge vs rebase &amp; conflict resolution · environment-to-branch mapping · package versioning · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/building-test-data-and-unit-tests/index.html">
+        <div class="topic-title">Building — Test Data &amp; Unit Tests</div>
+        <div class="topic-meta">31 slides · Apex unit testing · positive / negative / permission-based / large-data-volume tests · @testSetup, Test.loadData &amp; static resources · mocking (HttpCalloutMock, Stub API) · System.runAs · coverage rules &amp; assertions · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/building-development-model/index.html">
+        <div class="topic-title">Building — Development Model &amp; Environment</div>
+        <div class="topic-meta">33 slides · org-based vs package-based development · source-driven development · scratch orgs (definition file, lifecycle) · unlocked vs managed packages · scratch org vs sandboxes as dev environments · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/building-quality-code/index.html">
+        <div class="topic-title">Building — Quality Code Delivery <span class="pill">GitLab-aligned</span></div>
+        <div class="topic-meta">39 slides · coding standards &amp; Apex best practices · pull/merge requests &amp; code review · static code analysis (PMD, Salesforce Code Analyzer, SonarQube) · technical debt · peer-review &amp; security gates · scenarios &amp; solutions</div>
+      </a>
+    </li>
+  </ul>
+
+  <h2>Deploying</h2>
+  <ul class="topics">
+    <li>
+      <a href="topics/deploying-metadata-tooling-apis/index.html">
+        <div class="topic-title">Deploying — Metadata &amp; Tooling APIs <span class="pill">GitLab-aligned</span></div>
+        <div class="topic-meta">29 slides · Metadata API vs Tooling API · capabilities, limitations &amp; considerations for deployment · synchronous vs asynchronous · supported/unsupported metadata · file-based vs object-based · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/deploying-pre-post-deployment-steps/index.html">
+        <div class="topic-title">Deploying — Pre &amp; Post-Deployment Steps</div>
+        <div class="topic-meta">21 slides · manual pre/post-deployment steps · items not supported via the APIs · deployment runbooks &amp; checklists · sequencing, activation &amp; data steps · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/deploying-technical-reference-data/index.html">
+        <div class="topic-title">Deploying — Technical Reference Data</div>
+        <div class="topic-meta">19 slides · managing &amp; deploying technical reference data · custom metadata types vs custom settings · migrating config/reference data across environments · repeatable, auditable promotion · scenarios &amp; solutions</div>
+      </a>
+    </li>
+  </ul>
+
+  <h2>Testing</h2>
+  <ul class="topics">
+    <li>
+      <a href="topics/testing-methodologies/index.html">
+        <div class="topic-title">Testing — Testing Methodologies</div>
+        <div class="topic-meta">28 slides · the two main categories of testing in Salesforce · functional vs non-functional · unit, integration, system, UAT, regression, performance, security testing · recommending an appropriate methodology · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/testing-execution-and-coverage/index.html">
+        <div class="topic-title">Testing — Test Execution &amp; Coverage <span class="pill">GitLab-aligned</span></div>
+        <div class="topic-meta">37 slides · test execution methodology · running Apex unit tests (Setup, Developer Console, sf CLI, API) · synchronous vs asynchronous · the 75% code-coverage requirement · testing Lightning web &amp; Aura components (Jest) · coverage as a release gate · scenarios &amp; solutions</div>
+      </a>
+    </li>
+    <li>
+      <a href="topics/testing-unified-test-data-strategy/index.html">
+        <div class="topic-title">Testing — Unified Test Data Strategy</div>
+        <div class="topic-meta">19 slides · representative test data used securely across the lifecycle · data masking &amp; Salesforce Data Mask · synthetic data, sampling &amp; seeding · protecting PII in lower environments · auditable, repeatable provisioning · scenarios &amp; solutions</div>
+      </a>
+    </li>
+  </ul>
+
+  <h2>Releasing</h2>
+  <ul class="topics">
+    <li>
+      <a href="topics/releasing-packaging-strategy/index.html">
+        <div class="topic-title">Releasing — Packaging Strategy <span class="pill">GitLab-aligned</span></div>
+        <div class="topic-meta">42 slides · managed vs unmanaged vs unlocked packages · use cases &amp; considerations for each · namespaces, upgradeability &amp; IP protection · artifact-based, versioned, repeatable deployment · choosing a package type for a business requirement · scenarios &amp; solutions</div></a></li>
+    <li>
+      <a href="topics/releasing-sandbox-release-plan/index.html">
+        <div class="topic-title">Releasing — Sandbox Strategy for a Release Plan</div>
+        <div class="topic-meta">23 slides · mapping a sandbox strategy to a specific release plan · multiple parallel project streams · training, staging &amp; UAT environments · isolating the hotfix path from feature work · representative data &amp; refresh sequencing · scenarios &amp; solutions</div></a></li>
+    <li>
+      <a href="topics/releasing-release-management-strategy/index.html">
+        <div class="topic-title">Releasing — Release Management Strategy</div>
+        <div class="topic-meta">25 slides · aspects of release management &amp; evaluating new projects · release types (major / minor / emergency hotfix) · responsibilities of the groups involved · sample release paths · release-board sign-off, segregation of duties &amp; rollback · scenarios &amp; solutions</div></a></li>
+  </ul>
+
+  <h2>Operating</h2>
+  <ul class="topics">
+    <li>
+      <a href="topics/operating-direct-changes-production/index.html">
+        <div class="topic-title">Operating — Direct Changes in Production</div>
+        <div class="topic-meta">20 slides · implications of incorporating a request directly in production · considerations, risks &amp; best practices for direct changes · strategies for safely making production changes · change control &amp; segregation of duties · scenarios &amp; solutions</div></a></li>
+    <li>
+      <a href="topics/operating-integrating-direct-changes-alm/index.html">
+        <div class="topic-title">Operating — Integrating Direct Changes into ALM</div>
+        <div class="topic-meta">21 slides · implications of direct production changes on the development lifecycle · reconciling drift back into the source of truth · backporting prod hotfixes into sandboxes &amp; the pipeline · steps to fold changes into Application Lifecycle Management · scenarios &amp; solutions</div></a></li>
+    <li>
+      <a href="topics/operating-managing-common-release-artifacts/index.html">
+        <div class="topic-title">Operating — Managing Common Release Artifacts</div>
+        <div class="topic-meta">22 slides · multi-org scenario · compare &amp; contrast approaches for managing common release artifacts · shared packages, source &amp; metadata across orgs · one auditable source of truth · governance &amp; consistency at scale · scenarios &amp; solutions</div></a></li>
+  </ul>
+
+  <div class="seealso">
+    Looking for the condensed version? The <a href="../topics/development-lifecycle-and-deployment/index.html">synthesized Development Lifecycle &amp; Deployment Architect guide</a> distills this material to the 8-section exam blueprint for fast review.
+  </div>
+</main>
+<script src="../../theme.js"></script>
+</body>
+</html>

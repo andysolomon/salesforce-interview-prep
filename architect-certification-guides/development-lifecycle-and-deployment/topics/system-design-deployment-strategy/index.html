@@ -1,0 +1,940 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design — Deployment Strategy — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>System Design — Deployment Strategy</h1>
+  <div class="sub">Given a scenario, compare, contrast, and recommend the components and tools of a successful deployment strategy · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (35 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Overview</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#deployment-components-overview">Deployment Components Overview</a></li>
+      <li><a href="#deployment-tools-overview">Deployment Tools Overview</a></li>
+    </ul>
+    <h3>Deployment Components</h3>
+    <ul>
+      <li><a href="#section-deployment-components">Section: Deployment Components</a></li>
+      <li><a href="#dc-metadata-data">Metadata &amp; Data Components</a></li>
+      <li><a href="#dc-governance">Governance &amp; Change Management</a></li>
+      <li><a href="#dc-test-rollback">Test Plans &amp; Rollback Strategy</a></li>
+    </ul>
+    <h3>Deployment Tools</h3>
+    <ul>
+      <li><a href="#section-deployment-tools">Section: Deployment Tools</a></li>
+      <li><a href="#dt-sfdx-cli">Salesforce DX &amp; CLI</a></li>
+      <li><a href="#dt-metadata-ant">Metadata API &amp; Ant Migration Tool</a></li>
+      <li><a href="#dt-changesets-packages">Change Sets &amp; Packages</a></li>
+      <li><a href="#dt-automated-cicd">Automated Testing &amp; CI/CD Tools</a></li>
+      <li><a href="#dt-sfdx-deep">Salesforce DX — Deep Dive</a></li>
+      <li><a href="#dt-cli-deep">Salesforce CLI — Deep Dive</a></li>
+      <li><a href="#dt-metadata-api-deep">Metadata API — Deep Dive</a></li>
+      <li><a href="#dt-ant-deep">Ant Migration Tool — Deep Dive</a></li>
+      <li><a href="#dt-changesets-deep1">Change Sets — Part 1</a></li>
+      <li><a href="#dt-changesets-deep2">Change Sets — Part 2</a></li>
+      <li><a href="#dt-packages-deep">Packages — Deep Dive</a></li>
+      <li><a href="#dt-automated-testing-deep">Automated Testing Tools — Deep Dive</a></li>
+      <li><a href="#dt-cicd-deep1">CI/CD Tools — Part 1</a></li>
+      <li><a href="#dt-cicd-deep2">CI/CD Tools — Part 2</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Tech Solutions Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1a">Solution 1 — Part 1</a></li>
+      <li><a href="#solution-1b">Solution 1 — Part 2</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2a">Solution 2 — Part 1</a></li>
+      <li><a href="#solution-2b">Solution 2 — Part 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover system design deployment strategy focusonforce salesforce development lifecycle deployment architect">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>System Design — Deployment Strategy</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario, compare, contrast, and recommend the components and tools of a successful deployment strategy · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents deployment components deployment tools business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#section-deployment-components">Deployment Components</a></li>
+    <li><a class="toc-link" href="#section-deployment-tools">Deployment Tools</a></li>
+    <li><a class="toc-link" href="#section-business">Business Scenario</a></li>
+    <li><a class="toc-link" href="#section-requirements">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives deployment components tools recommend successful deployment strategy business requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the different deployment components for a successful deployment strategy.</li>
+    <li>Describe the different deployment tools for a successful deployment strategy.</li>
+    <li>Recommend the deployment components and tools for the given business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction deployment components metadata data governance change management test plans rollback strategy native third-party tools salesforce dx cli metadata api ant migration change sets packages automated testing cicd">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>For a successful deployment strategy, it is important to consider various components and tools. <strong>Deployment components</strong> include metadata components, data components, governance, change management, test plans and scripts, and rollback strategy.</p>
+  <p>On the other hand, there are various <strong>native and third-party deployment tools</strong>. They include Salesforce DX, Salesforce CLI, Metadata API, Ant Migration Tool, Change Sets, packages, automated testing tools, and CI/CD tools.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This deck is the closest to a Federal Reserve DevOps engineer's daily work. The Fed role requires GitLab CI/CD pipelines for automated Salesforce deployments. Every concept here — governance, change management, automated testing gates, rollback strategy — maps directly to the Fed's change-control framework and IT risk management requirements. Master this deck cold.</p>
+  </div>
+</section>
+
+<!-- DEPLOYMENT COMPONENTS OVERVIEW -->
+<section class="slide" id="deployment-components-overview" data-search="deployment components overview metadata data governance change management test plans rollback three pillars">
+  <div class="pgnum">Page 5 · Deployment Components Overview</div>
+  <h2>Deployment Components</h2>
+  <p class="lede">The three pillars of a successful Salesforce deployment strategy.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Metadata &amp; Data</h4>
+      <p>Metadata components are building blocks of customizations that are moved between Salesforce environments. Data components are records of Salesforce objects that are migrated between orgs.</p>
+    </div>
+    <div class="card">
+      <h4>Governance &amp; Change Management</h4>
+      <p>A governance framework is a set of policies and procedures that guide how changes are managed and deployed. It includes tracking, reviewing, and approving changes.</p>
+    </div>
+    <div class="card">
+      <h4>Test &amp; Rollback Strategies</h4>
+      <p>Test plans and scripts are used to ensure that a deployment does not negatively affect functionality. A rollback strategy can be used to revert changes if a deployment causes issues in production.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DEPLOYMENT TOOLS OVERVIEW -->
+<section class="slide" id="deployment-tools-overview" data-search="deployment tools overview salesforce dx cli metadata api ant migration change sets packages automated testing cicd copado flosum eight tools">
+  <div class="pgnum">Page 6 · Deployment Tools Overview</div>
+  <h2>Deployment Tools</h2>
+  <p class="lede">Eight native and third-party tools available for deploying changes in Salesforce.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Salesforce DX</h4>
+      <p>A suite of tools used to build, test, and deploy applications quickly and efficiently.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce CLI</h4>
+      <p>A command-line utility used to automate tasks, including metadata deployment.</p>
+    </div>
+    <div class="card">
+      <h4>Metadata API</h4>
+      <p>Can be used to retrieve, deploy, create, update, or delete customizations.</p>
+    </div>
+    <div class="card">
+      <h4>Ant Migration Tool</h4>
+      <p>Allows moving metadata between a local directory and a Salesforce org.</p>
+    </div>
+    <div class="card">
+      <h4>Change Sets</h4>
+      <p>Can be used to move metadata between orgs affiliated with production in a declarative manner.</p>
+    </div>
+    <div class="card">
+      <h4>Packages</h4>
+      <p>Unlocked packages can be utilized to organize and deploy metadata for internal business applications.</p>
+    </div>
+    <div class="card">
+      <h4>Automated Testing Tools</h4>
+      <p>Third-party tools can be utilized for automated testing of various types of tests to reduce the risk of human error.</p>
+    </div>
+    <div class="card">
+      <h4>CI/CD Tools</h4>
+      <p>Various third-party CI/CD tools are available for continuous integration and continuous deployment for a streamlined workflow.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked "what tools do you use to deploy Salesforce changes?", don't just name one. The architect answer maps tool to scenario: Change Sets for small declarative changes between affiliated orgs; Metadata API / Ant for scripted multi-stage pipelines; Salesforce DX + unlocked packages for source-driven, version-controlled builds; CI/CD (Copado, Jenkins, GitLab) for automated, auditable release pipelines.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: DEPLOYMENT COMPONENTS -->
+<section class="slide title-slide" id="section-deployment-components" data-search="section deployment components">
+  <div class="pgnum" style="color:#cbd6e6">Page 7 · Section</div>
+  <h2>Deployment Components</h2>
+</section>
+
+<!-- DC: METADATA & DATA -->
+<section class="slide" id="dc-metadata-data" data-search="deployment components metadata components custom objects custom fields apex classes lightning web components visualforce pages data components records salesforce objects migrated environments building blocks">
+  <div class="pgnum">Page 8 · Metadata &amp; Data Components</div>
+  <h2>Deployment Components</h2>
+  <p class="lede">The components of a successful Salesforce deployment strategy focus on aspects such as <strong>metadata</strong>, <strong>data</strong>, <strong>governance</strong>, <strong>testing</strong>, and <strong>rollback</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Metadata Components</h4>
+      <p>Metadata components are the <strong>building blocks of Salesforce customization</strong>, such as custom objects, custom fields, Apex classes, Lightning web components, Visualforce pages, etc.</p>
+    </div>
+    <div class="card">
+      <h4>Data Components</h4>
+      <p>Data components represent <strong>records of Salesforce objects</strong> that need to be migrated between environments.</p>
+    </div>
+  </div>
+  <div class="note">Metadata and data are separate concerns in a deployment plan. Metadata moves via deployment tools (CLI, change sets, packages); data moves via data migration tools (Data Loader, Dataloader.io). Conflating the two is a common exam trap.</div>
+</section>
+
+<!-- DC: GOVERNANCE & CHANGE MANAGEMENT -->
+<section class="slide" id="dc-governance" data-search="deployment components governance framework policies procedures changes managed deployed tracking reviewing approving change management process stakeholders aligned informed">
+  <div class="pgnum">Page 9 · Governance &amp; Change Management</div>
+  <h2>Deployment Components</h2>
+  <p class="lede">The components of a successful Salesforce deployment strategy focus on aspects such as <strong>metadata</strong>, <strong>data</strong>, <strong>governance</strong>, <strong>testing</strong>, and <strong>rollback</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Governance</h4>
+      <p>A governance framework is a set of <strong>policies and procedures</strong> that guide how <strong>changes are managed and deployed</strong> across different environments.</p>
+    </div>
+    <div class="card">
+      <h4>Change Management Process</h4>
+      <p>A change management process focuses on establishing procedures for <strong>tracking, approving, and deploying changes</strong>, ensuring that all stakeholders are aligned and informed.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve, governance is not optional — it is mandated by the Fed's IT Risk Management Policy and FISMA. Every deployment must be traceable: who requested the change, who approved it, what was tested, when it was deployed, and what the rollback plan is. A GitLab pipeline that requires merge-request approvals from two reviewers before triggering a deployment stage directly implements this governance framework in code.</p>
+  </div>
+</section>
+
+<!-- DC: TEST PLANS & ROLLBACK -->
+<section class="slide" id="dc-test-rollback" data-search="deployment components test plans scripts detailed documents deployment does not negatively impact existing functionality rollback strategy contingency plan revert changes unexpected issues production environment">
+  <div class="pgnum">Page 10 · Test Plans &amp; Rollback Strategy</div>
+  <h2>Deployment Components</h2>
+  <p class="lede">The components of a successful Salesforce deployment strategy focus on aspects such as <strong>metadata</strong>, <strong>data</strong>, <strong>governance</strong>, <strong>testing</strong>, and <strong>rollback</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Test Plans &amp; Scripts</h4>
+      <p>Test plans and scripts are <strong>detailed documents</strong> used to ensure that a deployment <strong>does not negatively impact</strong> the existing functionality.</p>
+    </div>
+    <div class="card">
+      <h4>Rollback Strategy</h4>
+      <p>A <strong>contingency plan</strong> is necessary to <strong>revert changes</strong> if a deployment causes <strong>unexpected issues</strong> in the production environment.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Interviewers testing architect-level judgment will ask: "What is your rollback plan if a production deployment fails?" The answer must go beyond "we'll re-deploy the old code." Walk through: (1) pre-deployment sandbox backup as a restore point, (2) destructiveChanges.xml to remove new components, (3) Quick Deploy of a validated package to speed re-deployment. This demonstrates you have thought through the failure path, not just the happy path.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: DEPLOYMENT TOOLS -->
+<section class="slide title-slide" id="section-deployment-tools" data-search="section deployment tools">
+  <div class="pgnum" style="color:#cbd6e6">Page 11 · Section</div>
+  <h2>Deployment Tools</h2>
+</section>
+
+<!-- DT: SFDX & CLI -->
+<section class="slide" id="dt-sfdx-cli" data-search="deployment tools salesforce dx source-driven development scratch orgs package development cli command-line interface vs code code builder salesforce extensions">
+  <div class="pgnum">Page 12 · Salesforce DX &amp; CLI</div>
+  <h2>Deployment Tools</h2>
+  <p class="lede">Various tools are available for <strong>deploying changes</strong> in Salesforce. These include tools offered by <strong>Salesforce</strong> as well as <strong>third-party tools</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Salesforce DX</h4>
+      <p>Salesforce DX is a <strong>suite of tools</strong> used to <strong>build, test, and deploy</strong> applications quickly and efficiently. It facilitates <strong>source-driven development</strong>, using <strong>scratch orgs</strong> for development and testing, and <strong>package development</strong> for easy distribution and installation.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce CLI</h4>
+      <p>Salesforce CLI is a <strong>command-line interface</strong> that can be used for deployment using <strong>Salesforce Extensions for VS Code or Code Builder</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DT: METADATA API & ANT -->
+<section class="slide" id="dt-metadata-ant" data-search="deployment tools metadata api retrieve deploy create update delete customization information ant migration tool java ant-based command-line utility move metadata local directory salesforce org">
+  <div class="pgnum">Page 13 · Metadata API &amp; Ant Migration Tool</div>
+  <h2>Deployment Tools</h2>
+  <p class="lede">Various tools are available for <strong>deploying changes</strong> in Salesforce. These include tools offered by <strong>Salesforce</strong> as well as <strong>third-party tools</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Metadata API</h4>
+      <p>Metadata API can be used to <strong>retrieve, deploy, create, update or delete</strong> customization information.</p>
+    </div>
+    <div class="card">
+      <h4>Ant Migration Tool</h4>
+      <p>The Ant Migration Tool is a <strong>Java/Ant-based command-line utility</strong> used to <strong>move metadata</strong> between a <strong>local directory</strong> and a <strong>Salesforce org</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DT: CHANGE SETS & PACKAGES -->
+<section class="slide" id="dt-changesets-packages" data-search="deployment tools change sets native salesforce tools deploying metadata connected orgs smaller less complex unmanaged managed packages deploy code metadata one org another open-source upgradable">
+  <div class="pgnum">Page 14 · Change Sets &amp; Packages</div>
+  <h2>Deployment Tools</h2>
+  <p class="lede">Various tools are available for <strong>deploying changes</strong> in Salesforce. These include tools offered by <strong>Salesforce</strong> as well as <strong>third-party tools</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Change Sets</h4>
+      <p>Change sets are <strong>native Salesforce tools</strong> used for <strong>deploying metadata between connected Salesforce orgs</strong>. They are suitable for <strong>smaller, less complex deployments</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Packages</h4>
+      <p>Packages can be used to deploy code and metadata changes from one org to another. <strong>Unmanaged packages</strong> are open-source solutions while <strong>managed packages</strong> are customizable and upgradable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DT: AUTOMATED TESTING & CICD -->
+<section class="slide" id="dt-automated-cicd" data-search="deployment tools automated testing tools selenium sandbox environments cicd continuous integration continuous deployment copado flosum automate build deployment processes">
+  <div class="pgnum">Page 15 · Automated Testing &amp; CI/CD Tools</div>
+  <h2>Deployment Tools</h2>
+  <p class="lede">Various tools are available for <strong>deploying changes</strong> in Salesforce. These include tools offered by <strong>Salesforce</strong> as well as <strong>third-party tools</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Automated Testing Tools</h4>
+      <p>Third-party automated testing tools, such as <strong>Selenium</strong>, can be used to automate tests in sandbox environments.</p>
+    </div>
+    <div class="card">
+      <h4>CI/CD Tools</h4>
+      <p>Third-party <strong>CI/CD (Continuous Integration/Continuous Deployment)</strong> tools like <strong>Copado</strong> and <strong>Flosum</strong> are often used to automate the build and deployment processes.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The Fed's GitLab environment is the CI/CD backbone for Salesforce deployments at the Chicago branch. A GitLab pipeline replaces Copado/Flosum for teams that build on open-source tooling: stages are defined in <code>.gitlab-ci.yml</code>, the Salesforce CLI runs in pipeline jobs to deploy metadata, and merge-request approval rules (protected branches) enforce the approval gate that change management requires. Automated test execution in the pipeline produces the artifact evidence package regulators expect.</p>
+  </div>
+</section>
+
+<!-- DT: SALESFORCE DX — DEEP DIVE -->
+<section class="slide" id="dt-sfdx-deep" data-search="salesforce dx developer experience source-driven development version control circleci jenkins travis ci metadata api org development model unlocked packages organize existing metadata package new metadata continuous integration delivery">
+  <div class="pgnum">Page 16 · Salesforce DX — Deep Dive</div>
+  <h2>Salesforce DX</h2>
+  <p class="lede"><strong>Salesforce Developer Experience (DX)</strong> supports <strong>building and deploying applications</strong> on the Salesforce platform in a more efficient, flexible, and controlled manner.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Source-Driven Development</h4>
+      <p>Salesforce DX enabled <strong>source-driven development</strong>. Source code and metadata exist in a <strong>version control system</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>CI/CD Integration</h4>
+      <p>It facilitates <strong>continuous integration and delivery</strong> using tools such as <strong>CircleCI</strong>, <strong>Jenkins</strong>, and <strong>Travis CI</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce CLI</h4>
+      <p>Salesforce CLI automates various tasks, from <strong>org management to data import/export</strong>, streamlining the deployment process.</p>
+    </div>
+    <div class="card">
+      <h4>Metadata API</h4>
+      <p>Metadata API can be used to <strong>retrieve and deploy changes</strong> using the development workflow called the <strong>org development model</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Unlocked Packages</h4>
+      <p><strong>Unlocked packages</strong> can be used to organize existing metadata, package an app, extend an app, or package new metadata.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about source-driven development, explain the two models: the <em>org development model</em> (Metadata API retrieves from a persistent org, changes live in the org first) vs. the <em>package development model</em> (source is the truth, scratch orgs are spun up from source, unlocked packages version the artifact). For regulated environments, the package model provides a stronger audit trail because the package version is an immutable, versioned artifact.</p>
+  </div>
+</section>
+
+<!-- DT: SALESFORCE CLI — DEEP DIVE -->
+<section class="slide" id="dt-cli-deep" data-search="salesforce cli command-line tool part of salesforce dx create manage salesforce environments push pull source code execute tests deploy metadata commands data metadata automation ci systems automated testing deployment">
+  <div class="pgnum">Page 17 · Salesforce CLI — Deep Dive</div>
+  <h2>Salesforce CLI</h2>
+  <p class="lede">Salesforce CLI is a <strong>command-line tool</strong> that is part of Salesforce DX.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Environment &amp; Deployment Automation</h4>
+      <p>Salesforce CLI streamlines various tasks, such as creating and managing <strong>Salesforce environments</strong>, pushing and pulling <strong>source code</strong>, executing <strong>tests</strong>, and deploying <strong>metadata</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Data &amp; Metadata Commands</h4>
+      <p>The CLI provides <strong>commands</strong> for working with <strong>data</strong> and <strong>metadata</strong>, which allow for the automation of <strong>deployment processes</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>CI Integration</h4>
+      <p>Salesforce CLI commands make it easier to integrate with <strong>Continuous Integration (CI) systems</strong> for <strong>automated testing and deployment</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a GitLab pipeline, the Salesforce CLI is invoked directly in pipeline job scripts: <code>sf project deploy start</code> to deploy metadata, <code>sf apex run test</code> to run Apex tests, <code>sf org create scratch</code> to spin up ephemeral test environments. Each CLI command produces exit codes and structured output that the pipeline captures as job artifacts — the machine-readable evidence trail that audit and compliance teams require.</p>
+  </div>
+</section>
+
+<!-- DT: METADATA API — DEEP DIVE -->
+<section class="slide" id="dt-metadata-api-deep" data-search="metadata api move metadata between orgs deploying large metadata changes production local file system scratch org sandboxes integrating changes testing collaboration source control git large changes splitting merging production orgs">
+  <div class="pgnum">Page 18 · Metadata API — Deep Dive</div>
+  <h2>Metadata API</h2>
+  <p class="lede">Metadata API can be used to <strong>move metadata between orgs</strong> during the development lifecycle and <strong>deploying large metadata changes</strong> from development.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Production → Local</h4>
+      <p>Metadata can be moved from <strong>production to the local file system</strong> to make development changes.</p>
+    </div>
+    <div class="card">
+      <h4>Scratch Org Integration</h4>
+      <p>Metadata changes can be <strong>moved to and from a scratch org</strong>, which can be used along with the local file system for development and testing.</p>
+    </div>
+    <div class="card">
+      <h4>Sandbox Integration</h4>
+      <p>Metadata can be moved to <strong>sandboxes</strong> for <strong>integrating changes, testing, and collaboration</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Source Control → Production</h4>
+      <p>In the final step of the development cycle, metadata can be <strong>moved from a source control system such as Git to production</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Large-Scale Changes</h4>
+      <p>Metadata can be moved for <strong>large changes</strong>, such as <strong>splitting or merging production orgs</strong>.</p>
+    </div>
+  </div>
+  <div class="note">The Metadata API is the underlying engine that the Salesforce CLI, Ant Migration Tool, and Change Sets all use. Understanding the API is what lets you troubleshoot when those higher-level tools fail.</div>
+</section>
+
+<!-- DT: ANT MIGRATION TOOL — DEEP DIVE -->
+<section class="slide" id="dt-ant-deep" data-search="ant migration tool java ant-based command-line utility moving metadata local directory salesforce org populating test environment setup changes scripted retrieval deployment multi-stage release repetitive deployments scripting environment batch deployments scheduled">
+  <div class="pgnum">Page 19 · Ant Migration Tool — Deep Dive</div>
+  <h2>Ant Migration Tool</h2>
+  <p class="lede">The Ant Migration Tool is a <strong>Java/Ant-based command-line utility</strong> used for <strong>moving metadata</strong> between a <strong>local directory and a Salesforce org</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Populating Test Environments</h4>
+      <p>The tool can be used for development projects that require <strong>populating a test environment</strong> with a lot of Setup changes.</p>
+    </div>
+    <div class="card">
+      <h4>Scripted Multi-Stage Releases</h4>
+      <p>It can be used for <strong>scripted retrieval and deployment</strong> of components, making <strong>multi-stage release processes</strong> much more efficient.</p>
+    </div>
+    <div class="card">
+      <h4>Repetitive Deployments</h4>
+      <p>It can be used for <strong>repetitive deployments</strong> using the <strong>same parameters</strong>. The same process for deploying changes can be reused.</p>
+    </div>
+    <div class="card">
+      <h4>Scripting Environments</h4>
+      <p>It can be used for <strong>deployments in a scripting environment</strong>, such as for migrating changes from staging to production.</p>
+    </div>
+    <div class="card">
+      <h4>Scheduled Batch Deployments</h4>
+      <p><strong>Batch deployments can be scheduled</strong>. For example, a deployment can be scheduled for midnight or changes can be pulled every day.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Ant Migration Tool is increasingly superseded by the Salesforce CLI for new projects, but it remains relevant for legacy orgs and teams that have existing Ant-based scripts. On the exam and in interviews, the key differentiator vs. Change Sets is: Ant supports automation and scripting; Change Sets do not. If a scenario requires automation or multi-stage release scripting and does not involve a CI/CD platform, Ant Migration Tool is the answer.</p>
+  </div>
+</section>
+
+<!-- DT: CHANGE SETS — PART 1 -->
+<section class="slide" id="dt-changesets-deep1" data-search="change sets move customizations salesforce orgs affiliated production org outbound change set upload deployment connection dependent components profile settings inbound change set deployed validated deployment status success failure messages change set detail page">
+  <div class="pgnum">Page 20 · Change Sets — Part 1</div>
+  <h2>Change Sets</h2>
+  <p class="lede">Change Sets can be used to <strong>move customizations between Salesforce orgs</strong> that are <strong>affiliated with a production org</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Outbound Change Set</h4>
+      <p>Once a <strong>deployment connection</strong> is created, an <strong>outbound change set</strong> can be <strong>created and uploaded</strong> to send changes to another org.</p>
+    </div>
+    <div class="card">
+      <h4>Component Selection</h4>
+      <p>When selecting components for an outbound change set, <strong>dependent components</strong> and <strong>profile settings</strong> can be added.</p>
+    </div>
+    <div class="card">
+      <h4>Inbound Change Set</h4>
+      <p>The receiving org sees the outbound change set as an <strong>inbound change set</strong>, which must be <strong>deployed</strong> for the changes to take effect.</p>
+    </div>
+    <div class="card">
+      <h4>Validation</h4>
+      <p>A change set can be <strong>validated</strong> before deploying changes. Validation allows viewing <strong>success or failure messages</strong> received with an actual deployment.</p>
+    </div>
+    <div class="card">
+      <h4>Deployment Status</h4>
+      <p>The deployment of change sets can be tracked on the <strong>Deployment Status page</strong>. The <strong>change set detail page</strong> shows completed deployments.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DT: CHANGE SETS — PART 2 -->
+<section class="slide" id="dt-changesets-deep2" data-search="change sets allow inbound changes deployment settings cannot be automated metadata differences originating org locked validating outbound target org locked deploying inbound read write data setup changes one version flow latest inactive version">
+  <div class="pgnum">Page 21 · Change Sets — Part 2</div>
+  <h2>Change Sets</h2>
+  <p class="lede">Change Sets can be used to <strong>move customizations between Salesforce orgs</strong> that are <strong>affiliated with a production org</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Authorizing Inbound Changes</h4>
+      <p>Inbound changes from an org can be authorized by selecting <strong>Allow Inbound Changes</strong> on the Deployment Settings page in Setup.</p>
+    </div>
+    <div class="card">
+      <h4>Cannot Be Automated</h4>
+      <p>The use of change sets <strong>cannot be automated</strong> based on metadata differences in an org.</p>
+    </div>
+    <div class="card">
+      <h4>Org Locking During Validation/Deploy</h4>
+      <p>The <strong>originating org is locked</strong> while <strong>validating</strong> an outbound change set. The <strong>target org is locked</strong> while <strong>deploying</strong> an inbound change set. When locked, it is possible to read and write data, but any Setup changes that would modify the metadata are not possible.</p>
+    </div>
+    <div class="card">
+      <h4>Flow Version Limitation</h4>
+      <p>Only <strong>one version of a flow</strong> can be included in a change set. If there is no active version, the <strong>latest inactive version</strong> is used.</p>
+    </div>
+  </div>
+  <div class="note">Change Sets cannot be automated — this is the most-tested Change Set limitation. If a scenario requires automation, CI/CD, or scripting, Change Sets are disqualified as the answer regardless of other factors.</div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The org-locking behavior of Change Sets is a critical operational risk in a regulated environment: validating or deploying a change set locks the org, blocking all Setup changes from other team members. For a central bank with concurrent development streams, this is unacceptable during business hours. This is a concrete, defensible reason why the Fed's DevOps practice should use Salesforce CLI + GitLab pipeline rather than Change Sets for anything beyond trivial one-off moves.</p>
+  </div>
+</section>
+
+<!-- DT: PACKAGES — DEEP DIVE -->
+<section class="slide" id="dt-packages-deep" data-search="packages unlocked packages organize deploy metadata internal business applications life cycle package version immutable artifact metadata features sandboxes scratch orgs testing staging version control git deploying updates rolling back changes">
+  <div class="pgnum">Page 22 · Packages — Deep Dive</div>
+  <h2>Packages</h2>
+  <p class="lede">Unlocked packages can be utilized to <strong>organize and deploy metadata</strong> for internal business applications across different environments.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Package Lifecycle</h4>
+      <p>Each unlocked package has a distinct <strong>life cycle</strong>. A new <strong>package version</strong> is created after adding, removing, or changing package metadata. A package version is an <strong>immutable artifact</strong> that contains specific metadata and features.</p>
+    </div>
+    <div class="card">
+      <h4>Multi-Environment Installation</h4>
+      <p>A package version can be installed in various Salesforce environments, including <strong>sandboxes</strong> and <strong>scratch orgs</strong>, facilitating testing and staging before deployment to production.</p>
+    </div>
+    <div class="card">
+      <h4>Version Control Integration</h4>
+      <p>Unlocked packages can be integrated with a <strong>version control system like Git</strong>. Version control allows <strong>deploying updates</strong> and <strong>rolling back changes</strong> with greater precision.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The <em>immutable artifact</em> property of unlocked package versions is the key differentiator from other deployment methods. Once a package version is created, it cannot be changed — only superseded by a new version. This gives you a reliable rollback target: if v1.3 causes a production issue, you deploy v1.2. No destructiveChanges.xml needed. This is the gold-standard deployment pattern for teams that operate multiple production orgs or have strict change-control requirements.</p>
+  </div>
+</section>
+
+<!-- DT: AUTOMATED TESTING TOOLS — DEEP DIVE -->
+<section class="slide" id="dt-automated-testing-deep" data-search="automated testing tools third-party selenium standardize testing processes reduce human error deployments successful identifying potential issues unit tests functional integration regression load ui test coverage bug detection time cost savings cleaner code reliable deployments reduced human errors">
+  <div class="pgnum">Page 23 · Automated Testing Tools — Deep Dive</div>
+  <h2>Automated Testing Tools</h2>
+  <p class="lede">Many <strong>third-party automation tools</strong>, such as Selenium, are available for Salesforce testing. They <strong>standardize testing processes</strong> and <strong>reduce the risk of human error</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Identify Issues Before Production</h4>
+      <p>Automated testing tools ensure that <strong>deployments are successful</strong> by <strong>identifying potential issues</strong> before they affect users. They automate the testing process, allowing for quicker deployment.</p>
+    </div>
+    <div class="card">
+      <h4>Common Test Types</h4>
+      <p>The common types of tests that can be automated include <strong>unit tests</strong>, <strong>functional tests</strong>, <strong>integration tests</strong>, <strong>regression tests</strong>, <strong>load tests</strong>, and <strong>UI tests</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Advantages</h4>
+      <p>Advantages of automated testing include increased <strong>test coverage</strong>, early <strong>bug detection</strong>, <strong>time and cost savings</strong>, <strong>cleaner existing code</strong>, <strong>reliable deployments</strong>, and <strong>reduced human errors</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a regulated environment, automated testing is a control, not a convenience. At the Fed, Apex test execution at the <code>RunSpecifiedTests</code> or <code>RunLocalTests</code> level during deployment is a required gate — not optional. Running Selenium or a Salesforce-specific UI testing framework (e.g., Provar) in a GitLab pipeline stage produces a test results artifact that can be attached to the change ticket as evidence of pre-production validation, satisfying IT audit requirements.</p>
+  </div>
+</section>
+
+<!-- DT: CI/CD TOOLS — PART 1 -->
+<section class="slide" id="dt-cicd-deep1" data-search="cicd tools continuous integration continuous deployment continuous delivery streamline development workflows release pipeline packages combined tested approved merged version control adding value new functionality">
+  <div class="pgnum">Page 24 · CI/CD Tools — Part 1</div>
+  <h2>CI/CD Tools</h2>
+  <p class="lede">Third-party CI/CD tools <strong>streamline development workflows</strong> and are crucial for <strong>continuous integration</strong>, <strong>continuous deployment</strong>, and <strong>continuous delivery</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Continuous Integration (CI)</h4>
+      <p><strong>Continuous Integration (CI)</strong> focuses on automatically moving work items through a <strong>release pipeline</strong>. Packages are <strong>combined and tested</strong> before being promoted to production, ensuring that no issues arise upon release.</p>
+    </div>
+    <div class="card">
+      <h4>Continuous Deployment (CD)</h4>
+      <p><strong>Continuous Deployment (CD)</strong> focuses on automatically deploying changes to a downstream environment. A change is deployed as soon as it has been <strong>approved and merged into version control</strong>, ensuring the latest changes.</p>
+    </div>
+    <div class="card">
+      <h4>Continuous Delivery</h4>
+      <p><strong>Continuous Delivery</strong> is the ultimate goal of CI/CD. It focuses on releasing added value and new functionalities as soon as possible.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Know the CI vs. CD distinction precisely. CI = automatically running tests when code is merged (validating the build). CD = automatically deploying the artifact to a downstream environment after CI passes. Continuous Delivery adds a human approval gate before the final production push — this is the variant most regulated organizations implement, since full Continuous Deployment to production without human approval is rarely acceptable in a change-controlled environment.</p>
+  </div>
+</section>
+
+<!-- DT: CI/CD TOOLS — PART 2 -->
+<section class="slide" id="dt-cicd-deep2" data-search="cicd tools options standard automation salesforce-specific devops platforms automates repetitive version control source of truth validate deployment packages carry out tests promote work items circleci jenkins travis ci gitlab copado flosum devops solutions development velocity">
+  <div class="pgnum">Page 25 · CI/CD Tools — Part 2</div>
+  <h2>CI/CD Tools</h2>
+  <p class="lede">Options for continuous integration and continuous deployment include <strong>standard automation tools</strong> and <strong>Salesforce-specific DevOps platforms</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Reduces Manual Work</h4>
+      <p>CI/CD <strong>automates</strong> repetitive, error-prone manual processes, increases <strong>development velocity</strong>, and significantly <strong>saves developer time</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Version Control as Source of Truth</h4>
+      <p>A successful CI/CD process is usually rooted in <strong>version control</strong> as the <strong>source of truth</strong> for new development work.</p>
+    </div>
+    <div class="card">
+      <h4>Pipeline Automation</h4>
+      <p>Automation is used to <strong>validate deployment packages</strong>, <strong>carry out tests</strong>, and <strong>promote work items</strong> along the pipeline.</p>
+    </div>
+    <div class="card">
+      <h4>Standard Automation Tools</h4>
+      <p>Standard automation tools include <strong>CircleCI</strong>, <strong>Jenkins</strong>, and <strong>Travis CI</strong>. Major Git hosting platforms also offer CI/CD capabilities.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce-Specific Platforms</h4>
+      <p><strong>Salesforce-specific tools</strong> like <strong>Copado</strong> and <strong>Flosum</strong> offer CI/CD as part of their DevOps solutions.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The Federal Reserve Chicago uses GitLab, which falls under "major Git hosting platforms that also offer CI/CD capabilities." A GitLab <code>.gitlab-ci.yml</code> pipeline for Salesforce deployments would define stages such as: <code>validate</code> (run <code>sf project deploy validate</code>), <code>test</code> (run Apex tests via CLI), <code>deploy-uat</code> (deploy to UAT sandbox, gated by manual approval), and <code>deploy-prod</code> (deploy to production, gated by two required approvers matching the change management policy). Each stage produces a job artifact for the audit trail. This is Continuous Delivery — not full Continuous Deployment — because the production gate is human-approved.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 26 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic tech solutions software development cloud-based applications sales cloud service cloud lightning platform deployment processes frequent releases streamline efficient error-free architect evaluate recommend">
+  <div class="pgnum">Page 27 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Tech Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Tech Solutions, a leading software development company that specializes in cloud-based applications, is undergoing a strategic shift to enhance its deployment processes across its Salesforce environments. The company currently utilizes a diverse set of Salesforce clouds, including Sales Cloud for CRM, Service Cloud for customer service management, and custom applications built on the Lightning platform to cater to specific business needs.</p>
+    <p style="margin-top:8px;">With a growing global presence and an increasing number of complex projects requiring frequent releases, the company faces the challenge of streamlining its deployment strategy to ensure efficient, error-free releases that align with business objectives and technical requirements.</p>
+    <p style="margin-top:8px;">The company's Salesforce architect is required to evaluate the existing deployment processes and recommend the components and tools for various business requirements to establish a successful deployment strategy.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 28 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 streamline automate deployment customizations sandbox environments build phase user acceptance testing uat production automated metadata changes tracked development lifecycle reduce deployment time rollback strategy new features production">
+  <div class="pgnum">Page 29 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company would like to <strong>streamline and automate the deployment</strong> of customizations to various sandbox environments during the build phase. Once user acceptance testing is complete in the UAT environment, the deployment to the production org should also be automated.</p>
+    <p style="margin-top:8px;">Also, <strong>metadata changes need to be tracked</strong> in Salesforce throughout the development lifecycle across various environments. Furthermore, the company is looking for ways to <strong>reduce the deployment time</strong> and wants a <strong>rollback strategy</strong> for new features deployed to production.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 — PART 1 -->
+<section class="slide" id="solution-1a" data-search="solution 1 part 1 cicd tool jenkins devops platform copado release pipeline sandboxes production automatically move work items combining testing changes approved merged version control third-party tool appexchange metadata tracking">
+  <div class="pgnum">Page 30 · Solution 1 — Part 1</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>In order to streamline and automate the deployment of customizations to various sandbox environments during the build phase, a <strong>CI/CD tool</strong> such as Jenkins or a DevOps platform such as Copado should be utilized. A <strong>release pipeline</strong> can be built to deploy to sandboxes and production.</p>
+    <p style="margin-top:8px;">The CI/CD tool can automatically move work items through the release pipeline, combining and testing changes. It can also automatically deploy a change to a downstream environment once it has been <strong>approved and merged into version control</strong>. Metadata changes can be tracked in Salesforce using a <strong>third-party tool</strong> available in the <strong>AppExchange marketplace</strong>.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Mapping this solution to a GitLab pipeline: a <code>.gitlab-ci.yml</code> defines the pipeline stages (dev sandbox → integration sandbox → UAT → production). Each promotion between stages is triggered by a merge to a protected branch, which requires a passing CI stage and at minimum two approvals. The "approved and merged into version control" trigger is GitLab's merge-request workflow. Metadata tracking can be handled by tools like Gearset or Copado's metadata comparison feature installed from AppExchange.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 — PART 2 -->
+<section class="slide" id="solution-1b" data-search="solution 1 part 2 rollback strategy sandbox production backup existing metadata destructivechanges xml delete new components reduce deployment time recent deployment validations quick deploy runspecifiedtests test level">
+  <div class="pgnum">Page 31 · Solution 1 — Part 2</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Before the deployment of a new feature to production, a <strong>sandbox</strong> can be created from production for a <strong>backup of the existing metadata</strong>. After the deployment of the new feature, if a rollback is required, <strong>destructiveChanges.xml</strong> can be used to delete the new components, and metadata from the sandbox can be deployed from the sandbox to production.</p>
+    <p style="margin-top:8px;">To reduce the deployment time, <strong>recent deployment validations</strong> and the <strong>Quick Deploy</strong> feature can be utilized. Also, specific tests can be run for deployments by using the <strong>RunSpecifiedTests</strong> test level.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Three distinct deployment time-reduction techniques are on this slide — learn all three: (1) <strong>Quick Deploy</strong>: if a validation passed within the last 10 days, you can deploy without re-running tests, saving significant time for large orgs. (2) <strong>RunSpecifiedTests</strong>: only run the tests relevant to the components being deployed, rather than all local tests. (3) <strong>Sandbox backup as rollback baseline</strong>: a full-copy or partial sandbox refreshed from production just before a release gives you a known-good restore point. Each technique addresses a different constraint (test time, time-to-revert) — an architect answer names the right one for the right constraint.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 two regional production instances apac emea custom application managing software solutions deployed maintain modify metadata simple configuration changes enhancements new flow suitable tool benefits automation deployment considerations">
+  <div class="pgnum">Page 32 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company has set up two new regional production instances for its operations in APAC and EMEA. A development team in the United States has created a custom application for managing different types of software solutions that needs to be deployed to the new production instances. The regional development teams should be able to <strong>maintain and modify the application metadata</strong>.</p>
+    <p style="margin-top:8px;">Also, the company wants to establish a deployment plan for releasing <strong>simple configuration changes and enhancements</strong>, such as a new flow. The architect needs to recommend a suitable tool while outlining its benefits and any valid <strong>considerations related to automation and deployment</strong>.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 — PART 1 -->
+<section class="slide" id="solution-2a" data-search="solution 2 part 1 ant migration tool salesforce extensions vs code custom application metadata new production instances change sets simple configuration changes new flow migrate metadata declarative deployment connection inbound changes source org affiliated production org">
+  <div class="pgnum">Page 33 · Solution 2 — Part 1</div>
+  <h2>Solution 2 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Deployment tools such as the <strong>Ant Migration Tool</strong> or <strong>Salesforce Extensions for VS Code</strong> can be utilized to deploy the custom application metadata to the new production instances.</p>
+    <p style="margin-top:8px;">For simple configuration changes, such as a new flow, <strong>change sets</strong> can be used to migrate the metadata between different environments. They offer an easy and declarative way of deploying components, including dependent components, <strong>between orgs that are affiliated with a production org</strong>. To use change sets, a deployment connection must be established. An org that needs to receive customizations through a change set must <strong>allow inbound changes</strong> from the source org.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This solution pairs two tools to address two different requirements: Ant / VS Code Extensions for the initial large metadata deployment to new orgs (one-time, complex migration) and Change Sets for ongoing simple changes (recurring, declarative, low-complexity). The architect answer always matches the tool to the constraint. Change Sets are recommended here because the changes are simple and the orgs are affiliated with the same production — not because they are the best tool in general.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 — PART 2 -->
+<section class="slide" id="solution-2b" data-search="solution 2 part 2 change sets cannot be automated metadata differences one version flow latest inactive version originating org locked validating target org locked deploying read write data setup changes not possible considerations">
+  <div class="pgnum">Page 34 · Solution 2 — Part 2</div>
+  <h2>Solution 2 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>There are other important considerations for using change sets, especially for migrating a flow. The use of change sets <strong>cannot be automated</strong> based on metadata differences in an org. Only <strong>one version of a flow</strong> can be included in a change set, and if there is no active version, the <strong>latest inactive version</strong> is used.</p>
+    <p style="margin-top:8px;">Although changes sent using a change set can be validated, the <strong>originating org is locked</strong> while <strong>validating</strong> an outbound change set. The <strong>target org is locked</strong> while <strong>deploying</strong> an inbound change set. When an org is locked, it is possible to <strong>read and write data</strong>, but any Setup changes that would modify the metadata are not possible.</p>
+  </div>
+  <div class="note">This slide is the exam "gotcha cluster" for Change Sets: (1) cannot be automated, (2) only one flow version, (3) org locking during validate and deploy. Any one of these limitations, if present in a scenario, may disqualify Change Sets as the recommended tool.</div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more salesforce developer experience metadata api ant migration tool unlocked packages choose tools developing deploying changes further reading trailhead">
+  <div class="pgnum">Page 35 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>How Salesforce Developer Experience Changes the Way You Work</li>
+    <li>Use Cases for Metadata API</li>
+    <li>Ant Migration Tool</li>
+    <li>Unlocked Packages</li>
+    <li>Choose Your Tools for Developing and Deploying Changes</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary deployment strategy tools components decision matrix change sets metadata api ant cli sfdx cicd packages exam gotchas rollback quick deploy runspecifiedtests gitlab pipeline fed angle">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — System Design: Deployment Strategy</h2>
+
+  <h3>Deployment Tool Selection Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>Recommended Tool</th>
+        <th>Key Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Small declarative change between affiliated orgs</td>
+        <td>Change Sets</td>
+        <td>Easy, no scripting needed; must be affiliated with same production org</td>
+      </tr>
+      <tr>
+        <td>Automated deployment through pipeline</td>
+        <td>Salesforce CLI + CI/CD (Jenkins, GitLab, Copado)</td>
+        <td>Change Sets cannot be automated; CLI integrates with CI systems</td>
+      </tr>
+      <tr>
+        <td>Large initial metadata migration to a new org</td>
+        <td>Ant Migration Tool or Salesforce Extensions for VS Code</td>
+        <td>Scripted, repeatable, handles large component sets</td>
+      </tr>
+      <tr>
+        <td>Source-driven development with scratch orgs</td>
+        <td>Salesforce DX + Salesforce CLI</td>
+        <td>Source is the truth; ephemeral orgs for isolation; CI/CD friendly</td>
+      </tr>
+      <tr>
+        <td>Versioned, immutable deployment artifact</td>
+        <td>Unlocked Packages</td>
+        <td>Each package version is immutable; rollback by re-deploying prior version</td>
+      </tr>
+      <tr>
+        <td>Retrieve/deploy via org development model</td>
+        <td>Metadata API</td>
+        <td>Underlying engine; used directly when fine-grained control is needed</td>
+      </tr>
+      <tr>
+        <td>Reduce deployment time after successful validation</td>
+        <td>Quick Deploy + RunSpecifiedTests</td>
+        <td>Skip re-running tests if validation passed within 10 days</td>
+      </tr>
+      <tr>
+        <td>Rollback after failed production deployment</td>
+        <td>Sandbox backup + destructiveChanges.xml</td>
+        <td>Pre-production sandbox copy = restore baseline; destructiveChanges removes new components</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Change Sets — Limitation Quick Reference</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Limitation</th><th>Impact</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Cannot be automated</td><td>Disqualified when scenario requires CI/CD or scripted automation</td></tr>
+      <tr><td>Only orgs affiliated with the same production org</td><td>Cannot deploy to unaffiliated orgs (e.g., cross-company, new production instances)</td></tr>
+      <tr><td>Originating org locked during outbound validation</td><td>Blocks concurrent Setup changes; operational risk during business hours</td></tr>
+      <tr><td>Target org locked during inbound deployment</td><td>Blocks concurrent Setup changes on the target</td></tr>
+      <tr><td>Only one flow version per change set</td><td>No active version → latest inactive version is deployed (may not be intended)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Deployment Components Checklist</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Component</th><th>What It Covers</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Metadata Components</strong></td><td>Custom objects, Apex classes, LWC, Visualforce — the building blocks moved by deployment tools</td></tr>
+      <tr><td><strong>Data Components</strong></td><td>Object records migrated between environments (separate from metadata; use Data Loader / Dataloader.io)</td></tr>
+      <tr><td><strong>Governance Framework</strong></td><td>Policies and procedures governing how changes are tracked, reviewed, and approved</td></tr>
+      <tr><td><strong>Change Management Process</strong></td><td>Procedures ensuring all stakeholders are aligned and informed before and after deployment</td></tr>
+      <tr><td><strong>Test Plans &amp; Scripts</strong></td><td>Detailed documents verifying deployment does not break existing functionality</td></tr>
+      <tr><td><strong>Rollback Strategy</strong></td><td>Contingency plan to revert changes if deployment causes unexpected production issues</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Change Sets ≠ automation</strong> — the moment a scenario says "automated" or "CI/CD," Change Sets are off the table.</li>
+    <li><strong>Unlocked package versions are immutable</strong> — this is the gold-standard rollback mechanism; no need for destructiveChanges.xml.</li>
+    <li><strong>Quick Deploy requires a passing validation within 10 days</strong> — it skips test execution, not deployment itself.</li>
+    <li><strong>RunSpecifiedTests</strong> — runs only the tests you name; requires 75% code coverage on the components being deployed.</li>
+    <li><strong>Metadata API is the engine under the hood</strong> — CLI, Ant, and Change Sets all call Metadata API; direct API use gives you the most control.</li>
+    <li><strong>Data migration ≠ metadata deployment</strong> — never mix these in an architecture answer; they use different tools and different failure modes.</li>
+    <li><strong>org development model vs. package development model</strong> — key distinction for DX questions: org model = Metadata API as source of truth; package model = VCS as source of truth.</li>
+    <li><strong>CI = validate/test; CD = deploy after approval</strong> — in regulated environments, full Continuous Deployment to production (no human gate) is usually not permitted; Continuous Delivery (with approval gate) is the acceptable pattern.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For the Federal Reserve Chicago DevOps / platform engineer role, the deployment strategy answer is: <strong>Salesforce CLI + GitLab CI/CD pipeline + unlocked packages + approval gates</strong>. Here is how the components map: (1) <strong>Metadata Components</strong> are tracked in a GitLab repo as the source of truth. (2) <strong>Governance &amp; Change Management</strong> is enforced by GitLab protected branches + required merge-request approvals (two approvers = four-eyes principle). (3) <strong>Test Plans</strong> are executed as a mandatory <code>test</code> pipeline stage via <code>sf apex run test</code> — job artifacts are the evidence. (4) <strong>Rollback Strategy</strong>: unlocked package versioning provides the cleanest rollback (redeploy prior version); for org-model deploys, a pre-production sandbox backup + destructiveChanges.xml is the documented contingency. (5) <strong>Auditability</strong>: every pipeline run is logged, every merge is attributed to a person, every approval is timestamped — this is the audit trail regulators require. Change Sets have no place in this architecture because they cannot be automated and they produce no machine-readable audit artifact.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

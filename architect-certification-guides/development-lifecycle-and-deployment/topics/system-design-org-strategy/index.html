@@ -1,0 +1,1073 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design — Org Strategy — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>System Design — Org Strategy</h1>
+  <div class="sub">Given a customer landscape and requirements, evaluate business, technical, and architectural considerations that support the defined org strategy · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (46 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Org Strategy Overview</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+    </ul>
+    <h3>Salesforce Org Strategy</h3>
+    <ul>
+      <li><a href="#section-org-strategy">Section: Salesforce Org Strategy</a></li>
+      <li><a href="#org-strategy-defined">Org Strategy Defined</a></li>
+      <li><a href="#single-vs-multi-org">Single-Org vs. Multi-Org Strategy</a></li>
+      <li><a href="#org-strategy-considerations">Org Strategy Considerations</a></li>
+    </ul>
+    <h3>Architectural Considerations</h3>
+    <ul>
+      <li><a href="#section-architectural">Section: Architectural Considerations</a></li>
+      <li><a href="#ea-operating-model">Enterprise Architecture Operating Model</a></li>
+      <li><a href="#diversification">Diversification</a></li>
+      <li><a href="#replication">Replication</a></li>
+      <li><a href="#coordination">Coordination</a></li>
+      <li><a href="#unification">Unification</a></li>
+      <li><a href="#integration-strategy">Integration Strategy</a></li>
+    </ul>
+    <h3>Business Considerations</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Considerations</a></li>
+      <li><a href="#funding-scope">Funding &amp; Scope of Control</a></li>
+      <li><a href="#lines-of-business">Lines of Business (LOBs)</a></li>
+      <li><a href="#overhead-multiple-orgs">Overhead of Multiple Orgs</a></li>
+      <li><a href="#customer-360">Customer 360 &amp; Global Case Management</a></li>
+    </ul>
+    <h3>Technical Considerations</h3>
+    <ul>
+      <li><a href="#section-technical">Section: Technical Considerations</a></li>
+      <li><a href="#complexity-lobs">Complexity of Multiple LOBs</a></li>
+      <li><a href="#effective-change-mgmt">Effective Change Management</a></li>
+      <li><a href="#regulatory-compliance">Regulatory, Compliance &amp; Security</a></li>
+      <li><a href="#chatter">Chatter</a></li>
+      <li><a href="#dev-admin-release">Development, Administration &amp; Release</a></li>
+      <li><a href="#support-service">Support &amp; Service Management</a></li>
+      <li><a href="#org-limits">Org Limits</a></li>
+    </ul>
+    <h3>Business Scenario 1</h3>
+    <ul>
+      <li><a href="#section-scenario1">Section: Business Scenario 1</a></li>
+      <li><a href="#scenario1">Cosmic Energy — Scenario</a></li>
+      <li><a href="#section-req-sol-1">Section: Requirements &amp; Solutions 1</a></li>
+      <li><a href="#req1-part1">Requirement Part 1</a></li>
+      <li><a href="#req1-part2">Requirement Part 2</a></li>
+      <li><a href="#sol1-part1">Solution Part 1</a></li>
+      <li><a href="#sol1-part2">Solution Part 2</a></li>
+      <li><a href="#sol1-part3">Solution Part 3</a></li>
+      <li><a href="#sol1-part4">Solution Part 4</a></li>
+    </ul>
+    <h3>Business Scenario 2</h3>
+    <ul>
+      <li><a href="#section-scenario2">Section: Business Scenario 2</a></li>
+      <li><a href="#scenario2">Cosmic Technologies — Scenario</a></li>
+      <li><a href="#section-req-sol-2">Section: Requirements &amp; Solutions 2</a></li>
+      <li><a href="#req2-part1">Requirement Part 1</a></li>
+      <li><a href="#req2-part2">Requirement Part 2</a></li>
+      <li><a href="#sol2-part1">Solution Part 1</a></li>
+      <li><a href="#sol2-part2">Solution Part 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover system design org strategy salesforce development lifecycle deployment architect focusonforce single-org multi-org">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>System Design — Org Strategy</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer landscape and their requirements, evaluate business, technical, and architectural considerations that support the defined org strategy · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents org strategy architectural considerations business considerations technical considerations business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#section-org-strategy">Salesforce Org Strategy</a></li>
+    <li><a class="toc-link" href="#section-architectural">Architectural Considerations</a></li>
+    <li><a class="toc-link" href="#section-business">Business Considerations</a></li>
+    <li><a class="toc-link" href="#section-technical">Technical Considerations</a></li>
+    <li><a class="toc-link" href="#section-scenario1">Business Scenario 1</a></li>
+    <li><a class="toc-link" href="#section-req-sol-1">Requirements &amp; Solutions</a></li>
+    <li><a class="toc-link" href="#section-scenario2">Business Scenario 2</a></li>
+    <li><a class="toc-link" href="#section-req-sol-2">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives org strategy single org multi org architectural business technical considerations evaluate customer enterprise landscape recommend">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Define the two types of org strategies.</li>
+    <li>Describe the different architectural, business, and technical considerations that influence the org strategy.</li>
+    <li>Evaluate the customer enterprise landscape and recommend suitable org strategies based on specific requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction single-org multi-org strategy business objectives technical requirements architectural considerations enterprise architecture operating model innovate collaborate grow">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In today's rapidly evolving business landscape, organizations leveraging Salesforce face critical decisions regarding their org strategy, primarily whether to opt for a <strong>single-org or a multi-org strategy</strong>. This decision significantly impacts an organization's ability to innovate, collaborate, and grow.</p>
+  <p>Choosing an appropriate org strategy requires a comprehensive understanding of various factors, including <strong>business objectives</strong>, <strong>technical requirements</strong>, and <strong>architectural considerations</strong>. For instance, the <strong>enterprise architecture operating model</strong> is important to consider for an org strategy. By carefully assessing these aspects, organizations can tailor their Salesforce environment strategy to their unique needs.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, the org strategy decision is not purely technical — it is a governance and risk management decision. A multi-org approach can enforce data isolation between business lines (e.g., bank supervision vs. payments), while a single-org approach enables a unified audit trail and centralized access control. The enterprise architecture operating model must be assessed before any migration or consolidation is proposed to senior leadership.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: SALESFORCE ORG STRATEGY -->
+<section class="slide title-slide" id="section-org-strategy" data-search="section salesforce org strategy">
+  <div class="pgnum" style="color:#cbd6e6">Page 5 · Section</div>
+  <h2>Salesforce Org Strategy</h2>
+</section>
+
+<!-- ORG STRATEGY DEFINED -->
+<section class="slide" id="org-strategy-defined" data-search="org strategy defined plan best use salesforce business org architecture solutions consistent set processes procedures">
+  <div class="pgnum">Page 6 · Org Strategy Defined</div>
+  <h2>Salesforce Org Strategy</h2>
+  <p class="lede">An org strategy is a <strong>plan of how to best use Salesforce</strong> for the business.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Org Architecture</h4>
+      <p>The underlying org architecture is used in <strong>Salesforce solutions</strong> and <strong>aligns with the business needs</strong> to maximize value.</p>
+    </div>
+    <div class="card">
+      <h4>Solutions</h4>
+      <p>It provides a <strong>consistent set of processes and procedures</strong> for <strong>building solutions</strong> on the Salesforce platform.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SINGLE-ORG VS MULTI-ORG -->
+<section class="slide" id="single-vs-multi-org" data-search="single-org multi-org strategy impact scalability complexity governance overall architecture decision technical business strategies operational models long-term objectives">
+  <div class="pgnum">Page 7 · Single-Org vs. Multi-Org Strategy</div>
+  <h2>Single-Org vs. Multi-Org Strategy</h2>
+  <p class="lede">When planning a Salesforce implementation, one of the critical decisions is choosing between a <strong>single-org</strong> and a <strong>multi-org strategy</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Impact</h4>
+      <p>The org strategy impacts the <strong>scalability, complexity, governance, and overall architecture</strong> of the Salesforce environment.</p>
+    </div>
+    <div class="card">
+      <h4>Decision</h4>
+      <p>Choosing the org strategy is not just a <strong>technical decision</strong>, but one that aligns closely with the <strong>business strategies</strong>, <strong>operational models</strong>, and <strong>long-term objectives</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about org strategy, lead with the business dimension, not the technical one. Examiners want to hear that the decision flows from operating model, data sharing needs, and regulatory requirements — not from preference or legacy org structure. The technical constraints (limits, Apex design maturity, integration cost) are supporting evidence for a business-driven recommendation.</p>
+  </div>
+</section>
+
+<!-- ORG STRATEGY CONSIDERATIONS -->
+<section class="slide" id="org-strategy-considerations" data-search="org strategy considerations architectural operating model integration strategy business funding control lines of business overhead unified view technical change management data security compliance collaboration roles responsibilities limitations">
+  <div class="pgnum">Page 8 · Org Strategy Considerations</div>
+  <h2>Org Strategy Considerations</h2>
+  <p class="lede">When choosing between a single-org and a multi-org strategy, <strong>architectural, business and technical considerations</strong> should be taken into account.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Architectural</h4>
+      <p>Architectural aspects such as <strong>operating model</strong> and <strong>integration strategy</strong> for business processes and data need to be considered.</p>
+    </div>
+    <div class="card">
+      <h4>Business</h4>
+      <p>Business considerations are related to aspects such as <strong>funding</strong>, <strong>control</strong>, <strong>lines of business</strong>, <strong>overhead of multiple orgs</strong>, and <strong>unified view of data</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Technical</h4>
+      <p>Technical considerations are related to <strong>change management</strong>, <strong>data security</strong>, <strong>compliance</strong>, <strong>collaboration</strong>, <strong>technical roles and responsibilities</strong>, and <strong>technical limitations</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: ARCHITECTURAL CONSIDERATIONS -->
+<section class="slide title-slide" id="section-architectural" data-search="section architectural considerations">
+  <div class="pgnum" style="color:#cbd6e6">Page 9 · Section</div>
+  <h2>Architectural Considerations</h2>
+</section>
+
+<!-- ENTERPRISE ARCHITECTURE OPERATING MODEL -->
+<section class="slide" id="ea-operating-model" data-search="enterprise architecture operating model four business process integration standardization coordination unification diversification replication quadrant matrix">
+  <div class="pgnum">Page 10 · Enterprise Architecture Operating Model</div>
+  <h2>Enterprise Architecture Operating Model</h2>
+  <p class="lede">There are <strong>four</strong> possible enterprise architecture operating models based on the degree of <strong>business process integration</strong> and <strong>business process standardization</strong>.</p>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Low Standardization</th>
+        <th>High Standardization</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>High Integration</strong></td>
+        <td>Coordination</td>
+        <td>Unification</td>
+      </tr>
+      <tr>
+        <td><strong>Low Integration</strong></td>
+        <td>Diversification</td>
+        <td>Replication</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">Memorize the 2x2 matrix: Integration (Y-axis) vs. Standardization (X-axis). Unification = high/high → single-org. Diversification = low/low → multi-org. Coordination and Replication fall in between. This matrix is a frequent exam question anchor.</div>
+</section>
+
+<!-- DIVERSIFICATION -->
+<section class="slide" id="diversification" data-search="diversification model low business process integration low standardization independent business units different customers expertise johnson johnson carlson GE economies of scale multiple orgs consolidation complicated">
+  <div class="pgnum">Page 11 · Diversification</div>
+  <h2>Diversification</h2>
+  <p class="lede">The diversification model applies to companies with <strong>low business process integration</strong> and <strong>low business process standardization</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Who</h4>
+      <p>Companies with <strong>independent business units with different customers and expertise</strong>. Examples: Johnson &amp; Johnson, Carlson Companies, GE.</p>
+    </div>
+    <div class="card">
+      <h4>Key IT Capability</h4>
+      <p><strong>Providing economies of scale without limiting independence.</strong></p>
+    </div>
+    <div class="card">
+      <h4>Org Strategy</h4>
+      <p>Usually have <strong>multiple orgs</strong> since the consolidation of multiple business processes and data models into one org is very complicated.</p>
+    </div>
+    <div class="card">
+      <h4>Culture</h4>
+      <p>Diversified business units are usually <strong>not accustomed to working in the same space</strong> as the other lines of business.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REPLICATION -->
+<section class="slide" id="replication" data-search="replication model low business process integration high standardization independent similar business units Marriott CEMEX ING DIRECT standard infrastructure application components global efficiencies multiple orgs managed package central org local control administration predefined standard business processes">
+  <div class="pgnum">Page 12 · Replication</div>
+  <h2>Replication</h2>
+  <p class="lede">The replication model applies to companies with <strong>low business process integration</strong> and <strong>high business process standardization</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Who</h4>
+      <p>Companies with <strong>independent but similar business units</strong>. Examples: Marriott, CEMEX, ING DIRECT.</p>
+    </div>
+    <div class="card">
+      <h4>Key IT Capability</h4>
+      <p><strong>Providing standard infrastructure and application components for global efficiencies.</strong></p>
+    </div>
+    <div class="card">
+      <h4>Org Strategy</h4>
+      <p>Can have <strong>multiple orgs</strong>. A <strong>managed package</strong> should be deployed from a central org into all the replicated business units.</p>
+    </div>
+    <div class="card">
+      <h4>Local Control</h4>
+      <p><strong>Local control/administration</strong> can be provided while <strong>maintaining the predefined standard business processes</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The Federal Reserve System's twelve regional Reserve Banks map well to the Replication model: each bank is operationally independent but follows standardized processes set by the Board of Governors. A managed package deployed from a hub org into regional orgs is a natural architectural fit — standard processes enforced centrally, local administration preserved at each bank.</p>
+  </div>
+</section>
+
+<!-- COORDINATION -->
+<section class="slide" id="coordination" data-search="coordination model high business process integration low standardization unique business units need to know transactions Merrill Lynch Toyota Metlife shared data standard technology interfaces few orgs web services governance strategy service delivery">
+  <div class="pgnum">Page 13 · Coordination</div>
+  <h2>Coordination</h2>
+  <p class="lede">The coordination model applies to companies with <strong>high business process integration</strong> and <strong>low business process standardization</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Who</h4>
+      <p>Companies with <strong>unique business units with a need to know each other's transactions</strong>. Examples: Merrill Lynch, Toyota Motor Marketing Europe, Metlife.</p>
+    </div>
+    <div class="card">
+      <h4>Key IT Capability</h4>
+      <p><strong>Access to shared data, through standard technology interfaces.</strong></p>
+    </div>
+    <div class="card">
+      <h4>Org Strategy</h4>
+      <p>Should have <strong>as few orgs as possible</strong>. A web services integration strategy can be utilized, but the <strong>potential value is much higher in a single org</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Governance</h4>
+      <p>A <strong>proper governance strategy</strong> and an <strong>effective service delivery strategy</strong> are necessary to keep the multiple lines of business satisfied.</p>
+    </div>
+  </div>
+</section>
+
+<!-- UNIFICATION -->
+<section class="slide" id="unification" data-search="unification model high business process integration high standardization single business global process standards global data access Delta Airlines Dow Chemical Pepsi Americas enterprise systems reinforce standard processes few orgs single-org strategy">
+  <div class="pgnum">Page 14 · Unification</div>
+  <h2>Unification</h2>
+  <p class="lede">The unification model applies to companies with <strong>high business process integration</strong> and <strong>high business process standardization</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Who</h4>
+      <p>Companies with a <strong>single business with global process standards and global data access</strong>. Examples: Delta Airlines, Dow Chemical, Pepsi Americas.</p>
+    </div>
+    <div class="card">
+      <h4>Key IT Capability</h4>
+      <p><strong>Enterprise systems reinforcing standard processes and providing global data access.</strong></p>
+    </div>
+    <div class="card">
+      <h4>Org Strategy</h4>
+      <p>Should have <strong>as few orgs as possible</strong>. This enterprise architecture operating model is the most suitable for a <strong>single-org strategy</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Unification model is the canonical justification for a single-org recommendation. When an exam question presents a company with globally standardized processes and a need for shared customer data, the answer is single-org with a Unification operating model. Conversely, Diversification always points to multi-org. The middle two (Coordination, Replication) require judgment calls based on additional data points.</p>
+  </div>
+</section>
+
+<!-- INTEGRATION STRATEGY -->
+<section class="slide" id="integration-strategy" data-search="integration strategy business processes data multiple orgs enterprise service bus decoupled Salesforce Connect master data hub spoke architecture managed packages deploy hub org spoke orgs reporting collaboration separate org">
+  <div class="pgnum">Page 15 · Integration Strategy</div>
+  <h2>Integration Strategy</h2>
+  <p class="lede">It is important to define the strategy for the <strong>integration of business processes</strong> and <strong>data across multiple orgs</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Enterprise Service Bus</h4>
+      <p><strong>Enterprise Service Bus</strong> can be considered for a <strong>decoupled integration architecture</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce Connect</h4>
+      <p><strong>Salesforce Connect</strong> can be utilized for integration around master data that are only needed for <strong>reference</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Hub &amp; Spoke</h4>
+      <p><strong>Hub &amp; spoke architecture</strong> is suitable to share master data in a central org with other orgs.</p>
+    </div>
+    <div class="card">
+      <h4>Managed Packages</h4>
+      <p>The use of <strong>managed packages</strong> can be considered to deploy functionality from the hub org to the spoke orgs.</p>
+    </div>
+    <div class="card">
+      <h4>Reporting Org</h4>
+      <p>All the necessary data can be pushed to a separate org for <strong>reporting and/or collaboration</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For the Fed, the Enterprise Service Bus (decoupled) and hub-and-spoke patterns are especially relevant: MuleSoft or a similar ESB sits between Salesforce orgs and core banking systems, ensuring no direct org-to-org data sharing that would bypass audit controls. A separate reporting org also keeps production data read-only for analytics, satisfying least-privilege principles for data access.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS CONSIDERATIONS -->
+<section class="slide title-slide" id="section-business" data-search="section business considerations">
+  <div class="pgnum" style="color:#cbd6e6">Page 16 · Section</div>
+  <h2>Business Considerations</h2>
+</section>
+
+<!-- FUNDING & SCOPE OF CONTROL -->
+<section class="slide" id="funding-scope" data-search="funding scope control coordinate aware Salesforce community required data objects duplicated global center of excellence CoE reference architecture architecture decisions correct level company">
+  <div class="pgnum">Page 17 · Funding &amp; Scope of Control</div>
+  <h2>Funding &amp; Scope of Control</h2>
+  <p class="lede"><strong>Funding sources</strong> and <strong>control scope</strong> in a company might dictate the org strategy, making it necessary to emphasize <strong>coordination</strong> and <strong>data architecture awareness</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Coordination</h4>
+      <p>The architect needs to <strong>coordinate</strong> and <strong>be aware</strong> of the entire Salesforce community in the company.</p>
+    </div>
+    <div class="card">
+      <h4>Data Objects</h4>
+      <p>The <strong>required data objects</strong> in each org should be identified. Each org should be aware of any <strong>duplicated data objects</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Global CoE</h4>
+      <p>The company should be pushed toward setting up a <strong>Global Center of Excellence (CoE)</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Reference Architecture</h4>
+      <p>A <strong>Reference Architecture</strong> should be designed and built by the CoE, defining where and when an additional org is reasonable or necessary.</p>
+    </div>
+    <div class="card">
+      <h4>Architecture Decisions</h4>
+      <p><strong>Architecture decisions</strong> should be made at the correct level of the company.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, the CoE structure is equivalent to a centralized architecture governance body reporting to the CTO. The Reference Architecture defines the canonical pattern for any new org — and critically, it documents the justification for each additional org, creating an auditable decision trail that change-control audits and technology risk reviews depend on.</p>
+  </div>
+</section>
+
+<!-- LINES OF BUSINESS (LOBs) -->
+<section class="slide" id="lines-of-business" data-search="lines of business LOBs multiple not good reason separate orgs challenges increase CoE stakeholders roadmap delegated administration tiered data architecture license tax development maintenance smaller LOBs larger LOBs fund support">
+  <div class="pgnum">Page 18 · Lines of Business (LOBs)</div>
+  <h2>Lines of Business (LOBs)</h2>
+  <p class="lede">Having multiple lines of business is <strong>not a good reason</strong> to have <strong>separate orgs</strong>. <strong>Challenges increase</strong> with more lines of business.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Center of Excellence</h4>
+      <p>A <strong>CoE</strong> should be set up to manage the stakeholders and articulate a clear roadmap of functionality releases across the LOBs.</p>
+    </div>
+    <div class="card">
+      <h4>Delegated Administration</h4>
+      <p>LOBs can be allowed to make their own changes through the use of <strong>delegated administration</strong> and a <strong>tiered data architecture</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>License Tax</h4>
+      <p>A <strong>license tax</strong> can be established to fund <strong>development and maintenance resources</strong> to support all the LOBs.</p>
+    </div>
+    <div class="card">
+      <h4>LOB Sizing</h4>
+      <p><strong>Smaller LOBs</strong> may be pooled around a CoE and centralized resources while the <strong>larger LOBs</strong> can fund and support their own org.</p>
+    </div>
+  </div>
+  <div class="note">Key exam gotcha: multiple LOBs alone do NOT justify separate orgs. The justification for a separate org must be data isolation, regulatory compliance, or org limits — not LOB count.</div>
+</section>
+
+<!-- OVERHEAD OF MULTIPLE ORGS -->
+<section class="slide" id="overhead-multiple-orgs" data-search="overhead multiple orgs costs increase licensing integration management third-party licensing costs integrating data business processes sandboxes release cycles SSO single sign-on user experience support time">
+  <div class="pgnum">Page 19 · Overhead of Multiple Orgs</div>
+  <h2>Overhead of Multiple Orgs</h2>
+  <p class="lede"><strong>Costs increase</strong> with multiple orgs due to <strong>licensing, integration, and management overhead</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Licensing Costs</h4>
+      <p>If users need to access multiple orgs, <strong>licensing costs increase</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Third-Party Licensing</h4>
+      <p><strong>Third-party licensing costs</strong> also increase depending on the solution.</p>
+    </div>
+    <div class="card">
+      <h4>Integration Costs</h4>
+      <p><strong>Integrating data and business processes</strong> across the orgs increases integration costs.</p>
+    </div>
+    <div class="card">
+      <h4>Environment Management</h4>
+      <p><strong>Multiple sandboxes and release cycles</strong> in a multi-org design increase the environment management costs.</p>
+    </div>
+    <div class="card">
+      <h4>SSO</h4>
+      <p>The need for <strong>SSO</strong> becomes necessary to improve user experience and avoid wasting support time.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When making a multi-org recommendation, always acknowledge the overhead explicitly — it shows architectural maturity. A complete answer includes: licensing cost delta, integration complexity budget, the SSO requirement, and the need for multiple sandbox environments across each org's release cycle. Leaving any of these out signals an incomplete cost-of-ownership analysis.</p>
+  </div>
+</section>
+
+<!-- CUSTOMER 360 & GLOBAL CASE MANAGEMENT -->
+<section class="slide" id="customer-360" data-search="customer 360 global case management deciding factor single-org strategy customer data unified 360-degree view multi-org hub spoke reporting hub added complexity cost">
+  <div class="pgnum">Page 20 · Customer 360 &amp; Global Case Management</div>
+  <h2>Customer 360 &amp; Global Case Management</h2>
+  <p class="lede">Having <strong>customer 360</strong> or <strong>global case management requirements</strong> is often the deciding factor when it comes to choosing a <strong>single-org strategy</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Single-Org Strategy</h4>
+      <p><strong>Single org strategy</strong> is suitable when customer data need to be unified in a single org for a <strong>360-degree view</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Multi-Org Strategy</h4>
+      <p><strong>Multi-org strategy</strong> can support these requirements, but with <strong>added complexity and cost</strong>. A hub/spoke or reporting hub can be utilized.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Fed, the equivalent of "Customer 360" is a unified counterparty or institution view — knowing that a supervised bank, a payments counterparty, and a research data contact are the same legal entity. This unified view is a strong driver for consolidation into a single org or a data hub strategy, and is something that examiners and senior leadership will cite as a business value justification for consolidation investment.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: TECHNICAL CONSIDERATIONS -->
+<section class="slide title-slide" id="section-technical" data-search="section technical considerations">
+  <div class="pgnum" style="color:#cbd6e6">Page 21 · Section</div>
+  <h2>Technical Considerations</h2>
+</section>
+
+<!-- COMPLEXITY OF MULTIPLE LOBs -->
+<section class="slide" id="complexity-lobs" data-search="complexity multiple lines of business LOBs single salesforce org naming standards security sharing profiles permission sets role hierarchy Apex design mature strict separation of concerns data architect data model complex controversial scope">
+  <div class="pgnum">Page 22 · Complexity of Multiple LOBs</div>
+  <h2>Complexity of Multiple Lines of Business (LOBs)</h2>
+  <p class="lede">Designing a <strong>single Salesforce org</strong> to support <strong>multiple lines of business</strong> introduces a lot of <strong>complexity</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Naming Standards</h4>
+      <p><strong>Good naming standards</strong> should be implemented across the data model, configuration design, and custom code.</p>
+    </div>
+    <div class="card">
+      <h4>Security &amp; Sharing</h4>
+      <p>It is <strong>difficult to design, maintain, and refactor security and sharing features</strong>, including profiles, permission sets, role hierarchy, sharing model, and public groups.</p>
+    </div>
+    <div class="card">
+      <h4>Apex Design</h4>
+      <p><strong>Apex design must be very mature</strong> to support a large enterprise model. There should be a <strong>strict separation of concerns</strong>, and a technical architect should <strong>oversee</strong> all aspects of the org.</p>
+    </div>
+    <div class="card">
+      <h4>Data Architecture</h4>
+      <p>A data architect should be employed to <strong>manage the design and maintenance of the data model</strong>, as it can become <strong>much more complex and controversial</strong> as the scope increases.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EFFECTIVE CHANGE MANAGEMENT -->
+<section class="slide" id="effective-change-mgmt" data-search="effective change management parallel work streams single org difficult governance model global CoE business architecture common standards governance committee product management RACI matrix architectural review board approve technical changes tiered administration teams">
+  <div class="pgnum">Page 23 · Effective Change Management</div>
+  <h2>Effective Change Management</h2>
+  <p class="lede"><strong>Parallel work streams</strong> can make supporting many initiatives at once in a <strong>single org</strong> difficult. An <strong>effective governance model</strong> is often required.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Global CoE</h4>
+      <p>The <strong>business architecture</strong> and <strong>common standards</strong> of all the Salesforce instances across the enterprise should be managed by a <strong>global CoE</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Governance Committee</h4>
+      <p>The <strong>governance committee</strong> of each org should perform product management and set direction and priority within each org. <strong>Roles and responsibilities</strong> and a <strong>RACI matrix</strong> should be defined for changes.</p>
+    </div>
+    <div class="card">
+      <h4>Architectural Review Board</h4>
+      <p>The <strong>architectural review board</strong> of an org should actively <strong>design, review, and approve technical changes</strong> to the environment, including configuration, data model, and custom code.</p>
+    </div>
+    <div class="card">
+      <h4>Tiered Administration</h4>
+      <p><strong>Tiered administration teams</strong> in each org enable the LOBs to make some changes by themselves without requiring production releases.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The Fed's change management model maps directly here: the Architecture Review Board (ARB) approves changes to data model and custom code; the IT governance committee sets priority and direction; and tiered admin teams (LOB admins) handle configuration changes below a defined risk threshold without production releases. A RACI matrix is a required artifact in the Fed's change-control documentation package — examiners ask for it by name.</p>
+  </div>
+</section>
+
+<!-- REGULATORY, COMPLIANCE, AND SECURITY REQUIREMENTS -->
+<section class="slide" id="regulatory-compliance" data-search="regulatory compliance security requirements separate orgs data isolation healthcare financial services PII personally identifiable information complex encryption requirements IP confidential business data separate orgs">
+  <div class="pgnum">Page 24 · Regulatory, Compliance &amp; Security</div>
+  <h2>Regulatory, Compliance, and Security Requirements</h2>
+  <p class="lede">Regulatory, compliance, and security requirements may necessitate <strong>separate orgs</strong> due to the need for <strong>data isolation</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Data Isolation</h4>
+      <p>Due to certain factors, <strong>data isolation</strong> is necessary in some industries like <strong>healthcare and financial services</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>PII Security</h4>
+      <p>The security requirements may differ for <strong>Personally Identifiable Information (PII)</strong> than other business data.</p>
+    </div>
+    <div class="card">
+      <h4>Encryption &amp; IP</h4>
+      <p><strong>Complex encryption requirements, IP requirements</strong>, and <strong>confidential business data</strong> of some LOBs may necessitate separate orgs.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This slide is the most directly applicable to the Federal Reserve context. The Fed operates in financial services — one of the two industries named. Data residency requirements (certain supervisory data cannot reside outside the Federal Reserve System boundary), distinct PII handling for bank employees vs. supervised institution contacts, and confidential supervisory information (CSI) classifications can each justify separate orgs. Always cite the specific regulatory driver (FISMA, FR-internal data classification policy) rather than the generic "compliance" catchall.</p>
+  </div>
+</section>
+
+<!-- CHATTER -->
+<section class="slide" id="chatter" data-search="chatter social collaboration multiple orgs big hindrance absence cross-org Chatter support partner solutions custom development cross-org collaboration scope social collaboration enterprise">
+  <div class="pgnum">Page 25 · Chatter</div>
+  <h2>Chatter</h2>
+  <p class="lede">If users are <strong>spread across multiple orgs</strong>, social collaboration can be a <strong>big hindrance</strong> due to the absence of <strong>cross-org Chatter support</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Solutions</h4>
+      <p><strong>Partner solutions</strong> and <strong>custom development options</strong> are available for cross-org collaboration, but they can be very complicated to implement correctly.</p>
+    </div>
+    <div class="card">
+      <h4>Scope</h4>
+      <p><strong>Chatter</strong> should not be the main driver for the org strategy, but it is important to understand the <strong>scope of social collaboration</strong> desired across the enterprise.</p>
+    </div>
+  </div>
+  <div class="note">Chatter is a consideration, not a decision driver. Never recommend a single-org strategy based primarily on Chatter needs — the complexity and cost of consolidation almost always outweigh Chatter benefits alone.</div>
+</section>
+
+<!-- DEVELOPMENT, ADMINISTRATION, AND RELEASE MANAGEMENT -->
+<section class="slide" id="dev-admin-release" data-search="development administration release management modify maintain orgs multiple development teams overhead governance complexity robust environment management release strategy dedicated deployment manager code metadata number true system administrators custom profiles permission sets multiple orgs release management processes">
+  <div class="pgnum">Page 26 · Development, Administration &amp; Release Management</div>
+  <h2>Development, Administration, and Release Management</h2>
+  <p class="lede">Who will <strong>modify and maintain orgs</strong> is an important consideration for choosing a suitable org strategy.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Multiple Dev Teams</h4>
+      <p>Having <strong>multiple development teams</strong> in the same org increases <strong>overhead and governance complexity</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Environment Strategy</h4>
+      <p>Having <strong>multiple teams</strong> in the same org requires a <strong>robust environment management and release strategy</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Deployment Manager</h4>
+      <p>A <strong>dedicated deployment manager</strong> should be employed to handle the <strong>movement of code and metadata</strong> across the environments.</p>
+    </div>
+    <div class="card">
+      <h4>System Administrators</h4>
+      <p>The <strong>number of true system administrators</strong> should be as few as possible. Using <strong>custom profiles and permission sets</strong> is critical.</p>
+    </div>
+    <div class="card">
+      <h4>Multi-Org Releases</h4>
+      <p>Multiple orgs may need their own <strong>release management processes</strong> or complicate existing ones.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The dedicated deployment manager role is an exam favorite. At architect altitude, you should speak to who owns the release pipeline, how metadata is tracked (source control in Git, CI/CD via GitLab or GitHub Actions), and how sandbox refreshes are coordinated across multiple teams. Minimizing true sysadmin count and using permission sets for role-specific access reflects least-privilege, which resonates strongly in a Fed context.</p>
+  </div>
+</section>
+
+<!-- SUPPORT & SERVICE MANAGEMENT -->
+<section class="slide" id="support-service" data-search="support service management layers support line of business tier 0 basic support requests single service desk entry point tier 1 Salesforce support tier 2 tier 3 complex issues troubleshooting">
+  <div class="pgnum">Page 27 · Support &amp; Service Management</div>
+  <h2>Support &amp; Service Management</h2>
+  <p class="lede">Different <strong>layers of support</strong> are necessary to consider for each <strong>line of business</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Tier 0 — LOB Support</h4>
+      <p>Each line of business should have its own <strong>tier 0 support layer</strong> for handling <strong>basic support requests</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Tier 1 — Service Desk</h4>
+      <p>There should be a <strong>single service desk</strong> and <strong>entry point</strong> for all the <strong>tier 1 Salesforce support</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Tier 2 &amp; 3 — Advanced</h4>
+      <p>Each org should have its own <strong>tier 2 and 3 support teams</strong> to address more <strong>complex issues and troubleshooting</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ORG LIMITS -->
+<section class="slide" id="org-limits" data-search="org limits multiple orgs fresh set limits issues single org increase limits consult Salesforce new org">
+  <div class="pgnum">Page 28 · Org Limits</div>
+  <h2>Org Limits</h2>
+  <p class="lede">Org limitations may necessitate using <strong>multiple orgs</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Fresh Limits</h4>
+      <p>A <strong>new org</strong> offers a <strong>fresh set of limits</strong> that can help get around issues that cannot be solved in a single org.</p>
+    </div>
+    <div class="card">
+      <h4>Increasing Limits</h4>
+      <p>Before <strong>setting up a new org</strong>, Salesforce should be consulted because it may be possible to <strong>increase some limits</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Org limits are a valid but last-resort justification for a new org. Always consult Salesforce about limit increases first. Using org limits as the primary driver for multi-org strategy signals incomplete architectural analysis.</div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO 1 -->
+<section class="slide title-slide" id="section-scenario1" data-search="section business scenario 1">
+  <div class="pgnum" style="color:#cbd6e6">Page 29 · Section</div>
+  <h2>Business Scenario 1</h2>
+</section>
+
+<!-- BUSINESS SCENARIO 1 -->
+<section class="slide" id="scenario1" data-search="business scenario 1 Cosmic Energy global renewable energy solutions rapid expansion digital transformation Salesforce org strategy evolving business model diverse customer base global operations acquisitions Europe Asia integrate infrastructure scale adapt architect evaluate current org strategy roadmap business objectives technical requirements architectural vision">
+  <div class="pgnum">Page 30 · Business Scenario 1 — Cosmic Energy</div>
+  <h2>Business Scenario 1 — Cosmic Energy</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Energy, a global leader in renewable energy solutions, is navigating through a period of rapid expansion and digital transformation. The company, renowned for its innovative approach to energy management and sustainability, is reevaluating its Salesforce org strategy to better align with its evolving business model, diverse customer base, and sprawling global operations. With the acquisition of several smaller companies in Europe and Asia, each with its own Salesforce org, the company faces the challenge of integrating these new entities into its existing infrastructure while ensuring that its Salesforce ecosystem can scale and adapt to the company's ambitious growth plans. The company's Salesforce architect is tasked with evaluating the current org strategy and proposing a roadmap that supports the company's business objectives, technical requirements, and architectural vision.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS 1 -->
+<section class="slide title-slide" id="section-req-sol-1" data-search="section requirements solutions 1">
+  <div class="pgnum" style="color:#cbd6e6">Page 31 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 PART 1 -->
+<section class="slide" id="req1-part1" data-search="requirement 1 part 1 Cosmic Energy multiple Salesforce orgs different lines of business LOBs CTO comprehensive view customers aggregating customer data disparate orgs recently acquired merged standardized business processes integration not required">
+  <div class="pgnum">Page 32 · Requirement (Part 1)</div>
+  <h2>Requirement (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company requires suitable org strategies for different situations:</p>
+    <ul>
+      <li>Multiple Salesforce orgs are used for different lines of business (LOBs). The CTO wants to achieve a more comprehensive view of its customers by <strong>aggregating customer data from these disparate orgs</strong>.</li>
+      <li>Several companies with their own Salesforce orgs were recently acquired and merged as new business units. They should have <strong>standardized business processes</strong>, but <strong>business process integration is not required</strong>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- REQUIREMENT 1 PART 2 -->
+<section class="slide" id="req1-part2" data-search="requirement 1 part 2 Cosmic Energy newly acquired Asia different sales process comply local laws regulations geothermal energy solutions New Zealand independent processes org strategy">
+  <div class="pgnum">Page 33 · Requirement (Part 2)</div>
+  <h2>Requirement (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <ul>
+      <li>One of the newly acquired companies in Asia has a <strong>different sales process</strong> and needs to <strong>comply strictly with the local laws and regulations</strong>.</li>
+      <li>The company wants to launch a <strong>new line of business</strong> for geothermal energy solutions in New Zealand that will have <strong>independent processes</strong>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 1 -->
+<section class="slide" id="sol1-part1" data-search="solution 1 part 1 comprehensive view customer data multiple orgs hub-and-spoke multi-org strategy consolidating central org hub aggregates information spokes unified customer view analytics personalized customer engagement reporting process integration">
+  <div class="pgnum">Page 34 · Solution (Part 1)</div>
+  <h2>Solution (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For a comprehensive view of customer data across multiple orgs, a <strong>Hub-and-Spoke multi-org strategy</strong> should be utilized. This involves consolidating customer data into a central org (hub) that aggregates information from other orgs (spokes). This centralized data hub ensures a unified customer view across different LOBs, facilitating better analytics, personalized customer engagement, and streamlined reporting without the need for complete process integration across all units.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Hub-and-spoke is the exam pattern for "unified customer view without full consolidation." Articulate clearly what the hub does (aggregates, reports, provides 360-degree view) vs. what the spokes do (operate with LOB-specific processes). The hub org typically does not own transactional processes — it is a data aggregation and reporting layer.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 2 -->
+<section class="slide" id="sol1-part2" data-search="solution 1 part 2 business units acquired own Salesforce orgs standardized business processes crucial integration not necessary multi-org strategy managed package set of managed packages enforce standardized business processes consistency operations independently">
+  <div class="pgnum">Page 35 · Solution (Part 2)</div>
+  <h2>Solution (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For business units acquired with their own Salesforce orgs, where standardized business processes are crucial but integration between these processes is not necessary, a <strong>multi-org strategy</strong> should be utilized. A <strong>managed package</strong> or a <strong>set of managed packages</strong> can be developed to enforce standardized business processes across all the orgs. This would ensure consistency in operations while allowing each unit to operate independently in their Salesforce environment.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Managed packages for cross-org process standardization map directly to the Fed's model for shared services. A managed package deployed from a hub (the CoE org) into regional or functional orgs enforces baseline controls (naming standards, required fields, approval processes) while allowing local configuration. This is the architectural equivalent of a policy mandate with local implementation flexibility — a familiar governance pattern at the Fed.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 3 -->
+<section class="slide" id="sol1-part3" data-search="solution 1 part 3 separate org newly acquired company Asia unique sales process stringent local compliance requirements tailored configurations localization local laws autonomy regulatory environment innovations regional market">
+  <div class="pgnum">Page 36 · Solution (Part 3)</div>
+  <h2>Solution (Part 3)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A <strong>separate org</strong> should be set up for the newly acquired company in Asia. Given the unique sales process and stringent local compliance requirements, maintaining a separate Salesforce org for this unit would allow for tailored configurations, localization, and adherence to local laws. This autonomy would ensure that the business unit can operate effectively within its regulatory environment while allowing for innovations specific to the regional market.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Local regulatory compliance as a justification for a separate org is directly applicable to the Fed. Confidential supervisory information (CSI) handling requirements, data residency mandates, and jurisdiction-specific data protection rules (analogous to Asia's local laws in this scenario) are legitimate, documented reasons to maintain org isolation. Always capture the regulatory citation in the Reference Architecture decision record.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 4 -->
+<section class="slide" id="sol1-part4" data-search="solution 1 part 4 geothermal energy solutions New Zealand independent processes stand-alone org strategy new business unit flexible innovate adapt unique challenges opportunities flexibility existing org structures">
+  <div class="pgnum">Page 37 · Solution (Part 4)</div>
+  <h2>Solution (Part 4)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the new geothermal energy solutions line of business in New Zealand, which requires independent processes, a <strong>stand-alone org strategy</strong> is the most suitable. This approach would allow the new business unit to develop and implement processes that are unique to its operations and market needs without being constrained by the existing org structures or processes. A stand-alone org would provide the flexibility needed to innovate and rapidly adapt to the unique challenges and opportunities of the geothermal energy market.</p>
+  </div>
+  <div class="note">Stand-alone org is distinct from the hub-and-spoke spoke org: a stand-alone org is fully independent and not integrated back into any hub. Choose stand-alone when there is no customer data sharing requirement and no need for process standardization with existing orgs.</div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO 2 -->
+<section class="slide title-slide" id="section-scenario2" data-search="section business scenario 2">
+  <div class="pgnum" style="color:#cbd6e6">Page 38 · Section</div>
+  <h2>Business Scenario 2</h2>
+</section>
+
+<!-- BUSINESS SCENARIO 2 -->
+<section class="slide" id="scenario2" data-search="business scenario 2 Cosmic Technologies high-tech manufacturing sector organizational changes technological advancements multinational corporation multiple Salesforce orgs lines of business LOBs globe independently customized local market needs global organizational restructuring review org strategies architect evaluate enterprise landscape recommendations">
+  <div class="pgnum">Page 39 · Business Scenario 2 — Cosmic Technologies</div>
+  <h2>Business Scenario 2 — Cosmic Technologies</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Technologies, a leading innovator in the high-tech manufacturing sector, is undergoing significant organizational changes and technological advancements. This multinational corporation, known for its pioneering products and services, is confronting the complexities associated with managing multiple Salesforce orgs for its multiple lines of business (LOBs) around the globe. Each LOB operates independently with its own customized Salesforce org, tailored to local market needs.</p>
+    <p style="margin-top:8px;">It is currently going through a global organizational restructuring and review of its org strategies. The company's Salesforce architect is required to evaluate the current enterprise landscape and provide appropriate recommendations.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS 2 -->
+<section class="slide title-slide" id="section-req-sol-2" data-search="section requirements solutions 2">
+  <div class="pgnum" style="color:#cbd6e6">Page 40 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 2 PART 1 -->
+<section class="slide" id="req2-part1" data-search="requirement 2 part 1 Cosmic Technologies multiple lines of business different orgs processes global customers multi-org strategy consolidating customer data 360-degree view Chatter collaboration switch single org complexity multiple lines of business benefits challenges transitioning">
+  <div class="pgnum">Page 41 · Requirement (Part 1)</div>
+  <h2>Requirement (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company has multiple lines of business (LOBs) with different orgs and processes but shares global customers. It has implemented a multi-org strategy with one org consolidating the customer data for a <strong>360-degree view</strong>. However, since it wants to use <strong>Chatter to facilitate collaboration</strong> among the existing lines of business, it would like to switch to a single org despite the complexity of having multiple lines of business in a single org. The architect needs to provide the <strong>benefits and challenges of transitioning from a multi-org to a single-org strategy</strong>.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 PART 2 -->
+<section class="slide" id="req2-part2" data-search="requirement 2 part 2 Cosmic Technologies new line of business does not share customers existing lines of business unique business processes suitable org strategy new business unit">
+  <div class="pgnum">Page 42 · Requirement (Part 2)</div>
+  <h2>Requirement (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>In addition, it is launching a <strong>new line of business</strong> that <strong>does not share customers</strong> with the existing lines of business and needs to <strong>implement unique business processes</strong>. A suitable org strategy is required for this new business unit.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 PART 1 -->
+<section class="slide" id="sol2-part1" data-search="solution 2 part 1 switching multi-org single-org reduced administration overhead improved collaboration 360-degree view customer data Apex design mature strict separation of concerns technical architect oversee managing design maintenance data model complex controversial scope">
+  <div class="pgnum">Page 43 · Solution (Part 1)</div>
+  <h2>Solution (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Switching from a multi-org to a single-org strategy has various benefits, including <strong>reduced administration overhead</strong>, <strong>improved collaboration</strong> among the different lines of business, and increased simplicity of creating a <strong>360-degree view of customer data</strong>. However, certain challenges need to be considered. <strong>Apex design</strong> must be <strong>very mature</strong> to support a large enterprise model. There should be a <strong>strict separation of concerns</strong>, and a technical architect should <strong>oversee</strong> all aspects of the org. <strong>Managing the design and maintenance of the data model</strong> is important, as it can become <strong>much more complex and controversial</strong> as the scope increases.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is a classic "benefits vs. challenges" exam answer frame. Memorize the three benefits (reduced admin overhead, improved collaboration, simpler 360 view) and the three challenges (Apex maturity requirement, security/sharing complexity, data model governance). The exam will often ask you to identify which of these applies to a given scenario — knowing both sides equally well is what separates an architect answer from a developer answer.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 PART 2 -->
+<section class="slide" id="sol2-part2" data-search="solution 2 part 2 new line of business does not share customers new standalone Salesforce org unique business processes not integrated other org">
+  <div class="pgnum">Page 44 · Solution (Part 2)</div>
+  <h2>Solution (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the new line of business that does not share its customers with others, a <strong>new standalone Salesforce org</strong> should be used. It should <strong>not be integrated</strong> with the other org due to its <strong>unique business processes</strong>.</p>
+  </div>
+  <div class="note">The two-condition test for a standalone org: (1) no shared customers/data with existing orgs, AND (2) unique business processes that would be constrained by existing org structures. Both conditions must be true. If there is any customer data sharing, a hub-and-spoke or integration pattern is needed instead.</div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more enterprise architecture single-org versus multi-org strategy ask an architect defining org strategy why you need one Trailhead further reading">
+  <div class="pgnum">Page 45 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Enterprise Architecture: Single-org versus Multi-org Strategy</li>
+    <li>Ask An Architect: Defining An Org Strategy, And Why You Need One</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points org strategy single-org multi-org architectural business technical considerations operating model diversification replication coordination unification hub-and-spoke managed package standalone integration exam traps decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — System Design: Org Strategy</h2>
+
+  <h3>Enterprise Architecture Operating Model → Org Strategy</h3>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Integration</th>
+        <th>Standardization</th>
+        <th>Org Strategy</th>
+        <th>Key IT Capability</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Unification</strong></td>
+        <td>High</td>
+        <td>High</td>
+        <td>Single-org (fewest orgs possible)</td>
+        <td>Enterprise systems reinforcing standard processes &amp; global data access</td>
+      </tr>
+      <tr>
+        <td><strong>Coordination</strong></td>
+        <td>High</td>
+        <td>Low</td>
+        <td>As few orgs as possible; single-org preferred</td>
+        <td>Shared data via standard technology interfaces</td>
+      </tr>
+      <tr>
+        <td><strong>Replication</strong></td>
+        <td>Low</td>
+        <td>High</td>
+        <td>Multi-org with managed package from hub</td>
+        <td>Standard infrastructure &amp; application components for global efficiencies</td>
+      </tr>
+      <tr>
+        <td><strong>Diversification</strong></td>
+        <td>Low</td>
+        <td>Low</td>
+        <td>Multi-org (consolidation too complicated)</td>
+        <td>Economies of scale without limiting independence</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Org Strategy Pattern Matching</h3>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th>Situation</th>
+        <th>Recommended Strategy</th>
+        <th>Key Justification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Need unified 360° customer view, single process</td>
+        <td>Single-org</td>
+        <td>Unification model; Customer 360 driver</td>
+      </tr>
+      <tr>
+        <td>Multiple LOBs, shared customers, no process integration needed</td>
+        <td>Hub-and-spoke multi-org</td>
+        <td>Data aggregation without full consolidation</td>
+      </tr>
+      <tr>
+        <td>Acquired orgs needing standardized processes, no integration</td>
+        <td>Multi-org + managed package</td>
+        <td>Replication model; enforce standards without merging</td>
+      </tr>
+      <tr>
+        <td>Regulatory/compliance data isolation required</td>
+        <td>Separate org</td>
+        <td>Data isolation mandate; regulatory driver</td>
+      </tr>
+      <tr>
+        <td>New LOB, no shared customers, unique processes</td>
+        <td>Stand-alone org</td>
+        <td>No integration need; independent processes</td>
+      </tr>
+      <tr>
+        <td>Org limits blocking growth</td>
+        <td>New org (last resort)</td>
+        <td>Consult Salesforce for limit increase first</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Multi-Org Overhead Checklist</h3>
+  <ul>
+    <li><strong>Licensing:</strong> User and third-party license costs multiply per org.</li>
+    <li><strong>Integration:</strong> Each org boundary requires an integration pattern (ESB, Salesforce Connect, API).</li>
+    <li><strong>Environments:</strong> Each org needs its own sandbox refresh cadence and release pipeline.</li>
+    <li><strong>SSO:</strong> Mandatory to prevent fragmented login experiences across orgs.</li>
+    <li><strong>Support:</strong> Each org needs tier 2/3 support teams; one shared tier 1 service desk.</li>
+    <li><strong>Governance:</strong> Global CoE + per-org governance committee + per-org ARB.</li>
+  </ul>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Multiple LOBs alone do NOT justify separate orgs</strong> — the correct answer is delegated administration, tiered data architecture, and a CoE within a single org.</li>
+    <li><strong>Chatter is never the primary driver</strong> for org strategy — it is a consideration, not a justification for consolidation.</li>
+    <li><strong>Org limits are a last resort</strong> — always ask Salesforce to increase limits before creating a new org.</li>
+    <li><strong>Unification = single-org</strong>; <strong>Diversification = multi-org</strong>. Coordination and Replication require judgment.</li>
+    <li><strong>Hub-and-spoke ≠ single-org</strong>: the hub aggregates data from spokes but each spoke retains its own org; it is still a multi-org architecture.</li>
+    <li><strong>Managed packages enforce standardization</strong> across orgs in the Replication model — they deploy from the hub to all spoke orgs.</li>
+    <li>Before recommending org consolidation, verify <strong>Apex design maturity</strong> — immature Apex in a large enterprise single-org is a high-risk pattern.</li>
+    <li><strong>True sysadmin count should be minimized</strong> — use custom profiles and permission sets for LOB-level access.</li>
+    <li>A <strong>Reference Architecture</strong> built by the CoE must document every justification for an additional org — this is the auditable decision record.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve Bank of Chicago platform engineer, the org strategy decision intersects governance, data residency, and regulatory compliance at every step. The most important principles to carry into the interview: (1) <strong>Regulatory data isolation</strong> (CSI, PII classification differences) is a legitimate and documented justification for separate orgs — cite the specific policy. (2) A <strong>Global CoE with a Reference Architecture</strong> is non-negotiable in a regulated environment — it is the governance artifact that change-control audits and technology risk reviews will ask for. (3) The <strong>RACI matrix and ARB approval process</strong> are the control mechanisms that satisfy examiners when reviewing org-level architecture changes. (4) Any consolidation from multi-org to single-org must include a mature <strong>GitLab CI/CD pipeline</strong>, dedicated deployment manager, and documented release impact assessment before each production deployment. The complexity costs of consolidation are real — demonstrate that you have priced them in.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

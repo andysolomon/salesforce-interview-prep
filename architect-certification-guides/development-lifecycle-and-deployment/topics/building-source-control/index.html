@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building — Source Control Strategies — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Building — Source Control Strategies</h1>
+  <div class="sub">Given a customer scenario, explain how source control branching/versioning/merging can be used and recommend appropriate strategies · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (53 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <div class="toc-group">
+      <h3>Overview</h3>
+      <ul>
+        <li><a href="#cover">Cover</a></li>
+        <li><a href="#toc-slide">Table of Contents</a></li>
+        <li><a href="#learning-objectives">Learning Objectives</a></li>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#source-control-system-overview">Source Control System — Overview</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Source Control</h3>
+      <ul>
+        <li><a href="#section-source-control">Section: Source Control</a></li>
+        <li><a href="#source-control-benefits-1">Source Control — Collaboration &amp; Versioning</a></li>
+        <li><a href="#source-control-benefits-2">Source Control — Backup &amp; Isolation</a></li>
+        <li><a href="#sfdx-source-driven">Salesforce DX &amp; Source-Driven Development</a></li>
+        <li><a href="#sfdx-source-tracking">Salesforce DX &amp; Source Tracking</a></li>
+        <li><a href="#git-concepts-1">Git — Repositories, Commits, Branches</a></li>
+        <li><a href="#git-concepts-2">Git — Additional Branches, Merge, Tag</a></li>
+        <li><a href="#github">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Branching Strategies</h3>
+      <ul>
+        <li><a href="#section-branching">Section: Branching Strategies</a></li>
+        <li><a href="#branching-strategy-1">Branching Strategy — Short vs Long-Lived</a></li>
+        <li><a href="#branching-strategy-2">Branching Strategy — Elements &amp; Factors</a></li>
+        <li><a href="#centralized-workflow-flow">Centralized Workflow — Flow</a></li>
+        <li><a href="#centralized-workflow-steps">Centralized Workflow — Steps</a></li>
+        <li><a href="#centralized-workflow-when">Centralized Workflow — When to Use</a></li>
+        <li><a href="#github-flow-flow">GitHub Flow — Flow</a></li>
+        <li><a href="#github-flow-steps">GitHub Flow — Steps</a></li>
+        <li><a href="#github-flow-when">GitHub Flow — When to Use</a></li>
+        <li><a href="#gitflow-flow">Gitflow Workflow — Flow</a></li>
+        <li><a href="#gitflow-steps">Gitflow Workflow — Steps</a></li>
+        <li><a href="#gitflow-when">Gitflow Workflow — When to Use</a></li>
+        <li><a href="#forking-flow">Forking Workflow — Flow</a></li>
+        <li><a href="#forking-steps">Forking Workflow — Steps</a></li>
+        <li><a href="#forking-when">Forking Workflow — When to Use</a></li>
+        <li><a href="#tbd-flow">Trunk-Based Development — Flow</a></li>
+        <li><a href="#tbd-steps">Trunk-Based Development — Steps</a></li>
+        <li><a href="#tbd-when">Trunk-Based Development — When to Use</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Commits &amp; Merging</h3>
+      <ul>
+        <li><a href="#section-commits-merging">Section: Commits &amp; Merging</a></li>
+        <li><a href="#commits-sha">Commits — SHA-1 Hash &amp; History</a></li>
+        <li><a href="#commits-versioning">Commits — Semantic Versioning &amp; Tags</a></li>
+        <li><a href="#commits-history">Commits — History &amp; Comparisons</a></li>
+        <li><a href="#commits-undo">Commits — Undoing &amp; Rewinding</a></li>
+        <li><a href="#merge-strategies">Merge Strategies</a></li>
+        <li><a href="#merge-conflicts">Merge Conflicts</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Business Scenario</h3>
+      <ul>
+        <li><a href="#section-business">Section: Business Scenario</a></li>
+        <li><a href="#business-scenario">Cosmic Fashion House Scenario</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Requirements &amp; Solutions</h3>
+      <ul>
+        <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+        <li><a href="#requirement-1">Requirement 1</a></li>
+        <li><a href="#solution-1">Solution 1</a></li>
+        <li><a href="#solution-1-diagram">Solution 1 — GitHub Flow Diagram</a></li>
+        <li><a href="#requirement-2">Requirement 2</a></li>
+        <li><a href="#solution-2">Solution 2</a></li>
+        <li><a href="#solution-2-diagram">Solution 2 — Gitflow Diagram</a></li>
+        <li><a href="#requirement-3">Requirement 3</a></li>
+        <li><a href="#solution-3a">Solution 3 (Part 1)</a></li>
+        <li><a href="#solution-3b">Solution 3 (Part 2)</a></li>
+        <li><a href="#requirement-4">Requirement 4</a></li>
+        <li><a href="#solution-4">Solution 4</a></li>
+        <li><a href="#learn-more">Learn More</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Reference</h3>
+      <ul>
+        <li><a href="#cheatsheet">Cheatsheet</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER — page 1 -->
+<section class="slide title-slide" id="cover" data-search="cover building source control strategies branching versioning merging salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">1 / 53</div>
+  <h2>Building — Source Control Strategies</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer scenario, explain how source control branching/versioning/merging can be used and recommend appropriate strategies · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS — page 2 -->
+<section class="slide" id="toc-slide" data-search="table of contents source control branching strategies commits merging business scenario requirements solutions">
+  <div class="pgnum">2 / 53</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#source-control-benefits-1">Source Control</a></li>
+    <li><a class="toc-link" href="#section-branching">Branching Strategies</a></li>
+    <li><a class="toc-link" href="#section-commits-merging">Commits &amp; Merging</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES — page 3 -->
+<section class="slide" id="learning-objectives" data-search="learning objectives source control system features branching strategies commits merges recommend">
+  <div class="pgnum">3 / 53</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the various features of a source control system.</li>
+    <li>Explain various branching strategies that can be used for a source control workflow.</li>
+    <li>Identify the considerations related to the use of commits and merges in Git.</li>
+    <li>Recommend appropriate source control strategies for various business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION — page 4 -->
+<section class="slide" id="introduction" data-search="introduction source control system git github branching strategies centralized workflow github flow gitflow forking trunk-based development commit merge conflict">
+  <div class="pgnum">4 / 53</div>
+  <h2>Introduction</h2>
+  <p>Using a <strong>source control system</strong> like Git for Salesforce development allows tracking and managing changes to code and configuration over time. It allows developers to revert to previous versions, compare changes, and merge updates from multiple sources.</p>
+  <p><strong>Git</strong> keeps track of changes in a project over time while <strong>GitHub</strong> is a collaboration platform that hosts Git repositories. There are various <strong>branching strategies</strong> available for Git workflows, including <strong>Centralized Workflow</strong>, <strong>GitHub Flow</strong>, <strong>Gitflow Workflow</strong>, <strong>Forking Workflow</strong>, and <strong>Trunk-Based Development</strong>.</p>
+  <p>A <strong>commit</strong> represents a snapshot of a project at a specific point in time. A <strong>merge conflict</strong> should be resolved to merge two branches successfully. It occurs when two developers have changed the same lines in a file or if a developer deleted a file while another developer was modifying it.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, every code change must be traceable to an approved work item and an auditable commit history. Git's immutable SHA-based history plus GitLab merge requests with required approvals satisfy both the version-tracking and segregation-of-duties controls that regulators examine.</p>
+  </div>
+</section>
+
+<!-- SOURCE CONTROL SYSTEM OVERVIEW — page 5 -->
+<section class="slide" id="source-control-system-overview" data-search="source control system overview branching strategies centralized github flow gitflow forking trunk-based commits semantic versioning merging recursive fast-forward">
+  <div class="pgnum">5 / 53</div>
+  <h2>Source Control System</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Source Control</h4>
+      <p>A source control system, such as Git, can be used to track and manage changes to code and configuration over time.</p>
+    </div>
+    <div class="card">
+      <h4>Branching Strategies</h4>
+      <p>Various branching strategies are available for version control branching. These include Centralized Workflow, GitHub Flow, Gitflow Workflow, Forking Workflow, and Trunk-Based Development.</p>
+    </div>
+    <div class="card">
+      <h4>Git &amp; GitHub</h4>
+      <p>Git is a version control application that keeps track of everything related to project changes over time. GitHub is a collaboration platform that hosts Git repositories.</p>
+    </div>
+    <div class="card">
+      <h4>Commits</h4>
+      <p>A commit represents a snapshot of a project at a specific point in time. Semantic Versioning can be used in commit messages.</p>
+    </div>
+    <div class="card">
+      <h4>Merging</h4>
+      <p>A merge refers to the combined history of two or more branches. Git uses two merging strategies called 'recursive merge' and 'fast-forward merge'.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: SOURCE CONTROL — page 6 -->
+<section class="slide title-slide" id="section-source-control" data-search="section source control">
+  <div class="pgnum" style="color:#cbd6e6">6 / 53</div>
+  <h2>Source Control</h2>
+</section>
+
+<!-- SOURCE CONTROL — COLLABORATION & VERSION TRACKING — page 7 -->
+<section class="slide" id="source-control-benefits-1" data-search="source control tracks manages changes code configuration revert compare merge collaboration git work same project version tracking auditing project evolution improved process code metadata accuracy efficiency">
+  <div class="pgnum">7 / 53</div>
+  <h2>Source Control</h2>
+  <p class="lede">A source control system <strong>tracks and manages changes to code and configuration</strong> over time. It allows developers to <strong>revert</strong> to previous versions, <strong>compare</strong> changes, and <strong>merge</strong> updates from multiple sources.</p>
+  <h3>Collaboration</h3>
+  <p>A source control system, such as <strong>Git</strong>, facilitates <strong>collaboration</strong> among developers by allowing them to <strong>work on the same project without overwriting each other's changes</strong>.</p>
+  <h3>Version Tracking</h3>
+  <p>Version tracking allows <strong>auditing changes</strong>, understanding <strong>project evolution</strong>, and identifying <strong>when and why specific changes were made</strong>.</p>
+  <h3>Improved Process</h3>
+  <p><strong>Code and metadata</strong> can be moved between Salesforce environments with <strong>accuracy and efficiency</strong>, enhancing the development process.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Version tracking satisfies the Fed's requirement for an auditable change history. Every commit to a GitLab repository records who changed what, when, and (via commit messages linked to tickets) why — providing the evidence chain that IT examination teams request during reviews.</p>
+  </div>
+</section>
+
+<!-- SOURCE CONTROL — BACKUP & ISOLATED DEVELOPMENT — page 8 -->
+<section class="slide" id="source-control-benefits-2" data-search="source control backup rollback revert earlier versions isolated development distributed teams multi-sandbox strategy code reviews feature change tracked separately">
+  <div class="pgnum">8 / 53</div>
+  <h2>Source Control</h2>
+  <p class="lede">A source control system <strong>tracks and manages changes to code and configuration</strong> over time. It allows developers to <strong>revert</strong> to previous versions, <strong>compare</strong> changes, and <strong>merge</strong> updates from multiple sources.</p>
+  <h3>Backup &amp; Rollback</h3>
+  <p>A source control system provides <strong>backup and rollback capabilities</strong>. Code and configuration changes are stored. A developer can <strong>revert to earlier versions</strong> of any file if a new deployment causes issues.</p>
+  <h3>Isolated Development</h3>
+  <p><strong>Distributed development teams</strong> working in different regions on different projects can <strong>work in isolation</strong>.</p>
+  <h3>Multi-Sandbox Strategy</h3>
+  <p>In a multi-sandbox strategy, <strong>code reviews</strong> can be performed before deployment, and each <strong>feature or change can be tracked separately</strong>.</p>
+</section>
+
+<!-- SALESFORCE DX AND SOURCE-DRIVEN DEVELOPMENT — page 9 -->
+<section class="slide" id="sfdx-source-driven" data-search="salesforce dx developer experience source-driven development source of truth version control system source code metadata salesforce cli manage code metadata scratch orgs flexible configurable development testing">
+  <div class="pgnum">9 / 53</div>
+  <h2>Salesforce DX and Source-Driven Development</h2>
+  <p class="lede">Salesforce DX (Developer Experience) is a <strong>suite of development tools</strong> for the Lightning platform that enables <strong>source-driven development</strong>.</p>
+  <h3>Source of Truth</h3>
+  <p>The <strong>version control system</strong> is the source of truth for the <strong>source code and metadata</strong>, providing more agility to develop Salesforce apps.</p>
+  <h3>Salesforce CLI</h3>
+  <p>Salesforce CLI can be used to <strong>manage code and metadata</strong> across the entire development lifecycle.</p>
+  <h3>Scratch Orgs</h3>
+  <p><strong>Flexible and configurable scratch orgs</strong> can be used for development and testing, making it easier to build and deploy applications.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about modern Salesforce development practice, lead with "source-driven development" — the VCS is the source of truth, not the org. This reframes deployments as pushing from Git to the org rather than retrieving from the org into Git, which is a meaningful architectural distinction examiners reward.</p>
+  </div>
+</section>
+
+<!-- SALESFORCE DX AND SOURCE TRACKING — page 10 -->
+<section class="slide" id="sfdx-source-tracking" data-search="salesforce dx source tracking enabled production org automatically track changes sandboxes salesforce dx projects developer developer pro sandboxes supported conflicts identified resolved">
+  <div class="pgnum">10 / 53</div>
+  <h2>Salesforce DX and Source Tracking</h2>
+  <p class="lede">Source Tracking can be <strong>enabled in a production org</strong> to automatically track changes between <strong>sandboxes</strong> created from it and <strong>Salesforce DX projects</strong>.</p>
+  <h3>Source Tracking</h3>
+  <p>Source tracking can be used to <strong>automatically track changes</strong> to metadata components <strong>between the local project and a scratch org or sandbox</strong>. It only affects the local project, not the org.</p>
+  <h3>Supported Orgs</h3>
+  <p><strong>Developer</strong> and <strong>Developer Pro sandboxes</strong> are supported for source tracking if the associated production org is enabled for source tracking.</p>
+  <h3>Other Capabilities</h3>
+  <p><strong>Changes</strong> deployed to a sandbox by other developers can be viewed. <strong>Conflicts</strong> can be identified and resolved.</p>
+</section>
+
+<!-- GIT — REPOSITORIES, COMMITS, BRANCHES — page 11 -->
+<section class="slide" id="git-concepts-1" data-search="git version control application project changes repositories collection source files commits snapshot discrete units work branch series commits default branch main production-ready">
+  <div class="pgnum">11 / 53</div>
+  <h2>Git</h2>
+  <p class="lede">Git is a <strong>version control application</strong> that keeps track of everything related to <strong>project changes</strong> over time. There are various key concepts and terms in Git.</p>
+  <h3>Repositories</h3>
+  <p>A repository is a <strong>collection of source files</strong> used to compile the project.</p>
+  <h3>Commits</h3>
+  <p>A commit is a <strong>snapshot of a project</strong> at a specific point in time. Commits are created when <strong>discrete units of work</strong> are added or removed.</p>
+  <h3>Branch</h3>
+  <p>A branch is a <strong>series of commits</strong> that represent changes in the project over time. Each repository has a <strong>default branch</strong> (called <strong>'main'</strong>) that contains <strong>production-ready version</strong> of the code.</p>
+</section>
+
+<!-- GIT — ADDITIONAL BRANCHES, MERGE, TAG — page 12 -->
+<section class="slide" id="git-concepts-2" data-search="git additional branches new features fixing bugs project changes merge combined history feature branch default deployed branch tag pointer specific commit persistent reference semantic versioning">
+  <div class="pgnum">12 / 53</div>
+  <h2>Git</h2>
+  <p class="lede">Git is a <strong>version control application</strong> that keeps track of everything related to <strong>project changes</strong> over time. There are various key concepts and terms in Git.</p>
+  <h3>Additional Branches</h3>
+  <p>Additional branches can be created for <strong>new features, fixing bugs, or making other project changes</strong>.</p>
+  <h3>Merge</h3>
+  <p>A merge refers to the <strong>combined history of two or more branches</strong>. The <strong>feature branch</strong> is typically merged with the <strong>default or deployed branch</strong> of the repository to move the features into production.</p>
+  <h3>Tag</h3>
+  <p>A tag is a <strong>pointer to a specific commit</strong> that provides a persistent reference to an event. Tags are typically used with <strong>semantic versioning</strong>.</p>
+</section>
+
+<!-- GITHUB — page 13 -->
+<section class="slide" id="github" data-search="github collaboration platform hosts git repositories remote source of truth issues threaded discussions track bugs feature requests pull requests change code branch incorporate discuss code reviews automated tests">
+  <div class="pgnum">13 / 53</div>
+  <h2>GitHub</h2>
+  <p class="lede">GitHub is a <strong>collaboration platform</strong> that hosts <strong>Git repositories</strong> and acts as a <strong>remote source of truth</strong> for the shared work of developers.</p>
+  <h3>Issues</h3>
+  <p>Issues are <strong>threaded discussions</strong> about the project. They can be used to <strong>track bugs and feature requests</strong> and <strong>assigned to specific team members</strong>.</p>
+  <h3>Pull Requests</h3>
+  <p>A pull request is a <strong>change to the code</strong> on a branch that the author would like to <strong>incorporate in another branch</strong>. It provides a place to <strong>discuss the proposed changes</strong> and <strong>invite other team members</strong> to <strong>comment and complete code reviews</strong>. It also shows the <strong>result of automated tests</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In GitLab (the Fed's typical platform), merge requests are the equivalent of pull requests and are the primary mechanism for enforcing the four-eyes principle — a required approver must review and approve before any code reaches a protected branch. This is the segregation-of-duties control that audit teams look for.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BRANCHING STRATEGIES — page 14 -->
+<section class="slide title-slide" id="section-branching" data-search="section branching strategies">
+  <div class="pgnum" style="color:#cbd6e6">14 / 53</div>
+  <h2>Branching Strategies</h2>
+</section>
+
+<!-- BRANCHING STRATEGY — SHORT VS LONG-LIVED — page 15 -->
+<section class="slide" id="branching-strategy-1" data-search="branching strategy short-lived branches created accomplish specific function deleted merged prevent confusion long-lived development branch multiple levels deployment challenges merge conflicts">
+  <div class="pgnum">15 / 53</div>
+  <h2>Branching Strategy</h2>
+  <p class="lede">When choosing a <strong>suitable branching strategy</strong> for a GitHub workflow, various considerations apply.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Short-Lived Branches</h4>
+      <p>Generally, branches should be short-lived and <strong>created to accomplish a specific function</strong>. They should be <strong>deleted</strong> once they are <strong>merged</strong> to prevent confusion, encourage up-to-date code, and facilitate iterative improvements to projects.</p>
+    </div>
+    <div class="card">
+      <h4>Long-Lived Branches</h4>
+      <p>A long-lived branch is suitable for a <strong>development branch</strong> or a situation that requires <strong>multiple levels of deployment-level code</strong>. However, there are challenges with a long-running branch, such as <strong>not having the most up-to-date version of each branch</strong> and <strong>needless merge conflicts</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BRANCHING STRATEGY — ELEMENTS & FACTORS — page 16 -->
+<section class="slide" id="branching-strategy-2" data-search="branching strategy elements naming conventions labels assignees milestones project boards templates issues pull requests sign-off merging factors team size structure complexity release cadence existing workflow">
+  <div class="pgnum">16 / 53</div>
+  <h2>Branching Strategy</h2>
+  <p class="lede">When choosing a <strong>suitable branching strategy</strong> for a GitHub workflow, various considerations apply.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Branching Elements</h4>
+      <p>Some important aspects to consider for creating branches include <strong>naming conventions</strong>, <strong>labels</strong>, <strong>assignees</strong>, <strong>milestones</strong>, <strong>project boards</strong>, <strong>templates</strong> for issues and pull requests, <strong>sign-off</strong> process, <strong>users</strong> responsible for <strong>merging pull requests</strong>, etc.</p>
+    </div>
+    <div class="card">
+      <h4>Factors</h4>
+      <p>Some important factors to consider for choosing a suitable branching policy are <strong>team size</strong>, <strong>team structure</strong> and <strong>complexity</strong>, <strong>desired release cadence</strong>, and <strong>existing workflow</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked to recommend a branching strategy, frame your answer around these four factors — team size, structure, release cadence, and existing workflow — before naming a strategy. This signals you are reasoning from requirements, not just reciting a preference.</p>
+  </div>
+</section>
+
+<!-- CENTRALIZED WORKFLOW — FLOW DIAGRAM — page 17 -->
+<section class="slide" id="centralized-workflow-flow" data-search="centralized workflow github workflow single central repository clone make changes locally commits push main branch flow diagram steps">
+  <div class="pgnum">17 / 53</div>
+  <h2>Centralized Workflow</h2>
+  <p class="lede">The Centralized Workflow is a <strong>GitHub workflow</strong> that uses a <strong>single central repository</strong>.</p>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1</strong></td><td>Clone the central repository</td></tr>
+      <tr><td><strong>2</strong></td><td>Make changes locally</td></tr>
+      <tr><td><strong>3</strong></td><td>Make commits</td></tr>
+      <tr><td><strong>4</strong></td><td>Push changes to the main branch</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CENTRALIZED WORKFLOW — STEPS DETAIL — page 18 -->
+<section class="slide" id="centralized-workflow-steps" data-search="centralized workflow clone central repository local copy make changes adding editing deleting files commits staged modifications push main branch finalized">
+  <div class="pgnum">18 / 53</div>
+  <h2>Centralized Workflow</h2>
+  <p class="lede">The Centralized Workflow is a <strong>GitHub workflow</strong> that uses a <strong>single central repository</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Clone the central repository</h4>
+      <p>A developer clones the central repository, creating a local copy of the entire project.</p>
+    </div>
+    <div class="card">
+      <h4>Make changes locally</h4>
+      <p>The developer makes changes to the local repository by adding, editing, and deleting files.</p>
+    </div>
+    <div class="card">
+      <h4>Make commits</h4>
+      <p>Changes are staged and committed to track modifications in the local project.</p>
+    </div>
+    <div class="card">
+      <h4>Push changes to the main branch</h4>
+      <p>After finalizing and committing the local changes, they are pushed to the main branch of the central repository.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CENTRALIZED WORKFLOW — WHEN TO USE — page 19 -->
+<section class="slide" id="centralized-workflow-when" data-search="centralized workflow straightforward easy understand small teams individual developers tightly coordinated simple collaboration no complex branching transition centralized version control git">
+  <div class="pgnum">19 / 53</div>
+  <h2>Centralized Workflow</h2>
+  <p class="lede">The Centralized Workflow is <strong>straightforward and easy to understand</strong>, making it suitable for small teams looking for simplicity.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Small Teams</h4>
+      <p>It is best for <strong>small teams or individual developers</strong> when tightly coordinated development efforts are required, minimizing the risk of conflicting changes.</p>
+    </div>
+    <div class="card">
+      <h4>Simple Collaboration</h4>
+      <p>It is ideal when a project has <strong>simple collaboration needs</strong> and does not require a complex branching strategy for features or releases.</p>
+    </div>
+    <div class="card">
+      <h4>Transition</h4>
+      <p>It is suitable for teams that are <strong>moving from a centralized version control system to Git</strong>, offering a familiar structure and easing the transition process.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GITHUB FLOW — FLOW DIAGRAM — page 20 -->
+<section class="slide" id="github-flow-flow" data-search="github flow lightweight branch-based workflow create branch commits open pull request collaborate merge delete flow diagram steps">
+  <div class="pgnum">20 / 53</div>
+  <h2>GitHub Flow</h2>
+  <p class="lede">The GitHub flow is a <strong>lightweight, branch-based workflow</strong> used to collaborate on projects.</p>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1</strong></td><td>Create a branch</td></tr>
+      <tr><td><strong>2</strong></td><td>Make commits</td></tr>
+      <tr><td><strong>3</strong></td><td>Open a pull request</td></tr>
+      <tr><td><strong>4</strong></td><td>Collaborate</td></tr>
+      <tr><td><strong>5</strong></td><td>Merge the pull request</td></tr>
+      <tr><td><strong>6</strong></td><td>Delete the branch</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- GITHUB FLOW — STEPS DETAIL — page 21 -->
+<section class="slide" id="github-flow-steps" data-search="github flow create branch new feature bug fix commits descriptive message pull request collaborate reviewers comments merge delete completed prevents accidental use">
+  <div class="pgnum">21 / 53</div>
+  <h2>GitHub Flow</h2>
+  <p class="lede">The GitHub flow is a <strong>lightweight, branch-based workflow</strong> used to collaborate on projects.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Create a branch</h4>
+      <p>To work on a new feature or fix a bug, a new branch is created from the main branch. Any changes made are only reflected in the branch.</p>
+    </div>
+    <div class="card">
+      <h4>Make commits</h4>
+      <p>Changes made to files on the new branch are committed using descriptive message. After the commit, the changes are pushed to the branch.</p>
+    </div>
+    <div class="card">
+      <h4>Create a pull request</h4>
+      <p>A pull request is created to discuss the proposed changes. It can include a summary of the changes made and what problem they solve.</p>
+    </div>
+    <div class="card">
+      <h4>Collaborate</h4>
+      <p>Reviewers can leave comments, questions, and suggestions on the proposed changes. Further changes can be committed and pushed in response.</p>
+    </div>
+    <div class="card">
+      <h4>Merge the pull Request</h4>
+      <p>Once the pull request is approved, the changes are deployed to the target environment, and the pull request is merged with the main branch.</p>
+    </div>
+    <div class="card">
+      <h4>Delete the branch</h4>
+      <p>After the pull request is merged, the branch is deleted, which indicates that the work is complete and prevents users from accidentally using it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GITHUB FLOW — WHEN TO USE — page 22 -->
+<section class="slide" id="github-flow-when" data-search="github flow simple clear workflow continuous integration deployment rapid iterations CI/CD high collaboration fast feedback loops code reviews pull requests simplified workflow streamlined no overhead">
+  <div class="pgnum">22 / 53</div>
+  <h2>GitHub Flow</h2>
+  <p class="lede">The GitHub Flow is typically used in projects that prioritize a <strong>simple, clear workflow</strong> with a <strong>continuous integration/deployment</strong> model.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Rapid Iterations</h4>
+      <p>It is ideal for projects that aim for <strong>continuous integration/continuous delivery (CI/CD)</strong>, where changes need to be deployed quickly and efficiently after passing automated tests.</p>
+    </div>
+    <div class="card">
+      <h4>High Collaboration</h4>
+      <p>It is suitable for teams that value <strong>collaboration and fast feedback loops</strong> with stakeholders. It facilitates <strong>easy code reviews and discussions</strong> via pull requests.</p>
+    </div>
+    <div class="card">
+      <h4>Simplified Workflow</h4>
+      <p>It is suitable when a <strong>streamlined workflow</strong> is required <strong>without the overhead</strong> of managing multiple branches or complex merging strategies.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GITFLOW WORKFLOW — FLOW DIAGRAM — page 23 -->
+<section class="slide" id="gitflow-flow" data-search="gitflow workflow two primary branches feature branches main develop create feature branch release hotfix flow diagram steps">
+  <div class="pgnum">23 / 53</div>
+  <h2>Gitflow Workflow</h2>
+  <p class="lede">The Gitflow Workflow is a branching model that uses <strong>two primary branches</strong> and <strong>feature branches</strong>.</p>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1</strong></td><td>Create 'main' and 'develop' branches from the repository</td></tr>
+      <tr><td><strong>2</strong></td><td>Create a feature branch from 'develop'</td></tr>
+      <tr><td><strong>3</strong></td><td>Merge feature branch into 'develop'</td></tr>
+      <tr><td><strong>4</strong></td><td>Create a release branch from 'develop'</td></tr>
+      <tr><td><strong>5</strong></td><td>Merge the release branch into 'main' and 'develop'</td></tr>
+      <tr><td><strong>6</strong></td><td>Create hotfix branches from 'main' to fix critical issues</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- GITFLOW WORKFLOW — STEPS DETAIL — page 24 -->
+<section class="slide" id="gitflow-steps" data-search="gitflow workflow primary branches main develop feature branch new feature release branch merge hotfix urgent fixes merged back">
+  <div class="pgnum">24 / 53</div>
+  <h2>Gitflow Workflow</h2>
+  <p class="lede">The Gitflow Workflow is a branching model that uses <strong>two primary branches</strong> and <strong>feature branches</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Create primary branches</h4>
+      <p>The repository is cloned and two primary branches called 'main' and 'develop' are established.</p>
+    </div>
+    <div class="card">
+      <h4>Create a feature branch</h4>
+      <p>A feature branch is created from the 'develop' branch to work on a new feature.</p>
+    </div>
+    <div class="card">
+      <h4>Merge with the develop branch</h4>
+      <p>After feature completion, the feature branch is merged into the 'develop' branch.</p>
+    </div>
+    <div class="card">
+      <h4>Create a release branch</h4>
+      <p>A release branch is created from 'develop' when ready for a new release.</p>
+    </div>
+    <div class="card">
+      <h4>Merge with develop and main</h4>
+      <p>When the release is complete, the release branch is merged with 'develop' and 'main'.</p>
+    </div>
+    <div class="card">
+      <h4>Create hotfix branches</h4>
+      <p>Hotfix branches are created from 'main' to work on urgent fixes. They are merged back into 'main' and 'develop' after completion.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GITFLOW WORKFLOW — WHEN TO USE — page 25 -->
+<section class="slide" id="gitflow-when" data-search="gitflow workflow larger projects parallel development features preparation upcoming releases quick fixes scheduled releases defined release schedules complex projects multiple versions collaboration organized methodology roles responsibilities">
+  <div class="pgnum">25 / 53</div>
+  <h2>Gitflow Workflow</h2>
+  <p class="lede">The Gitflow Workflow is typically used to manage <strong>larger projects</strong> for <strong>parallel development of features</strong>, <strong>preparation for upcoming releases</strong>, and <strong>quick fixes</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Scheduled Releases</h4>
+      <p>It is ideal for projects with <strong>defined release schedules</strong> that require a structured approach for managing development, releases, and hotfixes.</p>
+    </div>
+    <div class="card">
+      <h4>Complex Projects</h4>
+      <p>It is suitable for <strong>complex projects</strong> that require maintaining <strong>multiple versions</strong> in production, staging, and development environments.</p>
+    </div>
+    <div class="card">
+      <h4>Collaboration</h4>
+      <p>It provides an <strong>organized, standard methodology</strong> that <strong>clearly defined roles and responsibilities</strong> for managing large-scale projects.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Gitflow maps naturally to the Fed's release governance model: the develop branch maps to the integration/UAT environment, the release branch represents the change freeze window before production deployment, and hotfix branches give auditors a clear record of emergency fixes applied directly to production. This branch topology makes change-control evidence straightforward to produce.</p>
+  </div>
+</section>
+
+<!-- FORKING WORKFLOW — FLOW DIAGRAM — page 26 -->
+<section class="slide" id="forking-flow" data-search="forking workflow private local repository public server-side repository fork clone create new branch commit push submit pull request review merge flow diagram steps">
+  <div class="pgnum">26 / 53</div>
+  <h2>Forking Workflow</h2>
+  <p class="lede">In the Forking Workflow, a developer has a <strong>private local repository</strong> and a <strong>public server-side repository</strong>.</p>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1</strong></td><td>Fork the repository</td></tr>
+      <tr><td><strong>2</strong></td><td>Clone the fork</td></tr>
+      <tr><td><strong>3</strong></td><td>Create a new branch</td></tr>
+      <tr><td><strong>4</strong></td><td>Commit and push changes</td></tr>
+      <tr><td><strong>5</strong></td><td>Submit a pull request</td></tr>
+      <tr><td><strong>6</strong></td><td>Review and merge</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FORKING WORKFLOW — STEPS DETAIL — page 27 -->
+<section class="slide" id="forking-steps" data-search="forking workflow fork repository personal copy server side clone fork local machine create new branch commit push pull request original repository propose review approved merge">
+  <div class="pgnum">27 / 53</div>
+  <h2>Forking Workflow</h2>
+  <p class="lede">In the Forking Workflow, a developer has a <strong>private local repository</strong> and a <strong>public server-side repository</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Fork the repository</h4>
+      <p>A personal copy of the repository is created on the server side.</p>
+    </div>
+    <div class="card">
+      <h4>Clone the fork</h4>
+      <p>The fork is cloned to the local machine for development work.</p>
+    </div>
+    <div class="card">
+      <h4>Create a new branch</h4>
+      <p>In the local repository, a new branch is created to work on new features or bug fixes.</p>
+    </div>
+    <div class="card">
+      <h4>Commit and push changes</h4>
+      <p>Changes are committed regularly to the new branch and pushed to the fork.</p>
+    </div>
+    <div class="card">
+      <h4>Submit a pull request</h4>
+      <p>A pull request is created from the fork to the original repository to propose the changes for integration.</p>
+    </div>
+    <div class="card">
+      <h4>Review and merge</h4>
+      <p>The pull request is reviewed. Once approved, the changes are merged.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FORKING WORKFLOW — WHEN TO USE — page 28 -->
+<section class="slide" id="forking-when" data-search="forking workflow open source projects contributors work independently not directly affiliated no write access control external contributions reviewed vetted large teams distributed geographically">
+  <div class="pgnum">28 / 53</div>
+  <h2>Forking Workflow</h2>
+  <p class="lede">The Forking Workflow is suitable for <strong>open-source projects</strong> or scenarios that require contributors to <strong>work independently</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Open Source</h4>
+      <p>It is ideal for <strong>open-source projects</strong> where contributors are <strong>not directly affiliated with the project</strong> or <strong>do not have write access</strong> to the main repository.</p>
+    </div>
+    <div class="card">
+      <h4>Control</h4>
+      <p>When external contributions need to be <strong>reviewed and vetted thoroughly</strong>, project maintainers can <strong>control what gets merged and when</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Large Teams</h4>
+      <p>It is suitable for <strong>large teams that are distributed geographically</strong>, allowing each contributor to work independently.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TRUNK-BASED DEVELOPMENT — FLOW DIAGRAM — page 29 -->
+<section class="slide" id="tbd-flow" data-search="trunk-based development TBD small frequent updates trunk main branch clone work directly short-lived commit push feature toggles merge quickly flow diagram steps">
+  <div class="pgnum">29 / 53</div>
+  <h2>Trunk-Based Development (TBD)</h2>
+  <p class="lede">In Trunk-Based Development (TBD), <strong>small, frequent updates</strong> are merged into the <strong>trunk</strong> or <strong>main branch</strong>.</p>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1</strong></td><td>Clone the central repository</td></tr>
+      <tr><td><strong>2</strong></td><td>Work directly in trunk or short-lived branches</td></tr>
+      <tr><td><strong>3</strong></td><td>Commit and push frequently</td></tr>
+      <tr><td><strong>4</strong></td><td>Use feature toggles</td></tr>
+      <tr><td><strong>5</strong></td><td>Merge quickly</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- TRUNK-BASED DEVELOPMENT — STEPS DETAIL — page 30 -->
+<section class="slide" id="tbd-steps" data-search="trunk-based development TBD clone central repository work directly trunk short-lived branch commit push frequently small incremental changes at least daily feature toggles incomplete features hidden merge quickly quick review">
+  <div class="pgnum">30 / 53</div>
+  <h2>Trunk-Based Development (TBD)</h2>
+  <p class="lede">In Trunk-Based Development (TBD), <strong>small, frequent updates</strong> are merged into the <strong>trunk</strong> or <strong>main branch</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Clone the central repository</h4>
+      <p>The central repository is cloned to start with a fresh clone of the main codebase.</p>
+    </div>
+    <div class="card">
+      <h4>Work directly in trunk</h4>
+      <p>Work is performed directly in the core trunk or main branch. Alternatively, it is performed in a short-lived branch.</p>
+    </div>
+    <div class="card">
+      <h4>Commit and push frequently</h4>
+      <p>Small, incremental changes are made and pushed at least daily to minimize divergence from the trunk.</p>
+    </div>
+    <div class="card">
+      <h4>Use feature toggles</h4>
+      <p>Incomplete features can be hidden from users without removing them from the 'main' branch.</p>
+    </div>
+    <div class="card">
+      <h4>Merge quickly</h4>
+      <p>If using a short-lived branch, it is merged quickly into the 'main' branch after a quick review process.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TRUNK-BASED DEVELOPMENT — WHEN TO USE — page 31 -->
+<section class="slide" id="tbd-when" data-search="trunk-based development TBD prioritize rapid delivery avoid complexity long-lived branches rapid release cycles CI/CD agile lean practices iterative cycles faster feedback minimizing conflicts frequent commits scope complexity merge conflicts">
+  <div class="pgnum">31 / 53</div>
+  <h2>Trunk-Based Development (TBD)</h2>
+  <p class="lede">Trunk-Based Development (TBD) is suitable for teams that <strong>prioritize rapid delivery</strong> and <strong>wish to avoid the complexity of long-lived branches</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Rapid Release Cycles</h4>
+      <p>It is suitable for teams that are committed to <strong>CI/CD practices</strong> and want to focus on <strong>rapid release cycles</strong>, minimizing branch management overhead and integration challenges.</p>
+    </div>
+    <div class="card">
+      <h4>Agile &amp; Lean Practices</h4>
+      <p>It is ideal when teams want to focus on <strong>agile development practices</strong> to build, test, and release software in short, iterative cycles, promoting a faster feedback loop.</p>
+    </div>
+    <div class="card">
+      <h4>Minimizing Conflicts</h4>
+      <p>Frequent commits to the <strong>main branch are encouraged</strong>, <strong>reducing the scope and complexity of merge conflicts</strong> by avoiding long-lived branches.</p>
+    </div>
+  </div>
+  <div class="note">TBD requires strong automated testing gates — committing directly to trunk is only safe when CI catches regressions immediately. For Salesforce, this means Apex test coverage gates in the pipeline before any merge to trunk.</div>
+</section>
+
+<!-- SECTION DIVIDER: COMMITS & MERGING — page 32 -->
+<section class="slide title-slide" id="section-commits-merging" data-search="section commits merging">
+  <div class="pgnum" style="color:#cbd6e6">32 / 53</div>
+  <h2>Commits &amp; Merging</h2>
+</section>
+
+<!-- COMMITS — SHA-1 HASH & HISTORY — page 33 -->
+<section class="slide" id="commits-sha" data-search="commits snapshot project SHA-1 hash blob tree references commit history parent-child relationship consistent history merge branches">
+  <div class="pgnum">33 / 53</div>
+  <h2>Commits</h2>
+  <p class="lede">A commit represents a <strong>snapshot of the project</strong> that contains a lot of information.</p>
+  <h3>SHA-1 Hash</h3>
+  <p>Each file in a snapshot is given a <strong>unique SHA-1 hash</strong> called a <strong>blob</strong>. The blobs are referenced by a <strong>tree</strong>, which is referenced by the commit. As changes are made to a file and new commits are made, a <strong>new SHA-1 hash</strong> is applied to the file, which references the <strong>previous hash as the parent</strong>.</p>
+  <h3>Commit History</h3>
+  <p>Each <strong>new commit</strong> references the <strong>previous commit as the parent</strong>. This <strong>parent-child relationship</strong> creates a consistent history and allows Git to <strong>merge branches together</strong>.</p>
+</section>
+
+<!-- COMMITS — SEMANTIC VERSIONING & RELEASE TAGS — page 34 -->
+<section class="slide" id="commits-versioning" data-search="commits semantic versioning commit messages track evolution code configurations clear version numbers major minor patch release tags mark releases significant changes deploy specific versions rollback">
+  <div class="pgnum">34 / 53</div>
+  <h2>Commits</h2>
+  <p class="lede">A commit represents a <strong>snapshot of the project</strong> that contains a lot of information.</p>
+  <h3>Semantic Versioning</h3>
+  <p>Semantic Versioning can be used in commit messages to <strong>track the evolution of code and configurations</strong> with <strong>clear version numbers</strong> that indicate the nature of changes (major, minor, or patch).</p>
+  <h3>Release Tags</h3>
+  <p>Tags can be used in Git to <strong>mark releases or significant changes</strong>, making it easier to deploy specific versions to Salesforce orgs or rollback if necessary.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Semantic versioning (MAJOR.MINOR.PATCH) is the exam-preferred answer for versioning strategy. Pair it with Git tags to show you understand how to create a persistent, queryable reference to any deployed version — which is how you enable rollback to a named release.</p>
+  </div>
+</section>
+
+<!-- COMMITS — HISTORY & COMPARISONS — page 35 -->
+<section class="slide" id="commits-history" data-search="commits history list all commits current branch github comparisons versions files differences working directory staging area right files commit">
+  <div class="pgnum">35 / 53</div>
+  <h2>Commits</h2>
+  <p class="lede">A commit represents a <strong>snapshot of the project</strong> that contains a lot of information.</p>
+  <h3>Commit History</h3>
+  <p>Git can be used to display a <strong>list of all the commits on the current branch</strong>. The project history can also be accessed on GitHub.</p>
+  <h3>Comparisons</h3>
+  <p>When working on a commit, <strong>versions of files can be compared</strong>. The differences between what is currently in the <strong>working directory</strong> and the <strong>staging area</strong> can help add the right files to the commit.</p>
+</section>
+
+<!-- COMMITS — UNDOING & REWINDING — page 36 -->
+<section class="slide" id="commits-undo" data-search="commits undoing changes creating new commit opposite rewinding rewind history alters commit history only recommended commits not been pushed remote branch">
+  <div class="pgnum">36 / 53</div>
+  <h2>Commits</h2>
+  <p class="lede">A commit represents a <strong>snapshot of the project</strong> that contains a lot of information.</p>
+  <h3>Undoing Changes</h3>
+  <p>Git can be used to undo a change by <strong>creating a new commit</strong> with changes that are the opposite of the changes in the original commit. It also allows <strong>making a modification to the last commit</strong>, which alters the commit history of the project.</p>
+  <h3>Rewinding</h3>
+  <p>Git can be used to <strong>rewind the history</strong> of the project, which also alters the commit history. It is only recommended when <strong>commits have not been pushed</strong> to the remote branch.</p>
+  <div class="note">Never rewrite history on a shared/protected branch. Rewinding (git reset --hard) should only be done locally before pushing. On shared branches, use a revert commit to safely undo changes while preserving the audit trail.</div>
+</section>
+
+<!-- MERGE STRATEGIES — page 37 -->
+<section class="slide" id="merge-strategies" data-search="merge strategies recursive merge fast-forward merge feature branch latest version target branch main merge commit combined changes no new commits tip target branch fast-forwarded">
+  <div class="pgnum">37 / 53</div>
+  <h2>Merge Strategies</h2>
+  <p class="lede">Git uses two primary methods for merging changes: <strong>Recursive Merge</strong> and <strong>Fast-Forward Merge</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Recursive Merge</h4>
+      <p>When the feature branch <strong>doesn't have the latest version of code in the target branch (usually main)</strong>, recursive merge is used. When a pull request is created and changes are merged, a <strong>merge commit</strong> is created, which combines the changes in the two branches.</p>
+    </div>
+    <div class="card">
+      <h4>Fast-Forward Merge</h4>
+      <p>When there are <strong>no new commits</strong> other than the ones in the feature branch, fast-forward merge is used. In this case, Git <strong>does not create a new merge commit</strong>. The tip of the target branch is fast-forwarded to include the changes in the feature branch.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Know which merge type produces a merge commit (recursive) and which does not (fast-forward). In regulated environments, recursive merges are preferred because the merge commit itself is part of the audit trail — it records who merged what and when, which fast-forward merges lose.</p>
+  </div>
+</section>
+
+<!-- MERGE CONFLICTS — page 38 -->
+<section class="slide" id="merge-conflicts" data-search="merge conflicts two developers changed same lines file deleted file modifying conflict only affects developer conducts merge marked conflicted process halted must resolve resolution command-line tools third-party streamlined">
+  <div class="pgnum">38 / 53</div>
+  <h2>Merge Conflicts</h2>
+  <p class="lede">Merge conflicts occur when two developers have <strong>changed the same lines in a file</strong> or if a developer <strong>deleted a file while another developer was modifying it</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Conflict</h4>
+      <p>A merge conflict <strong>only affects the developer</strong> who conducts the merge. The file is marked as <strong>conflicted</strong> and the <strong>merge process is halted</strong>. The developer must then resolve the conflict.</p>
+    </div>
+    <div class="card">
+      <h4>Resolution</h4>
+      <p>There are various <strong>command-line tools available in Git</strong> to resolve merge conflicts. Many third-party tools support <strong>streamlined merge conflict support features</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Fed, merge conflict resolution must be documented — the resolution is itself a change to the codebase and must go through the same review process as any other change. GitLab protected-branch rules ensure that even conflict-resolved merges require a fresh approval, preventing the conflict resolution from bypassing the four-eyes control.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO — page 39 -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">39 / 53</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO — page 40 -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic fashion house high-end clothing global US Italy France Australia salesforce CRM HR management product planning development teams global locations new features bugs updates version control branching versioning merging architect">
+  <div class="pgnum">40 / 53</div>
+  <h2>Business Scenario</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Fashion House, renowned for its exquisite range of high-end fashion clothing from casual to formal attire, boasts a global presence with stores in the United States, Italy, France, and Australia. Leveraging Salesforce, the company expertly manages CRM data and streamlines a multitude of internal operations, including HR management and product planning. Its Salesforce development teams are strategically dispersed across various global locations.</p>
+    <p style="margin-top:8px;">Presently, the company is navigating the complexities of enhancing its development process to efficiently integrate new features, address bugs, and roll out updates for a diverse suite of applications. This endeavor calls for the expertise of a Salesforce architect to fully harness the capabilities of a version control system, employing optimal branching, versioning, and merging strategies to meet the dynamic demands of the company.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS — page 41 -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">41 / 53</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 — page 42 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 multiple development teams separate streams work different timelines releases source control track code configuration minimize risk unwanted changes branching strategy manage complexity releases">
+  <div class="pgnum">42 / 53</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company has multiple development teams that work on separate streams of work, with different timelines and releases. Each team typically works on different code and configurations. The company is exploring the use of a source control system to track code and configuration changes and minimize the risk of unwanted changes. The architect needs to outline the benefits of using a source control system for the company's requirement. Also, a suitable branching strategy is needed to manage the complexity of releases efficiently.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 — page 43 -->
+<section class="slide" id="solution-1" data-search="solution 1 source control system git distributed teams isolation back up code configuration changes rollbacks github flow branching strategy multiple feature branches deployed independently multiple release timelines merge main deployment">
+  <div class="pgnum">43 / 53</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A source control system like Git is suitable for the company's requirement since it allows <strong>distributed teams to work in isolation</strong>. It would also allow the teams to <strong>back up code and configuration changes</strong>, enabling <strong>rollbacks</strong> in case of unwanted changes. The <strong>GitHub Flow</strong> can be used as the branching strategy for the source control workflow. It allows the use of <strong>multiple feature branches</strong> which can be deployed independently. This suits the company's need for handling multiple release timelines. The development teams can work on feature branches and merge them into the main branch when they are ready for deployment.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the canonical "multiple teams, multiple timelines" answer: Git for isolation + GitHub Flow for independent feature branches. The key selling points to articulate are: isolation (teams don't block each other), rollback (failed deployments revert cleanly via Git history), and independent release cadence per feature branch.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 — GITHUB FLOW DIAGRAM — page 44 -->
+<section class="slide" id="solution-1-diagram" data-search="solution 1 github flow diagram create branch commits open pull request collaborate merge delete branch steps workflow">
+  <div class="pgnum">44 / 53</div>
+  <h2>Solution 1 — GitHub Flow</h2>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1</strong></td><td>Create a branch</td></tr>
+      <tr><td><strong>2</strong></td><td>Make commits</td></tr>
+      <tr><td><strong>3</strong></td><td>Open a pull request</td></tr>
+      <tr><td><strong>4</strong></td><td>Collaborate</td></tr>
+      <tr><td><strong>5</strong></td><td>Merge the pull request</td></tr>
+      <tr><td><strong>6</strong></td><td>Delete the branch</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- REQUIREMENT 2 — page 45 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 australia multiple sandboxes gitflow branching strategy master develop feature release hotfix two main branches three supporting branches recommend suitable approach development">
+  <div class="pgnum">45 / 53</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Following the architect's recommendation, the company has started using Git as the source control system. Salesforce Extensions for VS Code is used with Salesforce CLI to update various sandboxes from source control. A development team in Australia uses multiple sandboxes and is considering the use of Gitflow as its branching strategy. The strategy emphasizes the use of two main branches called Master and Develop. There are also three supporting branches called Feature, Release, and Hotfix. The architect needs to recommend a suitable approach for development using this branching strategy.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 — page 46 -->
+<section class="slide" id="solution-2" data-search="solution 2 gitflow workflow feature branch develop branch merged back continuous integration testing tracking each feature change separately history changes code reviews before merging">
+  <div class="pgnum">46 / 53</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>When using the <strong>Gitflow</strong> workflow, each developer should work off of a <strong>Feature</strong> branch, which is pulled from the <strong>Develop</strong> branch, and then the Feature branch should be <strong>merged back into the Develop branch</strong>. This allows for <strong>continuous integration and testing</strong> in the <strong>Develop</strong> branch, which aligns with agile development practices. It is important to note that using feature branches would allow <strong>tracking each feature or change separately</strong> and <strong>maintain a history of changes</strong> made by each developer. However, <strong>code reviews</strong> should be performed before merging branches.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The requirement for code reviews before merging Feature branches into Develop is the four-eyes principle in action. In GitLab, this is enforced through protected branch rules and required approvers on merge requests — a key control that satisfies both IT governance and audit requirements at a central bank.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 — GITFLOW DIAGRAM — page 47 -->
+<section class="slide" id="solution-2-diagram" data-search="solution 2 gitflow workflow diagram main develop feature branch release hotfix steps create merge">
+  <div class="pgnum">47 / 53</div>
+  <h2>Solution 2 — Gitflow Workflow</h2>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1</strong></td><td>Create 'main' and 'develop' branches from the repository</td></tr>
+      <tr><td><strong>2</strong></td><td>Create a feature branch from 'develop'</td></tr>
+      <tr><td><strong>3</strong></td><td>Merge feature branch into 'develop'</td></tr>
+      <tr><td><strong>4</strong></td><td>Create a release branch from 'develop'</td></tr>
+      <tr><td><strong>5</strong></td><td>Merge the release branch into 'main' and 'develop'</td></tr>
+      <tr><td><strong>6</strong></td><td>Create hotfix branches from 'main' to fix critical issues</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- REQUIREMENT 3 — page 48 -->
+<section class="slide" id="requirement-3" data-search="requirement 3 experience cloud sprint deploy changes business approval immediately begin next sprint release branch deployment two developers case object apex classes merge conflict develop branch considerations">
+  <div class="pgnum">48 / 53</div>
+  <h2>Requirement 3</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A development team working on an Experience Cloud project has completed a sprint and would like to deploy the changes made in the sprint after business approval. However, the team will also immediately begin the next sprint. The architect needs to recommend a suitable strategy to handle the deployment. In addition, two developers are currently working on the Case object and the same Apex classes that reference the Case object. One of them has finished their work early and merged the changes into the Develop branch. The architect needs to provide any related considerations.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 3 (PART 1) — page 49 -->
+<section class="slide" id="solution-3a" data-search="solution 3 part 1 release branch develop branch completed sprint business approval new feature branches merge into develop integration testing continuous development staging features release">
+  <div class="pgnum">49 / 53</div>
+  <h2>Solution 3 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the given requirement, a <strong>Release branch</strong> can be created from the <strong>Develop branch</strong> for the completed sprint. After business approval, the changes made in the sprint can be deployed from the Release branch. For the new sprint, development can be started in <strong>new Feature branches</strong>. After the completion of each feature, its <strong>Feature branch</strong> can be <strong>merged into the Develop branch</strong> for integration and testing. This would allow continuous development and staging of features for release.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 3 (PART 2) — page 50 -->
+<section class="slide" id="solution-3b" data-search="solution 3 part 2 second developer case object apex classes merge conflict pull request feature branch develop branch resolve conflict git commands merge successfully">
+  <div class="pgnum">50 / 53</div>
+  <h2>Solution 3 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The second developer working on the Case object and the same Apex classes could potentially see a <strong>merge conflict</strong> when they create a <strong>pull request</strong> for merging changes in their Feature branch into the Develop branch. They would need to <strong>resolve the conflict</strong> using Git commands to merge the two branches successfully.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the classic exam scenario combining release branching with conflict resolution. The two-part answer pattern — Release branch for the completed sprint + Feature branches for the new sprint, plus flagging the merge conflict risk for the second developer — demonstrates architect-level awareness of both the workflow and the operational risks.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 4 — page 51 -->
+<section class="slide" id="requirement-4" data-search="requirement 4 united states development phase sales cloud customization 15 apex developers building functionality fixing bugs branching strategy mitigate risk overwriting changes critical production issues middle of development">
+  <div class="pgnum">51 / 53</div>
+  <h2>Requirement 4</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A development team in the United States is working on the next development phase of a Sales Cloud customization project that requires a lot of development work. The project has 15 Apex developers building new functionality and fixing bugs. The architect needs to recommend a suitable branching strategy that mitigates the risk of developers overwriting each others' changes. Also, the project manager is concerned about critical production issues occurring in the middle of development. A suitable strategy is required to address the issues.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 4 — page 52 -->
+<section class="slide" id="solution-4" data-search="solution 4 build new functionality new branches merge changes common branch testing isolate developer work integration separate branches current development production bug fixes merged deployed without waiting development cycle">
+  <div class="pgnum">52 / 53</div>
+  <h2>Solution 4</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the branching strategy, developers should <strong>build new functionality in new branches</strong> and <strong>merge their changes into a common branch for testing</strong>. This would <strong>isolate each developer's work</strong> until it's ready for integration, reducing the risk of conflicts. To address critical production issues immediately without affecting the ongoing development work, <strong>separate branches</strong> should be created for <strong>current development and production bug fixes</strong>. Once the production fix is tested and ready, it can be <strong>merged and deployed</strong> without waiting for the current development cycle to complete.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This is the hotfix-branch pattern from Gitflow applied to an emergency production fix. At the Fed, this scenario would additionally require an emergency change request and expedited approval from the Change Control Board before deployment — the branch strategy enables the technical isolation, but the governance layer still applies even for urgent production fixes.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE — page 53 -->
+<section class="slide" id="learn-more" data-search="learn more plan for changes org git github basics track changes project org comparing git workflows design patterns salesforce git branching strategies semantic versioning 2.0.0 further reading trailhead resources">
+  <div class="pgnum">53 / 53</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Plan for Changes to Your Org</li>
+    <li>Git and GitHub Basics</li>
+    <li>Track Changes Between Your Project and Org</li>
+    <li>Comparing Git workflows</li>
+    <li>Design Patterns for Salesforce Git Branching Strategies</li>
+    <li>Semantic Versioning 2.0.0</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET — synthesized -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary source control strategies branching versioning merging key terms decision rules scenario solution patterns exam">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Source Control Strategies</h2>
+
+  <h3>Branching Strategy Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Strategy</th><th>Best For</th><th>Key Branches</th><th>When to Use</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Centralized Workflow</strong></td>
+        <td>Small teams / VCS migration</td>
+        <td>main only</td>
+        <td>Simple collaboration, no parallel features needed</td>
+      </tr>
+      <tr>
+        <td><strong>GitHub Flow</strong></td>
+        <td>CI/CD, multiple release streams</td>
+        <td>main + short-lived feature branches</td>
+        <td>Multiple teams, independent deployment timelines, rapid iterations</td>
+      </tr>
+      <tr>
+        <td><strong>Gitflow Workflow</strong></td>
+        <td>Scheduled releases, complex projects</td>
+        <td>main, develop, feature, release, hotfix</td>
+        <td>Parallel feature dev + defined release windows + emergency hotfixes</td>
+      </tr>
+      <tr>
+        <td><strong>Forking Workflow</strong></td>
+        <td>Open source / distributed large teams</td>
+        <td>fork + branch per contributor</td>
+        <td>External contributors without write access, thorough vetting required</td>
+      </tr>
+      <tr>
+        <td><strong>Trunk-Based Dev</strong></td>
+        <td>Rapid delivery, agile/lean</td>
+        <td>trunk (main) + very short-lived branches</td>
+        <td>Teams with strong CI/CD pipeline, want minimal branch complexity</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Scenario-to-Solution Patterns</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Scenario Signal</th><th>Recommended Strategy</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Multiple teams, different timelines, need isolation + rollback</td><td>Git (source control) + <strong>GitHub Flow</strong></td></tr>
+      <tr><td>Multiple sandboxes, continuous integration on Develop, code reviews required</td><td><strong>Gitflow</strong> — feature branches off Develop, PR/MR required before merge</td></tr>
+      <tr><td>Sprint completed, deploy after approval while new sprint begins</td><td><strong>Gitflow</strong> — Release branch from Develop for deployment; new Feature branches for next sprint</td></tr>
+      <tr><td>Two developers modified same files — merge conflict on PR</td><td>Resolve conflict using Git commands before merge can complete</td></tr>
+      <tr><td>15+ developers, risk of overwriting, critical production issues mid-dev</td><td>Feature branches → common branch for testing; separate hotfix branches for production issues</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Key Terms Fast Reference</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Term</th><th>One-line Definition</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Commit</strong></td><td>Snapshot of a project at a point in time; identified by a SHA-1 hash</td></tr>
+      <tr><td><strong>Branch</strong></td><td>A series of commits; main = production-ready</td></tr>
+      <tr><td><strong>Tag</strong></td><td>Pointer to a specific commit; used for semantic version markers</td></tr>
+      <tr><td><strong>Recursive Merge</strong></td><td>Creates a merge commit; used when target branch has diverged — preferred in audit environments</td></tr>
+      <tr><td><strong>Fast-Forward Merge</strong></td><td>No merge commit; branch tip moves forward — loses the merge-event audit record</td></tr>
+      <tr><td><strong>Merge Conflict</strong></td><td>Occurs when two branches change the same lines; must be resolved manually before merge completes</td></tr>
+      <tr><td><strong>Semantic Versioning</strong></td><td>MAJOR.MINOR.PATCH — indicates nature of change; used in commit messages and Git tags</td></tr>
+      <tr><td><strong>Source Tracking</strong></td><td>Automatically tracks metadata changes between local project and scratch org/sandbox</td></tr>
+      <tr><td><strong>Pull / Merge Request</strong></td><td>Mechanism to propose, discuss, review, and approve code before merging — enforces four-eyes principle</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>GitHub Flow ≠ Gitflow.</strong> GitHub Flow is lightweight (main + feature branches only). Gitflow has five branch types and is for scheduled releases with hotfix capability.</li>
+    <li><strong>Short-lived branches are the default.</strong> Delete branches after merging to prevent stale branch proliferation and needless conflicts.</li>
+    <li><strong>Trunk-Based Development requires strong CI.</strong> Without automated test gates, direct commits to trunk are risky — do not recommend TBD unless the team has a mature CI/CD pipeline.</li>
+    <li><strong>Recursive merge preserves the audit trail; fast-forward does not.</strong> In regulated/audited contexts, prefer merge commits over fast-forward.</li>
+    <li><strong>Rewinding history alters commit history.</strong> Only safe before pushing to a remote. On shared branches, use a revert commit instead.</li>
+    <li><strong>Hotfix branches</strong> in Gitflow solve the "critical production issue while development is in progress" scenario — they are created from main, not develop.</li>
+    <li><strong>Source-driven development = VCS is source of truth</strong>, not the org. Deployments push FROM Git TO the org.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For the Federal Reserve Bank of Chicago, the highest-priority source-control concerns are: (1) <strong>auditable commit history</strong> — every change is traceable to a person, ticket, and timestamp; (2) <strong>protected branches with required approvals</strong> in GitLab — enforces the four-eyes principle and segregation of duties; (3) <strong>merge requests with automated CI gates</strong> — Apex test coverage and static analysis must pass before any merge to develop or main; (4) <strong>emergency change process</strong> — hotfix branches must still go through an expedited change-request approval, not bypass change control. Gitflow maps most naturally to this governance model, but any strategy can satisfy audit requirements if protected-branch rules and merge-request approvals are configured correctly.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

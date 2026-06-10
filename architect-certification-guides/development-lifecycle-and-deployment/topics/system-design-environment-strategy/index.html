@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design — Environment (Sandbox) Strategy — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>System Design — Environment (Sandbox) Strategy</h1>
+  <div class="sub">Given a customer scenario, define an environment strategy that utilizes the correct sandbox types — project streams, training, staging, production, and hotfixes · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (30 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Salesforce Sandboxes</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#sandbox-strategy-overview">Sandbox Strategy Overview</a></li>
+      <li><a href="#section-sandboxes">Section: Salesforce Sandboxes</a></li>
+      <li><a href="#sandboxes-usage-dev">Sandboxes — Usage &amp; Dev/Testing</a></li>
+      <li><a href="#sandboxes-training-deploy">Sandboxes — Training &amp; Deployment</a></li>
+      <li><a href="#sandbox-types">Sandbox Types</a></li>
+      <li><a href="#creating-sandboxes-1">Creating Sandboxes (New &amp; Additional)</a></li>
+      <li><a href="#creating-sandboxes-2">Creating Sandboxes (Purchased &amp; Template)</a></li>
+      <li><a href="#creating-sandboxes-3">Creating Sandboxes (Options &amp; Processing)</a></li>
+      <li><a href="#refreshing-sandboxes-1">Refreshing Sandboxes (How &amp; Options)</a></li>
+      <li><a href="#refreshing-sandboxes-2">Refreshing Sandboxes (Data &amp; Auto-Activation)</a></li>
+      <li><a href="#refreshing-sandboxes-3">Refreshing Sandboxes (Activation &amp; Discarding)</a></li>
+      <li><a href="#refresh-intervals-table">Refresh Intervals &amp; Storage Limits</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Healthcare Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1-part1">Requirement 1 (Part 1)</a></li>
+      <li><a href="#requirement-1-part2">Requirement 1 (Part 2)</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#requirement-3">Requirement 3</a></li>
+      <li><a href="#solution-3">Solution 3</a></li>
+      <li><a href="#solution-3-diagram">Solution 3 — Hotfix Flow Diagram</a></li>
+      <li><a href="#requirement-4">Requirement 4</a></li>
+      <li><a href="#solution-4">Solution 4</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover system design environment sandbox strategy salesforce development lifecycle deployment architect focusonforce project streams training staging production hotfixes">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>System Design — Environment (Sandbox) Strategy</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer scenario, define an environment strategy that utilizes the correct sandbox types — project streams, training, staging, production, and hotfixes · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents salesforce sandboxes business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#section-sandboxes">Salesforce Sandboxes</a></li>
+    <li><a class="toc-link" href="#section-business">Business Scenario</a></li>
+    <li><a class="toc-link" href="#section-requirements">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives salesforce sandboxes four types refresh intervals storage limits environment strategy">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the main features of Salesforce sandboxes.</li>
+    <li>Describe the features of the four types of sandboxes.</li>
+    <li>Identify the refresh intervals and storage limits available for the four types of sandboxes.</li>
+    <li>Define an appropriate environment strategy that utilizes the correct sandbox types for the given customer requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction salesforce sandbox isolated environment data metadata production developer developer pro partial copy full refresh intervals storage limits">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>A <strong>Salesforce sandbox</strong> is a separate, isolated environment that contains some or all of the data and metadata from production. Sandboxes can be used for <strong>development, testing, staging, and training</strong>. There are four types of sandboxes, namely: <strong>Developer, Developer Pro, Partial Copy, and Full</strong>. Each type of sandbox is used for specific use cases.</p>
+  <p>A new sandbox is created with the <strong>metadata and data (depending on the sandbox type)</strong> from the production org. <strong>Refreshing a sandbox</strong> updates its metadata from the resource org. If the sandbox is a <strong>clone</strong> or uses a <strong>sandbox template</strong>, the process updates the org's data and its metadata. Sandboxes have different <strong>refresh intervals</strong> and <strong>storage limits</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, the sandbox hierarchy is a core element of change-control governance. Every configuration or code change must be developed and validated in a sandbox before production deployment — this is both a Salesforce best practice and a regulatory requirement for systems touching financial data. The choice of sandbox type directly determines what data reaches lower environments, which is an audit-relevant decision.</p>
+  </div>
+</section>
+
+<!-- SANDBOX STRATEGY OVERVIEW -->
+<section class="slide" id="sandbox-strategy-overview" data-search="sandbox strategy overview developer sandbox partial copy developer pro full isolated development testing quality assurance integration testing user training user acceptance load performance staging">
+  <div class="pgnum">Page 5 · Sandbox Strategy Overview</div>
+  <h2>Sandbox Strategy</h2>
+  <p class="lede">Each of the four sandbox types fills a distinct role in the development lifecycle.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Developer Sandbox</h4>
+      <p>A Developer sandbox can be used for <strong>development and testing</strong> in an isolated environment.</p>
+    </div>
+    <div class="card">
+      <h4>Developer Pro Sandbox</h4>
+      <p>A Developer Pro sandbox can be used for <strong>quality assurance, integration testing, and user training</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Partial Copy Sandbox</h4>
+      <p>A Partial Copy sandbox can be used for <strong>user-acceptance testing, integration testing, and testing</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Full Sandbox</h4>
+      <p>A Full sandbox can be used for <strong>performance testing, load testing, and staging</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The strategy diagram is the architect's mental model for sandbox selection. If an interviewer presents a scenario, map each requirement to its lowest-cost sandbox that satisfies the data fidelity need: Developer for isolated dev, Developer Pro for QA/training when larger data sets are needed, Partial Copy for UAT/integration with a data sample, Full only for staging/performance/load (most expensive, 29-day refresh). Avoid over-provisioning — recommending Full when Partial Copy suffices is a red flag.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: SALESFORCE SANDBOXES -->
+<section class="slide title-slide" id="section-sandboxes" data-search="section salesforce sandboxes">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Salesforce Sandboxes</h2>
+</section>
+
+<!-- SANDBOXES — USAGE & DEV/TESTING -->
+<section class="slide" id="sandboxes-usage-dev" data-search="salesforce sandbox isolated environment data metadata production usage development testing staging training isolated customization deployed changes production data users">
+  <div class="pgnum">Page 7 · Salesforce Sandboxes — Usage &amp; Development/Testing</div>
+  <h2>Salesforce Sandboxes</h2>
+  <p class="lede">A <strong>Salesforce sandbox</strong> is a separate, isolated environment that contains <strong>some or all of the data and metadata</strong> from production.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Usage</h4>
+      <p>Sandboxes can be used for <strong>development</strong>, <strong>testing</strong>, <strong>staging</strong>, and <strong>training</strong>, without affecting the data and metadata in the production org.</p>
+    </div>
+    <div class="card">
+      <h4>Development &amp; Testing</h4>
+      <p>Sandboxes allow <strong>isolated customization and development</strong> work until changes are ready to be deployed. Changes can also be <strong>tested</strong> against copies of the production data and users.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SANDBOXES — TRAINING & DEPLOYMENT -->
+<section class="slide" id="sandboxes-training-deploy" data-search="salesforce sandbox training environment end users application deployed production individual changes administrators developers coordinated deployed">
+  <div class="pgnum">Page 8 · Salesforce Sandboxes — Training &amp; Deployment</div>
+  <h2>Salesforce Sandboxes</h2>
+  <p class="lede">A <strong>Salesforce sandbox</strong> is a separate, isolated environment that contains <strong>some or all of the data and metadata</strong> from production.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Training</h4>
+      <p>A sandbox can be used as a <strong>training environment</strong> for end users before an application is deployed to production.</p>
+    </div>
+    <div class="card">
+      <h4>Deployment</h4>
+      <p><strong>Individual changes</strong> from administrators and developers can be <strong>coordinated and deployed</strong> to production.</p>
+    </div>
+  </div>
+  <div class="note">Sandboxes serve four distinct purposes — development, testing, training, and deployment coordination. An exam question that asks "what sandbox is used for training end users?" is asking about a use case, not just data volume. Developer Pro is the lowest-cost option that supports user training with larger datasets.</div>
+</section>
+
+<!-- SANDBOX TYPES -->
+<section class="slide" id="sandbox-types" data-search="sandbox types developer developer pro partial copy full metadata larger datasets development quality assurance integration testing user training sample production data sandbox template user acceptance performance load staging replica">
+  <div class="pgnum">Page 9 · Sandbox Types</div>
+  <h2>Sandbox Types</h2>
+  <p class="lede">There are <strong>four types</strong> of Sandboxes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Developer</h4>
+      <p>A Developer sandbox includes a copy of the production org's <strong>metadata</strong>. It is typically used for <strong>isolated development and testing</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Developer Pro</h4>
+      <p>A Developer Pro sandbox includes a copy of the production org's <strong>metadata</strong> and can host <strong>larger datasets</strong>. It is typically used for more <strong>development and quality assurance</strong> tasks, <strong>integration testing</strong>, and <strong>user training</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Partial Copy</h4>
+      <p>A Partial Copy sandbox includes a copy of the production org's <strong>metadata</strong> and a <strong>sample of production data</strong> defined by a <strong>sandbox template</strong>. It is typically used for <strong>user acceptance testing</strong>, <strong>integration testing</strong>, and <strong>training</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Full</h4>
+      <p>A Full sandbox is a <strong>replica</strong> of the production org and includes <strong>all data and metadata</strong>. It is used for <strong>performance testing</strong>, <strong>load testing</strong>, and <strong>staging</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For a regulated financial institution, the distinction between Partial Copy and Full is a data-governance decision, not just a capacity one. Bringing all production data into a Full sandbox requires the same data-masking and access controls that apply in production. The Fed's internal security policies will require documented justification for using a Full sandbox — default to Partial Copy unless full data fidelity is a documented, approved requirement.</p>
+  </div>
+</section>
+
+<!-- CREATING SANDBOXES — NEW & ADDITIONAL -->
+<section class="slide" id="creating-sandboxes-1" data-search="creating sandboxes copies metadata data sandbox type production new sandbox setup page name description sandbox type additional sandboxes option not visible more licenses salesforce contact">
+  <div class="pgnum">Page 10 · Creating Sandboxes — New &amp; Additional Licenses</div>
+  <h2>Creating Sandboxes</h2>
+  <p class="lede">Creating a sandbox <strong>copies the metadata and data (depending on the sandbox type)</strong> from the production org to the new sandbox org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>New Sandbox</h4>
+      <p>A new sandbox can be created from the <strong>Sandboxes</strong> page in Setup. It requires choosing a <strong>name, description, and sandbox type</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Additional Sandboxes</h4>
+      <p>If a <strong>sandbox option is not visible</strong> or <strong>more licenses are needed</strong>, Salesforce should be contacted to order <strong>additional sandboxes</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CREATING SANDBOXES — PURCHASED & TEMPLATE -->
+<section class="slide" id="creating-sandboxes-2" data-search="creating sandboxes purchased sandboxes reduced matched template partial copy full all data field history tracking chatter data">
+  <div class="pgnum">Page 11 · Creating Sandboxes — Purchased Sandboxes &amp; Templates</div>
+  <h2>Creating Sandboxes</h2>
+  <p class="lede">Creating a sandbox <strong>copies the metadata and data (depending on the sandbox type)</strong> from the production org to the new sandbox org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Purchased Sandboxes</h4>
+      <p>If the number of <strong>purchased sandboxes is reduced</strong>, the number of sandboxes should be <strong>matched</strong> to the purchased number. For example, if there are two Full sandboxes but only one was purchased, a Full sandbox cannot be created.</p>
+    </div>
+    <div class="card">
+      <h4>Sandbox Template</h4>
+      <p>For <strong>Partial Copy</strong> and <strong>Full</strong> sandboxes, a <strong>template</strong> can be selected for the data to include. For a Full sandbox, <strong>all data</strong> can be included; the amount of <strong>field history tracking data</strong> to be included can be selected, and <strong>whether to copy Chatter data</strong> can be selected.</p>
+    </div>
+  </div>
+  <div class="note">If sandbox count exceeds what was purchased — for example after a license reduction — you cannot create new sandboxes of that type until the count is brought in line. Deleting the unused sandbox resolves the block. This is exactly the pattern tested in Requirement 2 of this deck.</div>
+</section>
+
+<!-- CREATING SANDBOXES — ADDITIONAL OPTIONS & PROCESSING -->
+<section class="slide" id="creating-sandboxes-3" data-search="creating sandboxes additional options scripts apex class sandboxpostcopy interface public user group processing time several minutes days size type notification email">
+  <div class="pgnum">Page 12 · Creating Sandboxes — Options &amp; Processing Time</div>
+  <h2>Creating Sandboxes</h2>
+  <p class="lede">Creating a sandbox <strong>copies the metadata and data (depending on the sandbox type)</strong> from the production org to the new sandbox org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Additional Options</h4>
+      <p>To <strong>run scripts</strong> after each create and refresh for the created sandbox, an <strong>Apex class</strong> created for the <strong>SandboxPostCopy</strong> interface can be specified. A <strong>public user group</strong> that contains the users that require access to the sandbox can be selected.</p>
+    </div>
+    <div class="card">
+      <h4>Processing Time</h4>
+      <p>The process of creating a sandbox takes from <strong>several minutes to several days</strong>, depending on the <strong>size and type of the sandbox</strong>. When the sandbox is ready, a <strong>notification email</strong> is sent.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The SandboxPostCopy interface is a high-signal answer when an interviewer asks how you automate post-refresh setup (e.g., masking PII, resetting integration credentials, reassigning users). Mentioning it demonstrates you understand the full sandbox lifecycle, not just creation. In a regulated environment, a SandboxPostCopy class that automatically masks sensitive fields is a key control.</p>
+  </div>
+</section>
+
+<!-- REFRESHING SANDBOXES — HOW & OPTIONS -->
+<section class="slide" id="refreshing-sandboxes-1" data-search="refreshing sandboxes update metadata resource org clone sandbox template data metadata refresh link setup sandboxes page name description create from type sandbox environment">
+  <div class="pgnum">Page 13 · Refreshing Sandboxes — How &amp; Options</div>
+  <h2>Refreshing Sandboxes</h2>
+  <p class="lede">A sandbox can be <strong>refreshed</strong> to <strong>update its metadata</strong> from the resource org. If the sandbox is a <strong>clone or uses a sandbox template</strong>, the process updates the org's <strong>data and its metadata</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Refreshing a Sandbox</h4>
+      <p>Sandboxes that can be refreshed are visible on the <strong>Sandboxes</strong> page in Setup. A <strong>Refresh</strong> link appears next to the name of a sandbox that can be refreshed.</p>
+    </div>
+    <div class="card">
+      <h4>Options</h4>
+      <p><strong>Name, Description, and Create From</strong> values can be reviewed and edited. If the sandbox is <strong>not a clone</strong>, the <strong>type of sandbox environment</strong> required can be selected.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REFRESHING SANDBOXES — DATA & AUTO-ACTIVATION -->
+<section class="slide" id="refreshing-sandboxes-2" data-search="refreshing sandboxes data copied partial copy full sandboxes template-based field history tracking chatter auto-activation auto activate activation email not sent">
+  <div class="pgnum">Page 14 · Refreshing Sandboxes — Data &amp; Auto-Activation</div>
+  <h2>Refreshing Sandboxes</h2>
+  <p class="lede">A sandbox can be <strong>refreshed</strong> to <strong>update its metadata</strong> from the resource org. If the sandbox is a <strong>clone or uses a sandbox template</strong>, the process updates the org's <strong>data and its metadata</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Data</h4>
+      <p>The data that should be <strong>copied</strong> can be selected. For <strong>partial copy and full sandboxes</strong>, <strong>template-based data</strong> can be selected. For a <strong>Full</strong> sandbox, the amount of <strong>field history tracking data</strong> to be included can be selected, and <strong>whether to copy Chatter data</strong> can be selected.</p>
+    </div>
+    <div class="card">
+      <h4>Auto-Activation</h4>
+      <p>The sandbox can be auto-refreshed after refreshing it by selecting <strong>Auto Activate</strong>. An <strong>activation email is not sent</strong> if this option is selected.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REFRESHING SANDBOXES — ACTIVATION & DISCARDING -->
+<section class="slide" id="refreshing-sandboxes-3" data-search="refreshing sandboxes activation activate link discarding discarded cannot be recovered reverts previous version deleting new version">
+  <div class="pgnum">Page 15 · Refreshing Sandboxes — Activation &amp; Discarding</div>
+  <h2>Refreshing Sandboxes</h2>
+  <p class="lede">A sandbox can be <strong>refreshed</strong> to <strong>update its metadata</strong> from the resource org. If the sandbox is a <strong>clone or uses a sandbox template</strong>, the process updates the org's <strong>data and its metadata</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Activation</h4>
+      <p>A refreshed sandbox must be <strong>activated</strong> before it can be used. The <strong>'Activate' link</strong> next to the name of a sandbox can be selected.</p>
+    </div>
+    <div class="card">
+      <h4>Discarding</h4>
+      <p>The refreshed sandbox can also be <strong>discarded</strong>. A discarded sandbox <strong>cannot be recovered</strong>, and discarding a refreshed sandbox <strong>reverts to its previous version</strong>, deleting the new version.</p>
+    </div>
+  </div>
+  <div class="note">Discarding is irreversible — the new refresh is permanently deleted and you revert to the old version. This is particularly dangerous for Full sandboxes where a refresh takes up to several days. Activate before doing any validation to preserve the option to discard only as a last resort.</div>
+</section>
+
+<!-- SANDBOX REFRESH INTERVALS AND STORAGE LIMITS -->
+<section class="slide" id="refresh-intervals-table" data-search="sandbox refresh intervals storage limits developer 1 day 200 mb developer pro 1 day 1 gb partial copy 5 days 5 gb full 29 days same production frequency configuration">
+  <div class="pgnum">Page 16 · Sandbox Refresh Intervals &amp; Storage Limits</div>
+  <h2>Sandbox Refresh Intervals and Storage Limits</h2>
+  <p class="lede">Different sandbox environments can be created based on the needs for <strong>storage, configuration, and frequency of refresh</strong>.</p>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th>Sandbox Type</th>
+        <th>Refresh Interval</th>
+        <th>Storage Limit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Developer</strong></td>
+        <td>1 day</td>
+        <td><strong>200 MB</strong> data storage and <strong>200 MB</strong> file storage</td>
+      </tr>
+      <tr>
+        <td><strong>Developer Pro</strong></td>
+        <td>1 day</td>
+        <td><strong>1 GB</strong> data storage and <strong>1 GB</strong> file storage</td>
+      </tr>
+      <tr>
+        <td><strong>Partial Copy</strong></td>
+        <td>5 days</td>
+        <td><strong>5 GB</strong> data storage and file storage <strong>same as production</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Full</strong></td>
+        <td>29 days</td>
+        <td>Data storage and file storage <strong>same as production</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>These numbers are high-frequency exam targets. Memorize: Developer/Developer Pro refresh daily (1 day); Partial Copy every 5 days; Full every 29 days. The Partial Copy training scenario in this deck exploits the 5-day interval — a weekly training cycle maps cleanly to a weekend refresh. If someone asks why Full is not used for weekly training, the 29-day refresh interval is the technical disqualifier.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The 29-day Full sandbox refresh cycle is a significant operational constraint for regulated environments that need to test against current production configurations after each monthly release window. Plan the UAT/staging refresh schedule to align with the Fed's change-control calendar — a stale Full sandbox can give false confidence that production-equivalent testing was completed.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 17 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic healthcare health technology salesforce platform sales cloud service cloud experience cloud multiple projects sandbox strategy project streams training staging hotfixes architect">
+  <div class="pgnum">Page 18 · Business Scenario — Cosmic Healthcare</div>
+  <h2>Business Scenario — Cosmic Healthcare</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Healthcare, a leader in health technology solutions, is enhancing its Salesforce platform to support expansive growth and the integration of advanced health applications. It currently manages its operations using <strong>Sales Cloud, Service Cloud, and Experience Cloud</strong>. Its development teams are currently working on multiple projects. It is in the process of introducing new applications and services, making the need for the optimized use of Salesforce sandboxes critical.</p>
+    <p style="margin-top:8px;">The Salesforce architect of the company is tasked with crafting environment strategies for the company's requirements by utilizing the correct sandbox types for aspects such as <strong>multiple project streams, training, staging, and hotfixes</strong>.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 19 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 PART 1 -->
+<section class="slide" id="requirement-1-part1" data-search="requirement 1 part 1 multiple concurrent development projects sales cloud service cloud major releases differing release timelines developer pro sandbox service cloud sales cloud sandbox strategy independent teams interference">
+  <div class="pgnum">Page 20 · Requirement 1 (Part 1)</div>
+  <h2>Requirement 1 (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company needs to manage <strong>multiple concurrent development projects</strong> for Sales Cloud and Service Cloud. The development teams face challenges in environment management due to upcoming major releases and differing release timelines for Sales and Service Cloud enhancements. The <strong>Sales Cloud development team uses a Developer Pro sandbox</strong> for development and testing. The <strong>Service Cloud development team needs to use a part of the Sales Cloud work</strong> from the sandbox. The company requires an effective sandbox strategy to accommodate these development efforts <strong>without compromising the quality or timeline</strong> of either project.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 1 PART 2 -->
+<section class="slide" id="requirement-1-part2" data-search="requirement 1 part 2 training end users weekly training sessions five days trainees sample production data training data deleted optimal sandbox strategy training sessions">
+  <div class="pgnum">Page 21 · Requirement 1 (Part 2)</div>
+  <h2>Requirement 1 (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>In addition, to ensure that end users are properly trained to use the new features and enhancements, the company would like to conduct <strong>weekly training sessions</strong>. Each training session will last for <strong>five days</strong> and train a new set of trainees on <strong>suitable samples of production data</strong>. All the training data should be <strong>deleted at the end of the week</strong>. The architect must suggest an optimal sandbox strategy for the training sessions.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 developer pro sandbox service cloud cloning sales cloud independent teams partial copy sandbox training refreshed every weekend sandbox template sample training data production">
+  <div class="pgnum">Page 22 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A new <strong>Developer Pro</strong> sandbox can be created for the Service Cloud development team by <strong>cloning the existing sandbox</strong> currently used by the Sales Cloud development team. This approach would allow both teams to work independently on their requirements without interference.</p>
+    <p>For the training sessions, a <strong>Partial Copy sandbox</strong> can be used. It can be <strong>refreshed every weekend</strong>. An appropriate <strong>sandbox template</strong> can be selected to include a sample of training data from production.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Two key patterns in one solution: (1) sandbox cloning to spin up an independent stream from an existing environment — the clone inherits the current state so the Service Cloud team gets a baseline without waiting for a full production refresh; (2) Partial Copy + weekend refresh for training — the 5-day refresh interval aligns with a weekly cycle, the template controls which data is included, and the refresh at week-end clears training data. This is the canonical sandbox strategy answer for concurrent streams + training.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For a central bank, the sandbox template used for training must be reviewed to ensure it does not expose actual PII or sensitive financial data. A SandboxPostCopy Apex class should be deployed to mask regulated fields after each weekend refresh. The weekly data lifecycle (load, train, purge) should be documented in the change-control system as a recurring operational procedure.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 batch data testing final review new features deployment production full sandboxes user acceptance testing performance testing no longer used sandboxes cannot be refreshed resolve issue">
+  <div class="pgnum">Page 23 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company would like to perform <strong>thorough batch data testing</strong> and a <strong>final review of new features and enhancements</strong> before deployment to production. The sandbox strategy for batch testing should consider the production data required. Furthermore, there are currently <strong>two Full sandboxes</strong>. One is used for <strong>user acceptance testing</strong>, and the other was used for <strong>performance testing in the past but is no longer used</strong>. A Salesforce administrator has reported that <strong>none of the sandboxes can be refreshed</strong>. The architect needs to recommend a suitable action to resolve the issue.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 full sandbox staging batch data testing all production data partial copy subset production data sandbox utilization reviewed deleted align license entitlements restore ability refresh">
+  <div class="pgnum">Page 24 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A <strong>Full sandbox</strong> can be used for staging. The same can be used for <strong>batch data testing</strong> if the testing scenarios require all the production data. A <strong>Partial Copy sandbox</strong> can be utilized for testing scenarios that require only a <strong>subset of production data</strong>.</p>
+    <p>The current sandbox utilization should be reviewed to resolve the issue with sandbox refreshes. The <strong>Full sandbox</strong> that was previously used for performance testing and is no longer being used should be <strong>deleted</strong> to align the organization's sandbox usage with its <strong>license entitlements</strong> and restore the ability to refresh sandboxes as needed.</p>
+  </div>
+  <div class="note">When a sandbox count exceeds purchased license entitlements, ALL sandboxes of that type are blocked from refresh — not just the excess one. Deleting the unused sandbox brings the count back in line and unblocks refresh for the remaining one. This is a common exam trap: admins assume only the "extra" sandbox is affected.</div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Fed, unused sandboxes represent an attack surface — they contain copies of production metadata and potentially data. A governance process should require periodic inventory of all active sandboxes with documented owners and purposes. Sandboxes that have not been used within a defined retention window (e.g., 90 days) should be deleted as part of the change-control hygiene process. This directly prevents the license-entitlement blocking scenario described here.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 3 -->
+<section class="slide" id="requirement-3" data-search="requirement 3 hotfix environment experience cloud urgent production issues integrations enterprise systems HRIS integration performance 10000 records sandbox types workflow two use cases">
+  <div class="pgnum">Page 25 · Requirement 3</div>
+  <h2>Requirement 3</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A development team that works on the company's <strong>Experience Cloud site</strong> has identified the need for a <strong>hotfix environment</strong> to resolve urgent production issues. In addition, the team regularly needs to <strong>test its integrations</strong> between the site and multiple enterprise systems, including an HRIS. The sandbox required for testing integration performance should contain <strong>up to 10,000 records of each object</strong>. The architect needs to suggest the <strong>sandbox types and workflow</strong> that should be used for these two use cases.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 3 -->
+<section class="slide" id="solution-3" data-search="solution 3 developer sandbox hotfix urgent bug fixes unit testing full sandbox user-acceptance testing deployed production merged downstream development environment partial copy sandbox integration testing enterprise systems sandbox template objects">
+  <div class="pgnum">Page 26 · Solution 3</div>
+  <h2>Solution 3</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A <strong>Developer sandbox</strong> can be set up to work on <strong>urgent bug fixes</strong>. Once development and unit testing have been completed in this sandbox, changes can be pushed to a <strong>Full sandbox</strong> for <strong>user-acceptance testing</strong>, and then deployed to production. Once a fix has been deployed to production, it can be <strong>merged</strong> with the downstream environments to maintain a complete codebase.</p>
+    <p>For the purpose of <strong>testing integrations with enterprise systems</strong>, a <strong>Partial Copy sandbox</strong> can be created using a <strong>sandbox template</strong> with all the objects required for testing.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The hotfix workflow is a classic three-stage pipeline: Developer (fix + unit test) → Full UAT → Production, then merge back down. The key insight is that a hotfix stream is separate from the main development stream — it must not wait for in-flight development work to complete. After deploying the hotfix to production, merging it back into downstream Developer sandboxes keeps all environments current. This avoids the scenario where a prior hotfix is inadvertently reverted by a later deployment.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 3 DIAGRAM -->
+<section class="slide" id="solution-3-diagram" data-search="solution 3 hotfix flow diagram hotfix environment developer sandbox UAT environment full sandbox production development environment merge downstream">
+  <div class="pgnum">Page 27 · Solution 3 — Hotfix Flow Diagram</div>
+  <h2>Solution 3 — Hotfix Workflow</h2>
+  <p class="lede">The hotfix flow isolates urgent fixes from normal development streams while ensuring the fix is propagated back downstream.</p>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th>Stage</th>
+        <th>Environment</th>
+        <th>Sandbox Type</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1. Fix &amp; Unit Test</td>
+        <td>Hotfix Environment</td>
+        <td><strong>Developer Sandbox</strong></td>
+        <td>Develop and unit test the urgent fix in isolation</td>
+      </tr>
+      <tr>
+        <td>2. UAT</td>
+        <td>UAT Environment</td>
+        <td><strong>Full Sandbox</strong></td>
+        <td>Push changes for user-acceptance testing against full production data replica</td>
+      </tr>
+      <tr>
+        <td>3. Release</td>
+        <td>Production</td>
+        <td>—</td>
+        <td>Deploy to production after UAT sign-off</td>
+      </tr>
+      <tr>
+        <td>4. Merge</td>
+        <td>Development Environment</td>
+        <td><strong>Developer Sandbox</strong></td>
+        <td>Merge hotfix back into the main development environment to maintain a complete codebase</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, a hotfix deployment requires an expedited change-control review — not a bypass of it. The Developer → Full UAT → Production pipeline maps to the emergency change request process: the hotfix Developer sandbox serves as the development evidence artifact, the Full sandbox UAT provides the test evidence, and both must be documented before production deployment. The merge step generates the updated release package that satisfies the "back-out plan" requirement of the change record.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 4 -->
+<section class="slide" id="requirement-4" data-search="requirement 4 development lifecycle developer sandboxes developer pro integration testing partial copy QA testing full sandbox UAT production sandbox refresh plan CTO how often refresh">
+  <div class="pgnum">Page 28 · Requirement 4</div>
+  <h2>Requirement 4</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The current development lifecycle used by the company starts with <strong>Developer sandboxes</strong> and moves to a <strong>Developer Pro sandbox</strong> for integration testing, a <strong>Partial Copy sandbox</strong> for QA testing, a <strong>Full sandbox</strong> for UAT, and then production. The company's CTO would ask the architect to recommend a <strong>sandbox refresh plan</strong> that the development teams can use as a reference. It should describe <strong>how often each type of sandbox should be refreshed</strong>.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 4 -->
+<section class="slide" id="solution-4" data-search="solution 4 sandbox refresh update metadata source org developer developer pro every day partial copy once every 5 days full once every 29 days clone sandbox template data metadata configuration updates production">
+  <div class="pgnum">Page 29 · Solution 4</div>
+  <h2>Solution 4</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A sandbox should be refreshed when it is necessary to <strong>update its metadata from the source org</strong>. For example, a Developer sandbox can be refreshed to replicate several <strong>configuration updates</strong> made to the production org as a result of a separate development stream. If a sandbox is a <strong>clone</strong> or uses a <strong>sandbox template</strong>, the refresh process updates the <strong>data and metadata</strong> of the sandbox.</p>
+    <p><strong>Developer and Developer Pro sandboxes</strong> can be refreshed <strong>every day</strong>. A <strong>Partial Copy</strong> sandbox can be refreshed <strong>once every 5 days</strong>. A <strong>Full</strong> sandbox can be refreshed <strong>once every 29 days</strong>.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The architect-altitude answer is not just "here are the intervals" — it's "refresh when the source org has changed in ways that affect your work." Blanket scheduled refreshes waste capacity and reset in-progress work. The guidance is: Developer/Dev Pro daily-capable (refresh when production config changes affect your stream); Partial Copy before each major test cycle (but no more than every 5 days); Full sandbox refresh aligned to the monthly release cycle (29-day minimum means roughly once per sprint-end or release window).</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more when to use sandbox hotfix trailhead resources">
+  <div class="pgnum">Page 30 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>When to Use a Sandbox</li>
+    <li>Hotfix</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet sandbox types developer developer pro partial copy full refresh intervals storage limits environment strategy hotfix training staging project streams decision matrix exam gotchas">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Environment (Sandbox) Strategy</h2>
+
+  <h3>Sandbox Types — Quick Reference</h3>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Data Copied</th>
+        <th>Refresh Interval</th>
+        <th>Storage</th>
+        <th>Primary Use Cases</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Developer</strong></td>
+        <td>Metadata only</td>
+        <td>1 day</td>
+        <td>200 MB data / 200 MB file</td>
+        <td>Isolated development, unit testing, hotfix development</td>
+      </tr>
+      <tr>
+        <td><strong>Developer Pro</strong></td>
+        <td>Metadata + larger datasets</td>
+        <td>1 day</td>
+        <td>1 GB data / 1 GB file</td>
+        <td>QA, integration testing, user training</td>
+      </tr>
+      <tr>
+        <td><strong>Partial Copy</strong></td>
+        <td>Metadata + sample of production data (sandbox template)</td>
+        <td>5 days</td>
+        <td>5 GB data / same as production file</td>
+        <td>UAT, integration testing with sample data, training with weekly refresh</td>
+      </tr>
+      <tr>
+        <td><strong>Full</strong></td>
+        <td>All data + metadata (replica)</td>
+        <td>29 days</td>
+        <td>Same as production</td>
+        <td>Performance/load testing, staging, UAT with full production data</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Environment Strategy Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th>Requirement</th>
+        <th>Recommended Sandbox</th>
+        <th>Key Reasoning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Multiple concurrent dev streams (e.g., Sales Cloud + Service Cloud)</td>
+        <td>Developer Pro (cloned)</td>
+        <td>Cloning gives each team an independent baseline; no interference between streams</td>
+      </tr>
+      <tr>
+        <td>Weekly end-user training with sample production data</td>
+        <td>Partial Copy (refresh every weekend)</td>
+        <td>5-day refresh interval aligns with weekly cycle; template controls data included</td>
+      </tr>
+      <tr>
+        <td>Staging / final review before production deployment</td>
+        <td>Full</td>
+        <td>Full replica of production ensures true pre-production validation</td>
+      </tr>
+      <tr>
+        <td>Batch data testing requiring all production data</td>
+        <td>Full</td>
+        <td>Only Full sandbox contains complete production data volume</td>
+      </tr>
+      <tr>
+        <td>Batch/integration testing requiring subset of data</td>
+        <td>Partial Copy</td>
+        <td>More cost-effective; sandbox template specifies required objects/data</td>
+      </tr>
+      <tr>
+        <td>Urgent hotfix (production down)</td>
+        <td>Developer → Full → Production → Merge back</td>
+        <td>Developer for speed; Full for UAT sign-off; merge to keep downstream current</td>
+      </tr>
+      <tr>
+        <td>Integration testing with enterprise systems (up to 10K records/object)</td>
+        <td>Partial Copy (with sandbox template)</td>
+        <td>Template includes required objects; 5 GB limit accommodates the volume</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Refresh interval is a minimum wait, not a schedule.</strong> You can refresh less frequently — the interval is the earliest you are allowed to refresh again after the last refresh.</li>
+    <li><strong>Exceeding purchased sandbox count blocks ALL refreshes of that type</strong> — not just the excess sandbox. The fix is to delete the unused sandbox to match the licensed count.</li>
+    <li><strong>A clone refresh updates both data and metadata</strong>; a non-clone refresh updates only metadata unless a template is applied.</li>
+    <li><strong>Auto Activate suppresses the activation email</strong> — teams relying on that email as a deployment trigger will not receive it.</li>
+    <li><strong>Discarding a refreshed sandbox is irreversible</strong> — the new version is permanently deleted and the old version is restored.</li>
+    <li><strong>Developer Pro is the right choice for user training when sample data is not needed</strong> — Partial Copy is needed only when a production data sample is required for training.</li>
+    <li><strong>Full sandbox for training is over-engineered and costly</strong> — the 29-day refresh makes it impractical for weekly training cycles.</li>
+    <li><strong>SandboxPostCopy</strong> Apex class is the correct mechanism to automate post-refresh steps (data masking, credential reset, user reassignment).</li>
+    <li><strong>Hotfix merging downstream</strong> is often omitted in answers but is architecturally required — a hotfix not merged back will be overwritten by the next full deployment.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>At the Federal Reserve Bank of Chicago, every sandbox in the inventory is a data-governance artifact. The environment strategy must be documented, reviewed, and approved as part of the system design process — not decided ad hoc per project. Key Fed-specific controls: (1) <strong>Partial Copy templates must be reviewed for PII/financial data</strong> before each training or testing use; (2) <strong>SandboxPostCopy masking classes</strong> are a required control, not optional, for any sandbox receiving production-derived data; (3) <strong>unused sandboxes must be deleted</strong> within the change-management system's retention policy to prevent license blocking and reduce attack surface; (4) the <strong>hotfix pipeline</strong> must map to the emergency change request process — no production deployment without documented test evidence from the Developer and Full sandbox stages; (5) the <strong>29-day Full sandbox refresh</strong> must be aligned to the monthly release calendar so staging always reflects the current production state before a deployment window opens.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

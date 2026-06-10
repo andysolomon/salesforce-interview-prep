@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Releasing — Sandbox Strategy for a Release Plan — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Releasing — Sandbox Strategy for a Release Plan</h1>
+  <div class="sub">Map a sandbox strategy to a specific release plan, taking into consideration multiple project streams, training requirements, staging, and hotfixes · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (23 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Sandbox Strategies</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#section-sandbox-strategies">Section: Sandbox Strategies</a></li>
+      <li><a href="#sandbox-strategies-overview">Sandbox Strategies Overview</a></li>
+      <li><a href="#sandbox-types">Sandbox Types</a></li>
+      <li><a href="#project-streams">Project Streams Management</a></li>
+      <li><a href="#training-requirements">Training Requirements</a></li>
+      <li><a href="#staging">Staging</a></li>
+      <li><a href="#hotfix">Hotfix Development and Deployment</a></li>
+      <li><a href="#refresh-data">Sandbox Refresh and Data Management</a></li>
+      <li><a href="#preview">Sandbox Preview Considerations</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Technology Solutions Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1-part1">Solution 1 (Part 1)</a></li>
+      <li><a href="#solution-1-part2">Solution 1 (Part 2)</a></li>
+      <li><a href="#requirement-2-part1">Requirement 2 (Part 1)</a></li>
+      <li><a href="#requirement-2-part2">Requirement 2 (Part 2)</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover releasing sandbox strategy release plan salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Releasing — Sandbox Strategy for a Release Plan</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Apply map sandbox strategy to a specific Release Plan taking into consideration multiple project streams, training requirements, staging, and hotfixes.</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents sandbox strategies business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#sandbox-strategies-overview">Sandbox Strategies</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives study describe considerations selecting sandbox strategy specific release plan recommend suitable sandbox strategies business requirements various aspects">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the considerations for selecting a sandbox strategy for a specific release plan.</li>
+    <li>Recommend suitable sandbox strategies for the given business requirements while considering various aspects.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction sandbox strategy release plan multiple project streams training staging urgent hotfixes parallel development timelines teams work parallel">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In today's dynamic Salesforce development environment, aligning a sandbox strategy with a comprehensive release plan is essential for project success. This involves meticulous planning across <strong>multiple project streams</strong>, each with its distinct development and deployment timelines. A well-thought-out sandbox strategy ensures that various teams can work in parallel without interference, while also accommodating <strong>training</strong> needs for end-users on new features or updates. Additionally, having a dedicated environment for <strong>staging</strong> allows for thorough validation of features and updates before production deployment, ensuring that each release enhances the system's functionality and stability. Moreover, the strategy must include provisions for <strong>urgent hotfixes</strong> to address any unforeseen issues promptly.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a regulated institution, every stream in the release plan — development, SIT, UAT, training, staging, hotfix — must be mapped to a named sandbox with a documented purpose and refresh cadence. This separation of environments directly satisfies segregation-of-duties and change-control requirements that regulators and internal audit will examine.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: SANDBOX STRATEGIES -->
+<section class="slide title-slide" id="section-sandbox-strategies" data-search="section sandbox strategies">
+  <div class="pgnum" style="color:#cbd6e6">Page 5 · Section</div>
+  <h2>Sandbox Strategies</h2>
+</section>
+
+<!-- SANDBOX STRATEGIES OVERVIEW -->
+<section class="slide" id="sandbox-strategies-overview" data-search="sandbox strategies multiple project streams developer developer pro training partial copy full data mask hotfixes staging">
+  <div class="pgnum">Page 6 · Sandbox Strategies Overview</div>
+  <h2>Sandbox Strategies</h2>
+  <div class="cards">
+    <div class="card">
+      <h4 style="color:#c0392b;">Multiple Project Streams</h4>
+      <p>Developer or Developer Pro sandboxes can be assigned to each project team when there are multiple project streams.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:#27ae60;">Training Requirements</h4>
+      <p>A Partial Copy or Full sandbox can be utilized for facilitating training using realistic datasets. If required, sensitive data can be anonymized using Salesforce Data Mask.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:#e67e22;">Staging</h4>
+      <p>Staging refers to validating the release prior to its deployment in the production environment. A full sandbox can be utilized for staging.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:#1589ee;">Hotfixes</h4>
+      <p>A hotfix addresses an urgent issue impacting day-to-day business. It can be developed in a Developer sandbox and tested in a Partial Copy or Full sandbox.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SANDBOX TYPES -->
+<section class="slide" id="sandbox-types" data-search="sandbox types four developer developer pro partial copy full individual developers quality assurance integration testing user acceptance training performance load testing">
+  <div class="pgnum">Page 7 · Sandbox Types</div>
+  <h2>Sandbox Types</h2>
+  <p class="lede">There are <strong>four different sandbox types</strong> used for specific use cases.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Developer</h4>
+      <p>Developer sandboxes are ideal for individual developers working on separate project streams.</p>
+    </div>
+    <div class="card">
+      <h4>Developer Pro</h4>
+      <p>Developer Pro sandboxes can handle more development and quality assurance tasks and for integration testing or user training.</p>
+    </div>
+    <div class="card">
+      <h4>Partial Copy</h4>
+      <p>Partial Copy sandboxes are suitable for user acceptance testing, integration testing, and training sessions.</p>
+    </div>
+    <div class="card">
+      <h4>Full</h4>
+      <p>A Full sandbox is a full replica of production that can be used for staging, performance testing, load testing, and user acceptance testing.</p>
+    </div>
+  </div>
+  <div class="note">There are exactly four sandbox types — Developer, Developer Pro, Partial Copy, and Full. Do not conflate them or invent additional types. Each has a specific use-case fit that the exam will test.</div>
+</section>
+
+<!-- PROJECT STREAMS MANAGEMENT -->
+<section class="slide" id="project-streams" data-search="project streams management dedicated sandboxes multiple isolated development developer developer pro source control version control salesforce dx partial copy full sandbox merge streams integrated testing">
+  <div class="pgnum">Page 8 · Project Streams Management</div>
+  <h2>Project Streams Management</h2>
+  <p class="lede"><strong>Dedicated sandboxes</strong> can be utilized when there are <strong>multiple</strong> project streams.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Isolated Development</h4>
+      <p><strong>Developer</strong> or <strong>Developer Pro</strong> sandboxes can be assigned to each project team to prevent overlap and ensure isolated development efforts.</p>
+    </div>
+    <div class="card">
+      <h4>Source Control</h4>
+      <p><strong>Source-driven development</strong> and <strong>version control</strong> (with tools like Salesforce DX) can be used to merge development work from various streams for integrated testing in a <strong>Partial Copy</strong> or <strong>Full Sandbox</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked how you manage parallel development streams without interference, the pattern is: one Developer or Developer Pro sandbox per team + a source-control merge strategy (Salesforce DX / SFDX) that feeds a shared integration sandbox (Partial Copy or Full) for combined testing. This demonstrates both environment isolation and the integration-merge discipline expected of an architect.</p>
+  </div>
+</section>
+
+<!-- TRAINING REQUIREMENTS -->
+<section class="slide" id="training-requirements" data-search="training requirements user training special sandbox partial copy full sandbox realistic datasets production data anonymization sensitive data privacy salesforce data mask compliance refreshed current business processes">
+  <div class="pgnum">Page 9 · Training Requirements</div>
+  <h2>Training Requirements</h2>
+  <p class="lede">Special sandbox considerations are applicable when <strong>user training</strong> is required.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Realistic Datasets</h4>
+      <p><strong>A Partial Copy</strong> or <strong>Full</strong> sandbox can be utilized for training to provide realistic datasets without impacting production data. It can be regularly refreshed to align with current business processes.</p>
+    </div>
+    <div class="card">
+      <h4>Anonymization</h4>
+      <p><strong>Sensitive data</strong> can be anonymized to comply with privacy standards, ensuring training environments are secure and up-to-date. <strong>Salesforce Data Mask</strong> can be utilized.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a regulated financial institution, using real production data in a training sandbox without masking it is a compliance violation. Salesforce Data Mask is the control that satisfies privacy requirements (e.g., PII, PCI, financial account data) while still giving trainees realistic records to work with. Auditors will ask specifically whether training environments are masked.</p>
+  </div>
+</section>
+
+<!-- STAGING -->
+<section class="slide" id="staging" data-search="staging validating release live environment final validation full sandbox production simulate last-minute issues regular refreshes full sandbox refreshes scheduled staging production accurate testing">
+  <div class="pgnum">Page 10 · Staging</div>
+  <h2>Staging</h2>
+  <p class="lede">Staging refers to <strong>validating the release</strong> prior to its deployment in the live environment.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Final Validation</h4>
+      <p>Final validation can be conducted in a <strong>Full sandbox</strong> that simulates the production environment. This step is critical to <strong>identify and mitigate any last-minute issues</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Regular Refreshes</h4>
+      <p><strong>Regular Full sandbox refreshes</strong> should be scheduled to ensure that the staging environment closely reflects the production setup for accurate testing.</p>
+    </div>
+  </div>
+  <div class="note">Staging always uses a Full sandbox — only a Full sandbox is a complete replica of production. Partial Copy sandboxes are for UAT and integration testing, not for final pre-production validation.</div>
+</section>
+
+<!-- HOTFIX DEVELOPMENT AND DEPLOYMENT -->
+<section class="slide" id="hotfix" data-search="hotfix development deployment urgent issue day-to-day business rapid fixes developer sandbox critical issues disturb main development release cycle hotfix testing partial copy full sandbox production new issues">
+  <div class="pgnum">Page 11 · Hotfix Development and Deployment</div>
+  <h2>Hotfix Development and Deployment</h2>
+  <p class="lede">A hotfix is a simple change that <strong>addresses an urgent issue</strong> impacting day-to-day business.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Rapid Fixes</h4>
+      <p>A <strong>Developer sandbox</strong> can be reserved for hotfix development to allow for rapid fixes to critical issues without disturbing the main development and release cycle.</p>
+    </div>
+    <div class="card">
+      <h4>Hotfix Testing</h4>
+      <p>Hotfixes can be tested in a <strong>Partial Copy</strong> or <strong>Full sandbox</strong> before they are deployed to production to ensure that they don't introduce new issues.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The key architectural point on hotfixes is isolation: a dedicated Developer sandbox means the hotfix work never pollutes the in-progress feature branch or the main deployment train. The architect must also define when to test in a Partial Copy (faster, less data fidelity) vs. a Full sandbox (slower refresh, but production-equivalent) — the severity and data sensitivity of the issue drives that choice.</p>
+  </div>
+</section>
+
+<!-- SANDBOX REFRESH AND DATA MANAGEMENT -->
+<section class="slide" id="refresh-data" data-search="sandbox refresh data management release cycles major minor project requirements environments reset ready development post-release data masking training testing environments sensitive information real-world data scenarios">
+  <div class="pgnum">Page 12 · Sandbox Refresh and Data Management</div>
+  <h2>Sandbox Refresh and Data Management</h2>
+  <p class="lede">An appropriate <strong>sandbox refresh strategy</strong> should be utilized for different <strong>release cycles</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Sandbox Refresh</h4>
+      <p>The sandbox refresh schedule should align with <strong>major and minor release cycles</strong> and the <strong>project requirements</strong>, ensuring that environments are reset and ready for new development work post-release.</p>
+    </div>
+    <div class="card">
+      <h4>Data Masking</h4>
+      <p>A data masking strategy can be implemented for <strong>training and testing environments</strong> to <strong>protect sensitive information</strong> while maintaining the utility of real-world data scenarios.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Tying refresh cadence to the release calendar is a change-control practice, not just an operational one. A regulated org should document which sandboxes are refreshed when, approved by whom, and what data masking policy applies to each — this is the evidence trail auditors expect to see in a sandbox management procedure document.</p>
+  </div>
+</section>
+
+<!-- SANDBOX PREVIEW CONSIDERATIONS -->
+<section class="slide" id="preview" data-search="sandbox preview considerations early access features new salesforce release advance testing configurations production upgrade non-preview sandbox cut-off date upgraded next major release preview instance preview sandbox after cut-off non-preview instance current release sandbox preview guide">
+  <div class="pgnum">Page 13 · Sandbox Preview Considerations</div>
+  <h2>Sandbox Preview Considerations</h2>
+  <p class="lede">A preview sandbox provides <strong>early access</strong> to features in a <strong>new Salesforce release</strong> in advance, allowing <strong>testing of configurations before the production upgrade</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Non-Preview Refresh Before Cut-Off</h4>
+      <p>A <strong>non-preview sandbox</strong> can be refreshed <strong>before the cut-off date</strong> (the day before the preview starts) to ensure that they are <strong>upgraded to the next major release</strong>. It moves the sandbox to a <strong>preview instance</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Sandbox Preview Guide</h4>
+      <p>The <strong>Sandbox Preview Guide</strong> can be used to determine if each of the sandboxes is on a preview or non-preview instance and what to do to either move to the next release or stay on the current release.</p>
+    </div>
+    <div class="card">
+      <h4>Preview Sandbox Refresh After Cut-Off</h4>
+      <p>If a <strong>preview sandbox</strong> is refreshed <strong>after the cut-off date</strong>, it is moved to a <strong>non-preview instance</strong> and reverts to the current release. If a <strong>non-preview sandbox</strong> is refreshed after the date, it remains on a <strong>non-preview instance</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Preview/non-preview refresh timing is a classic exam gotcha. Refreshing after the cut-off date moves a preview sandbox back to non-preview (current release). Refreshing before cut-off moves a non-preview sandbox to preview (next release). The direction of the move depends on both the sandbox's current state and the timing relative to cut-off.</div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 14 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic technology solutions salesforce updates user interfaces automating administrative tasks integrating third-party analytics new features customization bug fixes training end users parallel development staging hotfixes sandbox strategies release plans architect">
+  <div class="pgnum">Page 15 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Technology Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Technology Solutions is preparing for multiple Salesforce updates aimed at enhancing user interfaces, automating administrative tasks, and integrating third-party analytics tools. The development teams are working on several projects, including the development of new features, customization of existing applications, and critical bug fixes. Additionally, the company plans to roll out training for end users to familiarize them with the updates. The company's Salesforce architect must analyze various business requirements and recommend sandbox strategies for specific release plans. These strategies should accommodate aspects such as parallel development, staging environment, planned training sessions, and rapid deployment of hotfixes. These activities must be orchestrated seamlessly, ensuring that all updates are delivered efficiently and effectively without compromising the platform's integrity or user experience.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 16 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 development team four types releases daily minor major urgent deployment train sandboxes preview non-preview upcoming salesforce release urgent fixes bugs production urgent request new report sandbox strategies architect">
+  <div class="pgnum">Page 17 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A development team works on four types of releases: daily, minor, major, and urgent. It has finished working on a major project and is about to begin its release using a deployment train consisting of several sandboxes, which are on preview and non-preview instances. The project manager is concerned about the impact of the upcoming Salesforce release. The team also needs to work on urgent fixes for bugs found in production. Furthermore, a user has submitted an urgent request for a new report. The architect must recommend suitable sandbox strategies that align with these releases.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 1 -->
+<section class="slide" id="solution-1-part1" data-search="solution 1 part 1 major project non-preview sandboxes refreshed cut-off date upgraded new release features tested issues salesforce release full sandbox urgent analysis fixing bugs production same process deployment hotfix refreshed after deployment">
+  <div class="pgnum">Page 18 · Solution 1 (Part 1)</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the release of the major project, all <strong>non-preview sandboxes</strong> should be <strong>refreshed before the cut-off date</strong> to ensure that they are upgraded to the new release. This is to ensure that new features are tested and any potential issues with the project are identified in relation to the upcoming Salesforce release.</p>
+    <p>A <strong>full sandbox</strong> can be utilized for the urgent analysis and fixing of bugs found in production. Before any deployment in production, the <strong>same process</strong> must be performed in the full sandbox to identify and address potential issues before they affect the production environment. The sandbox should be <strong>refreshed after the deployment</strong> of each hotfix in production.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Refreshing non-preview sandboxes before cut-off is a deliberate, documented release-coordination action — exactly the kind of scheduled, approved change that a regulated institution's release calendar must capture. The requirement to run the same process in a Full sandbox before any production deployment mirrors the segregation-of-duties control: no change goes to production without validated staging evidence.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 2 -->
+<section class="slide" id="solution-1-part2" data-search="solution 1 part 2 daily release process report full sandbox deploy production quick changes immediate needs minor issues testing validation mirrors production">
+  <div class="pgnum">Page 19 · Solution 1 (Part 2)</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The <strong>daily release process</strong> can be utilized to create the report directly in a <strong>full sandbox</strong> and then deploy it to production. The daily release process is typically designed for quick changes that need to be deployed rapidly to address immediate needs or fix minor issues. Creating the report in a full sandbox first would allow testing and validation in an environment that mirrors production.</p>
+  </div>
+  <div class="note">Even a simple report request should go through a full sandbox before production — this is because a full sandbox mirrors production data structure and configurations. Bypassing validation for "quick" changes is an anti-pattern the exam tests against.</div>
+</section>
+
+<!-- REQUIREMENT 2 PART 1 -->
+<section class="slide" id="requirement-2-part1" data-search="requirement 2 part 1 european division release strategy major releases four weeks minor releases weekly development system integration testing SIT user acceptance testing UAT training minor releases UAT sandbox strategy service cloud implementation large support center extensive training change management">
+  <div class="pgnum">Page 20 · Requirement 2 (Part 1)</div>
+  <h2>Requirement 2 (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The European division of the company wants to implement a release strategy with major releases every four weeks and minor releases every week. Major releases should go through development, system integration testing (SIT), user acceptance testing (UAT), and training. Minor releases should go through development and user acceptance testing (UAT). The architect must suggest a suitable sandbox strategy for UAT.</p>
+    <p style="margin-top:8px;">Also, the division is planning for a new Service Cloud implementation project for a large support center, which will require extensive training and change management.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 PART 2 -->
+<section class="slide" id="requirement-2-part2" data-search="requirement 2 part 2 service cloud implementation dependencies existing sales cloud release plan sandbox strategy staging environment development lifecycle architect considerations">
+  <div class="pgnum">Page 21 · Requirement 2 (Part 2)</div>
+  <h2>Requirement 2 (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The implementation has dependencies on the existing Sales Cloud implementation. A suitable sandbox strategy that utilizes an appropriate release plan is required for the implementation. The architect must also provide considerations related to the use of a staging environment for the development lifecycle.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 minor releases partial copy sandbox major releases full sandbox UAT service cloud implementation major release process user acceptance testing extensive training full sandbox deployment production staging environment full replica created refreshed">
+  <div class="pgnum">Page 22 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Considering the required release timelines, <strong>minor releases</strong> should use a <strong>partial copy sandbox</strong> and <strong>major releases</strong> should use a <strong>full sandbox</strong> for user acceptance testing (UAT). For the Service Cloud implementation project, the <strong>major release process</strong> should be utilized. <strong>User acceptance testing (UAT)</strong> and <strong>extensive training</strong> should be performed in a <strong>full sandbox</strong> before deployment to production. A separate full sandbox can be used as the <strong>staging environment</strong> for the release. A staging sandbox is typically a <strong>full replica</strong> of production when it is created or refreshed.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The UAT sandbox choice — Partial Copy for minor, Full for major — is driven by data fidelity requirements. Minor releases need basic representative data; major releases and large implementations need a full production replica to surface data-volume and configuration issues before go-live. When the exam gives you a release cadence scenario, always match the sandbox tier to the stakes of the release.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more sandbox types templates preview non-preview sandboxes sandbox preview instructions sandbox preview guide sandbox management best practices change release management further reading trailhead">
+  <div class="pgnum">Page 23 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Sandbox Types and Templates</li>
+    <li>What are Preview and Non-Preview Sandboxes?</li>
+    <li>Salesforce Sandbox Preview Instructions</li>
+    <li>Salesforce Sandbox Preview Guide</li>
+    <li>Sandbox Management Best Practices</li>
+    <li>Change and Release Management</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary sandbox strategy release plan multiple project streams training staging hotfix preview non-preview decision matrix exam gotchas sandbox types developer partial copy full">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Sandbox Strategy for a Release Plan</h2>
+
+  <h3>Sandbox Type Selection Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Use Case</th><th>Sandbox Type</th><th>Key Reason</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Development (per team / stream)</strong></td>
+        <td>Developer or Developer Pro</td>
+        <td>Isolated, prevents overlap between parallel project streams</td>
+      </tr>
+      <tr>
+        <td><strong>Integration Testing (merged streams)</strong></td>
+        <td>Partial Copy or Full</td>
+        <td>Combined work from multiple streams tested together via source control merge</td>
+      </tr>
+      <tr>
+        <td><strong>UAT — Minor Release</strong></td>
+        <td>Partial Copy</td>
+        <td>Representative data sufficient for weekly minor changes</td>
+      </tr>
+      <tr>
+        <td><strong>UAT — Major Release</strong></td>
+        <td>Full</td>
+        <td>Full production replica needed to surface volume/config issues</td>
+      </tr>
+      <tr>
+        <td><strong>Training</strong></td>
+        <td>Partial Copy or Full</td>
+        <td>Realistic dataset; use Salesforce Data Mask to anonymize sensitive data</td>
+      </tr>
+      <tr>
+        <td><strong>Staging (final pre-prod validation)</strong></td>
+        <td>Full</td>
+        <td>Must mirror production exactly; regularly refreshed</td>
+      </tr>
+      <tr>
+        <td><strong>Hotfix Development</strong></td>
+        <td>Developer</td>
+        <td>Isolated from main release cycle; dedicated for urgent rapid fixes</td>
+      </tr>
+      <tr>
+        <td><strong>Hotfix Testing</strong></td>
+        <td>Partial Copy or Full</td>
+        <td>Validates hotfix doesn't introduce new issues before production deploy</td>
+      </tr>
+      <tr>
+        <td><strong>Daily Release / Quick Change</strong></td>
+        <td>Full</td>
+        <td>Even quick changes need a production-mirror for testing before deploy</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Preview vs. Non-Preview Refresh Behavior</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Sandbox Type</th><th>Refreshed Before Cut-Off</th><th>Refreshed After Cut-Off</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Non-Preview Sandbox</strong></td>
+        <td>Moved to <strong>preview instance</strong> (next major release)</td>
+        <td>Remains on <strong>non-preview instance</strong> (current release)</td>
+      </tr>
+      <tr>
+        <td><strong>Preview Sandbox</strong></td>
+        <td>Stays on <strong>preview instance</strong> (next major release)</td>
+        <td>Moved to <strong>non-preview instance</strong> (reverts to current release)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Full sandbox = staging.</strong> Only a Full sandbox is a complete replica of production. Never use Partial Copy for final staging validation.</li>
+    <li><strong>Partial Copy vs. Full for UAT</strong> is driven by release size: minor releases use Partial Copy, major releases use Full.</li>
+    <li><strong>Hotfix development is isolated in a dedicated Developer sandbox</strong> — it must never pollute the main release train sandboxes.</li>
+    <li><strong>Data Mask is required for training sandboxes</strong> containing real production data — exposing PII/sensitive data in training environments is a compliance violation.</li>
+    <li><strong>Refreshing a non-preview sandbox before cut-off upgrades it to the next release</strong>; after cut-off it stays on the current release.</li>
+    <li><strong>Refreshing a preview sandbox after cut-off reverts it to the current release</strong> (moved to non-preview instance).</li>
+    <li><strong>Sandbox refresh cadence must align with the release calendar</strong> — not ad hoc. Document who approves each refresh and when.</li>
+    <li><strong>Daily release process uses a Full sandbox</strong> even for simple changes like new reports — testing in a production-mirror before deploy is non-negotiable.</li>
+    <li><strong>Source control (Salesforce DX) is the merge mechanism</strong> for multiple project streams — it feeds combined work into a shared integration sandbox, preventing "last one to deploy wins" conflicts.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a central bank platform engineer, the sandbox strategy is not an operational convenience — it is a change-control artefact. Every sandbox must have a documented purpose, owner, refresh cadence, and data masking policy. The staging Full sandbox (refreshed regularly, used as the final gate before production) maps directly to the pre-production validation stage required by change advisory board (CAB) governance. The hotfix Developer sandbox — isolated from the main train — satisfies the segregation-of-duties requirement that emergency fixes cannot short-circuit the normal pipeline without a distinct, auditable approval track. Preview/non-preview management ensures that Salesforce platform upgrades are tested before they hit production, which is the Salesforce-specific equivalent of patch management controls that regulators expect.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building — Development Model &amp; Environment — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Building — Development Model &amp; Environment</h1>
+  <div class="sub">Given a customer scenario, describe the appropriate development model (org-based vs package-based) and development environment (scratch org vs sandboxes) · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (33 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <div class="toc-group">
+      <h3>Overview</h3>
+      <ul>
+        <li><a href="#cover">Cover</a></li>
+        <li><a href="#toc-slide">Table of Contents</a></li>
+        <li><a href="#learning-objectives">Learning Objectives</a></li>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#overview-diagram">Models &amp; Environments Overview</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Development Models</h3>
+      <ul>
+        <li><a href="#section-dev-models">Section: Development Models</a></li>
+        <li><a href="#org-dev-model-1">Org Development Model — Sandboxes &amp; Source Control</a></li>
+        <li><a href="#org-dev-model-2">Org Development Model — Tools &amp; Change Management</a></li>
+        <li><a href="#pkg-dev-model-1">Package Development Model — Modular Dev &amp; Version Control</a></li>
+        <li><a href="#pkg-dev-model-2">Package Development Model — Dependency &amp; Isolation</a></li>
+        <li><a href="#pkg-dev-model-3">Package Development Model — Source-Driven Dev</a></li>
+        <li><a href="#pkg-dev-model-4">Package Development Model — Dev Hub &amp; Salesforce DX</a></li>
+        <li><a href="#pkg-dev-model-5">Package Development Model — CLI &amp; Advantages</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Development Environments</h3>
+      <ul>
+        <li><a href="#section-dev-envs">Section: Development Environments</a></li>
+        <li><a href="#scratch-orgs-1">Scratch Orgs — Temp Orgs, Packages, Automation</a></li>
+        <li><a href="#scratch-orgs-2">Scratch Orgs — Use Cases</a></li>
+        <li><a href="#sandboxes">Sandboxes</a></li>
+        <li><a href="#developer-edition-1">Developer Edition Org — Usage, Sign-Up, Storage</a></li>
+        <li><a href="#developer-edition-2">Developer Edition Org — Licenses &amp; Beta Testing</a></li>
+        <li><a href="#partner-dev-edition-1">Partner Developer Edition Org — Usage &amp; Storage</a></li>
+        <li><a href="#partner-dev-edition-2">Partner Developer Edition Org — Licenses &amp; Beta Testing</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Design Factors</h3>
+      <ul>
+        <li><a href="#section-design-factors">Section: Design Factors</a></li>
+        <li><a href="#choosing-model-env">Choosing Development Model &amp; Environment</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Business Scenario</h3>
+      <ul>
+        <li><a href="#section-business">Section: Business Scenario</a></li>
+        <li><a href="#business-scenario">Cosmic Digital Frontiers Scenario</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Requirements &amp; Solutions</h3>
+      <ul>
+        <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+        <li><a href="#requirement-1">Requirement 1</a></li>
+        <li><a href="#solution-1">Solution 1</a></li>
+        <li><a href="#requirement-2-part1">Requirement 2 (Part 1)</a></li>
+        <li><a href="#requirement-2-part2">Requirement 2 (Part 2)</a></li>
+        <li><a href="#solution-2-part1">Solution 2 (Part 1)</a></li>
+        <li><a href="#solution-2-part2">Solution 2 (Part 2)</a></li>
+        <li><a href="#learn-more">Learn More</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <h3>Reference</h3>
+      <ul>
+        <li><a href="#cheatsheet">Cheatsheet</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover building development model environment org-based package-based scratch org sandboxes salesforce focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">1 / 33 · Cover</div>
+  <h2>Building — Development Model &amp; Environment</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer scenario, describe the appropriate development model (org-based vs package-based) and development environment (scratch org vs sandboxes) · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents development models development environments design factors business scenario requirements solutions">
+  <div class="pgnum">2 / 33 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#section-dev-models">Development Models</a></li>
+    <li><a class="toc-link" href="#section-dev-envs">Development Environments</a></li>
+    <li><a class="toc-link" href="#section-design-factors">Design Factors</a></li>
+    <li><a class="toc-link" href="#section-business">Business Scenario</a></li>
+    <li><a class="toc-link" href="#section-requirements">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives org development package development scratch orgs sandboxes development orgs design factors business requirements">
+  <div class="pgnum">3 / 33 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the main features of the org development and package development models.</li>
+    <li>Explain how scratch orgs, sandboxes, and development orgs are used for Salesforce development.</li>
+    <li>Identify the design factors that should be considered when choosing a Salesforce development model and a development environment.</li>
+    <li>Describe the appropriate development model and environment for the given business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction org development model package development model sandboxes source control system manageable packages scratch orgs temporary spun up individual development orgs partner development orgs higher api storage limits licenses">
+  <div class="pgnum">4 / 33 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>The <strong>org development model</strong> and <strong>package development model</strong> are two models that are often used for Salesforce development. The org development model leverages <strong>sandboxes</strong> and a <strong>source control system</strong> for development. On the other hand, in the package development model, metadata and code for applications and customizations are organized into <strong>manageable packages</strong>.</p>
+  <p><strong>Scratch orgs</strong> are temporary orgs that can be spun up quickly for development. <strong>Sandboxes</strong> are copies of the production environment that are used for development, testing, and training. <strong>Individual development orgs</strong> and <strong>partner development orgs</strong> are also available for application development. Partner development orgs offer <strong>higher API</strong> and <strong>storage limits</strong> and <strong>more licenses</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked to compare the two models, lead with the key distinction: org model = sandboxes + manual change tracking; package model = modular packages + source-driven, automated CI/CD. The environment choice (scratch org vs sandbox) follows directly from which model you pick.</p>
+  </div>
+</section>
+
+<!-- OVERVIEW DIAGRAM -->
+<section class="slide" id="overview-diagram" data-search="development models development environments overview org development model sandboxes source control package development model manageable packages scratch orgs temporary development orgs partner individual free higher storage api limits licenses">
+  <div class="pgnum">5 / 33 · Models &amp; Environments Overview</div>
+  <h2>Development Models &amp; Development Environments</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Org Development Model</h4>
+      <p>The org development model leverages sandboxes for the development process and a source control system for managing changes.</p>
+    </div>
+    <div class="card">
+      <h4>Scratch Orgs &amp; Sandboxes</h4>
+      <p>A scratch org is a temporary org that can be spun up quickly for development. Sandboxes are copies of the production environment used for development, testing, and training.</p>
+    </div>
+    <div class="card">
+      <h4>Package Development Model</h4>
+      <p>In the package development model, metadata and code for applications and customizations are organized into manageable packages.</p>
+    </div>
+    <div class="card">
+      <h4>Development Orgs</h4>
+      <p>Individual and partner development orgs are free orgs available for development purposes. The partner development org offers higher storage and API limits and more licenses.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: DEVELOPMENT MODELS -->
+<section class="slide title-slide" id="section-dev-models" data-search="section development models">
+  <div class="pgnum" style="color:#cbd6e6">6 / 33 · Section</div>
+  <h2>Development Models</h2>
+</section>
+
+<!-- ORG DEVELOPMENT MODEL — SANDBOXES & SOURCE CONTROL -->
+<section class="slide" id="org-dev-model-1" data-search="org development model sandboxes source control salesforce dx development integration testing training central repository local machine streamline workflow">
+  <div class="pgnum">7 / 33 · Org Development Model — Sandboxes &amp; Source Control</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model features <strong>sandboxes</strong> and <strong>source control</strong> for the development process.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Sandboxes</h4>
+      <p>The Org Development Model leverages <strong>sandboxes</strong> at various stages of the development lifecycle, including <strong>development</strong>, <strong>integration</strong>, <strong>testing</strong>, and <strong>training</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Source Control</h4>
+      <p>A <strong>source control system</strong> is used to <strong>manage changes</strong> and ensure consistency across environments. A <strong>central repository</strong> is used to store all the code and metadata, which can also be stored on the <strong>local machine</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce DX</h4>
+      <p>Salesforce DX tools are used to <strong>streamline the development workflow</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve, the org development model maps naturally to an existing change-control posture: sandboxes are controlled environments approved through IT governance, and a central Git repository (GitLab) provides the immutable audit trail regulators require. Salesforce DX tooling enables automated deployment pipelines that replace ad-hoc change sets.</p>
+  </div>
+</section>
+
+<!-- ORG DEVELOPMENT MODEL — TOOLS & CHANGE MANAGEMENT -->
+<section class="slide" id="org-dev-model-2" data-search="org development model tools salesforce extensions vs code salesforce cli automated processes change management tracking changes managing deployments real-time collaboration changes tracked manually sandboxes production org">
+  <div class="pgnum">8 / 33 · Org Development Model — Tools &amp; Change Management</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model features <strong>sandboxes</strong> and <strong>source control</strong> for the development process.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Tools</h4>
+      <p><strong>Salesforce Extensions for VS Code</strong> and <strong>Salesforce CLI</strong> are used to enhance the development efficiency, from code retrieval to deployment. <strong>Automated processes</strong> can be created for testing and deployment.</p>
+    </div>
+    <div class="card">
+      <h4>Change Management</h4>
+      <p>The development model ensures a robust <strong>change management process</strong> using tools for <strong>tracking changes</strong>, <strong>managing deployments</strong>, and facilitating <strong>real-time collaboration</strong> among team members.</p>
+    </div>
+    <div class="card">
+      <h4>Changes</h4>
+      <p><strong>Changes must be tracked manually.</strong> Sets of changes are deployed to sandboxes and then to the production org.</p>
+    </div>
+  </div>
+  <div class="note">The key limitation of the org development model is that changes must be tracked manually — there is no automatic source-tracking. This is the primary pain point the package development model addresses.</div>
+</section>
+
+<!-- PACKAGE DEVELOPMENT MODEL — MODULAR DEV & VERSION CONTROL -->
+<section class="slide" id="pkg-dev-model-1" data-search="package development model packages organize manage components modular development metadata code applications customizations organized manageable packages better organization reuse functionality multiple projects orgs version control immutable package version precise version tracking rollback upgrades">
+  <div class="pgnum">9 / 33 · Package Development Model — Modular Dev &amp; Version Control</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development Model uses <strong>packages</strong> to organize and manage components.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Modular Development</h4>
+      <p>Metadata and code for applications and customizations are <strong>organized into manageable packages</strong> for modular development. This modularity supports <strong>better organization</strong> and <strong>reuse of functionality</strong> across <strong>multiple projects</strong> or <strong>orgs</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Version Control</h4>
+      <p>Each <strong>package version</strong> is <strong>immutable</strong> once created, which allows <strong>precise version tracking</strong> and <strong>control</strong> over what is deployed. This facilitates <strong>easier rollback</strong> and <strong>upgrades</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Immutable package versions are a significant advantage in a regulated environment: each release artifact is a fixed, auditable unit. Change-control boards can approve a specific package version (e.g., v1.3.0.2) and that exact artifact — nothing more, nothing less — gets installed in production. This eliminates the "drift" risk inherent in change-set deployments.</p>
+  </div>
+</section>
+
+<!-- PACKAGE DEVELOPMENT MODEL — DEPENDENCY & ISOLATION -->
+<section class="slide" id="pkg-dev-model-2" data-search="package development model dependency management packages declare dependencies other packages smaller interdependent modules simplifies updates maintenance isolation isolated environments scratch orgs conflicts production org directly">
+  <div class="pgnum">10 / 33 · Package Development Model — Dependency &amp; Isolation</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development Model uses <strong>packages</strong> to organize and manage components.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Dependency Management</h4>
+      <p>Packages can declare <strong>dependencies on other packages</strong>, enabling complex applications to be built from <strong>smaller, interdependent modules</strong>. This simplifies updates and maintenance.</p>
+    </div>
+    <div class="card">
+      <h4>Isolation</h4>
+      <p>Development in <strong>isolated environments (scratch orgs)</strong> is encouraged, minimizing the risk of conflicts and ensuring that development activities do not impact the production org directly.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Dependency management is often overlooked in exam answers. When explaining package development, mention that explicit package dependencies allow architects to reason about deployment order and version compatibility — a key concern when multiple teams share a Dev Hub.</p>
+  </div>
+</section>
+
+<!-- PACKAGE DEVELOPMENT MODEL — SOURCE-DRIVEN DEVELOPMENT -->
+<section class="slide" id="pkg-dev-model-3" data-search="package development model source-driven development source tracking source control continuous integration deployment changes tracked local machine default development environment developer developer pro sandboxes salesforce dx projects enabled by default scratch orgs metadata changes not yet supported tracked manually">
+  <div class="pgnum">11 / 33 · Package Development Model — Source-Driven Development</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development Model uses <strong>packages</strong> to organize and manage components.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Source-Driven Development</h4>
+      <p>The model uses <strong>source tracking</strong>, <strong>source control</strong>, and <strong>continuous integration</strong> and <strong>deployment</strong>. Changes are tracked on the local machine and in the default development environment.</p>
+    </div>
+    <div class="card">
+      <h4>Source Tracking</h4>
+      <p>Source tracking can be turned on in the source (production) org so that <strong>Developer</strong> and <strong>Developer Pro</strong> sandboxes automatically track changes between <strong>sandboxes</strong> created from it and <strong>Salesforce DX projects</strong>. It is <strong>enabled by default</strong> for <strong>scratch orgs</strong>. Only <strong>metadata changes</strong> that are <strong>not yet supported by source tracking</strong> need to be <strong>tracked manually</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Source-driven development is the core enabler of repeatable, audited builds in a regulated context. With source tracking and GitLab CI/CD, every metadata change is captured in a commit, every deployment is triggered by a pipeline, and every release has a traceable lineage from developer workstation to production. This is the story to tell when discussing how the Fed's Salesforce platform meets FISMA and internal IT controls.</p>
+  </div>
+</section>
+
+<!-- PACKAGE DEVELOPMENT MODEL — DEV HUB & SALESFORCE DX -->
+<section class="slide" id="pkg-dev-model-4" data-search="package development model dev hub scratch orgs packages production org enable unlocked packages second-generation managed packages setup salesforce dx project default org pushed pulled local environment default development org sync">
+  <div class="pgnum">12 / 33 · Package Development Model — Dev Hub &amp; Salesforce DX</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development Model uses <strong>packages</strong> to organize and manage components.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Dev Hub</h4>
+      <p>To create and manage <strong>scratch orgs</strong> and <strong>packages</strong>, <strong>Dev Hub</strong> must be enabled in the production org. To use packages, <strong>Enable Unlocked Packages and Second-Generation Managed Packages</strong> must be selected on the Dev Hub page in Setup.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce DX</h4>
+      <p>For development, a <strong>Salesforce DX project</strong> can be created. A <strong>scratch org</strong> can be created and set as the <strong>default org</strong> for development. Source can be <strong>pushed</strong> and <strong>pulled</strong> to keep the <strong>local environment</strong> and the <strong>default development org</strong> in sync.</p>
+    </div>
+  </div>
+  <div class="note">Dev Hub is the control plane for both scratch orgs and second-generation packages. Enabling it in production does not affect end users but it must be enabled before any sfdx scratch org or package work can begin.</div>
+</section>
+
+<!-- PACKAGE DEVELOPMENT MODEL — CLI & ADVANTAGES -->
+<section class="slide" id="pkg-dev-model-5" data-search="package development model salesforce cli manage salesforce dx projects create scratch orgs push pull metadata run unit tests build automation scripts deploy source install packages run tests advantages team development collaboration automated testing integration reducing manual change tracking efficient agile release cycles">
+  <div class="pgnum">13 / 33 · Package Development Model — CLI &amp; Advantages</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development Model uses <strong>packages</strong> to organize and manage components.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Salesforce CLI</h4>
+      <p>Salesforce CLI can be used to manage Salesforce DX projects, <strong>create scratch orgs</strong>, <strong>push</strong> and <strong>pull metadata</strong>, and <strong>run unit tests</strong>. It can also be used as part of <strong>build automation scripts</strong> to create and access environments, deploy source, install packages, and run tests.</p>
+    </div>
+    <div class="card">
+      <h4>Advantages</h4>
+      <p>The package development model offers various benefits, such as improved <strong>team development</strong> and <strong>collaboration</strong>, facilitating <strong>automated testing</strong> and <strong>integration</strong>, greatly reducing the need for <strong>manual change tracking</strong>, more <strong>efficient</strong> and <strong>agile release cycles</strong>, etc.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When justifying the package development model to a skeptical stakeholder, anchor on three things: (1) automated testing via CLI in CI pipelines replaces error-prone manual testing, (2) immutable package versions eliminate "what exactly went to production?", and (3) agile release cycles mean smaller, lower-risk deployments more frequently.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: DEVELOPMENT ENVIRONMENTS -->
+<section class="slide title-slide" id="section-dev-envs" data-search="section development environments">
+  <div class="pgnum" style="color:#cbd6e6">14 / 33 · Section</div>
+  <h2>Development Environments</h2>
+</section>
+
+<!-- SCRATCH ORGS — TEMP ORGS, PACKAGES, AUTOMATION -->
+<section class="slide" id="scratch-orgs-1" data-search="scratch orgs temporary salesforce orgs quickly spun up development configurable disposable source-driven emulate different salesforce editions features settings packages unlocked packages automation automated testing continuous integration pipelines">
+  <div class="pgnum">15 / 33 · Scratch Orgs — Temp Orgs, Packages, Automation</div>
+  <h2>Scratch Orgs</h2>
+  <p class="lede">Scratch orgs are <strong>temporary Salesforce orgs</strong> that can be <strong>quickly spun up</strong> for development.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Temporary Orgs</h4>
+      <p>Scratch orgs are fully <strong>configurable, disposable, and source-driven</strong>. They allow developers to <strong>emulate different Salesforce editions</strong> with <strong>different features and settings</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Packages</h4>
+      <p>Scratch orgs are ideal for the <strong>development</strong> and <strong>testing of packages</strong>, especially <strong>unlocked packages</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Automation</h4>
+      <p>Scratch orgs are suitable for <strong>automated testing</strong> and <strong>continuous integration pipelines</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Scratch orgs' disposable, source-driven nature is exactly what a CI/CD pipeline needs: a clean environment is spun up, automated tests run, results are recorded, and the org is deleted. There is no persistent environment state to manage or secure — each pipeline run starts from a known-good definition file checked into source control.</p>
+  </div>
+</section>
+
+<!-- SCRATCH ORGS — USE CASES -->
+<section class="slide" id="scratch-orgs-2" data-search="scratch orgs use cases new project feature branch test new feature automated testing development tasks directly scratch fresh new org spun up">
+  <div class="pgnum">16 / 33 · Scratch Orgs — Use Cases</div>
+  <h2>Scratch Orgs</h2>
+  <p class="lede">Scratch orgs are <strong>temporary Salesforce orgs</strong> that can be <strong>quickly spun up</strong> for development.</p>
+  <div class="card" style="max-width:560px">
+    <h4>Use Cases</h4>
+    <p>A scratch org can be spun up for the following:</p>
+    <ol style="margin:8px 0 0;padding-left:20px">
+      <li>Start a <strong>new project</strong>.</li>
+      <li>Start a <strong>new feature branch</strong>.</li>
+      <li>Test a <strong>new feature</strong>.</li>
+      <li>Start <strong>automated testing</strong>.</li>
+      <li>Perform <strong>development tasks directly</strong> in an org.</li>
+      <li><strong>Start from 'scratch'</strong> with a fresh new org.</li>
+    </ol>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The exam often presents a scenario where sandbox licenses are limited. The correct answer is always scratch orgs — they consume no sandbox license quota, are ephemeral, and can be created on demand. Memorize the six use cases; they map directly to the scenarios in the requirements section.</p>
+  </div>
+</section>
+
+<!-- SANDBOXES -->
+<section class="slide" id="sandboxes" data-search="sandboxes copies production environment development testing training isolated customization development changes ready deployed coordination individual changes one deployment">
+  <div class="pgnum">17 / 33 · Sandboxes</div>
+  <h2>Sandboxes</h2>
+  <p class="lede">Sandboxes are <strong>copies of the production environment</strong> that allow <strong>development</strong>, <strong>testing</strong>, and <strong>training</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Development</h4>
+      <p>Sandboxes allow <strong>isolated customization</strong> and <strong>development</strong> work until changes are ready to be deployed to production.</p>
+    </div>
+    <div class="card">
+      <h4>Testing</h4>
+      <p>Changes can be tested against <strong>copies of the production data</strong> and <strong>users</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Training</h4>
+      <p>A sandbox can be used as a <strong>training environment for end users</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Coordination</h4>
+      <p><strong>Individual changes</strong> can be coordinated into <strong>one deployment to production</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Sandboxes are tied to the production org — they inherit its metadata and (depending on type) its data. Unlike scratch orgs, they persist and must be refreshed to stay in sync with production.</div>
+</section>
+
+<!-- DEVELOPER EDITION ORG — USAGE, SIGN-UP, STORAGE -->
+<section class="slide" id="developer-edition-1" data-search="developer edition org individual full-featured copy salesforce indefinitely usage newest features custom apps test functionalities partners initial development prototyping sign-up free expires 1 year inactivity storage api storage limit 20 mb api call limit 15000">
+  <div class="pgnum">18 / 33 · Developer Edition Org — Usage, Sign-Up, Storage</div>
+  <h2>Developer Edition Org</h2>
+  <p class="lede">An individual Developer Edition org is a <strong>full-featured copy of Salesforce</strong> that can be used indefinitely.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Usage</h4>
+      <p>A Developer Edition org can be used to keep up with the <strong>newest features</strong>, build <strong>custom apps</strong>, and <strong>test functionalities</strong> before purchasing them. Partners can use it for <strong>initial development</strong> and <strong>prototyping</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Sign-Up</h4>
+      <p>One can sign up for a <strong>free Developer Edition org</strong>. However, it <strong>expires after 1 year of inactivity</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Storage &amp; API</h4>
+      <p>A Developer Edition org has a <strong>storage limit of 20 MB</strong> and an <strong>API call limit (per 24 hours) of 15,000</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DEVELOPER EDITION ORG — LICENSES & BETA TESTING -->
+<section class="slide" id="developer-edition-2" data-search="developer edition org licenses limits limited user feature permission set licenses not possible to submit feature license limit requests 2 salesforce user licenses managed beta testing">
+  <div class="pgnum">19 / 33 · Developer Edition Org — Licenses &amp; Beta Testing</div>
+  <h2>Developer Edition Org</h2>
+  <p class="lede">An individual Developer Edition org is a <strong>full-featured copy of Salesforce</strong> that can be used indefinitely.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Licenses &amp; Limits</h4>
+      <p>The org offers a <strong>limited</strong> number of user, feature and permission set <strong>licenses</strong>. It is <strong>not possible to submit</strong> feature/license/limit requests. For example, only <strong>2 Salesforce user licenses</strong> are available.</p>
+    </div>
+    <div class="card">
+      <h4>Managed Beta Testing</h4>
+      <p>A Developer Edition org <strong>supports managed beta testing</strong>.</p>
+    </div>
+  </div>
+  <div class="note">The 2-user license limit makes individual Developer Edition orgs unsuitable for team development. For team work, use a Partner Developer Edition org (20 licenses) or sandboxes.</div>
+</section>
+
+<!-- PARTNER DEVELOPER EDITION ORG — USAGE & STORAGE -->
+<section class="slide" id="partner-dev-edition-1" data-search="partner developer edition org free org ISVs consulting partners usage application development initial testing sign-up environment hub create log in expires 1 year inactivity storage api storage limit 250 mb api call limit 50000">
+  <div class="pgnum">20 / 33 · Partner Developer Edition Org — Usage &amp; Storage</div>
+  <h2>Partner Developer Edition Org</h2>
+  <p class="lede">A Partner Developer Edition org is a <strong>free org</strong> available for <strong>ISVs and consulting partners</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Usage</h4>
+      <p>A Partner Developer Edition org is typically used by partners for <strong>application development</strong> and <strong>initial testing</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Sign-Up</h4>
+      <p>The <strong>Environment Hub</strong> is used to <strong>create</strong> and <strong>log in</strong> to a Partner Developer Edition org. However, it <strong>expires after 1 year of inactivity</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Storage &amp; API</h4>
+      <p>A Developer Edition org has a <strong>storage limit of 250 MB</strong> and an <strong>API call limit (per 24 hours) of 50,000</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNER DEVELOPER EDITION ORG — LICENSES & BETA TESTING -->
+<section class="slide" id="partner-dev-edition-2" data-search="partner developer edition org licenses limits higher number user feature permission set licenses possible to submit feature license limit requests 20 salesforce user licenses managed beta testing">
+  <div class="pgnum">21 / 33 · Partner Developer Edition Org — Licenses &amp; Beta Testing</div>
+  <h2>Partner Developer Edition Org</h2>
+  <p class="lede">A Partner Developer Edition org is a <strong>free org</strong> available for <strong>ISVs and consulting partners</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Licenses &amp; Limits</h4>
+      <p>A Partner Developer Edition org offers a <strong>higher</strong> number of user, feature and permission set <strong>licenses</strong>, compared to an individual Developer Edition org. It is also <strong>possible to submit</strong> feature/license/limit requests. For example, <strong>20 Salesforce user licenses</strong> are available.</p>
+    </div>
+    <div class="card">
+      <h4>Managed Beta Testing</h4>
+      <p>A Partner Developer Edition org <strong>supports managed beta testing</strong>.</p>
+    </div>
+  </div>
+  <table class="dttable" style="margin-top:14px">
+    <thead>
+      <tr><th>Attribute</th><th>Developer Edition Org</th><th>Partner Developer Edition Org</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Cost</td><td>Free</td><td>Free (ISVs &amp; partners)</td></tr>
+      <tr><td>Storage</td><td>20 MB</td><td>250 MB</td></tr>
+      <tr><td>API calls / 24 hrs</td><td>15,000</td><td>50,000</td></tr>
+      <tr><td>Salesforce user licenses</td><td>2</td><td>20</td></tr>
+      <tr><td>License request submission</td><td>Not possible</td><td>Possible</td></tr>
+      <tr><td>Managed beta testing</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Expiry</td><td>1 year inactivity</td><td>1 year inactivity</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- SECTION DIVIDER: DESIGN FACTORS -->
+<section class="slide title-slide" id="section-design-factors" data-search="section design factors">
+  <div class="pgnum" style="color:#cbd6e6">22 / 33 · Section</div>
+  <h2>Design Factors</h2>
+</section>
+
+<!-- CHOOSING DEVELOPMENT MODEL & ENVIRONMENT -->
+<section class="slide" id="choosing-model-env" data-search="choosing development model environment design factors project team release longevity larger complex projects package-based smaller teams org-based larger collaborative teams scratch orgs sophisticated release management continuous integration long-term frequent updates maintenance sandboxes stability ease of integration">
+  <div class="pgnum">23 / 33 · Choosing Development Model &amp; Environment</div>
+  <h2>Choosing Development Model &amp; Environment</h2>
+  <p class="lede">Various <strong>design factors</strong> are necessary to consider for choosing an appropriate development model and environment.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Project</h4>
+      <p><strong>Larger, more complex projects</strong> benefit from package-based development and the use of sandboxes or scratch orgs depending on the testing needs.</p>
+    </div>
+    <div class="card">
+      <h4>Team</h4>
+      <p>Org-based development is suitable for <strong>smaller teams</strong>. Package-based development is appropriate for <strong>larger, more collaborative teams</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Release</h4>
+      <p>Package-based development with scratch orgs is ideal for <strong>sophisticated release management</strong> and <strong>continuous integration</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Longevity</h4>
+      <p>For <strong>long-term projects</strong> requiring <strong>frequent updates</strong> and <strong>maintenance</strong>, sandboxes should be considered for development for stability and ease of integration.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For the Federal Reserve, the relevant factors skew toward package-based: large, multi-team platform with long lifecycle, continuous delivery requirements, and sophisticated release management via GitLab pipelines. The "longevity + frequent updates" factor makes sandbox-based environments the practical complement for integration testing of releases, while scratch orgs handle feature development in isolation.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The exam will give you a scenario and ask you to pick a model and environment. Map the scenario signals directly: large team → package; simple internal app → org; CI/CD pipeline → scratch orgs; need production-data testing → sandboxes; ISV app for AppExchange → package + scratch orgs.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">24 / 33 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic digital frontiers virtual reality VR entertainment educational platforms global Americas Europe Asia salesforce customer interactions sales processes content delivery development model environment globally dispersed teams collaboration innovation">
+  <div class="pgnum">25 / 33 · Business Scenario — Cosmic Digital Frontiers</div>
+  <h2>Business Scenario</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Digital Frontiers, an innovative leader in virtual reality (VR) entertainment and educational platforms, develops immersive VR experiences for a global audience. Spanning markets in the Americas, Europe, and Asia, the company leverages Salesforce to streamline customer interactions, sales processes, and content delivery mechanisms. As the demand for VR content skyrockets, the company is at a crucial juncture, needing to efficiently manage the development of new features, address technical issues, and roll out updates to stay ahead in the highly competitive VR industry. The company seeks to implement a development strategy that not only accelerates innovation but also promotes effective collaboration among its globally dispersed teams. To achieve this, it requires a seasoned Salesforce architect to recommend the most suitable development model and environment that aligns with its vision for delivering unparalleled VR experiences.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">26 / 33 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 salesforce development teams org development model custom applications customizations sales cloud development team extensions internal users acquired software development company AppExchange app CTO same salesforce org separate projects same processes development model environment">
+  <div class="pgnum">27 / 33 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Most of the Salesforce development teams of the company have been using the org development model for custom applications and customizations in Salesforce. A Sales Cloud development team has developed various extensions that are being used by internal users. The company recently acquired a software development company that develops extensions of an AppExchange app. The CTO would like both development teams to use the same Salesforce org to work on separate projects while following the same set of processes. The architect needs to recommend a suitable development model and environment.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 package development model develop build release artifacts tested released independently advantages improved team development collaboration automated testing integration reducing manual change tracking dev hub scratch orgs packages enable unlocked packages second-generation managed packages dev hub page setup">
+  <div class="pgnum">28 / 33 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The development teams should adopt the <strong>package development model</strong> so that they can develop and build release artifacts that can be tested and released independently from artifacts for other projects. It offers various <strong>advantages</strong>, including improved team development and collaboration, facilitating automated testing and integration, and greatly reducing the need for manually tracking changes. <strong>Dev Hub</strong> must be enabled in the org to allow developers to create and manage scratch orgs and packages. In addition, to allow development using packages, <strong>Enable Unlocked Packages and Second-Generation Managed Packages</strong> must be selected on the Dev Hub page in Setup.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Independent release artifacts are especially important in a regulated org where two teams have different change-control approvers. Package development lets each team maintain its own release cadence and approval chain — the Sales Cloud customizations team and the AppExchange extensions team each produce versioned, independently installable packages. This preserves segregation of duties between teams without requiring separate orgs.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 PART 1 -->
+<section class="slide" id="requirement-2-part1" data-search="requirement 2 part 1 highly customized repository custom applications shift org development model package development model personal sandbox developer development environment strategy package development model change tracking considerations">
+  <div class="pgnum">29 / 33 · Requirement 2 (Part 1)</div>
+  <h2>Requirement 2 (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company uses a highly customized repository that contains a lot of different custom applications. For most of its Salesforce development needs, it is trying to shift from the org development model to the package development model. Currently, each developer works within their own personal sandbox. The architect needs to recommend a suitable development environment strategy for the package development model and provide considerations related to change tracking.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 PART 2 -->
+<section class="slide" id="requirement-2-part2" data-search="requirement 2 part 2 salesforce partner VR application training sales reps org development model development environment recommendation">
+  <div class="pgnum">30 / 33 · Requirement 2 (Part 2)</div>
+  <h2>Requirement 2 (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Furthermore, the company recently became a Salesforce partner and would like to develop and launch a one-of-a-kind VR application that provides training to sales reps. It plans to use the org development model for developing the application. The architect needs to recommend a suitable development environment for this requirement.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 PART 1 -->
+<section class="slide" id="solution-2-part1" data-search="solution 2 part 1 package development model scratch orgs start new project feature branch test new feature automated testing source tracking automatic tracking changes salesforce dx projects enabled by default scratch orgs metadata components not yet supported tracked manually">
+  <div class="pgnum">31 / 33 · Solution 2 (Part 1)</div>
+  <h2>Solution 2 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For development using the package development model, the company's developers should start using <strong>scratch orgs</strong>. A developer can spin up a scratch org to <strong>start a new project</strong> or <strong>feature branch</strong>, <strong>test a new feature</strong>, <strong>perform automated testing</strong>, etc. <strong>Source Tracking</strong> allows automatic tracking of changes between scratch orgs and Salesforce DX projects. It is <strong>enabled by default</strong> for scratch orgs. However, changes to metadata components <strong>that are not yet supported</strong> by source tracking need to be <strong>tracked manually</strong>.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the canonical "migrating from org to package model" answer. The environment shift is: personal sandboxes → scratch orgs per feature/project. Source tracking is the key change-tracking mechanism — but always note the caveat that some metadata types still require manual tracking. That nuance shows architect-level awareness, not just textbook recall.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 PART 2 -->
+<section class="slide" id="solution-2-part2" data-search="solution 2 part 2 VR application partner developer edition org development higher api call limit more storage greater number of licenses individual developer edition org">
+  <div class="pgnum">32 / 33 · Solution 2 (Part 2)</div>
+  <h2>Solution 2 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the VR application, the company should use a <strong>Partner Developer Edition org</strong> for development. Compared to an individual Developer Edition org, it offers <strong>higher API call limit</strong>, <strong>more storage</strong>, and a <strong>greater number of licenses</strong>.</p>
+  </div>
+  <div class="note">The trigger for choosing Partner Developer Edition over individual Developer Edition is Salesforce partner status. Partners get access to the Environment Hub to create Partner DE orgs, which are substantially more capable (50K vs 15K API calls, 250 MB vs 20 MB storage, 20 vs 2 user licenses).</div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more application lifecycle development models package development model org development model scratch orgs unlocked packages development models trailhead further reading">
+  <div class="pgnum">33 / 33 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Application Lifecycle and Development Models</li>
+    <li>Package Development Model</li>
+    <li>Org Development Model</li>
+    <li>Scratch Orgs</li>
+    <li>Unlocked Packages</li>
+    <li>Development Models</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key terms decision rules org development model package development model scratch orgs sandboxes developer edition partner developer edition design factors exam traps">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Development Model &amp; Environment</h2>
+
+  <h3>Model Comparison</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Attribute</th><th>Org Development Model</th><th>Package Development Model</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Primary environment</td><td>Sandboxes</td><td>Scratch orgs</td></tr>
+      <tr><td>Change tracking</td><td>Manual</td><td>Automatic (source tracking)</td></tr>
+      <tr><td>Release artifact</td><td>Change set / metadata deploy</td><td>Immutable package version</td></tr>
+      <tr><td>Team size</td><td>Smaller teams</td><td>Larger, collaborative teams</td></tr>
+      <tr><td>CI/CD suitability</td><td>Moderate</td><td>High (CLI-driven pipelines)</td></tr>
+      <tr><td>Dev Hub required</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Best for</td><td>Org-specific customization, simpler projects</td><td>Complex projects, modular apps, AppExchange, multi-team</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Environment Comparison</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Environment</th><th>Key Characteristics</th><th>Best Used For</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Scratch Org</strong></td><td>Temporary, disposable, source-driven, source tracking on by default, no sandbox license used</td><td>Package dev, feature branches, automated CI, starting from scratch</td></tr>
+      <tr><td><strong>Sandbox</strong></td><td>Copy of production (metadata + optionally data), persists, must be refreshed</td><td>Long-term projects, integration testing, UAT, training, production-data testing</td></tr>
+      <tr><td><strong>Developer Edition Org</strong></td><td>Free, full-featured, 20 MB storage, 15K API/day, 2 user licenses, expires 1yr inactivity</td><td>Individual learning, prototyping, managed beta testing</td></tr>
+      <tr><td><strong>Partner Developer Edition Org</strong></td><td>Free (partners), 250 MB storage, 50K API/day, 20 user licenses, Environment Hub provisioned</td><td>Partner/ISV app development, initial testing, managed beta testing</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Design Factor Decision Rules</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>If the scenario says…</th><th>Choose…</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Large team, multiple projects in same org, need independent releases</td><td>Package development model + scratch orgs</td></tr>
+      <tr><td>Small team, simple org-specific customization</td><td>Org development model + sandboxes</td></tr>
+      <tr><td>CI/CD pipeline, automated testing, feature branches</td><td>Scratch orgs</td></tr>
+      <tr><td>Long-term project, frequent updates, integration testing</td><td>Sandboxes</td></tr>
+      <tr><td>ISV / Salesforce partner building AppExchange app</td><td>Package development model + Partner Developer Edition or scratch orgs</td></tr>
+      <tr><td>Limited sandbox licenses, need isolation</td><td>Scratch orgs</td></tr>
+      <tr><td>Need to test against production data/users</td><td>Full or Partial Copy sandbox</td></tr>
+      <tr><td>Shifting from org model to package model</td><td>Migrate from personal sandboxes → scratch orgs; enable Dev Hub; enable Unlocked Packages and 2GP</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Key Setup Steps for Package Development Model</h3>
+  <ul>
+    <li>Enable <strong>Dev Hub</strong> in the production org.</li>
+    <li>Select <strong>Enable Unlocked Packages and Second-Generation Managed Packages</strong> on the Dev Hub page in Setup.</li>
+    <li>Create a <strong>Salesforce DX project</strong> and scratch orgs as the default dev environment.</li>
+    <li>Use <strong>sf push / sf pull</strong> to keep local and scratch org in sync.</li>
+    <li>Note: some metadata types not yet supported by source tracking must be <strong>tracked manually</strong>.</li>
+  </ul>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Package version immutability</strong> is the exam's favourite advantage of the package model — once created, a version cannot change, enabling precise rollback.</li>
+    <li><strong>Source tracking is automatic in scratch orgs</strong> but must be explicitly enabled (in the production org settings) for Developer and Developer Pro sandboxes.</li>
+    <li><strong>Dev Hub lives in production</strong> — enabling it does not affect end users but it is a prerequisite for everything in the package model.</li>
+    <li><strong>Individual Developer Edition: 2 licenses</strong>; <strong>Partner Developer Edition: 20 licenses</strong> — this is the exam's way to force the partner scenario answer.</li>
+    <li><strong>Org model ≠ no source control</strong> — it uses source control too, but changes must be tracked manually (no source tracking by default).</li>
+    <li><strong>Scratch orgs consume no sandbox license quota</strong> — always the answer when the scenario mentions "limited sandbox licenses."</li>
+    <li>Both Dev Edition and Partner Dev Edition expire after <strong>1 year of inactivity</strong> — not on a fixed date.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For the Federal Reserve Bank of Chicago Salesforce Platform Engineer role, the package development model is the target state: source-driven builds, immutable release artifacts, GitLab CI/CD pipelines using Salesforce CLI, and scratch orgs for isolated feature development. Each package version represents an auditable, repeatable deployment artifact that can be approved by change control boards and traced back to a Git commit. Sandboxes remain relevant for integration testing (especially Full/Partial Copy types with production-like data), and source tracking on Developer/Developer Pro sandboxes can bridge the gap during a model migration. This combination — packages for delivery, sandboxes for integration, scratch orgs for development — is the architecture story that satisfies both Salesforce best practices and Federal Reserve IT governance requirements.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

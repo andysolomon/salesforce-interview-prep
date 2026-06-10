@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building — Test Data &amp; Unit Tests — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Building — Test Data &amp; Unit Tests</h1>
+  <div class="sub">Describe the appropriate approaches to building test data strategy and unit test to ensure successful code (positive, negative, permission-based, large data volume) · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (31 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Overview</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#overview">Test Data &amp; Unit Testing Strategies Overview</a></li>
+    </ul>
+    <h3>Test Data Strategies</h3>
+    <ul>
+      <li><a href="#section-test-data">Section: Test Data Strategies</a></li>
+      <li><a href="#test-data-importance">Test Data — Importance &amp; Behavior</a></li>
+      <li><a href="#test-data-access">Test Data — Default Access &amp; Org Data</a></li>
+      <li><a href="#creating-test-data">Creating Test Data — Methods</a></li>
+      <li><a href="#test-setup-method">Test Setup Method (@TestSetup)</a></li>
+      <li><a href="#test-data-factory">Test Data Factory</a></li>
+      <li><a href="#static-resource">Using a Static Resource for Test Data</a></li>
+    </ul>
+    <h3>Unit Testing Strategies</h3>
+    <ul>
+      <li><a href="#section-unit-testing">Section: Unit Testing Strategies</a></li>
+      <li><a href="#positive-tests">Positive Tests</a></li>
+      <li><a href="#positive-tests-example">Positive Tests — Code Example</a></li>
+      <li><a href="#negative-tests">Negative Tests</a></li>
+      <li><a href="#negative-tests-best-practices">Negative Tests — Best Practices</a></li>
+      <li><a href="#negative-tests-example">Negative Tests — Code Example</a></li>
+      <li><a href="#permission-based-tests">Permission-Based Tests</a></li>
+      <li><a href="#permission-based-tests-example">Permission-Based Tests — Code Example</a></li>
+      <li><a href="#mocks-stubs">Mocks and Stubs</a></li>
+      <li><a href="#mocks-stubs-callouts">Mocks and Stubs — Mock Callouts &amp; Stubbing</a></li>
+      <li><a href="#http-callout-mock">HTTP Callout Mock — Code Example</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Business Scenario — Cosmic Cloud Solutions</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover building test data unit tests salesforce development lifecycle deployment architect focusonforce positive negative permission-based large data volume">
+  <div class="pgnum" style="color:#cbd6e6">1 / 31 · Cover</div>
+  <h2>Building — Test Data &amp; Unit Tests</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Describe the appropriate approaches to building test data strategy and unit test to ensure successful code (positive, negative, permission-based, large data volume) · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents test data strategies unit testing strategies business scenario requirements solutions">
+  <div class="pgnum">2 / 31 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#section-test-data">Test Data Strategies</a></li>
+    <li><a class="toc-link" href="#section-unit-testing">Unit Testing Strategies</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives test data unit tests creation techniques strategies recommend technical requirements explain importance">
+  <div class="pgnum">3 / 31 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Explain the importance of creating test data for unit tests in Salesforce.</li>
+    <li>Identify the various test data creation techniques.</li>
+    <li>Describe the various strategies available for unit testing in Salesforce.</li>
+    <li>Recommend appropriate test data and unit testing strategies for various technical requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction test data apex tests production data repeatable brute force test setup method test data factory csv static resource positive negative permission-based mocks stubs isolation external dependencies">
+  <div class="pgnum">4 / 31 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In Salesforce, <strong>creating test data</strong> for Apex tests is necessary to ensure that tests <strong>do not depend on production data</strong> and are <strong>repeatable</strong>. Test data can be created using <strong>brute force</strong>, a <strong>test setup method</strong>, a <strong>test data factory</strong>, or a <strong>CSV data file</strong> uploaded as a <strong>static resource</strong>.</p>
+  <p>Various unit testing strategies are available for Apex unit tests. <strong>Positive tests</strong> are used to return expected results when a valid input is provided. <strong>Negative tests</strong> are used to ensure that code handles invalid data and unexpected user input correctly. <strong>Permission-based tests</strong> ensure that code behaves as expected when it is run as a user with or without specific permissions. <strong>Mocks and stubs</strong> facilitate unit testing by simulating real objects and methods, allowing developers to test code in isolation from external dependencies.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, Apex test quality is a deployment gate — Salesforce requires 75% code coverage for production deploys, but a regulated environment should aim for meaningful test coverage (positive, negative, and permission-based), not just line-count coverage. GitLab CI/CD pipelines can enforce minimum coverage thresholds and test-result artifacts as evidence for change-control audits.</p>
+  </div>
+</section>
+
+<!-- OVERVIEW DIAGRAM -->
+<section class="slide" id="overview" data-search="overview test data creation methods positive tests negative tests permission-based tests mocks stubs unit testing strategies">
+  <div class="pgnum">5 / 31 · Test Data &amp; Unit Testing Strategies Overview</div>
+  <h2>Test Data &amp; Unit Testing Strategies</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Test Data Creation Methods</h4>
+      <p>Test data can be created through brute force, a test setup method, test data factory, and a CSV file uploaded as a static resource.</p>
+    </div>
+    <div class="card">
+      <h4>Positive Tests</h4>
+      <p>Positive unit tests are tests that return expected results when valid input data is provided.</p>
+    </div>
+    <div class="card">
+      <h4>Negative Tests</h4>
+      <p>Negative unit tests ensure that code handles invalid data and unexpected user input correctly.</p>
+    </div>
+    <div class="card">
+      <h4>Permission-Based Tests</h4>
+      <p>Permission-based tests ensure that code behaves as expected when it is run as a user with or without specific permissions.</p>
+    </div>
+    <div class="card">
+      <h4>Mocks and Stubs</h4>
+      <p>Mocks and stubs facilitate unit testing by simulating real objects and methods, allowing developers to test code in isolation from external dependencies.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: TEST DATA STRATEGIES -->
+<section class="slide title-slide" id="section-test-data" data-search="section test data strategies">
+  <div class="pgnum" style="color:#cbd6e6">6 / 31 · Section</div>
+  <h2>Test Data Strategies</h2>
+</section>
+
+<!-- TEST DATA — IMPORTANCE & BEHAVIOR -->
+<section class="slide" id="test-data-importance" data-search="test data importance dependency production data deployment issues data differences transient behavior does not persist data cleanup repeatable consistent across runs">
+  <div class="pgnum">7 / 31 · Test Data — Importance &amp; Behavior</div>
+  <h2>Test Data</h2>
+  <p class="lede">Creating isolated unit test data ensures that tests <strong>do not depend</strong> on production data and are <strong>repeatable</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Importance</h4>
+      <p>Creating test data for unit tests ensures that tests are <strong>consistent across runs</strong> and <strong>not dependent on production data</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Data Dependency</h4>
+      <p>Dependency on <strong>production data</strong> can lead to <strong>deployment issues</strong> due to <strong>data differences</strong> across environments.</p>
+    </div>
+    <div class="card">
+      <h4>Transient Behavior</h4>
+      <p>Data inserted by an Apex unit test <strong>does not persist</strong> after the test finishes execution, ensuring that <strong>data cleanup is not required</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked why you isolate test data, lead with two points: (1) production data varies across orgs, causing intermittent failures in CI/CD pipelines; (2) Apex auto-rolls back DML after each test, so cleanup is free — but only if you never annotate with <code>@IsTest(SeeAllData=true)</code>. Frame it as a deployment-reliability concern, not just a coding preference.</p>
+  </div>
+</section>
+
+<!-- TEST DATA — DEFAULT ACCESS & ORG DATA -->
+<section class="slide" id="test-data-access" data-search="test data default access org data data queries IsTest SeeAllData true false setup metadata User Profile rolled back data silo">
+  <div class="pgnum">8 / 31 · Test Data — Default Access &amp; Org Data</div>
+  <h2>Test Data</h2>
+  <p class="lede">Creating isolated unit test data ensures that tests <strong>do not depend</strong> on production data and are <strong>repeatable</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Default Access</h4>
+      <p>By default, Apex tests <strong>do not have access</strong> to pre-existing data in an org. Exceptions are <strong>setup</strong> and <strong>metadata</strong> objects, such as <strong>User</strong> and <strong>Profile</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Org Data</h4>
+      <p>A test class or method can be annotated with <strong>@IsTest(SeeAllData=true)</strong> to open up data access to records in the org. However, the best practice is to run tests with <strong>data silo</strong> using the <strong>@IsTest(SeeAllData=false)</strong> annotation.</p>
+    </div>
+    <div class="card">
+      <h4>Data Queries</h4>
+      <p>The <strong>@IsTest(SeeAllData=true)</strong> annotation applies to <strong>data queries</strong> only. New, updated, and deleted records are <strong>rolled back</strong> in Apex unit tests.</p>
+    </div>
+  </div>
+  <div class="note">Even when <code>SeeAllData=true</code> is used, DML changes (inserts, updates, deletes) are still rolled back after the test. The annotation only affects SOQL reads against existing org data.</div>
+</section>
+
+<!-- CREATING TEST DATA — METHODS -->
+<section class="slide" id="creating-test-data" data-search="creating test data brute force test setup TestSetup annotation test data factory reusable apex class CSV data file static resource large data volume methods techniques">
+  <div class="pgnum">9 / 31 · Creating Test Data — Methods</div>
+  <h2>Creating Test Data</h2>
+  <p class="lede">Several methods are available for <strong>creating test data</strong> for unit tests.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Brute Force</h4>
+      <p>Records are <strong>created and inserted manually</strong> on each unit test. But this can lead to lengthy tests, especially when generating related records or when records contain a lot of field details.</p>
+    </div>
+    <div class="card">
+      <h4>Test Setup</h4>
+      <p>A test setup method that creates test data can be created using the <strong>@TestSetup annotation</strong>. This method is called before every test method in the Apex class. The test data is reset between each and every test method's execution.</p>
+    </div>
+    <div class="card">
+      <h4>Test Data Factory</h4>
+      <p>A <strong>reusable Apex class</strong> called Test Data Factory can be used to model the creation of records of one or more objects. A number of open-source data factories are available online.</p>
+    </div>
+    <div class="card">
+      <h4>CSV Data File</h4>
+      <p>A <strong>CSV data file can be created and uploaded</strong> as a <strong>static resource</strong>. Test data can be generated directly from the CSV file. This useful when a <strong>large data volume</strong> is required for testing.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a regulated deployment pipeline, the @TestSetup pattern is strongly preferred over brute-force because it keeps test classes concise and maintainable — reducing the cognitive load during code reviews and making it easier to update test data when schema changes. CSV-via-static-resource is the go-to for LDV (Large Data Volume) regression tests that must prove bulk-processing limits are respected.</p>
+  </div>
+</section>
+
+<!-- TEST SETUP METHOD -->
+<section class="slide" id="test-setup-method" data-search="test setup method TestSetup annotation dataSetup Account Contract Opportunity System.assertEquals test data creation retrieval result verification SLA Status">
+  <div class="pgnum">10 / 31 · Test Setup Method (@TestSetup)</div>
+  <h2>Test Setup Method</h2>
+  <p class="lede">The following example shows the use of <strong>@TestSetup</strong> to define a method for creating test data.</p>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> ServiceLevelAgreementTest {
+  <span class="c">// Test Data Creation</span>
+  <span class="a">@TestSetup</span>
+  <span class="k">static void</span> dataSetup() {
+    Account a = <span class="k">new</span> Account(Name=<span class="s">'AccountDemo'</span>, Active__c=<span class="s">'True'</span>, SLA_Status__c=<span class="s">'Premium'</span>);
+    insert a;
+    Contract c = <span class="k">new</span> Contract(AccountId=a.Id, Status=<span class="s">'Draft'</span>, StartDate=Date.today(), ContractTerm=<span class="s">12</span>);
+    insert c;
+  }
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> testOpportunity() {
+    <span class="c">// Test Data Retrieval</span>
+    Account a = [SELECT Id, SLA_Status__c FROM Account LIMIT 1];
+    Contract c = [SELECT Id, ContractTerm FROM Contract LIMIT 1];
+    Opportunity o = <span class="k">new</span> Opportunity(Name=<span class="s">'SLA'</span>, StageName=<span class="s">'Closed Won'</span>, CloseDate=Date.today(), ContractId=c.Id, AccountId=a.Id);
+    insert o;
+    Opportunity r = [SELECT Id, CloseDate FROM Opportunity LIMIT 1];
+    Date contractExpiry = r.CloseDate.addMonths(c.ContractTerm);
+    <span class="c">// Result Verification</span>
+    System.assertEquals(r.Contract_Expiry__c, contractExpiry);
+    System.assertEquals(r.Service_Status__c, a.SLA_Status__c);
+  }
+}</pre>
+  <div class="note">The @TestSetup method runs once before the first test method in the class, and the data state is restored (rolled back and re-inserted) before each subsequent test method. This means each test gets a clean, known data state without re-writing setup code.</div>
+</section>
+
+<!-- TEST DATA FACTORY -->
+<section class="slide" id="test-data-factory" data-search="test data factory reusable apex class createAccounts numAccounts List Account insert return accounts open-source utility class">
+  <div class="pgnum">11 / 31 · Test Data Factory</div>
+  <h2>Test Data Factory</h2>
+  <p class="lede">The following is an example of a Test Data Factory class that <strong>creates</strong> and <strong>returns test accounts</strong>.</p>
+<pre class="code"><span class="c">/* The test utility class 'TestDataFactory' is used here to create and return
+ * account records based on the number of accounts required by test method. */</span>
+
+<span class="a">@isTest</span>
+<span class="k">public class</span> TestDataFactory {
+  <span class="k">public static</span> List&lt;Account&gt; createAccounts(Integer numAccounts) {
+    List&lt;Account&gt; accounts = <span class="k">new</span> List&lt;Account&gt;();
+
+    <span class="k">for</span>(Integer i=<span class="s">0</span>;i&lt;numAccounts;i++) {
+      Account acc = <span class="k">new</span> Account(Name=<span class="s">'Test Account '</span> + i);
+      accounts.add(acc);
+    }
+    insert accounts;
+
+    <span class="k">return</span> accounts;
+  }
+}</pre>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>A Test Data Factory is the architect-level answer to "how do you scale test data across dozens of test classes?" Point out that it centralises record construction, so when a required field is added to an object, you fix one factory method rather than hunting across every test class. Mention that the class itself is annotated @isTest so it never counts against production code coverage metrics.</p>
+  </div>
+</section>
+
+<!-- USING A STATIC RESOURCE FOR TEST DATA -->
+<section class="slide" id="static-resource" data-search="static resource test data Test.loadData sObject type static resource name CSV TestAccounts accounts size execution log three records loaded Rangers Trailblazers Campers large data volume">
+  <div class="pgnum">12 / 31 · Using a Static Resource for Test Data</div>
+  <h2>Using a Static Resource for Test Data</h2>
+  <p class="lede">The following example shows a test method that <strong>loads test data</strong> from a <strong>static resource</strong>.</p>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public class</span> StaticResourceTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">static void</span> checkStaticFile() {
+    <span class="c">// To load test data, sObject type and name of static resource are specified.</span>
+    Test.loadData(Account.sObjectType, <span class="s">'TestAccounts'</span>);
+    List&lt;Account&gt; accounts = [SELECT Name, Website, Phone FROM Account];
+    System.debug(<span class="s">'accounts.size() = '</span> + accounts.size());
+    <span class="k">for</span> (Account a : accounts) {
+      System.debug(<span class="s">'account = '</span> + a);
+    }
+  }
+}</pre>
+  <p style="margin-top:12px;font-size:13px;color:var(--muted);">Execution Log — The <strong>three records</strong> from the static resource file are loaded:</p>
+  <table class="dttable">
+    <thead>
+      <tr><th>Timestamp</th><th>Event</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>23:36:32:241</td><td>USER_DEBUG</td><td>[8]|DEBUG|accounts.size() = 3</td></tr>
+      <tr><td>23:36:32:241</td><td>USER_DEBUG</td><td>[10]|DEBUG|account = Account:{Name=Rangers, Website=https://www.rangers.com, Phone=1234 5678, Id=0012v000035epFYAAY}</td></tr>
+      <tr><td>23:36:32:242</td><td>USER_DEBUG</td><td>[10]|DEBUG|account = Account:{Name=Trailblazers, Website=https://www.trailblazers.com, Phone=2345 6789, Id=0012v000035epFZAAY}</td></tr>
+      <tr><td>23:36:32:242</td><td>USER_DEBUG</td><td>[10]|DEBUG|account = Account:{Name=Campers, Website=https://www.campers.com, Phone=3456 7890, Id=0012v000035epFaAAI}</td></tr>
+    </tbody>
+  </table>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Static-resource CSV files are source-controlled alongside the test class, making them part of the deployment package reviewed in GitLab merge requests. For LDV testing at the Fed — e.g., batch jobs that process thousands of financial transactions — a pre-built CSV with realistic record counts gives you a reproducible, auditable data set that travels with the code through every environment in the pipeline.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: UNIT TESTING STRATEGIES -->
+<section class="slide title-slide" id="section-unit-testing" data-search="section unit testing strategies">
+  <div class="pgnum" style="color:#cbd6e6">13 / 31 · Section</div>
+  <h2>Unit Testing Strategies</h2>
+</section>
+
+<!-- POSITIVE TESTS -->
+<section class="slide" id="positive-tests" data-search="positive tests expected results valid input data importance well-written code correct inputs pattern generate test data validate data Test.startTest execute Test.stopTest assertions output">
+  <div class="pgnum">14 / 31 · Positive Tests</div>
+  <h2>Positive Tests</h2>
+  <p class="lede">Positive unit tests are tests that return <strong>expected results</strong> when <strong>valid input data</strong> is provided.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Importance</h4>
+      <p>Positive testing ensures that <strong>well-written code</strong> performs as expected with <strong>correct inputs</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Pattern</h4>
+      <p>The pattern for writing positive unit tests uses the following steps:
+        <ol>
+          <li>Generate or load <strong>test data</strong></li>
+          <li>Make assertions to <strong>validate data</strong></li>
+          <li>Call <strong>Test.startTest()</strong></li>
+          <li><strong>Execute</strong> the code being tested</li>
+          <li>Call <strong>Test.stopTest()</strong></li>
+          <li>Make assertions about <strong>output</strong></li>
+        </ol>
+      </p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Test.startTest()/Test.stopTest() bracket is not optional ceremony — it resets governor limits for the code under test, which is critical for proving that your production code fits within its own governor budget. Assertions before startTest validate your setup data; assertions after stopTest validate your results. This two-phase assertion structure is the canonical Apex test pattern.</p>
+  </div>
+</section>
+
+<!-- POSITIVE TESTS — CODE EXAMPLE -->
+<section class="slide" id="positive-tests-example" data-search="positive tests example OpportunityUpdateClassTest positiveTest List Opportunity insert processRecords Sales_Order assertEquals Closed Won valid input test data creation method execution test result verification">
+  <div class="pgnum">15 / 31 · Positive Tests — Code Example</div>
+  <h2>Positive Tests</h2>
+  <p class="lede">The following example shows the <strong>positive test behavior</strong> of a class when <strong>valid input</strong> is provided.</p>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">private class</span> OpportunityUpdateClassTest {
+  <span class="a">@isTest</span>
+  <span class="k">public static void</span> positiveTest() {
+    <span class="c">// Test Data Creation — Valid Input</span>
+    List&lt;Opportunity&gt; opportunities = <span class="k">new</span> List&lt;Opportunity&gt;();
+    <span class="k">for</span> (Integer i = <span class="s">1</span>; i &lt;= <span class="s">300</span>; i++) {
+      Opportunity opp = <span class="k">new</span> Opportunity(Name=<span class="s">'Test Opportunity '</span>+i,CloseDate=Date.newInstance(<span class="s">2020</span>, <span class="s">07</span>, <span class="s">15</span>),StageName=<span class="s">'Closed Won'</span>);
+      opportunities.add(opp);
+    }
+    insert opportunities;
+
+    <span class="c">// Method Execution</span>
+    OpportunityUpdateClass.processRecords(opportunities);
+
+    <span class="c">// Test Result Verification</span>
+    <span class="k">for</span> (Sales_Order__c s : [SELECT Name, Opportunity__r.Name, Status__c, Opportunity__r.Notes__c FROM Sales_Order__c]) {
+      System.assertEquals(s.Opportunity__r.Name + <span class="s">' Order'</span>, s.Name);
+      System.assertEquals(<span class="s">'New'</span>, s.Status__c);
+      System.assertEquals(<span class="s">'A sales order has been created'</span>, s.Opportunity__r.Notes__c);
+    }
+  }
+}</pre>
+</section>
+
+<!-- NEGATIVE TESTS -->
+<section class="slide" id="negative-tests" data-search="negative tests invalid data unexpected user input fault-tolerant gracefully handles exceptions preventing failures batch processes pattern generate test data try catch block Test.startTest execute exception Test.stopTest assertion fails catch expected exception">
+  <div class="pgnum">16 / 31 · Negative Tests</div>
+  <h2>Negative Tests</h2>
+  <p class="lede">Negative unit tests ensure that <strong>code handles invalid data</strong> and <strong>unexpected user input correctly</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Importance</h4>
+      <p>Negative testing ensures that the code is <strong>fault-tolerant</strong> and ensures that the code <strong>gracefully handles exceptions, preventing failures</strong> in batch processes or other operations.</p>
+    </div>
+    <div class="card">
+      <h4>Pattern</h4>
+      <p>The pattern for writing negative unit tests uses the following steps:
+        <ol>
+          <li>Generate or load <strong>test data</strong></li>
+          <li>Start a <strong>try/catch block</strong></li>
+          <li>Call <strong>Test.startTest()</strong></li>
+          <li><strong>Execute</strong> the code that is expected to throw an exception</li>
+          <li>Call <strong>Test.stopTest()</strong></li>
+          <li>Add an <strong>assertion that fails</strong> if no exception is thrown</li>
+          <li><strong>Catch</strong> the expected exception</li>
+        </ol>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- NEGATIVE TESTS — BEST PRACTICES -->
+<section class="slide" id="negative-tests-best-practices" data-search="negative tests best practices induce specific exceptions validate error handling exception type error message catch block avoid false positives batch process fails first record remaining records not processed">
+  <div class="pgnum">17 / 31 · Negative Tests — Best Practices</div>
+  <h2>Negative Tests</h2>
+  <p class="lede">Negative unit tests ensure that <strong>code handles invalid data</strong> and <strong>unexpected user input correctly</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Best Practices</h4>
+      <p>Test data can be modified to <strong>induce specific exceptions</strong> and <strong>validate error handling</strong>. Both the <strong>exception type</strong> and <strong>error message</strong> should be checked in the catch block to <strong>avoid false positives</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Example</h4>
+      <p>In a batch process, if the code <strong>fails on the first record</strong> in the batch, and it <strong>does not gracefully handle exceptions</strong>, the <strong>remaining records are not processed</strong>. Negative tests avoid such situations.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a central-bank payment processing context, a batch job that silently drops records due to an unhandled exception is a regulatory incident. Negative tests that verify graceful exception handling — and assert on both exception type and message — are the automated proof that your error-handling logic meets the bank's fault-tolerance requirements. These test results belong in the deployment evidence package.</p>
+  </div>
+</section>
+
+<!-- NEGATIVE TESTS — CODE EXAMPLE -->
+<section class="slide" id="negative-tests-example" data-search="negative tests example OpportunityUpdateClassTest negativeTest Closed Lost invalid input Sales_Orders size 0 assertNotEquals test data creation test method execution test result verification">
+  <div class="pgnum">18 / 31 · Negative Tests — Code Example</div>
+  <h2>Negative Tests</h2>
+  <p class="lede">The following example shows the <strong>negative test behavior</strong> of a class when <strong>invalid input</strong> is provided.</p>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">private class</span> OpportunityUpdateClassTest {
+
+  <span class="a">@isTest</span>
+  <span class="k">public static void</span> negativeTest() {
+    <span class="c">// Test Data Creation — Invalid Input</span>
+    List&lt;Opportunity&gt; opportunities = <span class="k">new</span> List&lt;Opportunity&gt;();
+    <span class="k">for</span> (Integer i = <span class="s">1</span>; i &lt;= <span class="s">300</span>; i++) {
+      Opportunity opp = <span class="k">new</span> Opportunity(Name=<span class="s">'Test Opportunity '</span>+i,CloseDate=Date.newInstance(<span class="s">2020</span>, <span class="s">07</span>, <span class="s">15</span>),StageName=<span class="s">'Closed Lost'</span>);
+      opportunities.add(opp);
+    }
+    insert opportunities;
+
+    <span class="c">// Test Method Execution</span>
+    OpportunityUpdateClass.processRecords(opportunities);
+
+    <span class="c">// Test Result Verification</span>
+    <span class="k">for</span> (Opportunity o : [SELECT Id, Notes__c, (SELECT Id FROM Sales_Orders__r) FROM Opportunity WHERE Id IN :opportunities]) {
+      System.assert(o.Sales_Orders__r.size() == <span class="s">0</span>);
+      System.assertNotEquals(<span class="s">'A sales order has been created'</span>, o.Notes__c);
+    }
+  }
+}</pre>
+</section>
+
+<!-- PERMISSION-BASED TESTS -->
+<section class="slide" id="permission-based-tests" data-search="permission-based tests access controls appropriate access resources permissions System.runAs user importance pattern generate test data create test users execute positive negative test patterns">
+  <div class="pgnum">19 / 31 · Permission-Based Tests</div>
+  <h2>Permission-Based Tests</h2>
+  <p class="lede">Permission-based tests ensure that <strong>code behaves as expected</strong> when it is <strong>run as a user with or without specific permissions</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Importance</h4>
+      <p>Permission-based testing verifies that an <strong>application's access controls</strong> work as expected, ensuring that users have <strong>appropriate access to resources</strong> based on their <strong>permissions</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Pattern</h4>
+      <p>The pattern for writing permission-based unit tests uses the following steps:
+        <ol>
+          <li>Generate or load <strong>test data</strong></li>
+          <li>Create <strong>test users</strong></li>
+          <li>Execute test using <strong>System.runAs(user)</strong></li>
+          <li>Combine <strong>positive</strong> and <strong>negative test patterns</strong></li>
+        </ol>
+      </p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>System.runAs() is the only way in Apex unit tests to switch the running user context — it does not enforce actual login permissions, but it does switch the user for record ownership, sharing rules, and field-level security enforcement in your code. For permission-based tests, you combine positive tests (user with permission can do X) with negative tests (user without permission gets an exception or sees no data) within the same test method using nested runAs blocks.</p>
+  </div>
+</section>
+
+<!-- PERMISSION-BASED TESTS — CODE EXAMPLE -->
+<section class="slide" id="permission-based-tests-example" data-search="permission-based tests example System.runAs newUser currentUser Profile Standard User UserName Email Alias assertEquals assertNotEquals getUserName getProfileId code execution as user">
+  <div class="pgnum">20 / 31 · Permission-Based Tests — Code Example</div>
+  <h2>Permission-Based Tests</h2>
+  <p class="lede">The following example uses <strong>System.runAs()</strong> to run code in the <strong>context of a specific user</strong> to test code behavior and record access to the user.</p>
+<pre class="code"><span class="a">@isTest</span>
+<span class="k">public static void</span> test1() {
+
+  Profile p = [SELECT Id FROM Profile WHERE Name = <span class="s">'Standard User'</span>];
+  User newUser = <span class="k">new</span> User(Email=<span class="s">'newuser@acme.com'</span>,UserName=<span class="s">'newuser@acme.com.dev'</span>,LastName=<span class="s">'Testing'</span>,Alias=<span class="s">'newUser'</span>,
+  ProfileId=p.Id,LanguageLocaleKey=<span class="s">'en_US'</span>,LocaleSidKey=<span class="s">'en_US'</span>,TimeZoneSidKey=<span class="s">'America/Los_Angeles'</span>,EmailEncodingKey=<span class="s">'UTF-8'</span>);
+
+  <span class="c">// Code execution as newUser</span>
+  System.runAs(newUser) {
+    System.assertEquals(<span class="s">'newuser@acme.com.dev'</span>, UserInfo.getUserName());
+    System.assertEquals(p.Id, UserInfo.getProfileId());
+  }
+
+  User currentUser = [SELECT Id, ProfileId FROM User WHERE UserName=<span class="s">'currentuser@acme.com.dev'</span>];
+  <span class="c">// Code execution as currentUser</span>
+  System.runAs(currentUser) {
+    System.assertNotEquals(<span class="s">'newuser@acme.com.dev'</span>, UserInfo.getUserName());
+    System.assertNotEquals(p.Id, UserInfo.getProfileId());
+  }
+}</pre>
+</section>
+
+<!-- MOCKS AND STUBS -->
+<section class="slide" id="mocks-stubs" data-search="mocks stubs simulating real objects methods isolation external dependencies mock object level mimic behavior complex real objects predefined responses method calls using mocks stubs HTTP callouts third-party web services internal state behavior simulation">
+  <div class="pgnum">21 / 31 · Mocks and Stubs</div>
+  <h2>Mocks and Stubs</h2>
+  <p class="lede">Mocks and stubs facilitate unit testing by <strong>simulating real objects and methods</strong>, allowing developers to test code in isolation from external dependencies.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Mocks &amp; Stubs</h4>
+      <p>A mock is used to <strong>mimic the behavior of complex real objects</strong> and is utilized at the <strong>object level</strong>. A stub provides <strong>predefined responses to method calls</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Using Mocks &amp; Stubs</h4>
+      <p>A mock is used to <strong>test interactions with external systems</strong>, such as HTTP callouts to third-party web services, by simulating responses. Stubs are used to <strong>test code that relies on the internal state or behavior of other objects</strong>, allowing the simulation of various conditions and responses without relying on the real implementation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MOCKS AND STUBS — MOCK CALLOUTS & STUBBING -->
+<section class="slide" id="mocks-stubs-callouts" data-search="mock callouts HttpCalloutMock interface Test.setMock HTTP callouts stubbing StubProvider interface replace behavior methods test context functionality depends behavior other classes">
+  <div class="pgnum">22 / 31 · Mocks and Stubs — Mock Callouts &amp; Stubbing</div>
+  <h2>Mocks and Stubs</h2>
+  <p class="lede">Mocks and stubs facilitate unit testing by <strong>simulating real objects and methods</strong>, allowing developers to test code in isolation from external dependencies.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Mock Callouts</h4>
+      <p>The <strong>HttpCalloutMock</strong> interface can be implemented to simulate HTTP callouts. The <strong>Test.setMock()</strong> method allows associating the mock with HTTP callouts.</p>
+    </div>
+    <div class="card">
+      <h4>Stubbing</h4>
+      <p>The <strong>StubProvider</strong> interface is used to replace the behavior of methods within the test context. It is useful to <strong>test functionality that depends on the behavior of other classes or methods</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The distinction between HttpCalloutMock and StubProvider is commonly tested: HttpCalloutMock is for external HTTP callouts (REST/SOAP integrations); StubProvider (Stub API) is for mocking internal Apex method behavior. Both prevent test failures caused by external dependencies and ensure your unit tests truly test only the code under test.</p>
+  </div>
+</section>
+
+<!-- HTTP CALLOUT MOCK — CODE EXAMPLE -->
+<section class="slide" id="http-callout-mock" data-search="HTTP callout mock EnrollHttpCalloutMock HttpCalloutMock respond HttpResponse setHeader setBody setStatusCode Test.startTest Test.setMock generateStudentApplication StudentController enroll assertEquals ExternalStudentId YearLevel CourseId Test.stopTest fake response">
+  <div class="pgnum">23 / 31 · HTTP Callout Mock — Code Example</div>
+  <h2>HTTP Callout Mock</h2>
+  <p class="lede">The following example shows the use of <strong>HttpCalloutMock</strong> to simulate an HTTP response.</p>
+<pre class="code"><span class="c">// Apex class that implements the HttpCalloutMock interface to simulate the response of a successful enrollment of a student:</span>
+<span class="k">public class</span> EnrollHttpCalloutMock <span class="k">implements</span> HttpCalloutMock {
+  <span class="k">public</span> HttpResponse respond(HTTPRequest req) {
+    HttpResponse res = <span class="k">new</span> HttpResponse();
+    res.setHeader(<span class="s">'Content-Type'</span>, <span class="s">'application/json'</span>);
+    res.setBody(<span class="s">'{"success":true,"studentId":12345,"courseId":67,"yearLevel":3}'</span>); <span class="c">// create fake response</span>
+    res.setStatusCode(<span class="s">200</span>);
+    <span class="k">return</span> res;
+  }
+}
+
+<span class="c">// Code contained and executed inside a test method:</span>
+Test.startTest();
+Test.setMock(HttpCalloutMock.<span class="k">class</span>, <span class="k">new</span> EnrollHttpCalloutMock());
+StudentApplicationWrapper application = generateStudentApplication(); <span class="c">// some helper method</span>
+Enrollment erm = StudentController.enroll(application); <span class="c">// invoke the method to test</span>
+
+<span class="c">// verify new record created from fake data</span>
+System.assertEquals(erm.ExternalStudentId__c, <span class="s">12345</span>);
+System.assertEquals(erm.YearLevel__c, <span class="s">3</span>);
+System.assertEquals(erm.CourseId__c, <span class="s">67</span>);
+Test.stopTest();</pre>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a regulated financial institution, integration tests against live external endpoints (payment processors, core banking APIs) cannot be run in CI/CD pipelines due to sandbox restrictions and data sensitivity. HttpCalloutMock is the required pattern — it lets the pipeline validate integration logic deterministically, and the mock class itself can be reviewed and approved as part of the deployment package, providing auditability of the expected integration contract.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">24 / 31 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario Cosmic Cloud Solutions cloud-based enterprise solutions supply chain management CRM agile development quality reliability Apex code diverse data scenarios test data strategies unit testing methods technical requirements architect">
+  <div class="pgnum">25 / 31 · Business Scenario — Cosmic Cloud Solutions</div>
+  <h2>Business Scenario — Cosmic Cloud Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Cloud Solutions, a leading provider of cloud-based enterprise solutions, serves a wide array of industries by offering scalable software solutions that support business operations, ranging from supply chain management to customer relationship management (CRM) systems. The company prides itself on its agile development practices and commitment to delivering high-quality, robust software products. It utilizes a complex Salesforce environment to manage its sales processes, customer support, and internal operations.</p>
+    <p style="margin-top:8px;">The company's Salesforce development team has encountered issues with ensuring the quality and reliability of Apex code, particularly when dealing with diverse data scenarios. The company seeks the assistance of a Salesforce architect to recommend test data strategies and unit testing methods for various technical requirements.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">26 / 31 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 record type removed ERP Opportunity object unit tests failing predictably large volume opportunity data test data strategy CSV static resource test setup method dynamically query record type Ids hard-coding">
+  <div class="pgnum">27 / 31 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company recently removed a record type and added a new record type for ERP solutions on the Opportunity object. As a result, certain unit tests in a test class that references the Opportunity object have been failing. The architect needs to recommend a suitable approach to ensure that tests execute predictably. Furthermore, a developer is working on a test class for a new functionality that processes a large volume of opportunity data. A suitable test data strategy is required for this use case.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 test setup method create own test data dynamically query available record type Ids hard-coding resilient changes record types large data volume CSV file static resource opportunity records referenced test classes">
+  <div class="pgnum">28 / 31 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>To ensure that unit tests in the test class execute predictably, the <strong>test setup method</strong> in the test class should be updated. The test class should <strong>create its own test data</strong> and <strong>dynamically query for available record type Ids</strong> rather than hard-coding them. This would ensure that tests remain resilient to changes in record types. For large data volume testing, a <strong>CSV file</strong> containing the required number of opportunity records can be uploaded as a <strong>static resource</strong>. It can then be referenced in test classes.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Hard-coded record type Ids in test classes are a classic deployment failure mode — they break silently when a record type is renamed or replaced. The architect-level answer is always: query for record type Ids dynamically at test runtime using <code>[SELECT Id FROM RecordType WHERE SObjectType='Opportunity' AND DeveloperName='ERP_Solution']</code>. Combine this with the @TestSetup pattern and you eliminate the two most common test-class fragility sources simultaneously.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 senior developers code review support management application negative unit tests insufficient inbound call volume 300 calls per hour 150 calls test data strategy insufficient volume permission-based testing">
+  <div class="pgnum">29 / 31 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A team of senior developers in the IT department recently conducted a comprehensive code review of the support management application and found that Apex tests do not use enough negative unit tests. In addition, the existing test data strategy used for testing the inbound call volume functionality needs to be evaluated. The support department currently receives almost 300 calls per hour, but the existing test data being used in test classes is suitable for 150 calls per hour.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 negative unit testing critical paths potential failure points negative test cases permission-based testing insufficient permissions access rights different user roles inbound call volume 100% increase 300 calls per hour test data generation scripts methods updated">
+  <div class="pgnum">30 / 31 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>To enhance negative unit testing, all the <strong>critical paths and potential failure points</strong> within the Apex classes should be identified. Thereafter, additional unit test methods should be created for <strong>negative test cases</strong>. <strong>Permission-based testing</strong> can be utilized to ensure that some negative tests cover scenarios where operations fail due to insufficient permissions or access rights, simulating different user roles interacting with the application. For the inbound call volume testing, the volume of test data should be increased by <strong>100%</strong> to more accurately reflect the current operational volume of 300 calls per hour. Test data generation scripts or methods should be updated accordingly.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This solution maps directly to a Fed audit scenario: "show us evidence that your code handles failure gracefully and at production scale." The deliverable is a test suite that covers negative paths (documented as test cases in the deployment evidence), permission-based tests (proving least-privilege enforcement), and LDV tests at or above production record counts. All three are required for a credible change-control submission at a regulated institution.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more advanced apex testing understanding test data apex testing trailhead further reading">
+  <div class="pgnum">31 / 31 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Advanced Apex Testing</li>
+    <li>Understanding Test Data</li>
+    <li>Apex Testing</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key terms decision rules test data strategies unit testing positive negative permission-based mocks stubs TestSetup test data factory static resource HttpCalloutMock StubProvider System.runAs SeeAllData code coverage exam patterns">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Test Data &amp; Unit Tests</h2>
+
+  <h3>Test Data Creation Method — Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Method</th><th>When to Use</th><th>Key Mechanism</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Brute Force</strong></td>
+        <td>Simple tests with few records; one-off data needs</td>
+        <td>Manual new/insert in each test method</td>
+      </tr>
+      <tr>
+        <td><strong>@TestSetup</strong></td>
+        <td>Multiple test methods in one class share the same base data</td>
+        <td>Runs once, data is reset before each test method</td>
+      </tr>
+      <tr>
+        <td><strong>Test Data Factory</strong></td>
+        <td>Many test classes share common object creation logic</td>
+        <td>@isTest utility class with static factory methods</td>
+      </tr>
+      <tr>
+        <td><strong>CSV Static Resource</strong></td>
+        <td>Large Data Volume (LDV) testing; bulk processing validation</td>
+        <td>Test.loadData(SObjectType, 'ResourceName')</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Unit Test Type — Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Test Type</th><th>Purpose</th><th>Key Mechanism</th><th>Pattern Note</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Positive</strong></td>
+        <td>Verify expected output with valid input</td>
+        <td>Test.startTest() / Test.stopTest() bracket</td>
+        <td>Assert before startTest (data valid) + after stopTest (result valid)</td>
+      </tr>
+      <tr>
+        <td><strong>Negative</strong></td>
+        <td>Verify fault tolerance with invalid input or error conditions</td>
+        <td>try/catch + assert-in-try that fails if no exception is thrown</td>
+        <td>Check both exception type AND message to avoid false positives</td>
+      </tr>
+      <tr>
+        <td><strong>Permission-Based</strong></td>
+        <td>Verify access control behavior for different user roles</td>
+        <td>System.runAs(user)</td>
+        <td>Combine positive + negative patterns inside runAs blocks</td>
+      </tr>
+      <tr>
+        <td><strong>Mock / Stub</strong></td>
+        <td>Test code with external dependencies in isolation</td>
+        <td>HttpCalloutMock + Test.setMock() for HTTP; StubProvider for internal methods</td>
+        <td>HttpCalloutMock = external HTTP; StubProvider = internal class behavior</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Key API Methods &amp; Annotations</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>API / Annotation</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>@isTest</code></td><td>Marks class or method as test-only; excluded from production coverage calculation</td></tr>
+      <tr><td><code>@TestSetup</code></td><td>Designates a setup method; called once, data reset before each test method</td></tr>
+      <tr><td><code>@IsTest(SeeAllData=true)</code></td><td>Opens SOQL queries to org data — avoid; use only for setup/metadata objects</td></tr>
+      <tr><td><code>Test.startTest() / stopTest()</code></td><td>Resets governor limits for code under test; required for async testing</td></tr>
+      <tr><td><code>Test.loadData()</code></td><td>Loads records from a CSV static resource</td></tr>
+      <tr><td><code>Test.setMock()</code></td><td>Registers an HttpCalloutMock for the duration of the test</td></tr>
+      <tr><td><code>System.runAs(user)</code></td><td>Executes code block in the context of a specified user</td></tr>
+      <tr><td><code>HttpCalloutMock</code></td><td>Interface to implement for simulating HTTP responses</td></tr>
+      <tr><td><code>StubProvider</code></td><td>Interface to implement for stubbing internal Apex method behavior (Stub API)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>@IsTest(SeeAllData=false) is the default and the best practice</strong> — never open org data access unless absolutely necessary for setup/metadata objects like User or Profile.</li>
+    <li><strong>DML is always rolled back</strong> after a test, regardless of SeeAllData setting — only SOQL reads are affected by SeeAllData=true.</li>
+    <li><strong>@TestSetup data is reset between test methods</strong>, not just created once — each test method gets a fresh copy, preventing cross-test contamination.</li>
+    <li><strong>Hard-coded record type Ids will break on deployment</strong> — always query dynamically: <code>[SELECT Id FROM RecordType WHERE SObjectType='X' AND DeveloperName='Y']</code>.</li>
+    <li><strong>Test.startTest()/stopTest() resets governor limits</strong> — code inside the bracket gets a fresh set of limits; use this to prove your production code fits within its own governor budget.</li>
+    <li><strong>HttpCalloutMock ≠ StubProvider</strong> — HttpCalloutMock simulates external HTTP responses; StubProvider replaces internal Apex method behavior at the object level.</li>
+    <li><strong>Negative test catch blocks must check both exception type and message</strong> — checking only type allows wrong exceptions to pass silently (false positive).</li>
+    <li><strong>System.runAs() does not enforce login security</strong> — it switches the user context for sharing rules, record ownership, and UserInfo; it does not verify the user can actually log in.</li>
+    <li><strong>75% code coverage is required for production deployment</strong> — but coverage alone is not quality. Meaningful assertions covering positive, negative, and permission scenarios are the architect's standard.</li>
+    <li><strong>CSV static resources are the LDV answer</strong> — when bulk-processing tests require hundreds or thousands of records, a pre-built CSV static resource is more maintainable and auditable than programmatic loop generation.</li>
+  </ul>
+
+  <h3>Scenario → Solution Pattern</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Scenario</th><th>Canonical Solution</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Tests fail after record type changes</td><td>Dynamically query record type Ids in @TestSetup; never hard-code</td></tr>
+      <tr><td>Large volume of records needed for testing</td><td>CSV file uploaded as static resource; loaded with Test.loadData()</td></tr>
+      <tr><td>Multiple test methods need the same base data</td><td>@TestSetup method in the test class</td></tr>
+      <tr><td>Many test classes need the same object creation logic</td><td>Test Data Factory (@isTest utility class)</td></tr>
+      <tr><td>Test code that makes HTTP callouts</td><td>Implement HttpCalloutMock; register with Test.setMock()</td></tr>
+      <tr><td>Test code that depends on another class's method behavior</td><td>Implement StubProvider; stub the dependency</td></tr>
+      <tr><td>Test code behavior for a specific user role or permission set</td><td>System.runAs(testUser) wrapping positive + negative assertions</td></tr>
+      <tr><td>Test volume below production operational load</td><td>Increase test data volume to match or exceed production counts</td></tr>
+    </tbody>
+  </table>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve Bank of Chicago platform engineer, the test suite is not just a code quality tool — it is deployment evidence. Every production change requires traceable test results showing positive coverage (expected behavior works), negative coverage (errors are handled gracefully), permission coverage (least-privilege is enforced), and LDV coverage (batch jobs handle production record counts). GitLab CI/CD pipelines should enforce minimum coverage thresholds and archive test results as artifacts for each merge request, ensuring the complete audit trail that change-control and regulatory examination require.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

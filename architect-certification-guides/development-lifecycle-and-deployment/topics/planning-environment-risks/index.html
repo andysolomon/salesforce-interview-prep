@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning — Environment Risks &amp; Mitigation — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Planning — Environment Risks &amp; Mitigation</h1>
+  <div class="sub">Understand customer environment risks and articulate appropriate mitigation strategies · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (22 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Environment Risks &amp; Mitigation Strategies</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#risk-overview">6 Risk Categories Overview</a></li>
+      <li><a href="#section-risks">Section: Risks &amp; Mitigation Strategies</a></li>
+      <li><a href="#customization-risks">Customization Risks</a></li>
+      <li><a href="#data-security-risks">Data Security &amp; Privacy Risks</a></li>
+      <li><a href="#governance-risks">Governance Risks</a></li>
+      <li><a href="#project-management-risks">Project Management Risks</a></li>
+      <li><a href="#development-risks">Development Risks</a></li>
+      <li><a href="#testing-risks">Testing Risks</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Innovations Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#solution-1-diagram">Solution 1 — Mapping</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#solution-2-diagram">Solution 2 — Mapping</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover planning environment risks mitigation salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Planning — Environment Risks &amp; Mitigation</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Understand customer environment risks and articulate appropriate mitigation strategies · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents environment risks mitigation business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#customization-risks">Environment Risks &amp; Mitigation Strategies</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives study describe environment risks mitigation strategies identify appropriate">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe different types of Salesforce environment risks and strategies to mitigate them.</li>
+    <li>Identify appropriate mitigation strategies for the given customer environment risks.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction customization data security governance project management development testing user-centered design governance frameworks authentication encryption documentation rigorous testing planning stakeholder comprehensive testing separate environments">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In Salesforce environments, addressing risks in <strong>customization</strong>, <strong>data security</strong>, <strong>governance</strong>, <strong>project management</strong>, <strong>development</strong>, and <strong>testing</strong> is crucial.</p>
+  <p>Mitigation strategies involve <strong>user-centered design</strong> and <strong>governance frameworks</strong> for customization, <strong>stringent authentication</strong>, and <strong>encryption</strong> for data security.</p>
+  <p><strong>Documentation standards</strong> and <strong>rigorous testing</strong> address governance issues. <strong>Detailed planning</strong> and <strong>stakeholder engagement</strong> help manage project risks. <strong>Refactoring code</strong> and <strong>prioritizing tasks</strong> mitigate development challenges. Finally, <strong>comprehensive testing strategies</strong> and <strong>using separate environments</strong> address testing risks.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>All six risk categories map directly to concerns at a regulated financial institution. Data security (encryption, access controls) and governance (documentation standards, change control) are especially prominent in Fed audits and regulatory examinations — expect these to anchor any architect-level risk conversation.</p>
+  </div>
+</section>
+
+<!-- RISK OVERVIEW -->
+<section class="slide" id="risk-overview" data-search="risk categories overview customization project management data security development governance testing six risk types mitigation">
+  <div class="pgnum">Page 5 · 6 Risk Categories Overview</div>
+  <h2>Environment Risks &amp; Mitigation Strategies — Overview</h2>
+  <p class="lede">Six categories of risk are unique to Salesforce environments, each requiring targeted mitigation approaches.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>01 · Customization Risks</h4>
+      <p>Excessive customization can lead to issues such as unused features. Mitigation strategies such as user-centered design can be adopted.</p>
+    </div>
+    <div class="card">
+      <h4>02 · Project Management Risks</h4>
+      <p>Projects can be affected by issues such as scope creep, which can be mitigated by implementing a Change Control Board.</p>
+    </div>
+    <div class="card">
+      <h4>03 · Development Risks</h4>
+      <p>Development tasks can be affected by risks such as technical debt, which can be mitigated by regularly reviewing and refactoring custom code.</p>
+    </div>
+    <div class="card">
+      <h4>04 · Testing Risks</h4>
+      <p>Testing risks such as lack of isolation due to using a single sandbox can be mitigated by using separate environments or scratch orgs.</p>
+    </div>
+    <div class="card">
+      <h4>05 · Data Security &amp; Privacy Risks</h4>
+      <p>Customer data can be affected by issues such as unauthorized access. Mitigation strategies can focus on controlling access.</p>
+    </div>
+    <div class="card">
+      <h4>06 · Governance Risks</h4>
+      <p>Governance risks can cause issues such as difficulty in maintaining applications. Mitigation strategies such as design standards can be utilized.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: ENVIRONMENT RISKS & MITIGATION STRATEGIES -->
+<section class="slide title-slide" id="section-risks" data-search="section environment risks mitigation strategies">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Environment Risks &amp; Mitigation Strategies</h2>
+</section>
+
+<!-- CUSTOMIZATION RISKS -->
+<section class="slide" id="customization-risks" data-search="customization risks system performance user experience unused features updates integrations conflict salesforce updates governance framework user-centered design reviewed regularly refactored removed">
+  <div class="pgnum">Page 7 · Customization Risks</div>
+  <h2>Environment Risks &amp; Mitigation Strategies — Customization</h2>
+  <p class="lede">Appropriate strategies can be utilized to mitigate risks that are unique to Salesforce environments.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>The Risk</h4>
+      <p>Excessive customization in Salesforce can affect <strong>system performance</strong> and <strong>user experience</strong>. It can lead to many <strong>unused features</strong> and complex dependencies, making <strong>updates</strong> and <strong>integrations challenging</strong>. Customizations can also <strong>conflict with Salesforce updates</strong>, leading to functionality issues.</p>
+    </div>
+    <div class="card">
+      <h4>The Mitigation</h4>
+      <p>Implement a <strong>governance framework</strong> that sets clear guidelines on when and how to customize. <strong>User-centered design</strong> should be adopted to understand user needs. Customizations should be <strong>reviewed regularly</strong> for necessity and efficiency. Outdated or redundant <strong>custom code</strong> should be <strong>refactored</strong> or <strong>removed</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked how you handle over-customization, answer with the governance framework + user-centered design pair. Emphasize that a review cadence (quarterly audits, user adoption reports) catches creeping complexity before it becomes a maintenance burden. That is an architect-altitude answer, not a developer one.</p>
+  </div>
+</section>
+
+<!-- DATA SECURITY AND PRIVACY RISKS -->
+<section class="slide" id="data-security-risks" data-search="data security privacy risks potential breaches unauthorized access non-compliance data privacy laws customer trust legal financial authentication authorization event monitoring encryption salesforce shield data masking sandboxes">
+  <div class="pgnum">Page 8 · Data Security &amp; Privacy Risks</div>
+  <h2>Environment Risks &amp; Mitigation Strategies — Data Security</h2>
+  <p class="lede">Appropriate strategies can be utilized to mitigate risks that are unique to Salesforce environments.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>The Risk</h4>
+      <p>Customer data in Salesforce can be affected by <strong>potential breaches</strong> and <strong>unauthorized access</strong>. There may also be <strong>non-compliance with data privacy laws</strong>. These risks can cause lack of customer trust, legal consequences, and financial penalties.</p>
+    </div>
+    <div class="card">
+      <h4>The Mitigation</h4>
+      <p><strong>Strong user authentication and authorization</strong> practices should be used to control access to sensitive data. <strong>Event Monitoring</strong> can be used to identify unusual data access patterns. <strong>Data encryption</strong> features, such as <strong>Salesforce Shield</strong>, can be used to secure data at rest and in transit. <strong>Data masking</strong> can be used to protect sensitive data in sandboxes.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a central bank, PII and financial data protection is non-negotiable. Shield Platform Encryption + Event Monitoring together provide the audit trail and encryption-at-rest story regulators demand. Data masking in sandboxes prevents accidental PII exposure in lower environments — a control auditors will specifically ask about.</p>
+  </div>
+</section>
+
+<!-- GOVERNANCE RISKS -->
+<section class="slide" id="governance-risks" data-search="governance risks inadequate documentation understanding inconsistent development practices inadequate testing poor data quality difficulty maintaining comprehensive documentation design standards rigorous testing coding standards review processes data governance framework">
+  <div class="pgnum">Page 9 · Governance Risks</div>
+  <h2>Environment Risks &amp; Mitigation Strategies — Governance</h2>
+  <p class="lede">Appropriate strategies can be utilized to mitigate risks that are unique to Salesforce environments.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>The Risk</h4>
+      <p>Governance risks include <strong>inadequate documentation</strong> and <strong>understanding</strong> of the system's design, <strong>inconsistent development practices</strong>, <strong>inadequate testing processes</strong>, and <strong>poor data quality</strong>. These risks can cause <strong>difficulty in maintaining</strong> and <strong>using applications</strong>. They can also lead to <strong>challenges</strong> related to change management and system integrity.</p>
+    </div>
+    <div class="card">
+      <h4>The Mitigation</h4>
+      <p><strong>Comprehensive documentation</strong> should be maintained about the purpose of custom applications. <strong>Design standards</strong> should be established for custom objects and fields. <strong>Rigorous testing procedures</strong>, <strong>coding standards</strong>, and <strong>review processes</strong> should be implemented. A <strong>data governance framework</strong> should be used to improve and maintain data quality.</p>
+    </div>
+  </div>
+  <div class="note">Governance risks compound over time — a lack of documentation today becomes a multi-sprint archaeology project in two years. Establish standards early; retrofitting them is far more expensive.</div>
+</section>
+
+<!-- PROJECT MANAGEMENT RISKS -->
+<section class="slide" id="project-management-risks" data-search="project management risks inadequate planning poor requirement gathering scope creep budget overruns missed deadlines missed objectives wasted resources comprehensive project plan requirement gathering change control board change managers">
+  <div class="pgnum">Page 10 · Project Management Risks</div>
+  <h2>Environment Risks &amp; Mitigation Strategies — Project Management</h2>
+  <p class="lede">Appropriate strategies can be utilized to mitigate risks that are unique to Salesforce environments.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>The Risk</h4>
+      <p>Major project management risks include <strong>inadequate planning</strong>, <strong>poor requirement gathering</strong>, and <strong>scope creep</strong>. Failure to plan adequately can lead to <strong>budget overruns</strong> and <strong>missed deadlines</strong>. Vague or incomplete requirements can result in <strong>missed objectives</strong> and <strong>wasted resources</strong>. Scope creep occurs when the scope expands <strong>beyond the initial boundaries</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>The Mitigation</h4>
+      <p>A <strong>comprehensive project plan</strong> with clearly outlined scope, timeline, budget, and resources should be developed for each project. <strong>Thorough requirement gathering</strong> processes, involving key stakeholders, should be utilized. To manage scope creep, a <strong>Change Control Board</strong> can be established. <strong>Change managers</strong> can evaluate and approve change requests.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Change Control Board (CCB) is the canonical exam answer for scope creep management. Be ready to articulate who sits on it (business stakeholders, technical leads, release manager), how change requests are triaged by impact and urgency, and how decisions are documented — that is the audit trail regulated organizations require.</p>
+  </div>
+</section>
+
+<!-- DEVELOPMENT RISKS -->
+<section class="slide" id="development-risks" data-search="development risks technical debt resource limitations integration failures inefficient outdated code delay development tasks application functionality reviewed refactored regularly prioritized assigned impact urgency tested thoroughly compatibility error handling">
+  <div class="pgnum">Page 11 · Development Risks</div>
+  <h2>Environment Risks &amp; Mitigation Strategies — Development</h2>
+  <p class="lede">Appropriate strategies can be utilized to mitigate risks that are unique to Salesforce environments.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>The Risk</h4>
+      <p>Some of the major risks related to Salesforce development are <strong>technical debt</strong>, <strong>resource limitations</strong>, and <strong>integration failures</strong>. Technical debt is the accumulation of <strong>inefficient or outdated code</strong>. Insufficient resources can <strong>delay development tasks</strong>. Integration issues can <strong>affect application functionality</strong> and <strong>user experience</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>The Mitigation</h4>
+      <p>Custom code should be <strong>reviewed and refactored regularly</strong> while prioritizing clean and maintainable coding practices. Development tasks should be <strong>prioritized</strong> and <strong>assigned</strong> based on <strong>impact</strong> and <strong>urgency</strong>. Integrations should be <strong>tested thoroughly</strong> in a controlled environment, ensuring <strong>compatibility</strong> and <strong>proper error handling</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Technical debt in a regulated org is a compliance risk, not just a code quality issue. Undocumented, untested integrations become audit findings. A scheduled refactoring cadence (tracked as backlog items, not ad hoc) demonstrates the kind of proactive control posture that satisfies examiners and senior leadership alike.</p>
+  </div>
+</section>
+
+<!-- TESTING RISKS -->
+<section class="slide" id="testing-risks" data-search="testing risks insufficient test coverage manual testing time-consuming human error realistic test data mask potential issues same sandbox development testing lack of isolation functional changes comprehensive testing automated testing data masking techniques separate sandbox environments scratch orgs">
+  <div class="pgnum">Page 12 · Testing Risks</div>
+  <h2>Environment Risks &amp; Mitigation Strategies — Testing</h2>
+  <p class="lede">Appropriate strategies can be utilized to mitigate risks that are unique to Salesforce environments.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>The Risk</h4>
+      <p><strong>Insufficient test coverage</strong> can leave significant functionality untested. <strong>Manual testing</strong> can be time-consuming and prone to human error. <strong>Lack of realistic test data</strong> can mask potential issues in production. <strong>Using the same sandbox for development and testing</strong> results in <strong>lack of isolation</strong> and can cause <strong>functional changes throughout testing</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>The Mitigation</h4>
+      <p><strong>Comprehensive testing strategies</strong> should be implemented to ensure that all critical paths and functionalities are tested. <strong>Automated testing tools</strong> can be incorporated. <strong>Data masking techniques</strong> can be used to test with secured production data. <strong>Separate sandbox environments</strong> or <strong>scratch orgs</strong> should be used for development and testing.</p>
+    </div>
+  </div>
+  <div class="note">The single-sandbox anti-pattern is a frequent exam scenario: developers introducing changes mid-test-cycle corrupt the test environment. The answer is always separate environments or scratch orgs for isolation.</div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 13 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic innovations internet service provider over-customization maintenance upgrade data security governance project management development testing risk assessment mitigation strategies architect">
+  <div class="pgnum">Page 14 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Innovations</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Innovations, a prominent Internet Service Provider, faces multifaceted challenges in its Salesforce projects. The company frequently encounters risks related to over-customization leading to maintenance and upgrade issues, data security issues, inadequate governance structures, and project management difficulties.</p>
+    <p style="margin-top:8px;">Furthermore, their development processes suffer from inefficiencies, while their testing practices and procedures are often insufficient to cover all scenarios. To navigate these challenges, the company seeks the expertise of a seasoned Salesforce architect. This professional is tasked with conducting a thorough risk assessment and formulating comprehensive mitigation strategies based on the project requirements.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 15 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 customizing existing salesforce application customer data management unused features custom objects fields unauthorized access sensitive customer data mitigation strategy">
+  <div class="pgnum">Page 16 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company is currently planning a project that involves customizing an existing Salesforce application used for customer data management. However, its assessment of the application has uncovered several risks. Various <strong>unused features</strong> have been identified by analyzing user adoption reports. It is <strong>unclear how custom objects and fields are being used</strong>, which is causing difficulty in managing the application. Also, there are some unauthorized users who are able to <strong>access sensitive customer data</strong>. A comprehensive strategy is required to mitigate these risks before the project can move forward.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 user-centered design unused features design standards help text description field custom objects fields profiles permission sets field-level security shield platform encryption sensitive data">
+  <div class="pgnum">Page 17 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The company should adopt <strong>user-centered design</strong> to address the issue of unused features. User needs should be identified and understood clearly before customizing the application any further. To improve the maintainability and understanding of custom objects and fields, <strong>design standards</strong> should be created to <strong>require help text</strong> on all custom objects and fields and consistently use the <strong>description field</strong> to specify their purpose. <strong>Profiles, permission sets, and field-level security</strong> should be used to control access to sensitive data. <strong>Shield Platform Encryption</strong> can also be used to secure sensitive data.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For a Federal Reserve environment, the combination of field-level security (least-privilege access) and Shield Platform Encryption (encryption at rest) directly satisfies FISMA and internal IT security controls. Requiring help text and description fields on every custom object creates an auditable data dictionary — exactly what change-control audits ask for when reviewing schema modifications.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 DIAGRAM -->
+<section class="slide" id="solution-1-diagram" data-search="solution 1 mapping unused features user-centered design unknown usage design standards unauthorized access native security features profiles permission sets field-level security">
+  <div class="pgnum">Page 18 · Solution 1 — Risk-to-Mitigation Mapping</div>
+  <h2>Solution 1 — Risk-to-Mitigation Mapping</h2>
+  <table class="dttable">
+    <thead>
+      <tr><th>Risk Identified</th><th>Mitigation Applied</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Unused Features</td><td>User-Centered Design — identify and understand user needs before further customization</td></tr>
+      <tr><td>Unknown Usage (custom objects &amp; fields)</td><td>Design Standards — require help text and description fields on all custom objects and fields</td></tr>
+      <tr><td>Unauthorized Access to sensitive data</td><td>Native Security Features — Profiles, Permission Sets, Field-Level Security, and Shield Platform Encryption</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 development team IT department custom application IT support staff internal support requests budget release date precise requirements unknown scope creep single sandbox development testing limited sandbox licenses">
+  <div class="pgnum">Page 19 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A development team within the company has been tasked with working on a project for the IT department. A new custom application is required in Salesforce to allow IT support staff to manage internal support requests. The project's budget and release date have been set, but the <strong>precise requirements are still unknown</strong>. In addition, the project manager is concerned about <strong>scope creep</strong> due to her past experience with similar projects. Also, due to limited sandbox licenses and several development streams, she has insisted the <strong>use of a single sandbox for development and testing</strong>.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 agile methodology unknown requirements evolving requirements timeline budget scope creep change control board change managers review approve prioritize single sandbox functional changes throughout testing scratch orgs isolated testing limited sandbox licenses">
+  <div class="pgnum">Page 20 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>To mitigate the risk of proceeding with unknown requirements, an <strong>agile methodology</strong> could be adopted, which would accommodate evolving requirements while maintaining control over the project's timeline and budget. Scope creep can be managed by establishing a <strong>Change Control Board</strong>. <strong>Change managers</strong> can review, approve, and prioritize change requests based on their impact and urgency. Using a single sandbox for development and testing can result in testers experiencing <strong>functional changes throughout testing</strong> due to lack of isolation. <strong>Scratch orgs</strong> can be utilized for isolated testing due to limited sandbox licenses.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This scenario is a classic exam setup: fixed timeline + unknown requirements + shared sandbox. The three-part answer — agile for requirement uncertainty, CCB for scope creep, scratch orgs for test isolation — maps precisely to the three risks in the scenario. Memorize the pattern: one mitigation per risk, using the canonical Salesforce tool or practice.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 DIAGRAM -->
+<section class="slide" id="solution-2-diagram" data-search="solution 2 mapping unknown requirements agile methodology scope creep change managers dual-purpose sandbox scratch orgs isolated testing">
+  <div class="pgnum">Page 21 · Solution 2 — Risk-to-Mitigation Mapping</div>
+  <h2>Solution 2 — Risk-to-Mitigation Mapping</h2>
+  <table class="dttable">
+    <thead>
+      <tr><th>Risk Identified</th><th>Mitigation Applied</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Unknown Requirements</td><td>Agile Methodology — accommodate evolving requirements while maintaining timeline and budget control</td></tr>
+      <tr><td>Scope Creep</td><td>Change Managers — establish a Change Control Board; review, approve, and prioritize change requests by impact and urgency</td></tr>
+      <tr><td>Dual-Purpose Sandbox (dev + test)</td><td>Scratch Orgs — provide isolated testing environments when sandbox licenses are limited</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more relationship design data security salesforce agile practices gather requirements increase productivity integrated tools further reading trailhead">
+  <div class="pgnum">Page 22 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Relationship Design</li>
+    <li>Data Security</li>
+    <li>Learn Salesforce Agile Practices</li>
+    <li>Gather Requirements</li>
+    <li>Increase Productivity with Integrated Tools</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points environment risks mitigation customization data security governance project management development testing exam traps decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Environment Risks &amp; Mitigation</h2>
+
+  <h3>Risk-to-Mitigation Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Risk Category</th><th>Key Risk(s)</th><th>Primary Mitigation(s)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Customization</strong></td>
+        <td>Unused features, complex dependencies, conflicts with updates</td>
+        <td>Governance framework, user-centered design, regular review &amp; refactoring</td>
+      </tr>
+      <tr>
+        <td><strong>Data Security &amp; Privacy</strong></td>
+        <td>Unauthorized access, breaches, non-compliance with privacy laws</td>
+        <td>Strong auth/authorization, Event Monitoring, Shield Platform Encryption, data masking</td>
+      </tr>
+      <tr>
+        <td><strong>Governance</strong></td>
+        <td>Inadequate documentation, inconsistent practices, poor data quality</td>
+        <td>Comprehensive documentation, design standards, rigorous testing, data governance framework</td>
+      </tr>
+      <tr>
+        <td><strong>Project Management</strong></td>
+        <td>Inadequate planning, poor requirements, scope creep</td>
+        <td>Comprehensive project plan, thorough requirement gathering, Change Control Board</td>
+      </tr>
+      <tr>
+        <td><strong>Development</strong></td>
+        <td>Technical debt, resource limitations, integration failures</td>
+        <td>Regular code review &amp; refactoring, priority-based task assignment, thorough integration testing</td>
+      </tr>
+      <tr>
+        <td><strong>Testing</strong></td>
+        <td>Insufficient coverage, manual error, shared sandbox lack of isolation</td>
+        <td>Comprehensive testing strategy, automated tools, data masking, separate sandboxes or scratch orgs</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Scenario Pattern: Three Risks, Three Mitigations</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Scenario Risk</th><th>Canonical Mitigation</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Unused features</td><td>User-centered design</td></tr>
+      <tr><td>Unknown custom object usage</td><td>Design standards (help text + description field)</td></tr>
+      <tr><td>Unauthorized data access</td><td>Profiles, permission sets, field-level security, Shield Platform Encryption</td></tr>
+      <tr><td>Unknown / evolving requirements</td><td>Agile methodology</td></tr>
+      <tr><td>Scope creep</td><td>Change Control Board + change managers</td></tr>
+      <tr><td>Single sandbox (no test isolation)</td><td>Scratch orgs for isolated testing</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Scratch orgs are the answer when sandbox licenses are limited</strong> — they are ephemeral, source-driven, and cost no sandbox license quota.</li>
+    <li><strong>Data masking applies in sandboxes</strong>, not production — it protects PII in lower environments, not in the live org.</li>
+    <li><strong>Event Monitoring</strong> detects unusual access patterns after the fact — pair it with authentication/authorization controls for a complete security posture.</li>
+    <li><strong>Shield Platform Encryption</strong> (not standard encryption) is the answer when you need encryption at rest for specific sensitive fields.</li>
+    <li><strong>Change Control Board ≠ Architecture Review Board</strong> — CCB approves scope changes during a project; ARB reviews architecture and design decisions before/during build.</li>
+    <li><strong>Technical debt is an accumulation risk</strong> — it compounds silently; the mitigation is a scheduled, recurring review cadence, not a one-off cleanup.</li>
+    <li>Governance documentation (help text, description fields, design standards) is not optional overhead — it is the audit trail that change-control processes depend on.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a central bank platform engineer, the highest-priority risk categories are <strong>Data Security</strong> (regulatory obligation) and <strong>Governance</strong> (auditability). Every architecture decision — from sandbox strategy to encryption choices — must be traceable back to a documented, reviewed, approved control. The CCB, ARB, design standards, and Event Monitoring are not optional nice-to-haves; they are the evidence package that satisfies examiners and senior leadership during audits and incident reviews.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

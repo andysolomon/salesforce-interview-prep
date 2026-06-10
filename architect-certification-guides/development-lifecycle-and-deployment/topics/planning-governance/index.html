@@ -1,0 +1,1225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning — Governance — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Planning — Governance</h1>
+  <div class="sub">Governance framework, Center of Excellence &amp; change management · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (54 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+    </ul>
+    <h3>Governance</h3>
+    <ul>
+      <li><a href="#governance-section">Governance section title</a></li>
+      <li><a href="#what-is-governance">What is Governance?</a></li>
+      <li><a href="#governance-maturity-stages">Governance stages of maturity</a></li>
+      <li><a href="#importance-of-governance">Importance of governance</a></li>
+      <li><a href="#benefits-pitfalls">Benefits and pitfalls</a></li>
+      <li><a href="#governance-subdomains">Governance subdomains</a></li>
+    </ul>
+    <h3>Governance Framework</h3>
+    <ul>
+      <li><a href="#governance-framework-section">Governance Framework section title</a></li>
+      <li><a href="#developing-framework-1">Developing a framework (steps 1–5)</a></li>
+      <li><a href="#developing-framework-2">Developing a framework (steps 6–10)</a></li>
+      <li><a href="#governance-categories">Governance categories</a></li>
+      <li><a href="#governance-requirements">Governance requirements</a></li>
+      <li><a href="#governance-team">Governance team</a></li>
+      <li><a href="#design-standards">Design standards</a></li>
+      <li><a href="#release-deployment-strategy">Release and deployment strategy</a></li>
+      <li><a href="#backlog-prioritization">Backlog prioritization</a></li>
+    </ul>
+    <h3>Center Of Excellence</h3>
+    <ul>
+      <li><a href="#coe-section">CoE section title</a></li>
+      <li><a href="#need-for-coe-impl">Need for CoE — implementation &amp; challenges</a></li>
+      <li><a href="#need-for-coe-vision">Need for CoE — vision &amp; balance</a></li>
+      <li><a href="#need-for-coe-processes">Need for CoE — processes &amp; growth</a></li>
+      <li><a href="#coe-models">CoE models</a></li>
+      <li><a href="#building-coe">Building a CoE</a></li>
+      <li><a href="#people-roles-main">People &amp; roles — main roles</a></li>
+      <li><a href="#people-roles-additional">People &amp; roles — additional roles</a></li>
+      <li><a href="#program-charter-1">Program charter — key members &amp; decisions</a></li>
+      <li><a href="#program-charter-2">Program charter — meeting cadence</a></li>
+      <li><a href="#meetings-1">Meetings — types &amp; program mgmt</a></li>
+      <li><a href="#meetings-2">Meetings — exec sponsor &amp; focus areas</a></li>
+      <li><a href="#decisions-deliverables">Decisions &amp; deliverables</a></li>
+      <li><a href="#coe-growth">CoE growth</a></li>
+      <li><a href="#running-coe">Running a CoE</a></li>
+      <li><a href="#effective-coe">Effective CoE</a></li>
+    </ul>
+    <h3>Change Management</h3>
+    <ul>
+      <li><a href="#change-mgmt-section">Change Management section title</a></li>
+      <li><a href="#change-management-def">Change management defined</a></li>
+      <li><a href="#change-mgmt-process-1">Change mgmt process — initiate/plan</a></li>
+      <li><a href="#change-mgmt-process-2">Change mgmt process — operationalize &amp; validate</a></li>
+      <li><a href="#key-users">Key users</a></li>
+      <li><a href="#effective-change-1">Effective change mgmt (steps 1–5)</a></li>
+      <li><a href="#effective-change-2">Effective change mgmt (steps 6–9)</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#biz-scenario-section">Business Scenario section title</a></li>
+      <li><a href="#business-scenario">Business scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#req-solutions-section">Requirements &amp; Solutions section title</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1a">Solution 1 (narrative)</a></li>
+      <li><a href="#solution-1b">Solution 1 (summary)</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2a">Solution 2 (part 1)</a></li>
+      <li><a href="#solution-2b">Solution 2 (part 2)</a></li>
+      <li><a href="#solution-2c">Solution 2 (part 3 summary)</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- ============ COVER ============ -->
+<section class="slide title-slide" id="cover" data-search="cover planning governance focusonforce development lifecycle deployment architect">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Planning — Governance</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer scenario, analyze and recommend the appropriate governance framework. · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- ============ TOC ============ -->
+<section class="slide" id="toc-slide" data-search="table of contents governance framework center of excellence change management business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#what-is-governance">Governance</a></li>
+    <li><a class="toc-link" href="#developing-framework-1">Governance Framework</a></li>
+    <li><a class="toc-link" href="#coe-section">Center Of Excellence</a></li>
+    <li><a class="toc-link" href="#change-mgmt-section">Change Management</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- ============ OBJECTIVES ============ -->
+<section class="slide" id="objectives" data-search="learning objectives governance importance key components framework center of excellence coe change management effective process">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Define governance and identify its <strong>importance and key components</strong>.</li>
+    <li>Describe how to develop a <strong>governance framework</strong> and identify the related considerations.</li>
+    <li>Describe the functions of a <strong>Center of Excellence (CoE)</strong> and explain how to build it.</li>
+    <li>Define <strong>change management</strong> and describe how to implement an effective change management process.</li>
+  </ul>
+</section>
+
+<!-- ============ INTRODUCTION ============ -->
+<section class="slide" id="introduction" data-search="introduction governance framework rules processes responsibilities center of excellence coe strategic planning project execution standards change management">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>A robust <strong>governance framework</strong> in Salesforce is crucial for aligning projects with business objectives and ensuring effective management. This framework should involve <strong>clear rules, processes, and responsibilities</strong>, guided by a <strong>Center of Excellence (CoE)</strong>.</p>
+  <p>The CoE coordinates <strong>strategic planning</strong> and <strong>project execution</strong>, ensuring adherence to <strong>standards</strong>. It harmonizes efforts across various teams, ensuring everyone works towards a common goal and adheres to the established standards. Additionally, effective <strong>change management</strong> is an integral part of a governance framework since it facilitates smooth transitions and adoption of new processes and technologies.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a central bank, every one of these concepts is mandatory, not optional. "Clear rules, processes, and responsibilities" plus a CoE that enforces standards maps directly to the Federal Reserve's governance requirements: documented controls, cross-functional oversight, and a change management process that is auditable end-to-end.</p>
+  </div>
+</section>
+
+<!-- ============ GOVERNANCE SECTION ============ -->
+<section class="slide title-slide" id="governance-section" data-search="governance section">
+  <div class="pgnum" style="color:#cbd6e6">Page 5 · Section</div>
+  <h2>Governance</h2>
+</section>
+
+<!-- ============ WHAT IS GOVERNANCE ============ -->
+<section class="slide" id="what-is-governance" data-search="what is governance minimal set processes business outcomes quality timeframe unique focus partnership it policies best practices">
+  <div class="pgnum">Page 6 · Governance</div>
+  <h2>What is Governance?</h2>
+  <p class="lede">Governance is the <strong>minimal set of processes</strong> needed for a program to deliver <strong>business outcomes</strong> with the <strong>quality</strong> required and within the <strong>business timeframe</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Unique</h4>
+      <p>Governance is the result of an accumulation of <strong>decisions, actions, and planning</strong> that are <strong>unique</strong> to the team, department, and organization.</p>
+    </div>
+    <div class="card">
+      <h4>Focus</h4>
+      <p>It helps the program team <strong>focus on the business backlog</strong> while <strong>adhering to IT policies and best practices</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Partnership</h4>
+      <p>In a <strong>comprehensive governance framework</strong>, <strong>business</strong> and <strong>IT</strong> work together to build and manage mission critical <strong>Salesforce solutions</strong>.</p>
+    </div>
+  </div>
+  <p>The components of a governance program fall into four major categories: <strong>Center of Excellence (CoE)</strong>, <strong>Change Management</strong>, <strong>Org Strategy</strong>, and <strong>Technical Governance</strong>. Change Management is the process used to identify, prioritize, assign, execute and communicate changes; the Change Control Board reviews and approves change requests.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The definition — "minimal processes to deliver outcomes within required quality and timeframe" — is the answer when a Fed interviewer asks why governance isn't just bureaucracy. Governance is the <em>minimum</em> needed to deliver reliably; over-governing slows delivery while under-governing creates uncontrolled risk. Calibrate to maturity.</p>
+  </div>
+</section>
+
+<!-- ============ GOVERNANCE MATURITY STAGES ============ -->
+<section class="slide" id="governance-maturity-stages" data-search="governance stages maturity non-existent basic emerging practicing leading four stages desired maturity framework">
+  <div class="pgnum">Page 7 · Governance Stages of Maturity</div>
+  <h2>Governance Stages of Maturity</h2>
+  <p class="lede">The <strong>desired maturity level</strong> should be considered when developing a <strong>governance framework</strong>. There are <strong>four stages of maturity</strong>.</p>
+  <table class="dttable">
+    <thead><tr><th>Stage</th><th>Name</th><th>Characteristics</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Non-Existent / Basic</strong></td><td>Little or no governance processes; ad hoc decision-making, no standards, changes made directly in production.</td></tr>
+      <tr><td>2</td><td><strong>Emerging</strong></td><td>Governance awareness is growing; some processes exist but are inconsistently applied across teams.</td></tr>
+      <tr><td>3</td><td><strong>Practicing</strong></td><td>Governance processes are defined, documented, and consistently followed; CoE in place with clear roles and a program charter.</td></tr>
+      <tr><td>4</td><td><strong>Leading</strong></td><td>Governance is optimized and continuously improved; architecture review boards, automated quality gates, full change control, AARs.</td></tr>
+    </tbody>
+  </table>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked "how mature is your current org's governance?" position yourself at Stage 3 heading toward 4: consistent CoE processes, source control as the source of truth, repeatable deployment pipeline — and describe the AARs or retrospectives you use to continuously improve.</p>
+  </div>
+</section>
+
+<!-- ============ IMPORTANCE OF GOVERNANCE ============ -->
+<section class="slide" id="importance-of-governance" data-search="importance governance innovation compliance velocity delivery reduced risk data security application roadmap business velocity quality deliverable">
+  <div class="pgnum">Page 8 · Importance of Governance</div>
+  <h2>Importance of Governance</h2>
+  <p class="lede">Governance enables <strong>innovation</strong>, <strong>compliance</strong>, <strong>velocity</strong>, <strong>delivery</strong>, and <strong>reduced risk</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Innovation</h4>
+      <p>Governance allows business areas to <strong>innovate at their own pace</strong> through adoption of agile and new features and functionality.</p>
+    </div>
+    <div class="card">
+      <h4>Compliance</h4>
+      <p>Governance ensures proper <strong>data security, visibility, and access</strong> in a new solution to meet the <strong>compliance requirements</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Velocity</h4>
+      <p>Governance ensures the consistency of prioritization and application roadmap development to drive <strong>business velocity</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Delivery</h4>
+      <p>Governance improves the <strong>quality of the deliverable</strong> through the documentation of best practices for the organization.</p>
+    </div>
+    <div class="card">
+      <h4>Reduced Risk</h4>
+      <p>Governance <strong>reduces business risks</strong> by delivering what the business requires and when it requires it.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The compliance and reduced-risk dimensions are non-negotiable at the Federal Reserve. Data security, visibility, and access controls are regulatory requirements, not suggestions. Frame every governance conversation through this lens: "which of these five outcomes are we protecting?"</p>
+  </div>
+</section>
+
+<!-- ============ BENEFITS AND PITFALLS ============ -->
+<section class="slide" id="benefits-pitfalls" data-search="benefits pitfalls governance good poor alignment low adoption increased costs reduced value program risk slow delivery agility innovation compliance">
+  <div class="pgnum">Page 9 · Benefits and Pitfalls</div>
+  <h2>Benefits and Pitfalls of Governance</h2>
+  <p class="lede">There are various <strong>benefits and pitfalls</strong> associated with governance.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Benefits</h4>
+      <p>A <strong>good governance framework</strong> drives business value, reduces and manages risk, enables improved agility, innovation, and compliance, and ensures timely delivery.</p>
+    </div>
+    <div class="card">
+      <h4>Pitfalls</h4>
+      <p>A <strong>poor governance framework</strong> causes a lack of alignment between business and IT, low solution adoption, increased costs, reduced value, increased program risk, and slow delivery of capabilities.</p>
+    </div>
+  </div>
+  <div class="note">The pitfalls list is the exam's "why does governance matter" answer bank. If asked about governance failure modes: misalignment, low adoption, cost overruns, slow delivery, and program risk.</div>
+</section>
+
+<!-- ============ GOVERNANCE SUBDOMAINS ============ -->
+<section class="slide" id="governance-subdomains" data-search="governance subdomains vision strategy principles business backlog communication strategy data architecture stakeholder management source of truth">
+  <div class="pgnum">Page 10 · Governance Subdomains</div>
+  <h2>Governance Subdomains</h2>
+  <p class="lede">There are several <strong>key subdomains</strong> that help <strong>create governance</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Vision &amp; Strategy</h4>
+      <p>A clear vision and strategy are defined, including business objectives, steps to achieve them, and metrics to measure progress.</p>
+    </div>
+    <div class="card">
+      <h4>Principles</h4>
+      <p>Using the principles of software engineering, a clear development, testing, and QA process is created for all teams.</p>
+    </div>
+    <div class="card">
+      <h4>Business Backlog</h4>
+      <p>Users who will own and prioritize the requirements backlog and what they will consider are defined.</p>
+    </div>
+    <div class="card">
+      <h4>Communication Strategy</h4>
+      <p>A communication strategy is defined to ensure governance alignment across all stakeholders.</p>
+    </div>
+    <div class="card">
+      <h4>Data Architecture</h4>
+      <p>A business-data model is created, and the <strong>source of truth</strong>, where all data is collected and managed, is determined.</p>
+    </div>
+    <div class="card">
+      <h4>Stakeholder Management</h4>
+      <p>All stakeholders who should help determine or understand the governance framework are defined.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GOVERNANCE FRAMEWORK SECTION ============ -->
+<section class="slide title-slide" id="governance-framework-section" data-search="governance framework section">
+  <div class="pgnum" style="color:#cbd6e6">Page 11 · Section</div>
+  <h2>Governance Framework</h2>
+</section>
+
+<!-- ============ DEVELOPING FRAMEWORK 1–5 ============ -->
+<section class="slide" id="developing-framework-1" data-search="developing governance framework steps delivery challenges maturity core processes vision strategy stakeholders own prioritize requirements data architecture management">
+  <div class="pgnum">Page 12 · Developing a Governance Framework (Steps 1–5)</div>
+  <h2>Developing a Governance Framework — Steps 1–5</h2>
+  <p class="lede">The following <strong>steps</strong> are followed to <strong>create a governance framework</strong>:</p>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>The <strong>delivery challenges</strong> for the program are <strong>documented</strong>.</td></tr>
+      <tr><td>2</td><td>The <strong>maturity</strong> in the <strong>core framework processes</strong> is understood.</td></tr>
+      <tr><td>3</td><td>A <strong>clear vision and strategy</strong> are defined, followed by engaging stakeholders and gaining their alignment.</td></tr>
+      <tr><td>4</td><td>The business must <strong>own and prioritize</strong> its requirements.</td></tr>
+      <tr><td>5</td><td>The current approach to <strong>data architecture and management</strong> is reviewed.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ DEVELOPING FRAMEWORK 6–10 ============ -->
+<section class="slide" id="developing-framework-2" data-search="developing governance framework steps 6 7 8 9 10 software engineering foundational processes defined follow constantly reviewed improvements maturity">
+  <div class="pgnum">Page 13 · Developing a Governance Framework (Steps 6–10)</div>
+  <h2>Developing a Governance Framework — Steps 6–10</h2>
+  <p class="lede">The following <strong>steps</strong> continue the creation of a <strong>governance framework</strong>:</p>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>6</td><td>The <strong>basic principles of software engineering</strong> are implemented.</td></tr>
+      <tr><td>7</td><td><strong>Foundational processes</strong> are implemented.</td></tr>
+      <tr><td>8</td><td>All projects within the program should <strong>follow the defined processes</strong>.</td></tr>
+      <tr><td>9</td><td><strong>Additional processes</strong> based on challenges are considered.</td></tr>
+      <tr><td>10</td><td><strong>Processes</strong> are <strong>constantly reviewed</strong> for improvements in their maturity.</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Step 10 — <strong>continuous review for maturity improvements</strong> — is the backbone of a living governance framework. This maps to AARs (After Action Reports) and retrospectives that the effective CoE slide also emphasizes.</div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Steps 1–2 (document challenges, assess maturity) before prescribing solutions is exactly the architect mindset the Fed expects. You don't parachute in a governance framework; you diagnose first. Use this 10-step sequence as your "how I would approach governance at a new organization" answer.</p>
+  </div>
+</section>
+
+<!-- ============ GOVERNANCE CATEGORIES ============ -->
+<section class="slide" id="governance-categories" data-search="governance categories center of excellence change management org strategy technical governance four major categories foundational orgs guiding principles">
+  <div class="pgnum">Page 14 · Governance Categories</div>
+  <h2>The Four Governance Categories</h2>
+  <p class="lede">The components of a <strong>governance program</strong> fall into four major categories.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Center of Excellence</h4>
+      <p>A group of cross-functional experts responsible for <strong>setting best practices, governance, and standards</strong> across the organization.</p>
+    </div>
+    <div class="card">
+      <h4>Change Management</h4>
+      <p>The process of <strong>managing change</strong> within the overall program or project lifecycle, from collecting requirements through go-live in production.</p>
+    </div>
+    <div class="card">
+      <h4>Org Strategy</h4>
+      <p>Refers to the <strong>design and structure</strong> of the foundational orgs that contain Salesforce applications.</p>
+    </div>
+    <div class="card">
+      <h4>Technical Governance</h4>
+      <p>Covers the <strong>guiding principles</strong> used to develop the <strong>technical aspects</strong> of Salesforce.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked "what does a governance framework consist of?" this four-part answer — CoE, Change Management, Org Strategy, Technical Governance — is the canonical Salesforce response. Memorize the quad.</p>
+  </div>
+</section>
+
+<!-- ============ GOVERNANCE REQUIREMENTS ============ -->
+<section class="slide" id="governance-requirements" data-search="governance requirements organization center of excellence aligned clear goal vision decision making key aspects right team best practices managing salesforce instance">
+  <div class="pgnum">Page 15 · Governance Requirements</div>
+  <h2>Governance Requirements</h2>
+  <p class="lede">Governance ensures that the <strong>organization and Center of Excellence are aligned</strong> for the success of Salesforce implementations.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Clear Goal</h4>
+      <p>Governance requires a <strong>clear goal or vision</strong> for the organization and the use of Salesforce, which can be referred to throughout the decision-making process.</p>
+    </div>
+    <div class="card">
+      <h4>Key Aspects</h4>
+      <p>Governance involves assembling the <strong>right team</strong>, defining <strong>vision and strategies</strong>, and implementing the <strong>best practices</strong> for managing a Salesforce instance.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GOVERNANCE TEAM ============ -->
+<section class="slide" id="governance-team" data-search="governance team right team size small group 10 members key stakeholders executive director ceo directors business units inclusivity salesforce administrator implementing governance decisions">
+  <div class="pgnum">Page 16 · Governance Team</div>
+  <h2>Governance Team</h2>
+  <p class="lede">The success of a governance process relies on <strong>assembling the right team</strong>.</p>
+  <ul>
+    <li>The size of the governance team can vary from a <strong>small group of a few individuals to a team of up to 10 members</strong>, depending on the organization's size and needs.</li>
+    <li><strong>Key stakeholders</strong> — like the Executive Director, CEO, Directors of Business Units, technical staff, business owners, and end users — should be included in the Center of Excellence.</li>
+    <li><strong>Inclusivity</strong> is crucial; the aim should be to build a <strong>diverse</strong> team. The <strong>Salesforce Administrator</strong> is an essential team member responsible for implementing governance decisions.</li>
+  </ul>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Fed, "assembling the right team" means including Compliance, InfoSec, and Risk Management as governance stakeholders — not just IT and business owners. Explicitly naming those non-traditional participants shows you understand regulated-environment governance.</p>
+  </div>
+</section>
+
+<!-- ============ DESIGN STANDARDS ============ -->
+<section class="slide" id="design-standards" data-search="design standards naming conventions description fields custom apex classes triggers annotated plain english documentation standard template regular audits compliance governance">
+  <div class="pgnum">Page 17 · Design Standards</div>
+  <h2>Design Standards</h2>
+  <p class="lede"><strong>Clear and compatible design standards</strong> associated with the vision can be defined.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Naming Conventions</h4>
+      <p><strong>Clear naming conventions</strong> should be defined. For example, all custom objects, fields, and classes can be appended with a 3-digit code of the business unit that made the request.</p>
+    </div>
+    <div class="card">
+      <h4>Description Fields</h4>
+      <p>Use of <strong>description fields</strong> should be <strong>clearly defined</strong>. For example, all description fields must contain the name of the business unit that requested it and contain links to dependencies.</p>
+    </div>
+    <div class="card">
+      <h4>Apex Annotations</h4>
+      <p><strong>Custom Apex classes and triggers</strong> should be <strong>annotated with plain English explanations</strong> of logic. For example, a trigger can include what it does when a certain action occurs.</p>
+    </div>
+    <div class="card">
+      <h4>Design Documentation</h4>
+      <p>Design documentation should use a <strong>standard template</strong> and include at least <strong>one image</strong>. It should be <strong>easily accessible</strong>, and <strong>regular audits</strong> must be performed to ensure compliance.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Regular audits of documentation for compliance is a direct parallel to OCC/Fed examination requirements. Plain-English code annotations and standardized design templates mean any examiner or auditor can understand what a component does without needing to decipher code — this is auditability by design.</p>
+  </div>
+</section>
+
+<!-- ============ RELEASE AND DEPLOYMENT STRATEGY ============ -->
+<section class="slide" id="release-deployment-strategy" data-search="release deployment strategy internal release compatible new core features deployment lifecycle development qa uat staging production consistent sandboxes trust adoption">
+  <div class="pgnum">Page 18 · Release and Deployment Strategy</div>
+  <h2>Release and Deployment Strategy</h2>
+  <p class="lede">An <strong>internal release strategy</strong> should ensure that releases are compatible with new core features. A <strong>deployment strategy</strong> defines how to create, test, and deploy changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Consistent Release Cadence</h4>
+      <p>A <strong>consistent release strategy</strong> allows communicating with users <strong>promptly and effectively</strong> and ensures that sandboxes are <strong>created or refreshed in time</strong> for pre-release versions.</p>
+    </div>
+    <div class="card">
+      <h4>Trust &amp; Adoption</h4>
+      <p>Consistent internal releases <strong>build trust and foster the adoption</strong> of Salesforce. Release communication should include an area that <strong>thanks users who contributed ideas</strong> for enhancements.</p>
+    </div>
+    <div class="card">
+      <h4>Deployment Lifecycle</h4>
+      <p>Changes should be <strong>developed and tested in a sandbox</strong> and <strong>deployed safely</strong>. A typical deployment lifecycle consists of stages such as development, QA, UAT, staging, and production.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BACKLOG PRIORITIZATION ============ -->
+<section class="slide" id="backlog-prioritization" data-search="backlog prioritization center of excellence CoE regularly enhancements feature requests strategy business unit organizational vision requests jira confluence slack alignment decision-making timelines">
+  <div class="pgnum">Page 19 · Backlog Prioritization</div>
+  <h2>Backlog Prioritization</h2>
+  <p class="lede">In larger organizations, the <strong>Center of Excellence</strong> should meet regularly to <strong>prioritize the backlog</strong> of enhancements and feature requests.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Strategy</h4>
+      <p>The group's <strong>understanding of each business unit and the organizational vision</strong> guides the <strong>strategic sequencing</strong> of projects.</p>
+    </div>
+    <div class="card">
+      <h4>Requests</h4>
+      <p>The use of <strong>transparent systems</strong> like <strong>Jira, Confluence, or Slack</strong> is suggested for managing requests and fostering user engagement.</p>
+    </div>
+    <div class="card">
+      <h4>Alignment</h4>
+      <p><strong>Publicizing decision-making processes</strong> and <strong>project timelines</strong> helps align end-users with the organization's vision and set clear expectations.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Fed uses Jira-style tooling for work tracking. Say that you've used transparent backlog tools to surface the CoE's prioritization logic — not just "we decided internally" but publicly posted so teams can see the rationale. Transparency in prioritization reduces shadow IT and unsanctioned changes.</p>
+  </div>
+</section>
+
+<!-- ============ CENTER OF EXCELLENCE SECTION ============ -->
+<section class="slide title-slide" id="coe-section" data-search="center of excellence section">
+  <div class="pgnum" style="color:#cbd6e6">Page 20 · Section</div>
+  <h2>Center Of Excellence</h2>
+</section>
+
+<!-- ============ NEED FOR COE — IMPLEMENTATION & CHALLENGES ============ -->
+<section class="slide" id="need-for-coe-impl" data-search="need center of excellence CoE driven size ambition salesforce footprint implementation agile running efficiently meets needs challenges running over budget user adoption multiple partners falling behind schedule">
+  <div class="pgnum">Page 21 · Need for CoE — Implementation &amp; Challenges</div>
+  <h2>Need for a Center of Excellence</h2>
+  <p class="lede">The need for a <strong>Center of Excellence (CoE)</strong> is driven by many factors, including the <strong>size, ambition, and Salesforce footprint</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Implementation</h4>
+      <p>CoE ensures that a Salesforce implementation is <strong>agile, running efficiently</strong>, and <strong>meets the needs of the staff</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Challenges</h4>
+      <p>CoE can help deal with challenges such as <strong>running over budget</strong>, <strong>issues convincing users to adopt new functions</strong>, <strong>challenges working with multiple partners</strong>, <strong>falling behind schedule</strong> due to lack of decision-making, etc.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEED FOR COE — VISION & BALANCE ============ -->
+<section class="slide" id="need-for-coe-vision" data-search="need center of excellence vision CRM features functions success divergent convergent views requirements timelines resources balance organization driven">
+  <div class="pgnum">Page 22 · Need for CoE — Vision &amp; Balance</div>
+  <h2>Need for a CoE — Vision &amp; Balance</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Vision</h4>
+      <p>The need for CoE should be driven by the organization's <strong>vision</strong>. The vision directly impacts <strong>how a Salesforce instance is used</strong> and its <strong>success</strong>. It can be used only as a CRM or for all the features and functions required by an organization.</p>
+    </div>
+    <div class="card">
+      <h4>Balance</h4>
+      <p>It ensures that the <strong>divergent and convergent views and requirements</strong> are balanced against the <strong>available timelines and resources</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEED FOR COE — PROCESSES & GROWTH ============ -->
+<section class="slide" id="need-for-coe-processes" data-search="need center of excellence processes streamlines best practices removing inefficiencies outdated growth risk business technology experts impact readiness decisions least risky mitigates loss subject matter experts">
+  <div class="pgnum">Page 23 · Need for CoE — Processes &amp; Growth</div>
+  <h2>Need for a CoE — Processes &amp; Growth &amp; Risk</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Processes</h4>
+      <p>A CoE <strong>streamlines organizational processes</strong>, selecting <strong>best practices</strong> from across multiple groups and <strong>removing inefficiencies</strong> and methods that have become <strong>outdated</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Growth &amp; Risk</h4>
+      <p><strong>Business and technology experts</strong> on the CoE can help <strong>examine the impact of growth</strong> and <strong>ensure readiness</strong> to expand Salesforce usage. A CoE also ensures that the <strong>decisions made are the least risky possible</strong>. It <strong>balances</strong> a wide range of opinions and approaches and <strong>mitigates the loss of subject matter experts</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>"Mitigates the loss of subject matter experts" is a real Fed concern — regulatory expertise in personnel is a key risk. A CoE that captures institutional knowledge in documented standards, patterns, and a program charter reduces key-person dependency — important in any organization where departures can leave critical knowledge gaps.</p>
+  </div>
+</section>
+
+<!-- ============ COE MODELS ============ -->
+<section class="slide" id="coe-models" data-search="center of excellence models consolidated federated confederated hybrid single platform shared approach independent group unified CRM separate Salesforce instances">
+  <div class="pgnum">Page 24 · Center of Excellence Models</div>
+  <h2>Center of Excellence Models</h2>
+  <p class="lede">One of three <strong>CoE models</strong> or a hybrid can be utilized for a Center of Excellence.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Consolidated</h4>
+      <p>Teams work in a <strong>single platform</strong> with a <strong>shared approach to data, constituents, and requirements</strong> for a unified CRM experience.</p>
+    </div>
+    <div class="card">
+      <h4>Federated</h4>
+      <p>A federated model allows for <strong>independent group operation</strong> while <strong>maintaining a unified approach</strong> to CRM data.</p>
+    </div>
+    <div class="card">
+      <h4>Confederated</h4>
+      <p>In a confederated model, <strong>each group may operate independently</strong>, potentially using <strong>separate Salesforce instances</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Federated CoE is the most common answer for large regulated enterprises with multiple business lines: independent execution within a shared governance umbrella. Be prepared to argue why Confederated (separate orgs) is sometimes necessary for data-residency or regulatory boundary reasons — relevant for the Fed's regional structure.</p>
+  </div>
+</section>
+
+<!-- ============ BUILDING A COE ============ -->
+<section class="slide" id="building-coe" data-search="building center of excellence people roles salesforce users defined roles charter manifests meetings output critical decisions deliverables">
+  <div class="pgnum">Page 25 · Building a Center of Excellence</div>
+  <h2>Building a Center of Excellence</h2>
+  <p class="lede">Various aspects need to be considered for building a <strong>Center of Excellence (CoE)</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>People &amp; Roles</h4>
+      <p>A CoE is made of <strong>people</strong>. Salesforce users engage with the CoE. A <strong>select subset</strong> of these users engage with <strong>defined roles</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Charter</h4>
+      <p>A CoE is guided by a <strong>charter</strong> and <strong>manifests in meetings</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Output</h4>
+      <p>A CoE provides <strong>output</strong> in the form of <strong>critical decisions</strong> and <strong>other deliverables</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PEOPLE & ROLES — MAIN ============ -->
+<section class="slide" id="people-roles-main" data-search="people roles center of excellence main roles executive sponsors program owners steering committees business architecture release management change management support responsibilities strategies program execution architectural standards release processes">
+  <div class="pgnum">Page 26 · People &amp; Roles — Main Roles</div>
+  <h2>People &amp; Roles — Main Roles</h2>
+  <p class="lede">A CoE involves various <strong>roles</strong>, each critical to its success. <strong>Selecting the right individuals</strong> for these roles is crucial.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Main Roles</h4>
+      <p>Roles include <strong>Executive Sponsors</strong>, <strong>Program Owners</strong>, and various <strong>Steering Committees</strong> focusing on Business, Architecture, Release Management, Change Management, and Support.</p>
+    </div>
+    <div class="card">
+      <h4>Responsibilities</h4>
+      <p>Each role has specific responsibilities, like defining organizational <strong>strategies</strong>, managing <strong>program execution</strong>, ensuring compliance with <strong>architectural standards</strong>, overseeing <strong>release processes</strong>, and leading <strong>change management</strong> initiatives.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The Architecture Steering Committee and the Release Management Steering Committee are the two bodies that would gate every change at the Fed. The Arch SC ensures designs comply with security and enterprise standards; the Release Management SC enforces the change calendar and deployment checklist — effectively the Change Advisory Board (CAB) in ITIL terms.</p>
+  </div>
+</section>
+
+<!-- ============ PEOPLE & ROLES — ADDITIONAL ============ -->
+<section class="slide" id="people-roles-additional" data-search="people roles center of excellence additional roles subject matter experts salesforce power users user group members business users insights feedback liaisons committees">
+  <div class="pgnum">Page 27 · People &amp; Roles — Additional Roles</div>
+  <h2>People &amp; Roles — Additional Roles</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Additional Roles</h4>
+      <p>Additional roles like <strong>Subject Matter Experts</strong>, <strong>Salesforce Power Users</strong>, <strong>User Group Members</strong>, and <strong>Business Users</strong> engage in specific ways, providing insights, feedback, and acting as liaisons to various committees.</p>
+    </div>
+  </div>
+  <div class="note">Subject Matter Experts and Power Users are the field intelligence layer — they surface real problems back to the Steering Committees. Without this feedback loop, governance decisions are made without ground truth.</div>
+</section>
+
+<!-- ============ PROGRAM CHARTER 1 ============ -->
+<section class="slide" id="program-charter-1" data-search="program charter define contextualize coe roles mission key members identified structure function decision making project committee program management steering committee executive sponsors levels authority">
+  <div class="pgnum">Page 28 · Program Charter — Key Members &amp; Decision-Making</div>
+  <h2>Program Charter</h2>
+  <p class="lede">The program charter should <strong>define and contextualize CoE roles</strong>, including additional responsibilities related to the organization's mission.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Key Members</h4>
+      <p>Key members should be <strong>identified</strong> before drafting the CoE charter, as they will <strong>shape its structure and function</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Decision-Making</h4>
+      <p>Decision-making authority should be <strong>clearly defined</strong> at various <strong>levels</strong> (Project, Committee, Program Management/Steering Committee, Executive Sponsors) within the CoE.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Explicitly tiered decision authority — who can decide what at which level — is a critical governance design element. Exam questions often present scenarios where "who approves this change?" The answer flows from the charter's decision-authority matrix: small changes at the project level, large/risk-bearing changes escalate to Exec Sponsors.</p>
+  </div>
+</section>
+
+<!-- ============ PROGRAM CHARTER 2 ============ -->
+<section class="slide" id="program-charter-2" data-search="program charter meeting cadence regular timely decision making communication stakeholders well-defined charter guides clarifies complex decisions justifies resource allocation decision making">
+  <div class="pgnum">Page 29 · Program Charter — Meeting Cadence &amp; Well-Defined Charter</div>
+  <h2>Program Charter — Meeting Cadence &amp; Well-Defined Charter</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Meeting Cadence</h4>
+      <p>A <strong>regular meeting cadence</strong> should be established to ensure <strong>timely decision-making</strong> and <strong>communication with stakeholders</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Well-Defined Charter</h4>
+      <p>A well-defined charter <strong>guides</strong> the CoE's work, <strong>clarifies</strong> complex decisions, and <strong>justifies</strong> resource allocation and decision-making processes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MEETINGS 1 ============ -->
+<section class="slide" id="meetings-1" data-search="meetings center of excellence regular effectiveness frequency program charter types program management steering committee executive sponsor focus areas biweekly 1 hour sessions key decision makers">
+  <div class="pgnum">Page 30 · Meetings — Types &amp; Program Management</div>
+  <h2>CoE Meetings</h2>
+  <p class="lede"><strong>Regular meetings</strong> are essential for the <strong>effectiveness of the CoE</strong>, with their <strong>frequency</strong> outlined in the Program Charter.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Meeting Types</h4>
+      <p>Different types include <strong>Program Management/Steering Committee Engagement</strong>, <strong>Executive Sponsor Engagement</strong>, and <strong>CoE Focus Areas</strong> meetings.</p>
+    </div>
+    <div class="card">
+      <h4>Program Management</h4>
+      <p>Program Management meetings involve <strong>key decision-makers</strong> to ensure alignment on CoE focus areas, with <strong>biweekly 1-hour sessions</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MEETINGS 2 ============ -->
+<section class="slide" id="meetings-2" data-search="meetings executive sponsor project status key risks decisions 1 hour 30 minutes monthly focus areas steering committee alignment development workstreams agenda">
+  <div class="pgnum">Page 31 · Meetings — Executive Sponsor &amp; Focus Areas</div>
+  <h2>CoE Meetings — Executive Sponsor &amp; Focus Areas</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Executive Sponsor</h4>
+      <p>Executive Sponsor meetings aim to update on <strong>project status</strong> and address <strong>key risks or decisions</strong>, <strong>initially lasting 1 hour</strong> and then reducing to <strong>30 minutes monthly</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Focus Areas</h4>
+      <p>Focus Areas meetings are conducted by <strong>Steering Committee members</strong> to ensure <strong>alignment</strong> across development workstreams, with participation depending on agenda needs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DECISIONS & DELIVERABLES ============ -->
+<section class="slide" id="decisions-deliverables" data-search="decisions deliverables coe swift decision making organizational goals recruitment charter drafting meeting expectations crucial decisions funding technical issues executive sponsors focus areas technical standards communication plans usage policies program charter">
+  <div class="pgnum">Page 32 · Decisions &amp; Other Deliverables</div>
+  <h2>Decisions &amp; Other Deliverables</h2>
+  <p class="lede">The CoE aims for <strong>swift decision-making</strong> to leverage Salesforce effectively towards <strong>organizational goals</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Crucial Decisions</h4>
+      <p>A CoE facilitates crucial decisions for implementation teams' <strong>progress</strong>, with some decisions — like <strong>funding or technical issues</strong> — requiring input from Executive Sponsors or specific Focus Areas.</p>
+    </div>
+    <div class="card">
+      <h4>Deliverables</h4>
+      <p>Beyond decisions, CoE is responsible for deliverables such as <strong>technical standards</strong>, <strong>communication plans</strong>, and <strong>usage policies</strong>, with the Program Management/Steering Committee updating the Program Charter as needed.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Technical standards, communication plans, and usage policies as formal CoE deliverables are exactly what the Fed's Platform Engineer is expected to produce and maintain. These are the artifacts that make governance tangible and auditable — a regulator can ask to see them.</p>
+  </div>
+</section>
+
+<!-- ============ COE GROWTH ============ -->
+<section class="slide" id="coe-growth" data-search="coe growth doesnt need complex simple expanded early establishment better direction steering committee project focus areas long term benefits">
+  <div class="pgnum">Page 33 · CoE Growth</div>
+  <h2>CoE Growth</h2>
+  <p class="lede">A CoE <strong>doesn't need to be complex</strong> initially; it can be simple first and <strong>expanded as needed</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Early Establishment</h4>
+      <p>Early establishment of a CoE allows for <strong>better direction</strong> of its and Salesforce's program growth.</p>
+    </div>
+    <div class="card">
+      <h4>Steering Committee</h4>
+      <p>Starting with a <strong>Steering Committee</strong> focused on the <strong>project</strong> and the consideration of <strong>Focus Areas</strong> provides <strong>long-term benefits</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Start simple, scale intentionally. A two-person Steering Committee with a one-page charter beats an elaborate governance structure that nobody follows. The exam frequently contrasts appropriate-weight governance vs. over-engineered governance.</div>
+</section>
+
+<!-- ============ RUNNING A COE ============ -->
+<section class="slide" id="running-coe" data-search="running center of excellence clear agenda meetings effective communication decision making logistics program health action items project statuses discussions addressing issues problem definition recapping actions continuous involvement chatter transparent open culture">
+  <div class="pgnum">Page 34 · Running a Center of Excellence</div>
+  <h2>Running a Center of Excellence</h2>
+  <p class="lede">To <strong>effectively run a Center of Excellence (CoE)</strong>, a <strong>clear agenda</strong> should be established for various types of meetings, ensuring <strong>efficient communication</strong> and <strong>decision-making</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Logistics</h4>
+      <p>Key elements include <strong>logistics</strong> planning for participant inclusivity, focusing on <strong>program health</strong>, updating <strong>action items</strong>, and <strong>reviewing project statuses</strong> to maintain transparency.</p>
+    </div>
+    <div class="card">
+      <h4>Discussions</h4>
+      <p>Discussions should primarily revolve around <strong>addressing identified issues</strong>, requiring <strong>precise problem definition</strong> and <strong>prioritization</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Recapping Actions</h4>
+      <p><strong>Recapping actions</strong> ensures <strong>clarity on outcomes</strong>, while fostering an environment where questions are encouraged <strong>enhances understanding and engagement</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Continuous Involvement</h4>
+      <p>Facilitating <strong>continuous CoE involvement</strong> outside meetings through collaborative tools like <strong>Chatter</strong> promotes a <strong>transparent and open culture</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EFFECTIVE COE ============ -->
+<section class="slide" id="effective-coe" data-search="effective center of excellence project progress monitored roadblocks project success adoption change management vision execution budget adherence future-proof redesigns AARs after action reports learn project stages">
+  <div class="pgnum">Page 35 · Effective Center of Excellence</div>
+  <h2>Effective Center of Excellence</h2>
+  <p class="lede">Various factors should be considered to determine whether a <strong>Center of Excellence (CoE) is functioning effectively</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Progress Monitoring</h4>
+      <p><strong>Project progress</strong> should be monitored. Internal and external <strong>roadblocks</strong> should be <strong>addressed</strong> for on-time delivery.</p>
+    </div>
+    <div class="card">
+      <h4>Project Success</h4>
+      <p>Project success should be measured by its <strong>adoption</strong>, influenced by <strong>change management</strong> and <strong>vision execution</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Budget Adherence</h4>
+      <p>CoE should track <strong>budget adherence</strong> and facilitate <strong>decisions on budget changes</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Future-Proof Solutions</h4>
+      <p>The aim should be for <strong>solutions that are future-proof</strong>, minimizing the need for redesigns and focusing on innovation.</p>
+    </div>
+    <div class="card">
+      <h4>AARs</h4>
+      <p><strong>AARs (After Action Reports)</strong> can be used to learn from each project stage, identifying what worked well or didn't.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>AARs after each project stage are a maturity signal — a Stage 4 (Leading) governance practice. When you describe continuous improvement at your current org, framing it as "we ran a retro/AAR after each sprint and fed findings back to the CoE" positions you at the highest maturity level.</p>
+  </div>
+</section>
+
+<!-- ============ CHANGE MANAGEMENT SECTION ============ -->
+<section class="slide title-slide" id="change-mgmt-section" data-search="change management section">
+  <div class="pgnum" style="color:#cbd6e6">Page 36 · Section</div>
+  <h2>Change Management</h2>
+</section>
+
+<!-- ============ CHANGE MANAGEMENT DEFINED ============ -->
+<section class="slide" id="change-management-def" data-search="change management process identify prioritize assign execute communicate changes types organizational business process addition subtraction new version release examples big medium small enhancements fixes config reports templates">
+  <div class="pgnum">Page 37 · Change Management</div>
+  <h2>Change Management</h2>
+  <p class="lede">Change Management refers to the <strong>process</strong> used by an organization to <strong>identify, prioritize, assign, execute</strong> and <strong>communicate changes</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Types of Changes</h4>
+      <p>In the Salesforce deployment context, a change could be <strong>organizational</strong>, a <strong>business process change</strong>, <strong>addition or subtraction of a process</strong>, or a <strong>new version release</strong> by Salesforce.</p>
+    </div>
+    <div class="card">
+      <h4>Examples by Size</h4>
+      <p><strong>Big:</strong> rolling out a new business line. <strong>Medium:</strong> enhancements that affect a specific line of business. <strong>Small:</strong> fixes, config changes, reports, and templates.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve, even "small" changes (config, reports) go through a formal change request process. The Change Control Board categorizes changes by risk, not just size. A config change that affects security or data access is "small" in effort but "high risk" in impact — the CCB determines which gate applies.</p>
+  </div>
+</section>
+
+<!-- ============ CHANGE MGMT PROCESS 1 ============ -->
+<section class="slide" id="change-mgmt-process-1" data-search="change management process continuous evolution analyzing current state collecting user feedback implementing change vision strategy objectives initiate plan key salesforce capabilities roadmap program objectives operationalize validate">
+  <div class="pgnum">Page 38 · Change Management Process — Initiate/Plan</div>
+  <h2>Change Management Process — Initiate/Plan</h2>
+  <p class="lede">Change Management is a process of <strong>continuous evolution</strong> that involves <strong>continuously analyzing the current state</strong>, <strong>collecting user feedback</strong>, and <strong>implementing change</strong> when appropriate.</p>
+  <p>Change management requires defining a <strong>vision, strategy, and objectives</strong>. The change management process includes three steps: <strong>Initiate/Plan</strong>, <strong>Operationalize</strong>, and <strong>Validate</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Initiate / Plan</h4>
+      <p>In this stage, <strong>key Salesforce capabilities</strong> are identified, a <strong>roadmap to implement</strong> is developed, and capabilities are tied to <strong>program objectives</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHANGE MGMT PROCESS 2 ============ -->
+<section class="slide" id="change-mgmt-process-2" data-search="change management process operationalize built configured deployed organizational change adoption new features validate salesforce data audited performance metrics monitored drive behavior process change">
+  <div class="pgnum">Page 39 · Change Management Process — Operationalize &amp; Validate</div>
+  <h2>Change Management Process — Operationalize &amp; Validate</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Operationalize</h4>
+      <p>In this phase, the application is <strong>built, configured, and deployed</strong>, <strong>organizational change</strong> is managed, and <strong>adoption of new features</strong> is driven.</p>
+    </div>
+    <div class="card">
+      <h4>Validate</h4>
+      <p>In this stage, Salesforce data is <strong>audited</strong>, performance metrics are <strong>monitored</strong>, and results are used to <strong>drive behavior or process change</strong> within the organization where appropriate.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The <strong>Validate</strong> stage — data audited, metrics monitored — is the heart of change management in a regulated environment. Every deployed change should have a defined validation checklist, and results feed back to the CCB and CoE to confirm the change achieved its intended outcome and introduced no unintended risk.</p>
+  </div>
+</section>
+
+<!-- ============ KEY USERS ============ -->
+<section class="slide" id="key-users" data-search="key users change management user community key decision makers change control board ccb steering committee executive sponsor customer facing personnel management senior management enterprise architect triage feedback cross departmental review approve priorities business goals">
+  <div class="pgnum">Page 40 · Key Users</div>
+  <h2>Key Users in Change Management</h2>
+  <p class="lede">Key users who should be involved in a change management process are the <strong>user community</strong>, <strong>key decision makers</strong>, <strong>change control board</strong>, and <strong>executive sponsor</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>User Community</h4>
+      <p><strong>Customer facing personnel, management</strong>, and <strong>senior management</strong> provide feedback and influence direction.</p>
+    </div>
+    <div class="card">
+      <h4>Key Decision Makers</h4>
+      <p>An <strong>individual or group with proper training and understanding</strong> of the system, such as an enterprise architect, triages the feedback and requests from the field.</p>
+    </div>
+    <div class="card">
+      <h4>Change Control Board (CCB)</h4>
+      <p>The <strong>Change Control Board (CCB)</strong> or <strong>Steering Committee</strong> is a cross-departmental group that meets regularly to <strong>review and approve change requests</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Executive Sponsor</h4>
+      <p>The <strong>Executive Sponsor</strong> is the leader of the Steering Committee who <strong>sets priorities</strong> and ensures alignment with the overall business goals.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The CCB/Steering Committee is the canonical "who approves changes to production" answer. Be prepared to describe its cadence (weekly? bi-weekly?), what inputs it receives (change requests, risk assessments, deployment packages), and what it outputs (approval/rejection, conditions, emergency change expedite process).</p>
+  </div>
+</section>
+
+<!-- ============ EFFECTIVE CHANGE MANAGEMENT 1 ============ -->
+<section class="slide" id="effective-change-1" data-search="effective change management steps execution strategy simple end users input interaction cultivated executive sponsor objectives processes drive adoption effort scope impact processes functional areas identified aligned understand overall impact prioritize user requirements">
+  <div class="pgnum">Page 41 · Effective Change Management (Steps 1–5)</div>
+  <h2>Effective Change Management — Steps 1–5</h2>
+  <p class="lede">The following <strong>steps</strong> can be utilized for <strong>effective change management</strong>:</p>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>An <strong>execution strategy</strong> that is as simple as possible is defined.</td></tr>
+      <tr><td>2</td><td>End users' <strong>input</strong> is collected, and <strong>interaction</strong> with the change management group is cultivated.</td></tr>
+      <tr><td>3</td><td>An <strong>executive sponsor</strong> is engaged to establish objectives, define processes, and drive adoption.</td></tr>
+      <tr><td>4</td><td>The level of <strong>effort, scope, and impact</strong> are determined, and <strong>processes between functional areas</strong> are identified and aligned.</td></tr>
+      <tr><td>5</td><td>End users' input is obtained to <strong>understand the overall impact</strong> and <strong>prioritize user requirements</strong>.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ EFFECTIVE CHANGE MANAGEMENT 2 ============ -->
+<section class="slide" id="effective-change-2" data-search="effective change management steps 6 7 8 9 implementation end user validation deployment plan user community informed adoption repeatable change management process power users follow up new release define future enhancements">
+  <div class="pgnum">Page 42 · Effective Change Management (Steps 6–9)</div>
+  <h2>Effective Change Management — Steps 6–9</h2>
+  <table class="dttable">
+    <thead><tr><th>Step</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>6</td><td><strong>Implementation</strong>, <strong>end user validation</strong>, and <strong>deployment plan</strong> are defined.</td></tr>
+      <tr><td>7</td><td><strong>User community</strong> is informed of changes so that they are better prepared for adoption.</td></tr>
+      <tr><td>8</td><td>A <strong>repeatable change management process</strong> is defined and adhered to.</td></tr>
+      <tr><td>9</td><td><strong>Power users</strong> are identified to <strong>follow up</strong> on the new release and <strong>define future enhancements</strong>.</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Step 8 — <strong>repeatable process</strong> — is the key exam word. Governance processes must be <em>repeatable and consistent</em>, not ad hoc. A one-time checklist is not governance; a process that every change follows is.</div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Steps 6–9 describe the full deployment communication playbook: validate with end users, communicate proactively, repeat the process, identify advocates. At the Fed, Step 7 (inform the user community) means written release notes distributed before the change window — not a surprise. Step 8's "repeatable process" is what makes changes auditable: same steps, same evidence, every time.</p>
+  </div>
+</section>
+
+<!-- ============ BUSINESS SCENARIO SECTION ============ -->
+<section class="slide title-slide" id="biz-scenario-section" data-search="business scenario section">
+  <div class="pgnum" style="color:#cbd6e6">Page 43 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- ============ BUSINESS SCENARIO ============ -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic innovation smart home north america europe two divisions salesforce instances governance change management backlog design deployment architect assess recommend enhance lifecycle management streamline strategic goals">
+  <div class="pgnum">Page 44 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Innovation</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Innovation, renowned for its smart home solutions, operates through <strong>two distinct divisions</strong> in North America and Europe, each utilizing its own Salesforce instance for operational processes. Facing challenges in <strong>change management, backlog management, design, and deployment planning</strong> due to varying governance models, the company seeks a Salesforce architect's expertise.</p>
+    <p>The architect's task is to <strong>assess the current governance structures and recommend enhancements</strong>, aiming to improve governance frameworks and lifecycle management practices used by the two divisions, streamline project delivery, and align it with the company's strategic goals for enhanced efficiency.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Two-org, multi-divisional scenario with varying governance models = the Fed's regional/functional structure. This is exactly the architect problem you'd face at a Fed where different business lines (Supervision, Research, Cash Operations, etc.) have autonomy but share a Salesforce platform. Your instinct: assess maturity per division, then recommend a federated CoE model with shared standards but divisional steering committees.</p>
+  </div>
+</section>
+
+<!-- ============ REQUIREMENTS & SOLUTIONS SECTION ============ -->
+<section class="slide title-slide" id="req-solutions-section" data-search="requirements solutions section">
+  <div class="pgnum" style="color:#cbd6e6">Page 45 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- ============ REQUIREMENT 1 ============ -->
+<section class="slide" id="requirement-1" data-search="requirement 1 north american division governance challenges inefficiencies project delivery compliance 25 percent budget increase structured governance framework priorities resource allocation backlog low effort enhancements stakeholder disagreements deployment strategy smooth transitions">
+  <div class="pgnum">Page 46 · Requirement 1</div>
+  <h2>Requirement 1 — North American Division</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The North American division is grappling with certain governance challenges, leading to <strong>inefficiencies in project delivery</strong>. Recent compliance changes have necessitated a <strong>25% budget increase</strong> for a critical project, revealing the need for a structured governance framework to manage priorities and resource allocation. The backlog is overwhelmed with <strong>low-effort yet valuable enhancements</strong>, and there are often <strong>stakeholder disagreements</strong>. In addition, upcoming major deployments <strong>lack a cohesive strategy</strong> to ensure smooth transitions to live environments.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUTION 1 (NARRATIVE) ============ -->
+<section class="slide" id="solution-1a" data-search="solution 1 north america center of excellence executive sponsors program team standardize governance change control board authorize budget backlog prioritization model stakeholders citizen development program source control deployment package validated production">
+  <div class="pgnum">Page 47 · Solution 1 (Narrative)</div>
+  <h2>Solution 1 — North American Division</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The formation of a <strong>Center of Excellence</strong>, including <strong>Executive Sponsors</strong> and the <strong>Program Team</strong>, would standardize governance, enhance project alignment, and streamline delivery processes. A <strong>Change Control Board</strong> should authorize the additional budget and oversee any other change requests. To address backlog and stakeholder disagreements, facilitating the creation of a <strong>prioritization model</strong> with <strong>stakeholders</strong> is crucial. A <strong>citizen development program</strong> would address low-effort backlog items efficiently. For deployment readiness, all changes must be in <strong>source control</strong>, and the deployment package must be <strong>validated against production</strong>.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The CCB authorizing a 25% budget increase is the key governance moment here: no unilateral budget changes. The Fed has strict budget governance — a Change Control Board that owns both the technical approval <em>and</em> the budget authorization is the correct institutional model. Citizen development programs (low-code citizen developers) need guardrails — governance of who can build what, reviewed by the CoE.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUTION 1 (SUMMARY) ============ -->
+<section class="slide" id="solution-1b" data-search="solution 1 summary center of excellence change control board prioritization model citizen development program source control five components">
+  <div class="pgnum">Page 48 · Solution 1 (Summary)</div>
+  <h2>Solution 1 — Summary Components</h2>
+  <div class="cards">
+    <div class="card"><h4>Center of Excellence</h4><p>Standardizes governance and enhances project alignment.</p></div>
+    <div class="card"><h4>Change Control Board</h4><p>Authorizes budget changes and oversees all change requests.</p></div>
+    <div class="card"><h4>Prioritization Model</h4><p>Facilitates stakeholder agreement on backlog sequencing.</p></div>
+    <div class="card"><h4>Citizen Development Program</h4><p>Addresses low-effort backlog items efficiently.</p></div>
+    <div class="card"><h4>Source Control</h4><p>All changes in source control; deployment package validated against production.</p></div>
+  </div>
+</section>
+
+<!-- ============ REQUIREMENT 2 ============ -->
+<section class="slide" id="requirement-2" data-search="requirement 2 european division multiple new projects salesforce org backlog new feature requests strategic objectives design conflicts custom objects security SAML single sign on documentation governance">
+  <div class="pgnum">Page 49 · Requirement 2</div>
+  <h2>Requirement 2 — European Division</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company's European division is confronting unique challenges in <strong>integrating multiple new projects</strong> within their Salesforce Org. There's a need to <strong>manage and prioritize a backlog</strong> of new feature requests that align with their strategic objectives. Additionally, the division faces <strong>design conflicts among project teams</strong> and the necessity to implement new custom Salesforce objects and enhanced security measures like <strong>SAML for Single Sign-On</strong>. Effective <strong>documentation and governance</strong> of these processes are also critical concerns.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUTION 2 PART 1 ============ -->
+<section class="slide" id="solution-2a" data-search="solution 2 european division center of excellence charter document project management tool backlog prioritization design standards architecture review board technical decisions custom objects SAML single sign on">
+  <div class="pgnum">Page 50 · Solution 2 (Part 1)</div>
+  <h2>Solution 2 — European Division (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Establishing a <strong>Center of Excellence (CoE)</strong> focused on European operations is essential. This CoE should create a <strong>charter document</strong> to streamline new project integrations within their Salesforce Org. It should also use a <strong>project management tool</strong> for <strong>backlog prioritization</strong>, addressing the influx of new feature requests. To prevent design conflicts, the CoE should develop <strong>design standards</strong> that all project teams must adhere to. Involving an <strong>Architecture Review Board</strong> would be beneficial for making technical decisions like implementing new custom objects and <strong>SAML for Single Sign-On</strong>.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Architecture Review Board (ARB) is the technical authority body that the CoE calls on for complex technical decisions. Know the difference: CoE = program-level governance; ARB = technical design authority. For the Fed, the ARB would review any new integration pattern, security configuration (SAML, MFA enforcement, connected app settings), or data model change before it reaches production.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUTION 2 PART 2 ============ -->
+<section class="slide" id="solution-2b" data-search="solution 2 part 2 documentation repository change control log requirements management governance framework clear communication alignment strategic goals">
+  <div class="pgnum">Page 51 · Solution 2 (Part 2)</div>
+  <h2>Solution 2 — European Division (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Additionally, robust documentation practices, including a <strong>documentation repository</strong>, <strong>change control log</strong>, and effective <strong>requirements management</strong>, should be integral components of the governance framework to ensure clear communication and alignment of all projects with the division's strategic goals.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>A <strong>change control log</strong> is the audit trail that examiners will ask to see. Every change — who requested it, who approved it, what was deployed, when, and what the validation result was — must be traceable. The documentation repository ensures institutional memory survives staff turnover and supports examination readiness. These are not nice-to-haves; they are governance infrastructure.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUTION 2 PART 3 SUMMARY ============ -->
+<section class="slide" id="solution-2c" data-search="solution 2 part 3 summary center of excellence project management tool design standards project charter architecture review board five components">
+  <div class="pgnum">Page 52 · Solution 2 (Part 3 — Summary)</div>
+  <h2>Solution 2 — Summary Components</h2>
+  <div class="cards">
+    <div class="card"><h4>Center of Excellence</h4><p>Focused on European operations with a formal charter document.</p></div>
+    <div class="card"><h4>Project Management Tool</h4><p>For backlog prioritization and alignment to strategic objectives.</p></div>
+    <div class="card"><h4>Design Standards</h4><p>Common standards all project teams must follow to prevent design conflicts.</p></div>
+    <div class="card"><h4>Project Charter</h4><p>Documentation repository, change control log, and requirements management.</p></div>
+    <div class="card"><h4>Architecture Review Board</h4><p>Technical authority for complex decisions like custom objects and SAML SSO.</p></div>
+  </div>
+</section>
+
+<!-- ============ LEARN MORE ============ -->
+<section class="slide" id="learn-more" data-search="learn more governance managing governance center of excellence change management change and release management governance trailmix resources">
+  <div class="pgnum">Page 53 · Learn More</div>
+  <h2>Learn More</h2>
+  <ul>
+    <li>Governance (Salesforce Help)</li>
+    <li>Managing Governance with a Center of Excellence</li>
+    <li>What is Change Management?</li>
+    <li>Change and Release Management</li>
+    <li>Governance Trailmix</li>
+  </ul>
+</section>
+
+<!-- ============ CHEATSHEET ============ -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points governance framework center of excellence change management coe models maturity stages four categories ccb arb charter exam interview">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet</h2>
+
+  <h3>Governance — the one-sentence definition</h3>
+  <p>Governance is the <strong>minimal set of processes</strong> needed to deliver business outcomes with required quality within the business timeframe.</p>
+
+  <h3>Four governance stages of maturity</h3>
+  <table class="dttable">
+    <thead><tr><th>Stage</th><th>Name</th><th>Signal</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Non-Existent / Basic</td><td>Changes directly in prod, no standards, no source control</td></tr>
+      <tr><td>2</td><td>Emerging</td><td>Some processes, inconsistently applied</td></tr>
+      <tr><td>3</td><td>Practicing</td><td>CoE established, charter, consistent processes, source control</td></tr>
+      <tr><td>4</td><td>Leading</td><td>ARB, automated quality gates, AARs, continuous improvement</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Four governance program categories (memorize the quad)</h3>
+  <ul>
+    <li><strong>Center of Excellence</strong> — cross-functional experts setting standards, best practices, governance.</li>
+    <li><strong>Change Management</strong> — process to identify, prioritize, assign, execute, communicate changes. CCB reviews and approves.</li>
+    <li><strong>Org Strategy</strong> — design and structure of foundational Salesforce orgs.</li>
+    <li><strong>Technical Governance</strong> — guiding principles for technical aspects of Salesforce.</li>
+  </ul>
+
+  <h3>Three CoE models</h3>
+  <table class="dttable">
+    <thead><tr><th>Model</th><th>Structure</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td>Consolidated</td><td>Single platform, shared data/requirements</td><td>One business, unified CRM</td></tr>
+      <tr><td>Federated</td><td>Independent groups, unified CRM data approach</td><td>Multiple business lines, shared org</td></tr>
+      <tr><td>Confederated</td><td>Each group fully independent, separate orgs possible</td><td>Distinct regulatory/data-residency boundaries</td></tr>
+    </tbody>
+  </table>
+
+  <h3>CoE building blocks</h3>
+  <ul>
+    <li><strong>People &amp; Roles</strong>: Executive Sponsors, Program Owners, Steering Committees (Business / Architecture / Release / Change / Support), SMEs, Power Users.</li>
+    <li><strong>Program Charter</strong>: defines roles, decision authority at all levels (Project → Committee → Steering → Exec Sponsor), meeting cadence.</li>
+    <li><strong>Deliverables</strong>: technical standards, communication plans, usage policies, design standards, updated Program Charter.</li>
+    <li><strong>Effectiveness indicators</strong>: adoption, budget adherence, on-time delivery, future-proof solutions, AARs after each stage.</li>
+  </ul>
+
+  <h3>Change management 3-phase process</h3>
+  <table class="dttable">
+    <thead><tr><th>Phase</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>Initiate / Plan</td><td>Identify Salesforce capabilities, build roadmap, tie to program objectives</td></tr>
+      <tr><td>Operationalize</td><td>Build, configure, deploy; manage org change; drive adoption</td></tr>
+      <tr><td>Validate</td><td>Audit data, monitor metrics, use results to drive behavior / process change</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Change management key roles</h3>
+  <ul>
+    <li><strong>User Community</strong> — provides feedback, influences direction.</li>
+    <li><strong>Key Decision Maker</strong> (e.g. enterprise architect) — triages field feedback.</li>
+    <li><strong>Change Control Board (CCB) / Steering Committee</strong> — cross-departmental, reviews and approves change requests.</li>
+    <li><strong>Executive Sponsor</strong> — leads Steering Committee, sets priorities, ensures business alignment.</li>
+  </ul>
+
+  <h3>10-step governance framework build</h3>
+  <ol>
+    <li>Document delivery challenges.</li>
+    <li>Understand maturity in core framework processes.</li>
+    <li>Define clear vision and strategy; align stakeholders.</li>
+    <li>Business owns and prioritizes requirements.</li>
+    <li>Review current data architecture and management.</li>
+    <li>Implement basic principles of software engineering.</li>
+    <li>Implement foundational processes.</li>
+    <li>All projects follow defined processes.</li>
+    <li>Consider additional processes for specific challenges.</li>
+    <li>Constantly review processes for maturity improvements.</li>
+  </ol>
+
+  <h3>Scenario solution patterns (exam traps)</h3>
+  <table class="dttable">
+    <thead><tr><th>Symptom</th><th>Governance response</th></tr></thead>
+    <tbody>
+      <tr><td>Budget overruns / uncontrolled scope</td><td>Change Control Board (CCB) to authorize all budget/scope changes</td></tr>
+      <tr><td>Backlog overwhelmed, stakeholder disagreements</td><td>CoE + prioritization model with stakeholders + citizen development program for low-effort items</td></tr>
+      <tr><td>Design conflicts between teams</td><td>CoE design standards + Architecture Review Board (ARB)</td></tr>
+      <tr><td>No audit trail, documentation gaps</td><td>Documentation repository + change control log + requirements management</td></tr>
+      <tr><td>Multiple divisions, inconsistent governance</td><td>Federated CoE model with shared charter but divisional steering committees</td></tr>
+      <tr><td>Complex technical decisions (SAML, custom objects)</td><td>Architecture Review Board</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Key vocabulary distinctions</h3>
+  <ul>
+    <li><strong>CoE</strong> = the body; <strong>Program Charter</strong> = the document that defines it.</li>
+    <li><strong>CCB</strong> = approves changes; <strong>ARB</strong> = approves designs/architecture.</li>
+    <li><strong>Governance</strong> = minimal processes; <em>not</em> maximum bureaucracy — right-size to maturity.</li>
+    <li><strong>Federated</strong> = one org, independent groups; <strong>Confederated</strong> = separate orgs.</li>
+    <li><strong>Citizen development program</strong> = governed low-code channel for admin-level users to address backlog.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

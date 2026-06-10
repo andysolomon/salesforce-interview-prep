@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Releasing — Release Management Strategy — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Releasing — Release Management Strategy</h1>
+  <div class="sub">Given a customer scenario, describe and recommend an appropriate release management strategy · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (25 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Release Management Strategies</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#overview">Release Management Strategies Overview</a></li>
+      <li><a href="#section-rms">Section: Release Management Strategies</a></li>
+      <li><a href="#release-mgmt-process">Release Management — Process &amp; Pillars</a></li>
+      <li><a href="#release-mgmt-planning">Release Management — Planning &amp; Evaluation</a></li>
+      <li><a href="#new-project-evaluation">New Project Evaluation Steps</a></li>
+      <li><a href="#types-overview">Types of Releases — Overview</a></li>
+      <li><a href="#types-effort">Types of Releases — Effort &amp; Resources</a></li>
+      <li><a href="#types-cadence">Types of Releases — Cadence &amp; Examples</a></li>
+      <li><a href="#hotfixes">Hotfixes</a></li>
+      <li><a href="#release-mgmt-groups">Release Management Groups</a></li>
+      <li><a href="#release-paths">Release Paths</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Manufacturing Solutions Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1a">Requirement 1 (Part 1)</a></li>
+      <li><a href="#requirement-1b">Requirement 1 (Part 2)</a></li>
+      <li><a href="#solution-1a">Solution 1 (Part 1)</a></li>
+      <li><a href="#solution-1b">Solution 1 (Part 2)</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover releasing release management strategy salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Releasing — Release Management Strategy</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer scenario, describe and recommend an appropriate release management strategy · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents release management strategies business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#section-rms">Release Management Strategies</a></li>
+    <li><a class="toc-link" href="#section-business">Business Scenario</a></li>
+    <li><a class="toc-link" href="#section-requirements">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives release management aspects types releases responsibilities groups release paths recommend">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the various aspects of release management, including the evaluation of new projects.</li>
+    <li>Explain the different types of releases that can be incorporated in a release management strategy.</li>
+    <li>Explain the responsibilities of the groups responsible for the creation and execution of release management.</li>
+    <li>Identify the sample release paths for different types of Salesforce releases.</li>
+    <li>Recommend appropriate release management strategies for the given business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction release management strategy customer scenario immediate minor major hotfix types of releases business objectives seamless integration features improvements">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In today's rapidly evolving business landscape, developing a robust <strong>release management strategy</strong> tailored to specific customer scenarios is crucial for the integrity and efficiency of Salesforce projects. This approach involves analyzing the customer's operational requirements, development processes, and business goals to devise a strategic plan that ensures smooth, consistent, and successful deployment of Salesforce updates.</p>
+  <p>By incorporating <strong>different types of releases (immediate, minor, major, and hotfix)</strong> in their release management strategy, organizations can significantly enhance the delivery of new functionality on their Salesforce platform. An effective release management strategy aligns releases with business objectives, facilitating seamless integration of new features and improvements.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>A regulated central bank needs a formal, documented release management strategy precisely because ad-hoc deployments create untrackable change events. The four release types (immediate, minor, major, hotfix) map directly to a change-control tiering model: low-risk same-day changes, scheduled monthly changes, quarterly platform-aligned releases, and emergency break-fix procedures — each with corresponding CAB/approval gates.</p>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<section class="slide" id="overview" data-search="release management strategies overview types of releases immediate minor major hotfix new project evaluation COE steering committee release paths UAT production">
+  <div class="pgnum">Page 5 · Release Management Strategies Overview</div>
+  <h2>Release Management Strategies</h2>
+  <p class="lede">Five interlocking aspects define a complete release management strategy.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Release Management</h4>
+      <p>Release Management is the continuous process that comprises specific stages that should be followed for every successful release.</p>
+    </div>
+    <div class="card">
+      <h4>Types Of Releases</h4>
+      <p>There are three main types of releases (immediate, minor, and major). In addition, hotfixes are utilized for resolving urgent issues in production.</p>
+    </div>
+    <div class="card">
+      <h4>Release Management Groups</h4>
+      <p>Center Of Excellence and Steering Committee are responsible for the creation and execution of release management processes.</p>
+    </div>
+    <div class="card">
+      <h4>New Project Evaluation</h4>
+      <p>Evaluation of new projects in the release management process consist of new project submission, new project submission/support, project prioritization, and project decision.</p>
+    </div>
+    <div class="card">
+      <h4>Release Paths</h4>
+      <p>Specific release paths can be followed for different types of Salesforce releases. For instance, a hotfix can be tested in UAT and then deployed to production.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: RELEASE MANAGEMENT STRATEGIES -->
+<section class="slide title-slide" id="section-rms" data-search="section release management strategies">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Release Management Strategies</h2>
+</section>
+
+<!-- RELEASE MANAGEMENT — PROCESS & PILLARS -->
+<section class="slide" id="release-mgmt-process" data-search="release management continuous process stages planning requirement gathering solution design build test release maintenance steps essential pillars deployment size cadence new project evaluation environment strategy training communication ongoing support">
+  <div class="pgnum">Page 7 · Release Management — Process &amp; Pillars</div>
+  <h2>Release Management</h2>
+  <p class="lede">Release Management is the <strong>continuous process</strong> that comprises <strong>specific stages</strong> that should be followed for every <strong>successful release</strong>.</p>
+  <h3>Process</h3>
+  <p>Typically, release management comprises <strong>planning</strong>, <strong>requirement gathering</strong>, <strong>solution design</strong>, <strong>build</strong>, <strong>test</strong>, <strong>release</strong>, and <strong>maintenance</strong>.</p>
+  <h3>Steps</h3>
+  <p>Each step of the release management process is <strong>essential</strong> and should be <strong>fully completed</strong> before moving onto the next step.</p>
+  <h3>Pillars</h3>
+  <p>The main pillars of release management are <strong>deployment size and cadence</strong>, <strong>new project evaluation</strong>, <strong>environment strategy</strong>, <strong>training and communication</strong>, and <strong>ongoing support</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked to describe release management, use the three-tier answer: process (the sequential stages), steps (each must be fully completed before advancing), and pillars (the five structural dimensions). This demonstrates architect-level thinking rather than just enumerating deployment steps. The "fully completed before moving on" principle is a key exam gotcha — skipping steps is a root cause of production incidents.</p>
+  </div>
+</section>
+
+<!-- RELEASE MANAGEMENT — PLANNING & EVALUATION -->
+<section class="slide" id="release-mgmt-planning" data-search="release management release planning understanding components anticipating conflicts scheduling features release schedule milestones project schedule project evaluation COE center of excellence submission short term long term alignment prioritization project decision">
+  <div class="pgnum">Page 8 · Release Management — Planning &amp; Evaluation</div>
+  <h2>Release Management</h2>
+  <p class="lede">Release Management is the <strong>continuous process</strong> that comprises <strong>specific stages</strong> that should be followed for every <strong>successful release</strong>.</p>
+  <h3>Release Planning</h3>
+  <p>Release planning involves <strong>understanding the components</strong> being developed, <strong>anticipating potential conflicts</strong>, and <strong>scheduling features</strong> for each release.</p>
+  <h3>Release Schedule</h3>
+  <p>A release schedule should be established for a project. <strong>Scheduled release milestones</strong> should be added to the <strong>project schedule</strong> to aid planning.</p>
+  <h3>Project Evaluation</h3>
+  <p>Project evaluation involves <strong>submission of a project request</strong> to the <strong>COE (Center Of Excellence)</strong>, <strong>evaluation</strong> of short term and long term alignment with the goals, project <strong>prioritization</strong>, and project <strong>decision</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a regulated institution, the release schedule is not just a project management artifact — it is a control document. Milestones in the schedule become the checkpoints at which change-advisory board (CAB) sign-off is required. COE evaluation of short-term vs. long-term alignment is directly analogous to the Fed's IT governance model, where all significant technology changes must demonstrate alignment with the strategic roadmap before approval.</p>
+  </div>
+</section>
+
+<!-- NEW PROJECT EVALUATION STEPS -->
+<section class="slide" id="new-project-evaluation" data-search="new project evaluation steps new project submission communication process project request COE database long term evaluation support short term alignment ongoing pending projects administrative needs project prioritization COE meeting business priority program roadmap project decision strategy timing steering committee sponsors relevant individuals">
+  <div class="pgnum">Page 9 · New Project Evaluation Steps</div>
+  <h2>Release Management — New Project Evaluation</h2>
+  <p class="lede"><strong>Evaluation of new projects</strong> in the release management process consist of multiple steps.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>1. New Project Submission</h4>
+      <p>A <strong>communication process</strong> is defined for the new project, the <strong>project request is submitted to the COE</strong>, and <strong>project information</strong> is entered into the database.</p>
+    </div>
+    <div class="card">
+      <h4>2. Long Term Evaluation / Support</h4>
+      <p>The COE <strong>evaluates</strong> the <strong>short term</strong> and <strong>long term alignment</strong> with the goals, alignment with <strong>ongoing or other pending projects</strong>, how <strong>project will be supported</strong>, and <strong>administrative needs</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>3. Project Prioritization</h4>
+      <p>New project requests are <strong>reviewed</strong> as part of a COE meeting, <strong>business priority</strong> and <strong>alignment with the overall program roadmap</strong> are determined, and <strong>priorities</strong> are defined in the COE project database.</p>
+    </div>
+    <div class="card">
+      <h4>4. Project Decision</h4>
+      <p>The COE advises on <strong>project strategy</strong> and <strong>timing</strong>, informs the <strong>Steering Committee</strong> about upcoming projects, and <strong>communicates decision</strong> to sponsors. <strong>Relevant individuals</strong> join the COE for advancing projects.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TYPES OF RELEASES — OVERVIEW -->
+<section class="slide" id="types-overview" data-search="types of releases three main immediate minor major small changes minimal outside change process minor changes two or more groups thrice often minor impact major significant aligned platform releases impact across business units hotfix">
+  <div class="pgnum">Page 10 · Types of Releases — Overview</div>
+  <h2>Types of Releases</h2>
+  <p class="lede">There are <strong>three main types of releases</strong> that should be considered while devising a release management strategy.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Immediate</h4>
+      <p>Immediate releases involve <strong>small changes</strong> that are often rapidly applied directly in production. Their impact on users is <strong>minimal</strong>, and they are <strong>outside the scope</strong> of change process.</p>
+    </div>
+    <div class="card">
+      <h4>Minor</h4>
+      <p>Minor releases involve <strong>minor changes</strong> that impact <strong>two or more groups of users</strong>. They are <strong>thrice as often</strong> as a major release and have <strong>minor impact</strong> on training and production.</p>
+    </div>
+    <div class="card">
+      <h4>Major</h4>
+      <p>Major releases involve <strong>significant changes</strong> and are often <strong>aligned with platform releases</strong>. They have <strong>major impact</strong> on production and integration <strong>across more than one business unit</strong>.</p>
+    </div>
+  </div>
+  <div class="note">There are three main release types. Hotfixes are a separate, fourth category used only to resolve urgent production issues — they are not a regular scheduled release type.</div>
+</section>
+
+<!-- TYPES OF RELEASES — EFFORT & RESOURCES -->
+<section class="slide" id="types-effort" data-search="types of releases effort resources immediate low level effort no training no integration business analyst BA minor medium level effort less than one day training less than one week configuration IT involvement major high level effort more than one day training more than one week configuration integration development IT lead">
+  <div class="pgnum">Page 11 · Types of Releases — Effort &amp; Resources</div>
+  <h2>Types of Releases</h2>
+  <p class="lede">There are <strong>three main types of releases</strong> that should be considered while devising a release management strategy.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Immediate</h4>
+      <p>Immediate releases require <strong>low level of effort</strong>, <strong>no training</strong>, and <strong>no integration</strong>. They can be implemented by a <strong>BA (Business Analyst)</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Minor</h4>
+      <p>Minor releases require <strong>medium level of effort</strong>, <strong>less than one day</strong> of training, and <strong>less than one week</strong> of configuration time. Their implementation requires <strong>IT involvement</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Major</h4>
+      <p>Major releases require <strong>high level of effort</strong>, <strong>more than one day</strong> of training, <strong>more than one week</strong> of configuration time, <strong>more than one week</strong> of integration development time, and <strong>IT Lead's</strong> involvement.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The effort thresholds are high-yield exam content: BA handles immediate, IT team handles minor, IT Lead is required for major. Memorize the breakpoints — less than one day / less than one week separates minor from major. These thresholds also determine which approval path applies, making them crucial for classifying real project work.</p>
+  </div>
+</section>
+
+<!-- TYPES OF RELEASES — CADENCE & EXAMPLES -->
+<section class="slide" id="types-cadence" data-search="types of releases cadence examples immediate daily reports dashboards related lists data loads territory assignments minor monthly new objects fields page layouts flows triggers major quarterly appexchange apps process impacting changes data migration integration changes">
+  <div class="pgnum">Page 12 · Types of Releases — Cadence &amp; Examples</div>
+  <h2>Types of Releases</h2>
+  <p class="lede">There are <strong>three main types of releases</strong> that should be considered while devising a release management strategy.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Immediate</h4>
+      <p>Immediate releases are often implemented <strong>daily</strong>. Examples include reports, dashboards, related lists, data loads, territory assignments, etc.</p>
+    </div>
+    <div class="card">
+      <h4>Minor</h4>
+      <p>Minor releases are often implemented <strong>monthly</strong>. Examples include new objects, fields, page layouts, flows, triggers, etc.</p>
+    </div>
+    <div class="card">
+      <h4>Major</h4>
+      <p>Major releases are often implemented <strong>quarterly</strong>. Examples include AppExchange apps, process impacting changes, data migration, integration changes, etc.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The daily/monthly/quarterly cadence aligns naturally with a regulated institution's change-control calendar. Immediate (daily) changes bypass formal CAB because they are low-risk; minor (monthly) changes go through standard CAB review; major (quarterly) changes require full change-advisory board approval with pre-deployment testing sign-off and a rollback plan. Packaging these into versioned unlocked packages makes each deployment traceable and repeatable for audit purposes.</p>
+  </div>
+</section>
+
+<!-- HOTFIXES -->
+<section class="slide" id="hotfixes" data-search="hotfixes small change urgent production issue quick rollout fast rollout path burning production issue release path time of evaluating UAT user acceptance testing may or may not required directly applied production downstream deployment all downstream environments replicated">
+  <div class="pgnum">Page 13 · Hotfixes</div>
+  <h2>Hotfixes</h2>
+  <p class="lede">A hotfix is a <strong>small change</strong> that is applied to resolve an <strong>urgent production issue</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Quick Rollout</h4>
+      <p>Hotfixes have a <strong>fast rollout path</strong> to address a burning production issue. The release path is typically defined at the time of evaluating the required change.</p>
+    </div>
+    <div class="card">
+      <h4>UAT</h4>
+      <p>User acceptance testing (UAT) <strong>may or may not be required</strong>, depending on the nature of change. The hotfix could be <strong>directly applied</strong> in production.</p>
+    </div>
+    <div class="card">
+      <h4>Downstream</h4>
+      <p>The <strong>deployment</strong> should flow through <strong>all downstream environments</strong>, ensuring that the change is replicated to the other environments.</p>
+    </div>
+  </div>
+  <div class="note">After a hotfix is applied to production, it must flow downstream to all other environments to prevent environment drift. Skipping this step is a common mistake that causes sandbox environments to become out of sync with production.</div>
+</section>
+
+<!-- RELEASE MANAGEMENT GROUPS -->
+<section class="slide" id="release-mgmt-groups" data-search="release management groups two groups creation execution steering committee strategic direction oversight senior stakeholders decision-making priorities resource allocation conflicts center of excellence COE standardizing overseeing best practices methodologies guidelines governing body development teams consistency efficiency quality">
+  <div class="pgnum">Page 14 · Release Management Groups</div>
+  <h2>Release Management Groups</h2>
+  <p class="lede"><strong>Two groups</strong> are responsible for the <strong>creation and execution</strong> of release management processes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Steering Committee</h4>
+      <p>The Steering Committee provides <strong>strategic direction and oversight</strong>. It typically consists of <strong>senior stakeholders</strong> whose role involves decision-making on priorities, resource allocation, and addressing any conflicts or changes in direction, ensuring that the release management processes support the organization's objectives.</p>
+    </div>
+    <div class="card">
+      <h4>Center Of Excellence (COE)</h4>
+      <p>The Center of Excellence (COE) plays a pivotal role in <strong>standardizing and overseeing the execution of release management processes</strong>. It establishes best practices, methodologies, and guidelines to be followed. It acts as a governing body that works closely with development teams to ensure consistency, efficiency, and quality.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Steering Committee vs. COE distinction is a common exam scenario. The Steering Committee is the executive oversight body (strategic direction, priority decisions, conflict resolution). The COE is the operational body (best practices, standards, execution oversight). They are complementary: the Steering Committee sets the "what and when," the COE owns the "how." Knowing which group handles which type of decision is key to answering scenario questions correctly.</p>
+  </div>
+</section>
+
+<!-- RELEASE PATHS -->
+<section class="slide" id="release-paths" data-search="release paths sample release paths different types releases immediate development quality assurance QA production minor development QA UAT production major development QA integration testing UAT production hotfix UAT optional production">
+  <div class="pgnum">Page 15 · Release Paths</div>
+  <h2>Release Paths</h2>
+  <p class="lede">The diagram below shows the <strong>sample release paths</strong> that may be followed for <strong>different types of releases</strong> in Salesforce.</p>
+  <table class="dttable">
+    <thead>
+      <tr><th>Release Type</th><th>Release Path</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Immediate Release</strong></td>
+        <td>Development → Quality Assurance (QA) → Production</td>
+      </tr>
+      <tr>
+        <td><strong>Minor Release</strong></td>
+        <td>Development → Quality Assurance (QA) → UAT → Production</td>
+      </tr>
+      <tr>
+        <td><strong>Major Release</strong></td>
+        <td>Development → Quality Assurance (QA) → Integration Testing → UAT → Production</td>
+      </tr>
+      <tr>
+        <td><strong>Hotfix</strong></td>
+        <td>UAT (Optional) → Production</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">The major release path is the only one that includes an Integration Testing stage before UAT. This reflects the cross-business-unit impact of major releases, which require verification that integrations still function correctly before broader user acceptance testing.</div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a regulated deployment pipeline (e.g., GitLab CI/CD), these release paths map directly to pipeline stage gates: each arrow is a checkpoint requiring a passing test suite or a human approval before the next stage runs. For a central bank, the major release path — with its explicit Integration Testing stage — satisfies the segregation-of-duties requirement that no single team can promote a change directly from dev to UAT without an independent integration validation step.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 16 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic manufacturing solutions industrial sector sales cloud service cloud enhancements sales pipeline management customer service manufacturing operations system customizing sales cloud tracking opportunities service cloud post-sale support service request tracking release management strategies development deployment architect">
+  <div class="pgnum">Page 17 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Manufacturing Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Manufacturing Solutions, a leader in the industrial sector, is set to enhance its Salesforce platform, focusing on Sales Cloud and Service Cloud enhancements. These updates aim to optimize the sales pipeline management, improve customer service processes, and ensure seamless integration with its manufacturing operations system. Projects include customizing Sales Cloud to improve tracking of sales opportunities and leveraging Service Cloud to enhance post-sale support and service request tracking.</p>
+    <p style="margin-top:8px;">The company's Salesforce architect faces the task of devising release management strategies for the development and deployment of the enhancements. The strategies must ensure that the enhancements are implemented effectively, improving operational efficiency and customer satisfaction without disrupting ongoing sales and service activities.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 18 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 PART 1 -->
+<section class="slide" id="requirement-1a" data-search="requirement 1 part 1 well-defined release management processes large small projects development teams seasonal business operations busiest season major sales cloud project team lead advice releasing production impact sales operations">
+  <div class="pgnum">Page 19 · Requirement 1 (Part 1)</div>
+  <h2>Requirement 1 (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company has well-defined release management processes for both large and small projects. However, its Salesforce development teams are facing some challenges and have the following requirements related to release management:</p>
+    <ol>
+      <li>The company has seasonal business operations and approaching its busiest season. A development team has been working on a major Sales Cloud project. The Team Lead requires advice about releasing it in production, considering the impact on sales operations.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- REQUIREMENT 1 PART 2 -->
+<section class="slide" id="requirement-1b" data-search="requirement 1 part 2 apex trigger record-triggered flow opportunity object sales director release planning architect CTO release management processes specific user groups better control management recommendation">
+  <div class="pgnum">Page 20 · Requirement 1 (Part 2)</div>
+  <h2>Requirement 1 (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <ol start="2">
+      <li>A developer has created an Apex trigger and a record-triggered flow on the Opportunity object for a requirement of the sales director. The architect needs to recommend an approach for the release planning of these changes.</li>
+      <li>Moving forward, the CTO would like the release management processes to be created and executed by specific user groups for better control and management. The architect needs to provide an appropriate recommendation.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 1 -->
+<section class="slide" id="solution-1a" data-search="solution 1 part 1 avoid launching major project peak business periods minimal impact sales operations minor release apex trigger record-triggered flow training change management practices two or more groups users minor impact training production">
+  <div class="pgnum">Page 21 · Solution 1 (Part 1)</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <ol>
+      <li>The company should <strong>avoid launching</strong> the major project in production <strong>near peak business periods</strong> to ensure that the impact on sales operations is minimal.</li>
+      <li>The release of the new Apex trigger and record-triggered flow should be planned as a <strong>minor release</strong> with <strong>training</strong> and <strong>change management</strong> practices. They represent minor changes that would not impact more than two or more groups of users and would have minor impact on training and production.</li>
+    </ol>
+  </div>
+  <div class="note">Classifying the Apex trigger + record-triggered flow as a minor release (not immediate) is correct because they impact the Opportunity object used by the sales director — spanning a specific user group — and require some training. If the change had no user impact and required no training, it would be classified as immediate.</div>
+</section>
+
+<!-- SOLUTION 1 PART 2 -->
+<section class="slide" id="solution-1b" data-search="solution 1 part 2 center of excellence COE steering committee creation execution release management processes strategic direction oversight standardizing overseeing">
+  <div class="pgnum">Page 22 · Solution 1 (Part 2)</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <ol start="3">
+      <li>The <strong>Center Of Excellence (COE)</strong> and <strong>Steering Committee</strong> should be responsible for the creation and execution of release management processes. The Steering Committee provides <strong>strategic direction and oversight</strong>. The Center of Excellence (COE) plays a pivotal role in <strong>standardizing and overseeing the execution of release management processes</strong>.</li>
+    </ol>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This solution directly maps to the CTO's requirement for "specific user groups for better control." The canonical answer is always the COE + Steering Committee pair — not a single group alone. The Steering Committee owns governance direction; the COE owns execution standards. Together they provide the segregation of duties that regulated organizations require: the body setting priorities is different from the body enforcing process compliance.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 governance framework release planning testing decisions new feature release lifecycle issues existing functionality regressions testing team issues new functionality production deadline short testing sandbox deployed production architect recommendation">
+  <div class="pgnum">Page 23 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company's CTO would like to develop a governance framework for release planning and has asked the architect for recommendations regarding decisions related to testing. In addition, one of the projects is in the testing phase, and the testing team has found several issues in the new functionality that will be deployed to production. As the project deadline is short, the team has proposed that the issues be fixed in the testing sandbox and then deployed to production. The architect needs to provide an appropriate recommendation.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 governance framework release planning testing decisions new feature release development lifecycle issues existing functionality regressions fixed developer sandbox migrated testing sandbox deployed production">
+  <div class="pgnum">Page 24 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>In a governance framework for release planning, important decisions related to testing include the following:</p>
+    <ol>
+      <li>When should a <strong>new feature release</strong> be tested in the development lifecycle, especially when issues are expected?</li>
+      <li>How should <strong>existing functionality</strong> be tested to ensure that <strong>no regressions</strong> are introduced?</li>
+    </ol>
+    <p>The issues found by the testing team should be <strong>fixed</strong> in a <strong>Developer sandbox</strong>. The changes should then be <strong>migrated to the testing sandbox</strong> for thorough testing. Once testing is complete, they should be <strong>deployed to production</strong>.</p>
+  </div>
+  <div class="note">The team's proposal to fix issues directly in the testing sandbox violates the principle of environment segregation. Fixes must always originate in the Developer sandbox, move to testing, and only then proceed to production. Fixing in the testing sandbox skips the development environment, which bypasses the full change lifecycle and risks contaminating the test environment.</div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Environment segregation — Developer sandbox → Testing sandbox → Production — is the software equivalent of segregation of duties. At a regulated institution, allowing fixes to be applied directly in the testing sandbox would violate the principle that no change enters production without traversing the defined promotion path. This is an auditable control: each migration event between environments should be logged with a ticket reference, deploying officer, and approver.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more simplifying salesforce release management top 7 best practices change release management further reading resources">
+  <div class="pgnum">Page 25 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Simplifying Salesforce Release Management</li>
+    <li>Top 7 Salesforce Release Management Best Practices</li>
+    <li>Change and Release Management</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points release management strategy types immediate minor major hotfix COE steering committee release paths exam gotchas decision matrix reference">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Release Management Strategy</h2>
+
+  <h3>Release Type Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Release Type</th><th>Cadence</th><th>Effort</th><th>Training</th><th>Config Time</th><th>Who Implements</th><th>Release Path</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Immediate</strong></td>
+        <td>Daily</td>
+        <td>Low</td>
+        <td>None</td>
+        <td>—</td>
+        <td>BA (Business Analyst)</td>
+        <td>Dev → QA → Production</td>
+      </tr>
+      <tr>
+        <td><strong>Minor</strong></td>
+        <td>Monthly</td>
+        <td>Medium</td>
+        <td>&lt; 1 day</td>
+        <td>&lt; 1 week</td>
+        <td>IT involvement</td>
+        <td>Dev → QA → UAT → Production</td>
+      </tr>
+      <tr>
+        <td><strong>Major</strong></td>
+        <td>Quarterly</td>
+        <td>High</td>
+        <td>&gt; 1 day</td>
+        <td>&gt; 1 week config + &gt; 1 week integration dev</td>
+        <td>IT Lead</td>
+        <td>Dev → QA → Integration Testing → UAT → Production</td>
+      </tr>
+      <tr>
+        <td><strong>Hotfix</strong></td>
+        <td>As needed (urgent)</td>
+        <td>Low (small change)</td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>Varies</td>
+        <td>UAT (Optional) → Production (then downstream all envs)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Release Management Groups</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Group</th><th>Role</th><th>Responsibilities</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Steering Committee</strong></td>
+        <td>Strategic direction &amp; oversight</td>
+        <td>Senior stakeholders; decisions on priorities, resource allocation, conflicts; ensures release management supports org objectives</td>
+      </tr>
+      <tr>
+        <td><strong>Center Of Excellence (COE)</strong></td>
+        <td>Execution standardization</td>
+        <td>Establishes best practices, methodologies, guidelines; works with dev teams for consistency, efficiency, quality; evaluates &amp; prioritizes new projects</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>New Project Evaluation — Four Steps</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Step</th><th>What Happens</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>1. New Project Submission</strong></td><td>Communication process defined; project request submitted to COE; project info entered in database</td></tr>
+      <tr><td><strong>2. Long Term Evaluation / Support</strong></td><td>COE evaluates short/long term goal alignment, alignment with other pending projects, support plan, administrative needs</td></tr>
+      <tr><td><strong>3. Project Prioritization</strong></td><td>COE meeting reviews requests; business priority and program roadmap alignment determined; priorities defined in COE database</td></tr>
+      <tr><td><strong>4. Project Decision</strong></td><td>COE advises on strategy and timing; Steering Committee informed; decision communicated to sponsors; relevant individuals join COE</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Three main release types, not four</strong> — Immediate, Minor, and Major are the three main types. Hotfix is a separate, urgent-issue-only category, not a regular release type.</li>
+    <li><strong>Immediate releases are outside the scope of the change process</strong> — they are applied directly in production and do not require formal change management approval.</li>
+    <li><strong>Minor = 3× more often than major</strong> — monthly vs. quarterly; minor releases are thrice as frequent as major releases.</li>
+    <li><strong>Major releases require an Integration Testing stage</strong> that minor and immediate releases do not have in their release path.</li>
+    <li><strong>Hotfix UAT is optional</strong> — the hotfix could be directly applied in production depending on the nature of the change. However, it must always flow downstream to all other environments afterward.</li>
+    <li><strong>Never fix issues in the testing sandbox</strong> — fixes must always originate in the Developer sandbox, then migrate to testing, then to production.</li>
+    <li><strong>COE ≠ Steering Committee</strong> — COE owns execution and standardization; Steering Committee owns strategic direction and oversight. Both are required for complete release governance.</li>
+    <li><strong>Release schedule milestones belong in the project schedule</strong> — not just in a release-specific document. This integration ensures release planning is visible to the broader project team.</li>
+    <li><strong>Avoid major releases near peak business periods</strong> — release timing must account for business operational calendars, not just technical readiness.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a central bank platform engineer, release management strategy is a regulatory and audit obligation, not just a delivery best practice. The four release types map to a tiered change-control model (routine / standard / significant / emergency). The COE + Steering Committee governance structure directly satisfies the segregation-of-duties requirement that the body proposing changes is separate from the body approving them. The defined release paths (especially Major's Integration Testing gate) provide the audit trail that examiners and internal audit need to confirm that no untested code reaches production. Versioned unlocked packages or change sets tracked in a source control system add traceability: every production deployment has a commit hash, a deploying officer, and an approver on record.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

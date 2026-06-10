@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application Lifecycle Management — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Application Lifecycle Management</h1>
+  <div class="sub">Assess development methodologies, governance strategies &amp; ALM maturity · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (59 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Application Lifecycle Management</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#alm-overview-diagram">ALM &amp; Methodologies Overview</a></li>
+      <li><a href="#alm-section-title">ALM Section</a></li>
+      <li><a href="#alm-definition">ALM Definition</a></li>
+      <li><a href="#alm-stages-plan-develop">Plan Release &amp; Develop</a></li>
+      <li><a href="#alm-stages-test-build">Test &amp; Build Release</a></li>
+      <li><a href="#alm-stages-test-release">Test Release &amp; Release</a></li>
+      <li><a href="#alm-cycle-diagram">ALM Cycle Diagram</a></li>
+      <li><a href="#alm-benefits-1">Benefits of ALM (part 1)</a></li>
+      <li><a href="#alm-benefits-2">Benefits of ALM (part 2)</a></li>
+    </ul>
+    <h3>Development Methodologies</h3>
+    <ul>
+      <li><a href="#dev-methodologies-title">Methodologies Section</a></li>
+      <li><a href="#dev-methodology-definition">Development Methodology</a></li>
+      <li><a href="#waterfall-1">Waterfall — Characteristics (1)</a></li>
+      <li><a href="#waterfall-2">Waterfall — Characteristics (2)</a></li>
+      <li><a href="#waterfall-risks">Risks of Waterfall</a></li>
+      <li><a href="#agile-1">Agile — Characteristics (1)</a></li>
+      <li><a href="#agile-2">Agile — Characteristics (2)</a></li>
+      <li><a href="#agile-risks">Risks of Agile</a></li>
+      <li><a href="#agile-frameworks">Agile Methodologies</a></li>
+      <li><a href="#scrum">Scrum</a></li>
+      <li><a href="#scrum-values">Scrum Values</a></li>
+      <li><a href="#lean">Lean</a></li>
+      <li><a href="#lean-principles">Lean Principles</a></li>
+      <li><a href="#kanban">Kanban</a></li>
+      <li><a href="#kanban-traits">Kanban Traits</a></li>
+      <li><a href="#hybrid-1">Hybrid Methodology (1)</a></li>
+      <li><a href="#hybrid-2">Hybrid Methodology (2)</a></li>
+      <li><a href="#hybrid-risks">Risks of Hybrid</a></li>
+    </ul>
+    <h3>Governance Strategies</h3>
+    <ul>
+      <li><a href="#governance-title">Governance Section</a></li>
+      <li><a href="#governance-intro-1">Governance — Definition</a></li>
+      <li><a href="#governance-intro-2">Governance — Focus &amp; Benefits</a></li>
+      <li><a href="#waterfall-governance">Waterfall Governance Strategies</a></li>
+      <li><a href="#agile-governance">Agile Governance Strategies</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#business-scenario-title">Business Scenario Section</a></li>
+      <li><a href="#business-scenario">Cosmic Software Inc.</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#req-solutions-title">Requirements &amp; Solutions Section</a></li>
+      <li><a href="#req1-part1">Requirement 1 — Scenario (Part 1)</a></li>
+      <li><a href="#req1-part2">Requirement 1 — Scenario (Part 2)</a></li>
+      <li><a href="#sol1-part1">Solution 1 — Waterfall Rationale</a></li>
+      <li><a href="#sol1-part2">Solution 1 — Risk Mitigation</a></li>
+      <li><a href="#sol1-part3">Solution 1 — Waterfall Flow</a></li>
+      <li><a href="#req2-part1">Requirement 2 — Scenario (Part 1)</a></li>
+      <li><a href="#req2-part2">Requirement 2 — Scenario (Part 2)</a></li>
+      <li><a href="#sol2-part1">Solution 2 — Agile Rationale</a></li>
+      <li><a href="#sol2-part2">Solution 2 — Risk Mitigation</a></li>
+      <li><a href="#sol2-part3">Solution 2 — Agile Flow</a></li>
+      <li><a href="#req3-part1">Requirement 3 — Scenario (Part 1)</a></li>
+      <li><a href="#req3-part2">Requirement 3 — Scenario (Part 2)</a></li>
+      <li><a href="#sol3-part1">Solution 3 — Hybrid Rationale</a></li>
+      <li><a href="#sol3-part2">Solution 3 — Risk Mitigation</a></li>
+      <li><a href="#req4-part1">Requirement 4 — Scenario (Part 1)</a></li>
+      <li><a href="#req4-part2">Requirement 4 — Scenario (Part 2)</a></li>
+      <li><a href="#sol4-part1">Solution 4 — Scrum Alignment</a></li>
+      <li><a href="#sol4-part2">Solution 4 — Scrum Risks</a></li>
+      <li><a href="#sol4-part3">Solution 4 — Openness &amp; Respect</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- ===== COVER ===== -->
+<section class="slide title-slide" id="cover" data-search="cover application lifecycle management alm development methodologies governance">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Application Lifecycle Management</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given the project risk and customer requirements, explain how to assess the benefits and risks of the different development methodologies and recommend the appropriate governance strategies based on the customer maturity.</p>
+</section>
+
+<!-- ===== TABLE OF CONTENTS ===== -->
+<section class="slide" id="toc-slide" data-search="table of contents application lifecycle management development methodologies governance strategies business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#alm-section-title">Application Lifecycle Management</a></li>
+    <li><a class="toc-link" href="#dev-methodologies-title">Development Methodologies</a></li>
+    <li><a class="toc-link" href="#governance-title">Governance Strategies</a></li>
+    <li><a class="toc-link" href="#business-scenario-title">Business Scenario</a></li>
+    <li><a class="toc-link" href="#req-solutions-title">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- ===== LEARNING OBJECTIVES ===== -->
+<section class="slide" id="objectives" data-search="learning objectives alm stages waterfall agile hybrid scrum lean kanban governance strategies">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the various stages of Application Lifecycle Management (ALM).</li>
+    <li>Explain the features, benefits, and risks of Waterfall, Agile, and Hybrid development methodologies.</li>
+    <li>Describe the principles of Scrum, Lean, and Kanban frameworks.</li>
+    <li>Apply governance strategies to development methodologies.</li>
+  </ul>
+</section>
+
+<!-- ===== INTRODUCTION ===== -->
+<section class="slide" id="intro" data-search="introduction alm application lifecycle management waterfall agile hybrid scrum lean kanban governance strategies phases plan release develop test build release">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p><strong>Application Lifecycle Management (ALM)</strong> is the process of managing the life of an application. It manages an application's development, from design to final release. It establishes a framework for fixing bugs and delivering feature enhancements over time. It consists of these phases: <strong>Plan Release</strong>, <strong>Develop</strong>, <strong>Test</strong>, <strong>Build Release</strong>, <strong>Test Release</strong>, and <strong>Release</strong>.</p>
+  <p>Various <strong>development methodologies</strong> are available to manage the development of a Salesforce application. These include <strong>waterfall</strong>, <strong>agile</strong>, and <strong>hybrid</strong>. Furthermore, the principles of frameworks such as <strong>Scrum</strong>, <strong>Lean</strong>, or <strong>Kanban</strong> can also be applied to a Salesforce development project.</p>
+  <p>It is also important to consider the establishment of <strong>governance strategies</strong> for a development methodology to manage and track changes effectively.</p>
+</section>
+
+<!-- ===== ALM & METHODOLOGIES OVERVIEW DIAGRAM ===== -->
+<section class="slide" id="alm-overview-diagram" data-search="alm development methodologies overview waterfall agile scrum lean kanban governance strategies diagram">
+  <div class="pgnum">Page 5 · ALM &amp; Methodologies Overview</div>
+  <h2>Application Lifecycle Management &amp; Development Methodologies</h2>
+  <p class="lede">The core concepts of this topic at a glance.</p>
+  <div class="cards">
+    <div class="card"><h4>Application Lifecycle Management</h4><p>ALM is the process of managing the life of an application.</p></div>
+    <div class="card"><h4>Waterfall</h4><p>Waterfall is a traditional development methodology with a linear sequence of defined steps.</p></div>
+    <div class="card"><h4>Agile</h4><p>Agile is an iterative and flexible development approach that focuses on incremental delivery.</p></div>
+    <div class="card"><h4>Scrum</h4><p>The Scrum framework focuses on the iterative delivery of results based on five core values.</p></div>
+    <div class="card"><h4>Lean</h4><p>The Lean framework applies the principles of efficiency and value delivery to software development.</p></div>
+    <div class="card"><h4>Kanban</h4><p>Kanban is an agile framework that focuses on managing and improving workflows.</p></div>
+    <div class="card"><h4>Governance</h4><p>Governance refers to putting a structure in place to handle and track changes effectively.</p></div>
+    <div class="card"><h4>Governance Strategies</h4><p>Governance strategies can be implemented for methodologies such as waterfall and agile.</p></div>
+  </div>
+</section>
+
+<!-- ===== ALM SECTION TITLE ===== -->
+<section class="slide title-slide" id="alm-section-title" data-search="application lifecycle management section">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Application Lifecycle Management</h2>
+</section>
+
+<!-- ===== ALM DEFINITION ===== -->
+<section class="slide" id="alm-definition" data-search="alm definition stages process managing application plan release develop test build release steps policies">
+  <div class="pgnum">Page 7 · ALM Definition</div>
+  <h2>Application Lifecycle Management</h2>
+  <p class="lede"><strong>Application Lifecycle Management (ALM)</strong> refers to the process of managing the life of an application and focuses on the <strong>steps</strong> and <strong>policies</strong> to build the application smoothly.</p>
+  <div class="cards">
+    <div class="card"><h4>Stages</h4><p>The ALM cycle consists of the following stages that apply to any Salesforce development project: <strong>Plan Release</strong>, <strong>Develop</strong>, <strong>Test</strong>, <strong>Build Release</strong>, <strong>Test Release</strong>, and <strong>Release</strong>.</p></div>
+    <div class="card"><h4>Process &amp; Framework</h4><p>ALM defines the process of managing an app's development, from <strong>design to final release</strong>. It also establishes a framework for <strong>fixing bugs</strong> and <strong>developing feature enhancements</strong> over time.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a regulated institution like the Federal Reserve, ALM is not optional — it is the governance structure that provides the audit trail from requirement through release. Every stage maps to a control: Plan Release = change request, Develop = controlled environment, Test = quality gate, Release = change advisory board sign-off.</p>
+  </div>
+</section>
+
+<!-- ===== ALM STAGES: PLAN RELEASE & DEVELOP ===== -->
+<section class="slide" id="alm-stages-plan-develop" data-search="plan release develop requirements design specifications development environment declarative programmatic tools">
+  <div class="pgnum">Page 8 · Plan Release &amp; Develop</div>
+  <h2>ALM Stages: Plan Release &amp; Develop</h2>
+  <p class="lede"><strong>Application Lifecycle Management (ALM)</strong> refers to the process of managing the life of an application and focuses on the <strong>steps</strong> and <strong>policies</strong> to build the application smoothly.</p>
+  <h3>Plan Release</h3>
+  <p>A development project should start with a plan. At this stage, <strong>requirements should be gathered and analyzed</strong>. The product manager creates <strong>design specifications</strong>. The <strong>development</strong> and <strong>testing environments</strong> are identified.</p>
+  <h3>Develop</h3>
+  <p>At this stage, based on the design specifications, the <strong>development work is done</strong> in an environment containing a copy of the production org's metadata. An appropriate combination of <strong>declarative and programmatic tools</strong> is used for development.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>"Plan Release" is where architects add the most value — defining sandbox strategy, identifying tooling, and establishing the governance model before a single line of code is written. Frame your answer around "what do you do before you build?"</p>
+  </div>
+</section>
+
+<!-- ===== ALM STAGES: TEST & BUILD RELEASE ===== -->
+<section class="slide" id="alm-stages-test-build" data-search="test build release testing integrated work single release artifact customizations deploy production">
+  <div class="pgnum">Page 9 · Test &amp; Build Release</div>
+  <h2>ALM Stages: Test &amp; Build Release</h2>
+  <p class="lede"><strong>Application Lifecycle Management (ALM)</strong> refers to the process of managing the life of an application and focuses on the <strong>steps</strong> and <strong>policies</strong> to build the application smoothly.</p>
+  <h3>Test</h3>
+  <p>The changes made in the previous step are <strong>tested</strong> to ensure they work as intended before they are <strong>integrated with other people's work</strong>. Testing is done in the same type of environment that was used for development.</p>
+  <h3>Build Release</h3>
+  <p>The customizations that need to be deployed to production are <strong>aggregated into a single-release artifact</strong>.</p>
+  <div class="note">Testing at the same environment type as development avoids environment-parity surprises. This is a key reason why the sandbox tier strategy matters: developer sandboxes for Develop, same tier (or integration sandbox) for Test.</div>
+</section>
+
+<!-- ===== ALM STAGES: TEST RELEASE & RELEASE ===== -->
+<section class="slide" id="alm-stages-test-release" data-search="test release release staging environment regression performance uat user acceptance testing deploy production training employees partners">
+  <div class="pgnum">Page 10 · Test Release &amp; Release</div>
+  <h2>ALM Stages: Test Release &amp; Release</h2>
+  <p class="lede"><strong>Application Lifecycle Management (ALM)</strong> refers to the process of managing the life of an application and focuses on the <strong>steps</strong> and <strong>policies</strong> to build the application smoothly.</p>
+  <h3>Test Release</h3>
+  <p>The <strong>release artifact is tested in a staging environment</strong> that mimics production. <strong>Regression and performance tests</strong> are run at this stage. The release is tested with a small set of experienced people who provide feedback, called <strong>user acceptance testing (UAT)</strong>.</p>
+  <h3>Release</h3>
+  <p>After <strong>completing the testing</strong> and <strong>meeting the quality benchmarks</strong>, the release artifact containing the customizations is <strong>deployed to production</strong>. <strong>Employees and partners are trained</strong> to ensure that they understand the changes, and if necessary, a separate environment is created for training if the release has a significant user impact.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>UAT in a Full sandbox mirroring production is the standard answer for regulated deployments. The "training environment" step is often overlooked in interviews — mention it to show operational maturity. At the Fed, training documentation and sign-off are part of the change record.</p>
+  </div>
+</section>
+
+<!-- ===== ALM CYCLE DIAGRAM ===== -->
+<section class="slide" id="alm-cycle-diagram" data-search="alm cycle diagram plan release develop test build release test release release six stages iterative">
+  <div class="pgnum">Page 11 · ALM Cycle</div>
+  <h2>The ALM Cycle — Six Stages</h2>
+  <p class="lede">The six stages of ALM form a continuous cycle, enabling iterative delivery and ongoing improvement.</p>
+  <table class="dttable">
+    <thead><tr><th>#</th><th>Stage</th><th>Key activity</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Plan Release</td><td>Gather &amp; analyze requirements; create design specs; identify environments</td></tr>
+      <tr><td>2</td><td>Develop</td><td>Build in a sandbox copy of production metadata using declarative &amp; programmatic tools</td></tr>
+      <tr><td>3</td><td>Test</td><td>Validate changes in the same environment type; ensure integration with other work</td></tr>
+      <tr><td>4</td><td>Build Release</td><td>Aggregate all customizations into a single release artifact</td></tr>
+      <tr><td>5</td><td>Test Release</td><td>Regression &amp; performance tests in staging; UAT with key stakeholders</td></tr>
+      <tr><td>6</td><td>Release</td><td>Deploy to production; train employees &amp; partners</td></tr>
+    </tbody>
+  </table>
+  <div class="note">The cycle repeats — after Release, the next Plan Release begins, incorporating feedback and new requirements. This is how ALM supports both waterfall (one large cycle) and agile (many short cycles) methodologies.</div>
+</section>
+
+<!-- ===== BENEFITS OF ALM (PART 1) ===== -->
+<section class="slide" id="alm-benefits-1" data-search="benefits alm avoids defects increases efficiency improves consistency quality productivity standardizing">
+  <div class="pgnum">Page 12 · Benefits of ALM (1)</div>
+  <h2>Benefits of Application Lifecycle Management</h2>
+  <p class="lede">Using <strong>Application Lifecycle Management (ALM)</strong> for application development has many benefits.</p>
+  <div class="cards">
+    <div class="card"><h4>Avoids Defects</h4><p>Using ALM <strong>improves the quality</strong> of the application and ensures that defects, such as functional bugs, usability issues, and logic errors, are <strong>not deployed to production</strong>.</p></div>
+    <div class="card"><h4>Increases Efficiency</h4><p>It <strong>increases the efficiency and productivity of teams</strong> by standardizing processes and facilitating the reuse of resources.</p></div>
+    <div class="card"><h4>Improves Consistency</h4><p>It enables systematic planning, development, and deployment, leading to <strong>more consistent and predictable release schedules</strong>.</p></div>
+  </div>
+</section>
+
+<!-- ===== BENEFITS OF ALM (PART 2) ===== -->
+<section class="slide" id="alm-benefits-2" data-search="benefits alm faster delivery reduces cost maintenance long-term stability usability support">
+  <div class="pgnum">Page 13 · Benefits of ALM (2)</div>
+  <h2>Benefits of Application Lifecycle Management (continued)</h2>
+  <p class="lede">Using <strong>Application Lifecycle Management (ALM)</strong> for application development has many benefits.</p>
+  <div class="cards">
+    <div class="card"><h4>Faster Delivery</h4><p>It can <strong>accelerate the development process</strong>, enabling teams to deliver features to customers faster.</p></div>
+    <div class="card"><h4>Reduces Cost</h4><p>It can <strong>significantly reduce costs</strong> by improving efficiency, reducing rework, and preventing defects.</p></div>
+    <div class="card"><h4>Maintenance</h4><p>It provides a framework for <strong>ongoing maintenance and support of the application</strong>, ensuring <strong>long-term stability and usability</strong>.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked "why does ALM matter?", lead with the cost angle: <em>defects found in production cost 10–100x more than defects caught in development</em>. The "reduces cost" and "avoids defects" bullets are your evidence. Pair it with a real example of catching a bug in a sandbox before it hit prod.</p>
+  </div>
+</section>
+
+<!-- ===== DEVELOPMENT METHODOLOGIES SECTION TITLE ===== -->
+<section class="slide title-slide" id="dev-methodologies-title" data-search="development methodologies section">
+  <div class="pgnum" style="color:#cbd6e6">Page 14 · Section</div>
+  <h2>Development Methodologies</h2>
+</section>
+
+<!-- ===== DEVELOPMENT METHODOLOGY DEFINITION ===== -->
+<section class="slide" id="dev-methodology-definition" data-search="development methodology structured approach practices build test deploy maintain planning analysis design deployment maintenance governance key aspects">
+  <div class="pgnum">Page 15 · Development Methodology</div>
+  <h2>Development Methodology</h2>
+  <p class="lede">A <strong>development methodology</strong> is the <strong>structured approach or set of practices</strong> that Salesforce developers and teams follow to <strong>build, test, deploy, and maintain</strong> applications within the Salesforce platform.</p>
+  <div class="cards">
+    <div class="card"><h4>Processes &amp; Strategies</h4><p>The development methodology encompasses the <strong>processes and strategies</strong> used to manage the lifecycle of custom Salesforce solutions, through <strong>initial planning</strong> and design through <strong>development</strong>, <strong>deployment</strong>, and <strong>ongoing maintenance</strong>.</p></div>
+    <div class="card"><h4>Key Aspects</h4><p>The key aspects of a development methodology are <strong>planning and analysis</strong>, <strong>design</strong>, <strong>development</strong>, <strong>testing</strong>, <strong>deployment</strong>, <strong>maintenance and support</strong>, and <strong>governance</strong>.</p></div>
+  </div>
+</section>
+
+<!-- ===== WATERFALL METHODOLOGY (1) ===== -->
+<section class="slide" id="waterfall-1" data-search="waterfall methodology traditional linear sequence defined steps requirements well-defined stable planning documentation single outcome stakeholders milestones">
+  <div class="pgnum">Page 16 · Waterfall Methodology (1)</div>
+  <h2>Waterfall Methodology</h2>
+  <p class="lede">Waterfall is a <strong>traditional development methodology</strong> with a <strong>linear sequence of defined steps</strong>. Each step is completed fully before moving on to the next.</p>
+  <div class="cards">
+    <div class="card"><h4>Stable Requirements</h4><p>The <strong>requirements</strong> are <strong>well-defined</strong> and typically <strong>very stable</strong>.</p></div>
+    <div class="card"><h4>Documentation Focus</h4><p>There is a focus on <strong>extensive planning and documentation</strong>.</p></div>
+    <div class="card"><h4>Single Outcome</h4><p>There is a <strong>single outcome or result</strong> of the development process.</p></div>
+    <div class="card"><h4>Stakeholder Engagement</h4><p>Stakeholders <strong>engage in planning</strong> and at <strong>key milestones</strong>.</p></div>
+  </div>
+</section>
+
+<!-- ===== WATERFALL METHODOLOGY (2) ===== -->
+<section class="slide" id="waterfall-2" data-search="waterfall methodology time cost planning risks early changes managed controlled">
+  <div class="pgnum">Page 17 · Waterfall Methodology (2)</div>
+  <h2>Waterfall Methodology (continued)</h2>
+  <p class="lede">Waterfall is a <strong>traditional development methodology</strong> with a <strong>linear sequence of defined steps</strong>. Each step is completed fully before moving on to the next.</p>
+  <div class="cards">
+    <div class="card"><h4>Time &amp; Cost Planning</h4><p><strong>Time and cost</strong> are determined in the <strong>planning</strong> stage of the project.</p></div>
+    <div class="card"><h4>Early Risk Definition</h4><p>The <strong>project risks</strong> are defined <strong>early</strong> in the project.</p></div>
+    <div class="card"><h4>Change Control</h4><p><strong>Changes</strong> are carefully <strong>managed and controlled</strong>.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Waterfall's upfront planning, extensive documentation, and managed change control map directly to the Federal Reserve's IT governance requirements. Change requests must be documented, risk-assessed, and approved before work begins — that is Waterfall governance by default. For well-understood, compliance-driven projects, Waterfall remains the safer and more auditable choice.</p>
+  </div>
+</section>
+
+<!-- ===== RISKS OF WATERFALL ===== -->
+<section class="slide" id="waterfall-risks" data-search="risks waterfall lack flexibility change formal review documentation time-consuming stakeholder limited feedback accurate planning customer dissatisfaction">
+  <div class="pgnum">Page 18 · Risks of Waterfall</div>
+  <h2>Risks of Waterfall Methodology</h2>
+  <p class="lede">The <strong>Waterfall development methodology</strong> has various <strong>risks</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Inflexibility</h4><p>There is a <strong>lack of flexibility</strong> and the changes must be <strong>formally reviewed</strong> and approved.</p></div>
+    <div class="card"><h4>Change Resistance</h4><p><strong>Change</strong> is avoided and new or unplanned risks are <strong>not easily accommodated</strong>.</p></div>
+    <div class="card"><h4>Documentation Overhead</h4><p>The documentation is <strong>time-consuming</strong> and doesn't <strong>provide value</strong> to the customer.</p></div>
+    <div class="card"><h4>Limited Stakeholder Feedback</h4><p>Stakeholder involvement is <strong>minimal</strong>, so there is <strong>limited feedback</strong>.</p></div>
+    <div class="card"><h4>Upfront Planning Required</h4><p><strong>Accurate and complete planning</strong> is required to determine the project time and cost.</p></div>
+    <div class="card"><h4>Customer Dissatisfaction Risk</h4><p>There is a <strong>risk of customer dissatisfaction</strong> with the final outcome.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The exam often presents a scenario where requirements change mid-project under Waterfall — the correct answer is that Waterfall does not accommodate this well, and the change must go through a formal Change Control Board. That rigidity is both a risk and, in regulated environments, a feature.</p>
+  </div>
+</section>
+
+<!-- ===== AGILE METHODOLOGY (1) ===== -->
+<section class="slide" id="agile-1" data-search="agile methodology iterative flexible sprints requirements progressively elaborated stakeholders engage throughout incremental delivery">
+  <div class="pgnum">Page 19 · Agile Methodology (1)</div>
+  <h2>Agile Methodology</h2>
+  <p class="lede">Agile is a <strong>less traditional</strong> development methodology that focuses on an <strong>iterative and flexible approach</strong> where the project is divided into small parts called <strong>sprints</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Evolving Requirements</h4><p>The <strong>requirements</strong> are <strong>progressively elaborated</strong>.</p></div>
+    <div class="card"><h4>Iterative Planning</h4><p>The focus is on <strong>iterative planning and execution</strong>.</p></div>
+    <div class="card"><h4>Incremental Delivery</h4><p>There is <strong>incremental delivery</strong> of outcome.</p></div>
+    <div class="card"><h4>Continuous Stakeholder Engagement</h4><p>Stakeholders <strong>engage throughout the project</strong>.</p></div>
+  </div>
+</section>
+
+<!-- ===== AGILE METHODOLOGY (2) ===== -->
+<section class="slide" id="agile-2" data-search="agile methodology time cost defined refined project risks throughout changes expected incorporated planning execution">
+  <div class="pgnum">Page 20 · Agile Methodology (2)</div>
+  <h2>Agile Methodology (continued)</h2>
+  <p class="lede">Agile is a <strong>less traditional</strong> development methodology that focuses on an <strong>iterative and flexible approach</strong> where the project is divided into small parts called <strong>sprints</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Time &amp; Cost Refinement</h4><p>As the requirements are elaborated, the <strong>time and cost are defined and refined</strong>.</p></div>
+    <div class="card"><h4>Ongoing Risk Definition</h4><p><strong>Project risks</strong> are defined and refined <strong>throughout the project</strong>.</p></div>
+    <div class="card"><h4>Change Embrace</h4><p><strong>Changes</strong> are <strong>expected and incorporated</strong> during planning and execution.</p></div>
+  </div>
+</section>
+
+<!-- ===== RISKS OF AGILE ===== -->
+<section class="slide" id="agile-risks" data-search="risks agile scope creep compromise quality documentation insufficient customer input derail focus underestimation integration challenging multiple teams">
+  <div class="pgnum">Page 21 · Risks of Agile</div>
+  <h2>Risks of Agile Methodology</h2>
+  <p class="lede">The <strong>Agile development methodology</strong> has various <strong>risks</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Scope Creep</h4><p>Projects can suffer from <strong>scope creep</strong> due to the iterative nature and frequent feedback loops.</p></div>
+    <div class="card"><h4>Quality Compromise</h4><p>Rapid development can sometimes <strong>compromise the quality</strong> of software.</p></div>
+    <div class="card"><h4>Insufficient Documentation</h4><p>Prioritizing working software can lead to <strong>insufficient documentation</strong>.</p></div>
+    <div class="card"><h4>Constant Changes</h4><p>Excessive customer input can <strong>derail the project focus</strong> or lead to <strong>constant changes</strong> in requirements.</p></div>
+    <div class="card"><h4>Underestimation</h4><p>Lack of detailed upfront planning can cause <strong>underestimation of time and effort</strong>.</p></div>
+    <div class="card"><h4>Integration Challenges</h4><p><strong>Integration can be challenging</strong> if multiple teams are working on different parts of a larger system.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a regulated environment, "insufficient documentation" is not just a risk — it is a compliance failure. Agile at the Fed requires explicit guardrails: definition-of-done that includes documentation, compliance review at sprint boundaries, and a Release Management role that maintains the audit trail across sprints.</p>
+  </div>
+</section>
+
+<!-- ===== AGILE METHODOLOGIES (SCRUM, LEAN, KANBAN) ===== -->
+<section class="slide" id="agile-frameworks" data-search="agile methodologies scrum lean kanban three most common frameworks">
+  <div class="pgnum">Page 22 · Agile Methodologies</div>
+  <h2>Agile Methodologies</h2>
+  <p class="lede">The three most common Agile methodologies are <strong>Scrum</strong>, <strong>Lean</strong>, and <strong>Kanban</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Scrum</h4><p>An iterative framework based on time-boxed sprints, defined roles (scrum master, product owner, development team), and five core values.</p></div>
+    <div class="card"><h4>Lean</h4><p>Applies manufacturing principles of efficiency and value delivery — waste elimination, continuous learning, just-in-time decisions.</p></div>
+    <div class="card"><h4>Kanban</h4><p>A visual workflow framework that manages work in progress (WIP) and improves flow through the development pipeline.</p></div>
+  </div>
+</section>
+
+<!-- ===== SCRUM ===== -->
+<section class="slide" id="scrum" data-search="scrum agile framework iterative delivery incremental sprints 2-4 weeks meetings sprint planning daily stand-up review retrospective roles scrum master product owner development team artifacts product backlog sprint backlog burndown increment">
+  <div class="pgnum">Page 23 · Scrum</div>
+  <h2>Scrum</h2>
+  <p class="lede">Scrum is an <strong>agile framework</strong> used for the <strong>iterative delivery</strong> of <strong>project outcomes and results</strong>. It is an <strong>easy to follow</strong> and <strong>scalable</strong> method often used for <strong>software development</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Incremental</h4><p>Working software is <strong>delivered incrementally</strong>. Time-boxed iterations known as <strong>sprints</strong> typically last for <strong>2–4 weeks</strong>.</p></div>
+    <div class="card"><h4>Roles</h4><p>Stakeholders and team are <strong>highly collaborative</strong>. Roles include <strong>scrum master</strong>, <strong>product owner</strong>, and <strong>development team</strong>.</p></div>
+    <div class="card"><h4>Meetings</h4><p>Scrum features meetings such as <strong>sprint planning</strong>, <strong>daily stand-ups</strong>, <strong>sprint review</strong>, and <strong>sprint retrospective</strong>.</p></div>
+    <div class="card"><h4>Artifacts</h4><p>Major artifacts include <strong>product backlog</strong>, <strong>sprint backlog</strong>, <strong>burndown charts</strong>, and <strong>increment</strong>.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Know the difference between sprint review (show stakeholders what was built) and sprint retrospective (team reflects on how they worked). Interviewers test this distinction. The product owner prioritizes the backlog; the scrum master removes impediments — these are distinct roles, not interchangeable.</p>
+  </div>
+</section>
+
+<!-- ===== SCRUM VALUES ===== -->
+<section class="slide" id="scrum-values" data-search="scrum values focus courage openness commitment respect five values team sprint goals bravery transparent collaboration">
+  <div class="pgnum">Page 24 · Scrum Values</div>
+  <h2>Scrum Values</h2>
+  <p class="lede">The Scrum framework is built on five core values that guide team behavior and decision-making.</p>
+  <div class="cards">
+    <div class="card"><h4>Focus</h4><p>Team members concentrate on the overall goals and work of the sprint. They prioritize the work that contributes to the sprint goals and avoid distractions.</p></div>
+    <div class="card"><h4>Courage</h4><p>Team members have the bravery to do the right thing. They are bold in the face of challenges and do not hesitate to speak up, experiment, or innovate.</p></div>
+    <div class="card"><h4>Openness</h4><p>The team and stakeholders are transparent about all the work and any challenges. They share ideas, concerns, and mistakes. They are open to change, feedback, and learning.</p></div>
+    <div class="card"><h4>Commitment</h4><p>Team members are committed to the success of the project and the goals of the sprint. They are dedicated to the necessary time and effort to complete tasks.</p></div>
+    <div class="card"><h4>Respect</h4><p>Team members recognize each member's expertise, perspective, and contribution. They treat each other with dignity, work together as equals, and value their input.</p></div>
+  </div>
+  <div class="note">Mnemonic: <strong>FCORE</strong> — Focus, Courage, Openness, Respect… wait — <strong>COFOR</strong>. Better: remember "A <strong>C</strong>ompetent <strong>F</strong>ocus <strong>O</strong>pens <strong>R</strong>espect" (Commitment, Focus, Openness, Respect) + Courage. The exam tests all five by name.</div>
+</section>
+
+<!-- ===== LEAN ===== -->
+<section class="slide" id="lean" data-search="lean framework manufacturing principles efficiency value delivery waste elimination knowledge learning efficiency quality just-in-time decisions last responsible moment">
+  <div class="pgnum">Page 25 · Lean</div>
+  <h2>Lean</h2>
+  <p class="lede">Lean is a <strong>framework</strong> that applies the <strong>manufacturing principles of efficiency and value delivery</strong> to software development.</p>
+  <div class="cards">
+    <div class="card"><h4>Waste Elimination</h4><p>Lean focuses on <strong>maximizing value</strong> while <strong>minimizing waste</strong> associated with unproductive tasks.</p></div>
+    <div class="card"><h4>Efficiency &amp; Quality</h4><p>There is an <strong>efficient</strong> use of <strong>team resources</strong>. The focus is on <strong>quality</strong> at <strong>every step</strong>.</p></div>
+    <div class="card"><h4>Knowledge</h4><p><strong>Constant learning and adaptation</strong> are encouraged for continuous improvement.</p></div>
+    <div class="card"><h4>Just-in-Time Decisions</h4><p><strong>Decisions</strong> are made at the <strong>last responsible moment</strong>. Up-front decisions are avoided.</p></div>
+  </div>
+</section>
+
+<!-- ===== LEAN PRINCIPLES ===== -->
+<section class="slide" id="lean-principles" data-search="lean principles identify value map value stream create flow establish pull seek perfection continuous improvement waste customer demand">
+  <div class="pgnum">Page 26 · Lean Principles</div>
+  <h2>Lean Principles</h2>
+  <p class="lede">The five principles of Lean guide how value flows from development to the customer.</p>
+  <div class="cards">
+    <div class="card"><h4>Identify Value</h4><p>The focus is on determining what is valuable to the customer by understanding their needs and preferences through engagement.</p></div>
+    <div class="card"><h4>Map the Value Stream</h4><p>Value stream mapping focuses on identifying the activities and processes necessary to deliver a feature and eliminating waste.</p></div>
+    <div class="card"><h4>Create Flow</h4><p>Creating a flow involves reorganizing work processes, equipment, and teams to get value to flow to customers at a steady pace. Value-creating steps are performed in a tight sequence.</p></div>
+    <div class="card"><h4>Establish Pull</h4><p>Features are only made in response to customer demand. This means not delivering features unless there is a clear need or request.</p></div>
+    <div class="card"><h4>Seek Perfection</h4><p>The final characteristic of Lean is the continuous pursuit of perfection. It emphasizes continually seeking ways to improve processes and eliminate waste.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Lean's "just-in-time decisions" directly opposes Waterfall's upfront planning. When an exam scenario describes a team that wants to delay architectural decisions until they have more information, Lean (not Agile generically) is the precise answer. Pair with the value stream — waste in Salesforce dev includes unused features, unnecessary approvals, and environments that drift.</p>
+  </div>
+</section>
+
+<!-- ===== KANBAN ===== -->
+<section class="slide" id="kanban" data-search="kanban agile framework visual workflow kanban board columns stages limits work in progress metrics cycle time throughput changes smaller">
+  <div class="pgnum">Page 27 · Kanban</div>
+  <h2>Kanban</h2>
+  <p class="lede">Kanban is an <strong>agile framework</strong> that focuses on <strong>managing and improving workflows</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Visual Workflow</h4><p>Work is made <strong>visible</strong>, typically using a <strong>Kanban board</strong>. The workflow is divided into <strong>columns</strong>, each representing a <strong>different stage</strong>.</p></div>
+    <div class="card"><h4>Limits</h4><p><strong>Limitations</strong> are placed on how many <strong>work items are in progress</strong> at a time in each <strong>workflow stage</strong>.</p></div>
+    <div class="card"><h4>Changes</h4><p>Kanban allows teams to embrace <strong>smaller and more changes</strong> along the workflow.</p></div>
+    <div class="card"><h4>Metrics</h4><p>Metrics such as <strong>cycle time</strong> and <strong>throughput</strong> are used to determine and predict progress.</p></div>
+  </div>
+</section>
+
+<!-- ===== KANBAN TRAITS ===== -->
+<section class="slide" id="kanban-traits" data-search="kanban traits visualize workflow limit wip incremental evolutionary change kanban metrics cycle time throughput work items cards board stages last-minute">
+  <div class="pgnum">Page 28 · Kanban Traits</div>
+  <h2>Kanban Traits</h2>
+  <p class="lede">Four key traits distinguish Kanban from other frameworks.</p>
+  <div class="cards">
+    <div class="card"><h4>Visualize Workflow</h4><p>Work is divided into smaller pieces that are represented on cards that move from left to right on a Kanban board, which visually maps out each stage of the workflow.</p></div>
+    <div class="card"><h4>Limit Work in Progress (WIP)</h4><p>WIP limits are set at each stage of the workflow to prevent overloading the team and to ensure the smooth flow of work through the process. Current tasks are completed before starting new ones.</p></div>
+    <div class="card"><h4>Incremental &amp; Evolutionary Change</h4><p>Teams using Kanban are more open to taking last-minute requests. When a work item is finished, they move to the next highest-priority task.</p></div>
+    <div class="card"><h4>Kanban Metrics</h4><p><strong>Cycle time</strong> is used to determine the number of days to complete a work item once work starts on it. <strong>Throughput</strong> is used to measure the amount of work completed in a single period of time.</p></div>
+  </div>
+  <div class="note">Kanban vs Scrum: Kanban has no sprints, no fixed roles, and no ceremonies — it is a continuous-flow model. Scrum has time-boxed sprints and defined ceremonies. Kanban suits ongoing operational support work (e.g., bug fixes, admin tasks); Scrum suits project-based delivery with a defined scope.</div>
+</section>
+
+<!-- ===== HYBRID METHODOLOGY (1) ===== -->
+<section class="slide" id="hybrid-1" data-search="hybrid methodology waterfall agile structured phases initial planning requirements iterative development cycles regular feedback milestones deliverables">
+  <div class="pgnum">Page 29 · Hybrid Methodology (1)</div>
+  <h2>Hybrid Methodology</h2>
+  <p class="lede">A <strong>hybrid development methodology</strong> combines the <strong>elements of both Waterfall and Agile methodologies</strong> by leveraging their strengths and mitigating their weaknesses.</p>
+  <div class="cards">
+    <div class="card"><h4>Structured Phases</h4><p><strong>Structured phases</strong>, such as detailed upfront planning, are combined with the <strong>flexibility</strong> of Agile, such as iterative development.</p></div>
+    <div class="card"><h4>Detailed Initial Planning</h4><p><strong>Initial planning</strong> and <strong>requirement gathering</strong> are done in a <strong>detailed and structured manner</strong>.</p></div>
+    <div class="card"><h4>Iterative Implementation</h4><p>Planning is followed by the use of <strong>iterative development cycles</strong> for implementation.</p></div>
+    <div class="card"><h4>Regular Feedback</h4><p><strong>Regular feedback</strong> is incorporated while maintaining <strong>defined milestones and deliverables</strong>.</p></div>
+  </div>
+</section>
+
+<!-- ===== HYBRID METHODOLOGY (2) ===== -->
+<section class="slide" id="hybrid-2" data-search="hybrid methodology documentation balanced risk assessment early phases adapt waterfall predictive agile uncertain parts">
+  <div class="pgnum">Page 30 · Hybrid Methodology (2)</div>
+  <h2>Hybrid Methodology (continued)</h2>
+  <p class="lede">A <strong>hybrid development methodology</strong> combines the <strong>elements of both Waterfall and Agile methodologies</strong> by leveraging their strengths and mitigating their weaknesses.</p>
+  <div class="cards">
+    <div class="card"><h4>Balanced Documentation</h4><p>Comprehensive <strong>documentation is balanced</strong> with minimal but essential documentation to ensure clarity without overburdening.</p></div>
+    <div class="card"><h4>Dual Risk Approach</h4><p><strong>Risk assessment in early phases</strong> is combined with the ability to <strong>adapt to risks as they arise</strong>.</p></div>
+    <div class="card"><h4>Best-of-Both Application</h4><p>Waterfall techniques are often used for the <strong>predictive aspects</strong>. Agile techniques are applied to <strong>uncertain parts</strong>.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Hybrid is the natural model for the Federal Reserve: regulatory and compliance phases use Waterfall governance (documented, signed off, change-controlled), while feature development within a release uses Agile sprints. This is essentially SAFe — Agile Release Trains within a PI planning governance shell.</p>
+  </div>
+</section>
+
+<!-- ===== RISKS OF HYBRID ===== -->
+<section class="slide" id="hybrid-risks" data-search="risks hybrid methodology complex confusion conflicts administrative overhead struggling guidelines accustomed suboptimal outcomes diluted benefits">
+  <div class="pgnum">Page 31 · Risks of Hybrid</div>
+  <h2>Risks of Hybrid Methodology</h2>
+  <p class="lede">The <strong>Hybrid development methodology</strong> has various <strong>risks</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Complexity &amp; Confusion</h4><p>Balancing the practices of the two methodologies can be <strong>complex</strong> and <strong>lead to confusion</strong>.</p></div>
+    <div class="card"><h4>Methodology Conflicts</h4><p>The different nature of the two methodologies can lead to <strong>conflicts</strong>.</p></div>
+    <div class="card"><h4>Administrative Overhead</h4><p>Implementing both the methodologies can <strong>increase the administrative overhead</strong> and strain resources.</p></div>
+    <div class="card"><h4>Unclear Guidelines</h4><p>If the guidelines are unclear, teams may <strong>struggle to determine when to apply</strong> Agile principles and Waterfall practices.</p></div>
+    <div class="card"><h4>Adoption Difficulty</h4><p>Teams <strong>accustomed</strong> to one methodology may find it <strong>challenging</strong> to adopt a combined approach.</p></div>
+    <div class="card"><h4>Suboptimal Outcomes</h4><p>Combining the two methodologies can lead to <strong>suboptimal outcomes</strong> due to <strong>potentially diluted benefits</strong>.</p></div>
+  </div>
+</section>
+
+<!-- ===== GOVERNANCE STRATEGIES SECTION TITLE ===== -->
+<section class="slide title-slide" id="governance-title" data-search="governance strategies section">
+  <div class="pgnum" style="color:#cbd6e6">Page 32 · Section</div>
+  <h2>Governance Strategies</h2>
+</section>
+
+<!-- ===== GOVERNANCE DEFINITION (1) ===== -->
+<section class="slide" id="governance-intro-1" data-search="governance definition structure handle track changes application custom applications release updates three times a year need consistent">
+  <div class="pgnum">Page 33 · Governance — Definition</div>
+  <h2>Governance</h2>
+  <p class="lede">Governance refers to putting a <strong>structure</strong> in place to effectively <strong>handle and track changes</strong> to all the aspects that control how applications work.</p>
+  <div class="cards">
+    <div class="card"><h4>Application</h4><p>Governance can apply to the <strong>development of custom applications</strong> by the business in Salesforce and the <strong>introduction of release updates</strong> three times a year by Salesforce.</p></div>
+    <div class="card"><h4>Need</h4><p>To adapt to the changing business climate, organizations need <strong>consistent tweaks to how changes are managed</strong>. It can be a new system or process to implement, or a new dataset to track.</p></div>
+  </div>
+</section>
+
+<!-- ===== GOVERNANCE DEFINITION (2) ===== -->
+<section class="slide" id="governance-intro-2" data-search="governance focus release management prioritization change requests approval release schedule communication process benefits efficiency security compliance collaboration transparency">
+  <div class="pgnum">Page 34 · Governance — Focus &amp; Benefits</div>
+  <h2>Governance (continued)</h2>
+  <p class="lede">Governance refers to putting a <strong>structure</strong> in place to effectively <strong>handle and track changes</strong> to all the aspects that control how applications work.</p>
+  <div class="cards">
+    <div class="card"><h4>Focus</h4><p>Governance frameworks generally focus on aspects such as <strong>release management</strong>, <strong>prioritization of change requests</strong>, <strong>approval of changes</strong>, <strong>release schedule</strong>, <strong>communication process</strong>, etc.</p></div>
+    <div class="card"><h4>Benefits</h4><p>Benefits of using governance strategies include <strong>increased efficiency</strong> due to better resource utilization, <strong>improved security and compliance</strong>, <strong>greater collaboration and transparency</strong>, etc.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked "how do you govern a Salesforce org?", structure your answer around these pillars: who approves changes (CAB/steering committee), how changes are tracked (ticketing + source control), when they deploy (release calendar), and how quality is assured (testing gates). That is a governance framework answer, not just a tooling answer.</p>
+  </div>
+</section>
+
+<!-- ===== WATERFALL GOVERNANCE ===== -->
+<section class="slide" id="waterfall-governance" data-search="waterfall governance change control board CCB milestone reviews assess approve project scope goals objectives progress timeline budget">
+  <div class="pgnum">Page 35 · Waterfall Governance Strategies</div>
+  <h2>Waterfall Development Governance Strategies</h2>
+  <p class="lede">Governance strategies for the <strong>Waterfall development methodology</strong> include the establishment of a <strong>Change Control Board (CCB)</strong> and setting up <strong>Milestone Reviews</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Change Control Board (CCB)</h4><p>A <strong>Change Control Board (CCB)</strong> is a formal group that <strong>assesses and approves changes</strong> to the <strong>project scope</strong>, ensuring that they align with the original goals and objectives.</p></div>
+    <div class="card"><h4>Milestone Reviews</h4><p>Meetings can be scheduled regularly to <strong>review progress</strong> and ensure that the <strong>project stays on track</strong> with its <strong>timeline and budget</strong>.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The CCB is the Waterfall governance mechanism that most directly maps to the Federal Reserve's change management requirements. In a regulated environment, the CCB is not optional — it is the control that prevents unauthorized changes and provides the audit trail required by internal audit and external regulators.</p>
+  </div>
+</section>
+
+<!-- ===== AGILE GOVERNANCE ===== -->
+<section class="slide" id="agile-governance" data-search="agile governance work prioritization product owner daily stand-ups reviews retrospectives sprint review improve processes">
+  <div class="pgnum">Page 36 · Agile Development Governance Strategies</div>
+  <h2>Agile Development Governance Strategies</h2>
+  <p class="lede">When using the <strong>Agile development methodology</strong>, some governance practices include <strong>prioritization</strong>, <strong>daily stand-ups</strong>, <strong>sprint reviews</strong>, and <strong>retrospectives</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Work Prioritization</h4><p>The <strong>product owner</strong> prioritizes <strong>work items</strong> and ensures alignment with customer needs and organizational goals.</p></div>
+    <div class="card"><h4>Daily Stand-Ups</h4><p>Teams can use <strong>short, daily meetings</strong> to <strong>report progress</strong> and <strong>raise issues</strong>.</p></div>
+    <div class="card"><h4>Reviews &amp; Retrospectives</h4><p><strong>Regular meetings</strong> are conducted at the end of each sprint to <strong>review work</strong> and <strong>discuss ways to improve processes</strong>.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Agile governance is lightweight by design, but in enterprise or regulated settings it must be supplemented: add a release manager role, a definition of done that includes compliance checkpoints, and sprint-gate approvals for deployments to UAT/staging. "Agile with guardrails" is the answer for most large-org scenarios.</p>
+  </div>
+</section>
+
+<!-- ===== BUSINESS SCENARIO SECTION TITLE ===== -->
+<section class="slide title-slide" id="business-scenario-title" data-search="business scenario section">
+  <div class="pgnum" style="color:#cbd6e6">Page 37 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- ===== BUSINESS SCENARIO: COSMIC SOFTWARE INC ===== -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic software inc global consulting company salesforce services implementation development customization training regional teams AMER architect methodology governance maturity">
+  <div class="pgnum">Page 38 · Business Scenario</div>
+  <h2>Business Scenario</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Software Inc. is a global consulting company with offices worldwide that provides Salesforce consulting services to other companies. Its offerings include product implementation, application development, customization, and training delivery.</p>
+    <p style="margin-top:8px">The company has several development teams, one for each region. For example, the AMER team handles implementation and development services for businesses in North America.</p>
+    <p style="margin-top:8px">The development teams often handle unique project situations with certain challenges or risks. A Salesforce Architect has been hired to help the teams adopt the most suitable development methodologies and recommend related governance strategies after assessing the benefits and risks.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This scenario mirrors the real architect role: you are not coding — you are <em>recommending and justifying</em> the right approach based on client constraints (maturity, compliance, flexibility needs). Practice narrating the decision: "Given X constraints, I recommend Y methodology because Z, with governance mitigations A and B."</p>
+  </div>
+</section>
+
+<!-- ===== REQUIREMENTS & SOLUTIONS SECTION TITLE ===== -->
+<section class="slide title-slide" id="req-solutions-title" data-search="requirements solutions section">
+  <div class="pgnum" style="color:#cbd6e6">Page 39 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- ===== REQUIREMENT 1 (PART 1) ===== -->
+<section class="slide" id="req1-part1" data-search="requirement 1 AMER enterprise US well-defined scope stable requirements fixed deadline legacy systems regulated comprehensive documentation structured methodology limited availability">
+  <div class="pgnum">Page 40 · Requirement 1 (Part 1)</div>
+  <h2>Requirement 1 — Scenario (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The AMER development team of the company is tasked with developing a custom Salesforce application for a large enterprise client in the United States. The client has a <strong>well-defined project scope</strong> with <strong>clear, stable requirements</strong> and a <strong>fixed deadline</strong>. The project involves integrating Salesforce with several legacy systems. The client, being in a heavily regulated industry, requires <strong>comprehensive documentation</strong> for compliance for every phase of the project. The client's internal team is accustomed to traditional project management, prefers a <strong>structured methodology</strong>, and has <strong>limited availability</strong> for frequent engagements.</p>
+  </div>
+</section>
+
+<!-- ===== REQUIREMENT 1 (PART 2) ===== -->
+<section class="slide" id="req1-part2" data-search="requirement 1 part 2 architect recommend suitable development methodology benefits risks customer maturity compliance">
+  <div class="pgnum">Page 41 · Requirement 1 (Part 2)</div>
+  <h2>Requirement 1 — Scenario (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The Salesforce Architect at Cosmic Software Inc. needs to recommend a suitable development methodology for this project, considering the benefits and risks, while taking into account the client's maturity in terms of project management and compliance requirements.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 1 (PART 1) ===== -->
+<section class="slide" id="sol1-part1" data-search="solution 1 waterfall linear sequential clear structure defined pathway well-defined requirements extensive documentation compliance fixed deadline set timelines deliverables">
+  <div class="pgnum">Page 42 · Solution 1 (Part 1)</div>
+  <h2>Solution 1 — Waterfall Rationale</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The <strong>Waterfall</strong> development methodology should be adopted for this project for several reasons. It uses a <strong>linear and sequential approach</strong> that provides a <strong>clear structure</strong> and a <strong>defined pathway</strong> from project initiation to completion, which aligns with the client's preference for a structured methodology. The project's well-defined requirements and scope are ideal for this methodology. The <strong>extensive documentation</strong> required in Waterfall can meet the client's compliance needs. The fixed deadline and limited availability for engagement also align well with the Waterfall approach of <strong>set timelines and deliverables</strong>.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 1 (PART 2) ===== -->
+<section class="slide" id="sol1-part2" data-search="solution 1 waterfall risks mitigate exhaustive requirement gathering stakeholder sign-off feasibility study architectural evaluation milestone review meetings">
+  <div class="pgnum">Page 43 · Solution 1 (Part 2)</div>
+  <h2>Solution 1 — Risk Mitigation</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>However, some risks are associated with using the Waterfall methodology, but they can be mitigated using some strategies. It can be challenging to incorporate changes late in the project, which can be avoided through <strong>exhaustive requirement gathering</strong> and stakeholder sign-off before proceeding to development. A <strong>feasibility study</strong> and <strong>architectural evaluation</strong> should be conducted early in the project to mitigate late testing and integration risks. In addition, <strong>milestone review meetings</strong> should be conducted to ensure that there are no gaps in expectations.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 1 (PART 3) ===== -->
+<section class="slide" id="sol1-part3" data-search="solution 1 waterfall flow requirements design implementation testing maintenance linear sequential phases">
+  <div class="pgnum">Page 44 · Solution 1 (Part 3)</div>
+  <h2>Solution 1 — Waterfall Development Flow</h2>
+  <p class="lede">The Waterfall Development Methodology follows a strict linear sequence of phases.</p>
+  <table class="dttable">
+    <thead><tr><th>Phase</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>Requirements</td><td>All requirements gathered, analyzed, documented, and signed off before any design begins</td></tr>
+      <tr><td>Design</td><td>Architecture and technical specifications produced based on frozen requirements</td></tr>
+      <tr><td>Implementation</td><td>Development work performed against the approved design</td></tr>
+      <tr><td>Testing</td><td>Full system test after implementation is complete; defects logged and fixed</td></tr>
+      <tr><td>Maintenance</td><td>Post-deployment support, bug fixes, and enhancements in subsequent project cycles</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===== REQUIREMENT 2 (PART 1) ===== -->
+<section class="slide" id="req2-part1" data-search="requirement 2 e-commerce startup UK salesforce implementation sales customer service marketing legacy CRM flexibility fast-paced dynamic market adjust features real-time user feedback">
+  <div class="pgnum">Page 45 · Requirement 2 (Part 1)</div>
+  <h2>Requirement 2 — Scenario (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A rapidly growing e-commerce startup in the United Kingdom has approached the company for a Salesforce implementation project. The startup is looking to implement Salesforce to manage its sales, customer service, and marketing activities. It currently uses a standalone legacy system to manage CRM processes and data. The chief executives value <strong>flexibility</strong>, as they anticipate their needs evolving quickly due to their <strong>fast-paced and dynamic market</strong>. They've also expressed a desire for frequent updates and the ability to <strong>adjust features based on real-time user feedback</strong>.</p>
+  </div>
+</section>
+
+<!-- ===== REQUIREMENT 2 (PART 2) ===== -->
+<section class="slide" id="req2-part2" data-search="requirement 2 architect evaluate agile methodology suitability rapidly changing requirements relative maturity agile practices">
+  <div class="pgnum">Page 46 · Requirement 2 (Part 2)</div>
+  <h2>Requirement 2 — Scenario (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Given the client's needs, the Salesforce Architect at Cosmic Software Inc. needs to evaluate the suitability of the Agile methodology for this project. This evaluation must consider the benefits and risks of the methodology in the context of the client's rapidly changing requirements and their relative maturity with agile project management practices.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 2 (PART 1) ===== -->
+<section class="slide" id="sol2-part1" data-search="solution 2 agile frequent reassessment adaptation requirements iterative small manageable increments collaboration final product expectations startup">
+  <div class="pgnum">Page 47 · Solution 2 (Part 1)</div>
+  <h2>Solution 2 — Agile Rationale</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The <strong>Agile</strong> development methodology is suitable for the evolving needs of the startup, as it allows for <strong>frequent reassessment</strong> and <strong>adaptation of requirements</strong>. The <strong>iterative</strong> nature of Agile enables the delivery of work in <strong>small, manageable increments</strong>, allowing the startup to begin using functionalities sooner and provide ongoing feedback. Moreover, Agile emphasizes <strong>collaboration</strong> between the development team and the client, ensuring that the final product closely aligns with the client's expectations and needs.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 2 (PART 2) ===== -->
+<section class="slide" id="sol2-part2" data-search="solution 2 agile risks scope creep backlog prioritization client involvement regularly scheduled meetings demos sprint planning goals deliverables">
+  <div class="pgnum">Page 48 · Solution 2 (Part 2)</div>
+  <h2>Solution 2 — Risk Mitigation</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>However, certain risks and related mitigation strategies need to be considered for using the Agile methodology. If not managed carefully, the flexibility offered by Agile can lead to <strong>scope creep</strong>. A <strong>robust backlog prioritization</strong> process should be implemented, and changes in scope should be systematically evaluated and agreed upon. Since Agile requires active client involvement, it must be ensured that the client is committed to this level of participation. <strong>Regularly scheduled meetings</strong> and <strong>demos</strong> can facilitate this. Rapid delivery can compromise the depth of initial planning, which can be mitigated by <strong>sprint planning sessions</strong> that clearly outline goals and deliverables for each iteration.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 2 (PART 3) ===== -->
+<section class="slide" id="sol2-part3" data-search="solution 2 agile development methodology cycle plan design develop test deploy review launch iterative">
+  <div class="pgnum">Page 49 · Solution 2 (Part 3)</div>
+  <h2>Solution 2 — Agile Development Cycle</h2>
+  <p class="lede">The Agile Development Methodology follows a repeating iterative cycle — each sprint passes through all phases before the next sprint begins.</p>
+  <table class="dttable">
+    <thead><tr><th>Phase</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>Plan</td><td>Sprint planning: select user stories from backlog, estimate effort, commit to sprint goal</td></tr>
+      <tr><td>Design</td><td>Technical design and breakdown of selected stories into tasks</td></tr>
+      <tr><td>Develop</td><td>Build the agreed features/fixes within the sprint timebox</td></tr>
+      <tr><td>Test</td><td>Unit tests, integration tests, and QA within the sprint</td></tr>
+      <tr><td>Deploy</td><td>Release increment to staging/UAT; demo to stakeholders</td></tr>
+      <tr><td>Review</td><td>Sprint review (show work) + retrospective (improve process); feed learnings into next sprint</td></tr>
+      <tr><td>Launch</td><td>Production release at cadenced intervals (end of sprint or release train)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===== REQUIREMENT 3 (PART 1) ===== -->
+<section class="slide" id="req3-part1" data-search="requirement 3 mid-sized retail Australia Salesforce expand customize complex integration enterprise systems traditional project management modern iterative balance structured flexibility user feedback changing market">
+  <div class="pgnum">Page 50 · Requirement 3 (Part 1)</div>
+  <h2>Requirement 3 — Scenario (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A mid-sized retail company in Australia has been using Salesforce for basic functions but now wants to expand and customize the platform to support more complex operations, including integration with other enterprise systems. The company's management is <strong>familiar with traditional project management methodologies</strong> but is also open to <strong>more modern, iterative approaches</strong>. They seek a <strong>balance</strong> between a <strong>structured plan</strong> (due to the complex nature of integration) and the <strong>flexibility</strong> to adapt to user feedback and changing market trends.</p>
+  </div>
+</section>
+
+<!-- ===== REQUIREMENT 3 (PART 2) ===== -->
+<section class="slide" id="req3-part2" data-search="requirement 3 architect recommend suitable methodology benefits risks moderate maturity project management specific requirements Salesforce customization">
+  <div class="pgnum">Page 51 · Requirement 3 (Part 2)</div>
+  <h2>Requirement 3 — Scenario (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The Salesforce Architect at Cosmic Software Inc. needs to recommend a suitable development methodology for this project. The decision must consider the benefits and risks of the methodology in the context of the company's moderate maturity level in project management and their specific requirements for the Salesforce customization project.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 3 (PART 1) ===== -->
+<section class="slide" id="sol3-part1" data-search="solution 3 hybrid structured planning clear milestones waterfall flexibility adaptiveness agile user feedback complex system integration early risk mitigation gradually introduce agile sprints custom features">
+  <div class="pgnum">Page 52 · Solution 3 (Part 1)</div>
+  <h2>Solution 3 — Hybrid Rationale</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The <strong>Hybrid</strong> development methodology should be adopted for the project since it provides the <strong>structured planning and clear milestones of Waterfall</strong>, which are essential for complex system integration, while also incorporating the <strong>flexibility and adaptiveness of Agile</strong> for gathering and implementing user feedback. The combination of early risk identification and mitigation and ongoing risk assessment would be beneficial for integrating Salesforce with multiple enterprise systems. Agile practices can be gradually introduced, ensuring stakeholder comfort and buy-in. Agile sprints can be employed for the development of custom features and for gathering user feedback.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 3 (PART 2) ===== -->
+<section class="slide" id="sol3-part2" data-search="solution 3 hybrid risks confusion conflict training team clearly defining waterfall agile parts careful planning resource management regular meetings phase-gate reviews milestones">
+  <div class="pgnum">Page 53 · Solution 3 (Part 2)</div>
+  <h2>Solution 3 — Risk Mitigation</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>On the other hand, mixing the two methodologies can lead to confusion and conflict, which can be avoided by <strong>providing training</strong> to the team and <strong>clearly defining</strong> which parts of the project will use Waterfall and which will use Agile. There's a risk that this methodology can use more resources, so <strong>careful planning and resource management</strong> are necessary to ensure that the project stays within the budget and time constraints. <strong>Regular meetings and clear communication</strong> should be used for a smooth transition between Waterfall and Agile phases. Additionally, <strong>phase-gate reviews</strong> should be implemented at major milestones for quality and progress checks.</p>
+  </div>
+</section>
+
+<!-- ===== REQUIREMENT 4 (PART 1) ===== -->
+<section class="slide" id="req4-part1" data-search="requirement 4 healthcare Japan custom Salesforce patient management new to agile commitment patient-first openness transparency respect flexible adapt dynamic healthcare environment values">
+  <div class="pgnum">Page 54 · Requirement 4 (Part 1)</div>
+  <h2>Requirement 4 — Scenario (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A healthcare services provider in Japan needs a custom Salesforce application to streamline patient management and internal operations. The provider is <strong>new to Agile methodologies</strong> but has expressed interest in adopting an Agile approach. Their organizational culture is deeply rooted in values such as <strong>commitment</strong> to patient care, <strong>patient-first approach</strong>, <strong>openness</strong> and <strong>transparency</strong> in operations, and <strong>respect</strong> for both patients and staff. They are looking for a development process for its team that is <strong>flexible</strong> and can <strong>adapt</strong> to their dynamic healthcare environment while maintaining these core values.</p>
+  </div>
+</section>
+
+<!-- ===== REQUIREMENT 4 (PART 2) ===== -->
+<section class="slide" id="req4-part2" data-search="requirement 4 scrum five values commitment courage focus openness respect healthcare provider alignment risks mitigation transition agile practices">
+  <div class="pgnum">Page 55 · Requirement 4 (Part 2)</div>
+  <h2>Requirement 4 — Scenario (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The Salesforce Architect needs to assess and recommend whether the Scrum framework is suitable for this Salesforce application development project. The assessment must consider the alignment of <strong>Scrum's five values (Commitment, Courage, Focus, Openness, and Respect)</strong> with the healthcare provider's organizational culture. Additionally, the assessment should identify potential risks associated with adopting the Scrum methodology in this context and propose strategies to mitigate these risks. The goal is to ensure that the chosen development methodology not only aligns with the provider's values but also effectively supports their transition to Agile practices.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 4 (PART 1) ===== -->
+<section class="slide" id="sol4-part1" data-search="solution 4 scrum commitment patient care courage innovate adapt focus patient-first openness transparency respect team members contributions alignment healthcare">
+  <div class="pgnum">Page 56 · Solution 4 — Scrum Alignment</div>
+  <h2>Solution 4 — Scrum Values Alignment</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The healthcare services provider's dedication to improving patient care indicates a strong alignment with the Scrum value of <strong>commitment</strong>. The provider's openness to Agile methodologies demonstrates <strong>courage</strong> to innovate and adapt. The focused approach to patient services (patient-first) aligns with Scrum's emphasis on maintaining <strong>focus</strong> on the sprint and project objectives. The openness and transparency in operations aligns well with the Scrum value of <strong>openness</strong> in processes and communication. Lastly, the respect for the provider's patients and staff aligns with the Scrum value of <strong>respect</strong> for team members and their contributions.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 4 (PART 2) ===== -->
+<section class="slide" id="sol4-part2" data-search="solution 4 scrum risks consistent engagement dedication ceremonies sprint goals continuous support resources change management fostering culture embraces agile challenges">
+  <div class="pgnum">Page 57 · Solution 4 — Scrum Risks</div>
+  <h2>Solution 4 — Scrum Risks &amp; Mitigations</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Although the provider's organization culture aligns with the five values of Scrum, there are certain risks associated with each. There is a potential risk in translating commitment to the iterative development process, which may be new to the provider. Ensuring <strong>consistent engagement</strong> and <strong>dedication to Scrum ceremonies and Sprint goals</strong> would be crucial. <strong>Continuous support and resources</strong> should be provided to help the team navigate the Scrum framework. There can be reluctance or resistance in the face of complex or unfamiliar Agile practices. Managing this change and <strong>fostering a culture that embraces Agile challenges</strong> would be important.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 4 (PART 3) ===== -->
+<section class="slide" id="sol4-part3" data-search="solution 4 scrum openness focus sprint tasks interruptions transparency constructive feedback training team-building activities differing opinions conflicts healthcare day-to-day demands">
+  <div class="pgnum">Page 58 · Solution 4 — Openness &amp; Respect</div>
+  <h2>Solution 4 — Openness, Focus &amp; Respect Risks</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>There can be potential distractions or loss of focus due to the day-to-day demands of healthcare operations. It would be necessary to ensure that the Scrum team is able to <strong>focus on sprint tasks without any interruptions</strong>. As far as openness is concerned, the team may find it challenging to adapt to the high level of transparency required in Scrum, especially in sharing progress, challenges, and feedback openly. This risk can be mitigated by <strong>providing training on constructive feedback</strong>. Moreover, there may be differing opinions on how tasks should be approached, leading to potential conflicts, which can be avoided through <strong>team-building activities</strong>.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The healthcare scenario maps closely to the Fed context: both are mission-critical regulated environments where staff are primarily focused on operational duties, not software development. The mitigation strategies — dedicated sprint focus time, feedback training, team building — apply equally to introducing Scrum into a central bank operations team that is new to Agile delivery.</p>
+  </div>
+</section>
+
+<!-- ===== LEARN MORE ===== -->
+<section class="slide" id="learn-more" data-search="learn more trailhead application lifecycle development models project management essentials plan lite technical agile practices devops copado">
+  <div class="pgnum">Page 59 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources for this topic.</p>
+  <ul>
+    <li>Application Lifecycle and Development Models — Trailhead</li>
+    <li>Project Management Essentials — Trailhead</li>
+    <li>Project Management Plan Lite — Trailhead</li>
+    <li>Technical Project Management — Trailhead</li>
+    <li>Learn Salesforce Agile Practices — Trailhead</li>
+    <li>Salesforce DevOps with Copado — Trailhead</li>
+  </ul>
+</section>
+
+<!-- ===== CHEATSHEET ===== -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points alm stages methodologies waterfall agile hybrid scrum lean kanban governance strategies exam interview decision matrix">
+  <div class="pgnum">Reference · Quick-Reference Cheatsheet</div>
+  <h2>Cheatsheet</h2>
+
+  <h3>ALM Stages (in order)</h3>
+  <table class="dttable">
+    <thead><tr><th>#</th><th>Stage</th><th>Key Output</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Plan Release</td><td>Requirements, design specs, environment plan</td></tr>
+      <tr><td>2</td><td>Develop</td><td>Working code/config in a sandbox copy of production</td></tr>
+      <tr><td>3</td><td>Test</td><td>Validated changes ready for integration</td></tr>
+      <tr><td>4</td><td>Build Release</td><td>Single release artifact (all customizations aggregated)</td></tr>
+      <tr><td>5</td><td>Test Release</td><td>Regression + performance tests in staging; UAT sign-off</td></tr>
+      <tr><td>6</td><td>Release</td><td>Production deploy + training</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Methodology Decision Matrix</h3>
+  <table class="dttable">
+    <thead><tr><th>Scenario signals</th><th>Choose</th><th>Governance add-on</th></tr></thead>
+    <tbody>
+      <tr><td>Stable requirements, compliance-heavy, fixed deadline, limited stakeholder availability, regulated industry</td><td><strong>Waterfall</strong></td><td>Change Control Board (CCB), Milestone Reviews</td></tr>
+      <tr><td>Evolving requirements, customer wants frequent feedback, fast-moving market, startup or growth-stage</td><td><strong>Agile</strong></td><td>Product owner prioritization, daily stand-ups, sprint reviews &amp; retrospectives</td></tr>
+      <tr><td>Complex integrations need structure, but team also wants flexibility; moderate maturity; traditional mgmt open to iterative</td><td><strong>Hybrid</strong></td><td>Phase-gate reviews at milestones; clear definition of which phases are Waterfall vs Agile</td></tr>
+      <tr><td>Agile-new org with strong culture values; wants iterative delivery; needs scalable framework with defined roles</td><td><strong>Scrum</strong></td><td>Sprint ceremonies, backlog prioritization, WIP limits, team-building</td></tr>
+      <tr><td>Ongoing operational support, maintenance, bug triage; no fixed sprints needed</td><td><strong>Kanban</strong></td><td>WIP limits per stage, cycle time tracking, throughput metrics</td></tr>
+      <tr><td>Waste-heavy process; need to maximize value delivery; just-in-time decisions</td><td><strong>Lean</strong></td><td>Value stream mapping, pull-based demand, continuous improvement cadence</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Scrum's Five Values (memorize)</h3>
+  <ul>
+    <li><strong>Commitment</strong> — dedicated to sprint goals and project success.</li>
+    <li><strong>Courage</strong> — bold enough to speak up, experiment, innovate.</li>
+    <li><strong>Focus</strong> — concentrate on sprint work, avoid distractions.</li>
+    <li><strong>Openness</strong> — transparent about work, challenges, and mistakes.</li>
+    <li><strong>Respect</strong> — recognize each member's expertise and contribution.</li>
+  </ul>
+
+  <h3>Lean's Five Principles (memorize)</h3>
+  <ul>
+    <li><strong>Identify Value</strong> — what does the customer actually need?</li>
+    <li><strong>Map the Value Stream</strong> — eliminate waste-generating activities.</li>
+    <li><strong>Create Flow</strong> — organize work so value moves at a steady pace.</li>
+    <li><strong>Establish Pull</strong> — build features only in response to demand.</li>
+    <li><strong>Seek Perfection</strong> — continuously improve and eliminate waste.</li>
+  </ul>
+
+  <h3>Governance Structures by Methodology</h3>
+  <table class="dttable">
+    <thead><tr><th>Methodology</th><th>Governance mechanism</th><th>Who owns it</th></tr></thead>
+    <tbody>
+      <tr><td>Waterfall</td><td>Change Control Board (CCB), Milestone Reviews</td><td>Project manager / PMO</td></tr>
+      <tr><td>Agile / Scrum</td><td>Backlog prioritization, daily stand-ups, sprint review, retrospective</td><td>Product owner + scrum master</td></tr>
+      <tr><td>Hybrid</td><td>Phase-gate reviews, CCB for structural phases, sprint ceremonies for iterative phases</td><td>Release manager + product owner</td></tr>
+      <tr><td>Enterprise (any)</td><td>Architecture Review Board, Center of Excellence (CoE), steering committee</td><td>Architects + executive sponsor</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Key Gotchas for the Exam</h3>
+  <ul>
+    <li>Waterfall: each step is <strong>fully completed before the next begins</strong> — no overlap.</li>
+    <li>Agile: requirements are <strong>progressively elaborated</strong>, not frozen upfront.</li>
+    <li>Scrum sprints are <strong>time-boxed</strong> (typically 2–4 weeks); Kanban has <strong>no sprints</strong> — it is continuous flow.</li>
+    <li>Lean decisions are made at the <strong>last responsible moment</strong> — not upfront.</li>
+    <li>Hybrid applies Waterfall to <strong>predictive/integration phases</strong> and Agile to <strong>uncertain/feature phases</strong>.</li>
+    <li>Governance must be <strong>right-sized</strong>: over-governing a small shop kills velocity; under-governing an enterprise creates uncontrolled risk.</li>
+    <li>The CCB is the Waterfall governance mechanism; the <strong>product owner</strong> is the Agile prioritization mechanism.</li>
+    <li>ALM applies to <strong>both waterfall and agile</strong> — it is the overarching framework, not a methodology itself.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

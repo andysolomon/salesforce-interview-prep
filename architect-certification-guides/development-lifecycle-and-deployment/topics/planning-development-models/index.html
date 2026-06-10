@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning — Development Models — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Planning — Development Models</h1>
+  <div class="sub">Change Set, Org, and Package development models · processes, tools, people &amp; roles · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (51 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+
+    <h3>Processes &amp; Tools</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#table-of-contents">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#alm-processes-tools-roles">ALM Processes, Tools &amp; Roles</a></li>
+      <li><a href="#processes-tools-divider">Processes &amp; Tools (section)</a></li>
+      <li><a href="#alm-processes-changeset-org">ALM Processes — Change Set &amp; Org</a></li>
+      <li><a href="#alm-processes-package">ALM Processes — Package</a></li>
+    </ul>
+
+    <h3>Change Set Development Model</h3>
+    <ul>
+      <li><a href="#changeset-divider">Change Set Model (section)</a></li>
+      <li><a href="#changeset-develop-test">Develop &amp; Test · Build Release</a></li>
+      <li><a href="#changeset-test-release">Test Release · Release</a></li>
+      <li><a href="#changeset-manual-tracking">Manual Changes &amp; Change-Tracking</a></li>
+      <li><a href="#changeset-deleting-profiles">Deleting, Renaming &amp; Profiles</a></li>
+      <li><a href="#changeset-outbound-connection">Outbound Change Set &amp; Deployment Connection</a></li>
+      <li><a href="#changeset-upload-inbound">Upload &amp; Inbound Change Set</a></li>
+      <li><a href="#changeset-validation-rollout">Validation &amp; Rollout</a></li>
+    </ul>
+
+    <h3>Org Development Model</h3>
+    <ul>
+      <li><a href="#org-divider">Org Development Model (section)</a></li>
+      <li><a href="#org-environments-sfdx">Environments &amp; Salesforce DX</a></li>
+      <li><a href="#org-manifest-source-control">Manifest File &amp; Source Control</a></li>
+      <li><a href="#org-cli-vscode">Salesforce CLI &amp; VS Code Extensions</a></li>
+      <li><a href="#org-change-mgmt-tools">Change Management Tools</a></li>
+      <li><a href="#org-repo-branch">Source Code Repository &amp; Dev Branch</a></li>
+      <li><a href="#org-develop-commit">Develop, Retrieve &amp; Commit</a></li>
+      <li><a href="#org-build-uat">Build Release Artifact &amp; UAT</a></li>
+      <li><a href="#org-staging-release">Staging &amp; Release</a></li>
+    </ul>
+
+    <h3>Package Development Model</h3>
+    <ul>
+      <li><a href="#package-divider">Package Development Model (section)</a></li>
+      <li><a href="#package-intro">Package &amp; Version Control</a></li>
+      <li><a href="#package-scratch-release">Scratch Orgs &amp; Package Release</a></li>
+      <li><a href="#package-unlocked-cli">Unlocked Packages &amp; Salesforce CLI</a></li>
+      <li><a href="#package-vscode-sandboxes">VS Code Extensions &amp; Sandboxes</a></li>
+      <li><a href="#package-dx-sync">Salesforce DX Project &amp; Synchronization</a></li>
+      <li><a href="#package-sync-testing">Synchronization (DX format) &amp; Testing</a></li>
+      <li><a href="#package-continuous-delivery">Continuous Delivery &amp; Deployment</a></li>
+    </ul>
+
+    <h3>People &amp; Roles</h3>
+    <ul>
+      <li><a href="#people-divider">People &amp; Roles (section)</a></li>
+      <li><a href="#roles-pm-rm-architect">Project Manager, Release Manager, Architect</a></li>
+      <li><a href="#roles-designer-ba-dev">Designer, Business Analyst, Developers</a></li>
+      <li><a href="#roles-admin-qa-stakeholders">Administrators, QA Testers, Stakeholders</a></li>
+      <li><a href="#stakeholder-groups">Stakeholder Groups</a></li>
+    </ul>
+
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#scenario-divider">Business Scenario (section)</a></li>
+      <li><a href="#scenario-cosmic">Cosmic Technology Group</a></li>
+    </ul>
+
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#req-solutions-divider">Requirements &amp; Solutions (section)</a></li>
+      <li><a href="#requirement-1">Requirement 1 — Banking Implementation</a></li>
+      <li><a href="#solution-1-part1">Solution 1 (Part 1) — Org Model</a></li>
+      <li><a href="#solution-1-part2">Solution 1 (Part 2) — Project Mgmt Tool</a></li>
+      <li><a href="#solution-1-part3">Solution 1 (Part 3) — Pipeline Diagram</a></li>
+      <li><a href="#requirement-2">Requirement 2 — EMEA Package Model</a></li>
+      <li><a href="#solution-2-part1">Solution 2 (Part 1) — Unlocked Packages</a></li>
+      <li><a href="#solution-2-part2">Solution 2 (Part 2) — Roles &amp; CI/CD</a></li>
+      <li><a href="#solution-2-part3">Solution 2 (Part 3) — Pipeline Diagram</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+
+  </nav>
+</aside>
+
+<main>
+
+<!-- ===== COVER ===== -->
+<section class="slide title-slide" id="cover" data-search="cover planning development models alm application lifecycle management change set org package focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Planning — Development Models</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a complex customer scenario, assess Application Lifecycle Management maturity and identify the people, technology, and processes required.</p>
+</section>
+
+<!-- ===== TABLE OF CONTENTS ===== -->
+<section class="slide" id="table-of-contents" data-search="table of contents processes tools change set org package development model people roles business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#processes-tools-divider">Processes &amp; Tools</a></li>
+    <li><a class="toc-link" href="#changeset-divider">Change Set Development Model</a></li>
+    <li><a class="toc-link" href="#org-divider">Org Development Model</a></li>
+    <li><a class="toc-link" href="#package-divider">Package Development Model</a></li>
+    <li><a class="toc-link" href="#people-divider">People &amp; Roles</a></li>
+    <li><a class="toc-link" href="#scenario-divider">Business Scenario</a></li>
+    <li><a class="toc-link" href="#req-solutions-divider">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- ===== LEARNING OBJECTIVES ===== -->
+<section class="slide" id="learning-objectives" data-search="learning objectives alm process tools roles people technology processes implement customer scenario">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>Learning Objectives</h2>
+  <p class="lede">After studying this topic, you should be able to:</p>
+  <ul>
+    <li>Describe the processes and associated tools that can be utilized to implement an ALM process.</li>
+    <li>Identify the key roles that are integral to an ALM process.</li>
+    <li>Identify the processes, tools, and roles necessary to implement an ALM process for a given customer scenario.</li>
+  </ul>
+</section>
+
+<!-- ===== INTRODUCTION ===== -->
+<section class="slide" id="introduction" data-search="introduction application lifecycle management alm three development models change set org package source control scratch orgs key roles architects developers">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Application Lifecycle Management (ALM) typically involves a specific <strong>process</strong> utilized for developing Salesforce applications. There are <strong>three development models</strong> available to implement an ALM process: the <strong>Change Set Development Model</strong>, the <strong>Org Development Model</strong>, and the <strong>Package Development Model</strong>.</p>
+  <p>Each model necessitates the use of certain features or tools. For instance, the Org Development Model is source-driven and employs a <strong>source control system</strong> for tracking changes, while the Package Development Model utilizes <strong>unlocked packages</strong> and <strong>scratch orgs</strong>.</p>
+  <p>Various <strong>key roles</strong> are integral to the ALM process, including architects, developers, QA testers, project managers, release managers, and business analysts, among others. These roles play crucial functions in ensuring the success and efficiency of the application development lifecycle.</p>
+</section>
+
+<!-- ===== ALM PROCESSES TOOLS ROLES (overview diagram) ===== -->
+<section class="slide" id="alm-processes-tools-roles" data-search="alm processes tools roles overview change sets source control repository unlocked packages scratch orgs architect developers qa testers project manager release manager business analyst">
+  <div class="pgnum">Page 5 · ALM Overview — Processes, Tools &amp; Roles</div>
+  <h2>ALM Processes, Tools, and Roles</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Processes</h4>
+      <p>To implement an application lifecycle management process, three development models are available. These are change set development model, org development model, and package development model.</p>
+    </div>
+    <div class="card">
+      <h4>Tools</h4>
+      <p>The change set development model focuses on the use of change sets. The org development model utilizes a source control repository and can benefit from a project management tool. The package development model involves the use of unlocked packages and scratch orgs.</p>
+    </div>
+    <div class="card">
+      <h4>Roles</h4>
+      <p>Key people and roles in an application lifecycle management process include architect, developers, QA testers, project manager, release manager, business analyst, and stakeholders such as executive leadership and end users.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION DIVIDER: PROCESSES & TOOLS ===== -->
+<section class="slide title-slide" id="processes-tools-divider" data-search="processes tools section divider">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Processes &amp; Tools</h2>
+</section>
+
+<!-- ===== ALM PROCESSES — CHANGE SET & ORG ===== -->
+<section class="slide" id="alm-processes-changeset-org" data-search="application lifecycle management processes change set development org development source control git salesforce cli vs code metadata">
+  <div class="pgnum">Page 7 · ALM Processes — Change Set &amp; Org</div>
+  <h2>Application Lifecycle Management Processes</h2>
+  <p class="lede">Three development models are available for managing the lifecycle of Salesforce applications.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Change Set Development</h4>
+      <p>In the Change Set Development Model, <strong>change sets</strong> are used to deploy <strong>changes between related Salesforce environments</strong>. Changes can be made in a non-production org, such as a developer sandbox, and then sent to another org for review and deployment.</p>
+    </div>
+    <div class="card">
+      <h4>Org Development Model</h4>
+      <p>In the Org Development Model, a <strong>source control repository</strong> is used to <strong>track and manage changes</strong>. Tools including Git, Salesforce CLI, and Salesforce Extensions for Visual Studio (VS) Code are utilized to migrate changes from one environment to another.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked to compare models, anchor your answer on source of truth: Change Set = the org itself is the source of truth (risky, manual). Org Model = source control is the source of truth (better). Package Model = versioned artifact in source control is the source of truth (best for maturity). Each step up the ladder increases repeatability and auditability.</p>
+  </div>
+</section>
+
+<!-- ===== ALM PROCESSES — PACKAGE ===== -->
+<section class="slide" id="alm-processes-package" data-search="package development model packages version control source of truth scratch orgs unlocked packages cicd continuous integration deployment">
+  <div class="pgnum">Page 8 · ALM Processes — Package Development</div>
+  <h2>Application Lifecycle Management Processes</h2>
+  <p class="lede">Three development models are available for managing the lifecycle of Salesforce applications.</p>
+  <div class="card" style="max-width:600px">
+    <h4>Package Development Model</h4>
+    <p>In the Package Development Model, modular units of functionality called <strong>packages</strong> are created. The <strong>version control system</strong> represents the <strong>source of truth</strong>. Developers use <strong>scratch orgs</strong> for the development of <strong>unlocked packages</strong>. <strong>CI/CD tools</strong> are typically used for continuous integration and deployment.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The Package Development Model maps directly to the Fed Platform Engineer JD: versioned, modular artifacts in Git, CI/CD pipelines (GitLab), and scratch orgs for clean-room builds. When a regulated environment needs full auditability of every component version deployed to production, package versions provide that chain of custody automatically.</p>
+  </div>
+</section>
+
+<!-- ===== SECTION DIVIDER: CHANGE SET ===== -->
+<section class="slide title-slide" id="changeset-divider" data-search="change set development model section divider">
+  <div class="pgnum" style="color:#cbd6e6">Page 9 · Section</div>
+  <h2>Change Set Development Model</h2>
+</section>
+
+<!-- ===== CHANGE SET — DEVELOP & TEST / BUILD RELEASE ===== -->
+<section class="slide" id="changeset-develop-test" data-search="change set development model develop test customizations developer sandbox no production data isolated build release developer pro sandbox integration">
+  <div class="pgnum">Page 10 · Change Set — Develop &amp; Test · Build Release</div>
+  <h2>Change Set Development Model</h2>
+  <p class="lede">The Change Set Development model allows the use of change sets to send customizations between Salesforce orgs that are affiliated with a production org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Develop and Test</h4>
+      <p><strong>Developer sandboxes</strong> can be used to <strong>create and test customizations</strong>. A Developer sandbox contains <strong>no production data</strong> and can be used to keep changes <strong>isolated</strong> until they are ready to be integrated.</p>
+    </div>
+    <div class="card">
+      <h4>Build Release</h4>
+      <p>After development and testing, customizations can be sent from each Developer sandbox to a shared <strong>Developer Pro sandbox</strong> for integration. Developer Pro sandboxes also do not contain production data.</p>
+    </div>
+  </div>
+  <div class="note">Change sets only move between orgs that share a production org — you cannot use change sets between completely unrelated orgs.</div>
+</section>
+
+<!-- ===== CHANGE SET — TEST RELEASE / RELEASE ===== -->
+<section class="slide" id="changeset-test-release" data-search="change set test release full sandbox complete replica production user acceptance testing uat release validated deployed rollout">
+  <div class="pgnum">Page 11 · Change Set — Test Release · Release</div>
+  <h2>Change Set Development Model</h2>
+  <p class="lede">The Change Set Development model allows the use of change sets to send customizations between Salesforce orgs that are affiliated with a production org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Test Release</h4>
+      <p>After integrating the changes, they can be sent to a <strong>Full sandbox</strong>, which is a <strong>complete replica of production</strong>. It can be used for <strong>user-acceptance testing (UAT)</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Release</h4>
+      <p>After user-acceptance testing, the changes can be <strong>validated</strong> and <strong>deployed</strong> to the <strong>production org</strong> for final release. The Full sandbox can be used to <strong>train users</strong> without exposing production data.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CHANGE SET — MANUAL CHANGES & CHANGE-TRACKING ===== -->
+<section class="slide" id="changeset-manual-tracking" data-search="change set manual changes metadata api not supported metadata coverage report change tracking custom tool log essential information who when component orgs">
+  <div class="pgnum">Page 12 · Change Set — Manual Changes &amp; Change-Tracking</div>
+  <h2>Change Set Development Model</h2>
+  <p class="lede">The Change Set Development model allows the use of change sets to send customizations between Salesforce orgs that are affiliated with a production org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Manual Changes</h4>
+      <p>Changed metadata components that are <strong>not supported</strong> in Metadata API need to be <strong>migrated manually</strong>. The <strong>Metadata Coverage report</strong> can be accessed to view the supported metadata types.</p>
+    </div>
+    <div class="card">
+      <h4>Change-Tracking</h4>
+      <p>To track changes, developers can use a <strong>custom tool</strong> to log each change they make. It can contain <strong>fields for essential information</strong> about each change in a release. The information can include <strong>who</strong> made the change, whether <strong>manual migration</strong> is required, the <strong>component</strong> impacted by the change, the <strong>orgs</strong> that have the change, and <strong>when</strong> the change was made.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Manual change-tracking (who/what/when/which-org) is the change-set equivalent of an audit trail. At the Fed, this kind of structured log — even if manual — satisfies the "auditability" requirement. However, it is labor-intensive and error-prone: this is the strongest argument for graduating to the Org or Package model where Git commit history provides an automatic audit trail.</p>
+  </div>
+</section>
+
+<!-- ===== CHANGE SET — DELETING / PROFILES ===== -->
+<section class="slide" id="changeset-deleting-profiles" data-search="change set deleting renaming components manually target org permission sets profile settings access settings considerations">
+  <div class="pgnum">Page 13 · Change Set — Deleting, Renaming &amp; Profiles</div>
+  <h2>Change Set Development Model</h2>
+  <p class="lede">The Change Set Development model allows the use of change sets to send customizations between Salesforce orgs that are affiliated with a production org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Deleting and Renaming</h4>
+      <p>Change sets <strong>do not allow deleting or renaming</strong> components. <strong>Deletion</strong> must be performed manually in the target org. A component can be renamed after first deleting it in the target org and then sending the new component in a change set.</p>
+    </div>
+    <div class="card">
+      <h4>Profiles and Permission Sets</h4>
+      <p><strong>Permission sets or profile settings</strong> can be used to specify permissions and other access settings in a change set. However, there are several related considerations.</p>
+    </div>
+  </div>
+  <div class="note">No deletes and no renames via change sets are classic exam traps — always remember: deletion = manual work in the target org.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>If asked about limitations of change sets, lead with: no version control, no deletes, no rollback after a successful deploy, and manual-only for unsupported metadata types. These are the exact pain points that motivate moving to the Org or Package model.</p>
+  </div>
+</section>
+
+<!-- ===== CHANGE SET — OUTBOUND / DEPLOYMENT CONNECTION ===== -->
+<section class="slide" id="changeset-outbound-connection" data-search="change set outbound change set new changed metadata components source org dependencies deployment connection authorized target org deployment settings allow inbound changes">
+  <div class="pgnum">Page 14 · Change Set — Outbound Change Set &amp; Deployment Connection</div>
+  <h2>Change Set Development Model</h2>
+  <p class="lede">The Change Set Development model allows the use of change sets to send customizations between Salesforce orgs that are affiliated with a production org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Outbound Change Set</h4>
+      <p>When changes are ready to be moved to another org, an outbound change set containing <strong>new and changed metadata components</strong> can be created in the <strong>source org</strong>. It must contain all the components necessary for the change, including <strong>dependencies</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Deployment Connection</h4>
+      <p>To allow a target org to receive inbound changes, a <strong>deployment connection</strong> needs to be <strong>authorized</strong> in the <strong>target org</strong>. This can be done on the <strong>Deployment Settings</strong> page in Setup by selecting <strong>Allow Inbound Changes</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CHANGE SET — UPLOAD / INBOUND ===== -->
+<section class="slide" id="changeset-upload-inbound" data-search="change set upload outbound source org target org inbound change set deployed unsuccessful rolled back succeeds changes committed cannot be rolled back">
+  <div class="pgnum">Page 15 · Change Set — Upload &amp; Inbound Change Set</div>
+  <h2>Change Set Development Model</h2>
+  <p class="lede">The Change Set Development model allows the use of change sets to send customizations between Salesforce orgs that are affiliated with a production org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Upload</h4>
+      <p>After authorizing the deployment connection, the <strong>outbound change set</strong> can be <strong>uploaded</strong> from the source org to the <strong>target org</strong>. For example, the upload can be performed in a Developer sandbox by selecting a Developer Pro sandbox as the target.</p>
+    </div>
+    <div class="card">
+      <h4>Inbound Change Set</h4>
+      <p>In the target org, the inbound change set uploaded in the source org can be <strong>deployed</strong>. If a deployment is <strong>unsuccessful</strong> for some reason, it is <strong>rolled back</strong>. If it <strong>succeeds</strong>, the <strong>changes are committed</strong> and the deployment <strong>cannot be rolled back</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Once a change set deployment succeeds, it is permanent — there is no undo. This is a critical operational difference from package installs, which can be removed.</div>
+</section>
+
+<!-- ===== CHANGE SET — VALIDATION / ROLLOUT ===== -->
+<section class="slide" id="changeset-validation-rollout" data-search="change set validation validate inbound change set best practice success error messages quick deploy rollout deployed production manual changes scheduled">
+  <div class="pgnum">Page 16 · Change Set — Validation &amp; Rollout</div>
+  <h2>Change Set Development Model</h2>
+  <p class="lede">The Change Set Development model allows the use of change sets to send customizations between Salesforce orgs that are affiliated with a production org.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Validation</h4>
+      <p>Before deployment to production, it is a best practice to <strong>validate an inbound change set</strong>, which shows the success or error messages that would occur during an actual deployment. After successful validation, the change set might qualify for a <strong>quick deploy</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Rollout</h4>
+      <p>The change set is finally <strong>deployed to a production org</strong> at the scheduled rollout time. <strong>Manual changes</strong> are performed after the deployment.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Validation (check-only deploy) before the release window is mandatory practice in a regulated environment — it ensures the deployment will succeed before touching production. The "quick deploy" window (within 96 hours of a successful validation) is a useful operational detail: it lets you run full tests ahead of a maintenance window, then deploy quickly when the window opens.</p>
+  </div>
+</section>
+
+<!-- ===== SECTION DIVIDER: ORG DEVELOPMENT MODEL ===== -->
+<section class="slide title-slide" id="org-divider" data-search="org development model section divider">
+  <div class="pgnum" style="color:#cbd6e6">Page 17 · Section</div>
+  <h2>Org Development Model</h2>
+</section>
+
+<!-- ===== ORG — ENVIRONMENTS & SFDX ===== -->
+<section class="slide" id="org-environments-sfdx" data-search="org development model source-driven development process source control repository environments developer sandboxes developer pro full sandbox salesforce dx project sfdx-project.json configuration file">
+  <div class="pgnum">Page 18 · Org Development Model — Environments &amp; Salesforce DX</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model is a <strong>source-driven development process</strong> that utilizes a <strong>source control repository</strong> to store and track changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Environments</h4>
+      <p>The Org Development Model uses the same development and testing environments that are applicable to the Change Set Development Model. These include <strong>Developer sandboxes</strong> for development and testing, a <strong>Developer Pro sandbox</strong> for integration, and a <strong>Full sandbox</strong> for user-acceptance testing.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce DX</h4>
+      <p>A <strong>Salesforce DX project</strong> contains the <strong>source and files</strong> that represent the changes in an org. It is used to manage and collect the changes that need to be sent from one org to another. It contains a <strong>configuration file named sfdx-project.json</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Org Development Model is the most common model for existing, brownfield orgs. The key differentiator from Change Sets: source control becomes the authoritative record — not the org itself. Every change is retrievable, diffable, and reviewable as code before it hits any environment.</p>
+  </div>
+</section>
+
+<!-- ===== ORG — MANIFEST FILE & SOURCE CONTROL ===== -->
+<section class="slide" id="org-manifest-source-control" data-search="org development model manifest file package.xml release artifact components deployed target org source control system merge store changes salesforce dx project github">
+  <div class="pgnum">Page 19 · Org Development Model — Manifest File &amp; Source Control</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model is a <strong>source-driven development process</strong> that utilizes a <strong>source control repository</strong> to store and track changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Manifest File</h4>
+      <p>After changes have been tested, a <strong>manifest file</strong> named <strong>package.xml</strong> is created. It is a release artifact that lists all the components that need to be deployed to a target org.</p>
+    </div>
+    <div class="card">
+      <h4>Source Control System</h4>
+      <p>A source control system is used to <strong>merge and store all the changes</strong>. It contains the Salesforce DX project. A popular example is <strong>GitHub</strong>.</p>
+    </div>
+  </div>
+  <div class="note">package.xml is the deployment manifest for the Org Development Model — it declaratively lists every component to be deployed. This is the counterpart to a package version in the Package Development Model.</div>
+</section>
+
+<!-- ===== ORG — CLI & VS CODE EXTENSIONS ===== -->
+<section class="slide" id="org-cli-vscode" data-search="org development model salesforce cli command line interface authorize sandboxes dx projects test data metadata tests salesforce extensions vs code integrated development environment apex replay debugger aura visualforce">
+  <div class="pgnum">Page 20 · Org Development Model — Salesforce CLI &amp; VS Code Extensions</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model is a <strong>source-driven development process</strong> that utilizes a <strong>source control repository</strong> to store and track changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Salesforce CLI</h4>
+      <p>Salesforce CLI is a <strong>command-line interface</strong> that can be used to <strong>authorize</strong> sandboxes, create and manage <strong>DX projects</strong>, import and export <strong>test data</strong>, retrieve and deploy <strong>metadata</strong>, and run and automate <strong>tests</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce Extensions for VS Code</h4>
+      <p>Built on top of Salesforce CLI and VS (Visual Studio) Code, Salesforce Extensions for VS Code is an <strong>integrated development environment</strong> for custom development on the Lightning platform. It includes these VS Code extensions: <strong>Salesforce CLI integration</strong>, <strong>Apex</strong>, <strong>Apex Replay Debugger</strong>, <strong>Aura Components</strong>, and <strong>Visualforce</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Salesforce CLI is the backbone of any CI/CD pipeline — all the sf commands you run interactively are the same commands your GitLab CI stages will run. The ability to authorize named credentials in pipelines (using JWT bearer flow, not interactive login) is essential for automated deployments in a regulated environment where human intervention should be minimized.</p>
+  </div>
+</section>
+
+<!-- ===== ORG — CHANGE MANAGEMENT TOOLS ===== -->
+<section class="slide" id="org-change-mgmt-tools" data-search="org development model change management tools change list table spreadsheet deployment run list manual changes jira agile accelerator project management tools sprints backlog">
+  <div class="pgnum">Page 21 · Org Development Model — Change Management Tools</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model is a <strong>source-driven development process</strong> that utilizes a <strong>source control repository</strong> to store and track changes.</p>
+  <div class="card" style="max-width:640px">
+    <h4>Change Management Tools</h4>
+    <p>A developer can use a <strong>change list (list, table, or spreadsheet)</strong> to track the changes they made in their own dev org. They can use a <strong>deployment run list</strong> to list any manual changes required pre- and post-deployment. In addition, <strong>project management tools</strong> such as <strong>Jira</strong> and <strong>Agile Accelerator</strong> can be used to track requirements, feature work, and bugs. They can also be used to manage sprints and groom the backlog.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>A deployment run list is your operational runbook — it captures the human steps that can't be automated (activating flows, loading seed data, toggling settings). Naming this explicitly in an interview shows operational maturity beyond just "we ran sf project deploy."</p>
+  </div>
+</section>
+
+<!-- ===== ORG — SOURCE CODE REPO & DEV BRANCH ===== -->
+<section class="slide" id="org-repo-branch" data-search="org development model source code repository code repository source control system salesforce dx project committed pushed main branch development branch clone create own branch deploy">
+  <div class="pgnum">Page 22 · Org Development Model — Source Code Repository &amp; Dev Branch</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model is a <strong>source-driven development process</strong> that utilizes a <strong>source control repository</strong> to store and track changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Source Code Repository</h4>
+      <p>A <strong>code repository</strong> can be created in the <strong>source control system</strong> to organize the source files for a development project. A <strong>Salesforce DX project</strong> can be created and added to the repository. It can be committed and pushed to the default branch, such as <strong>main</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Development Branch</h4>
+      <p>A developer can <strong>clone the source code repository</strong> and <strong>create their own branch</strong> for the changes they need to work on and deploy.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ORG — DEVELOP, RETRIEVE & COMMIT ===== -->
+<section class="slide" id="org-develop-commit" data-search="org development model develop retrieve deploy local dx project apex class custom object developer sandbox commit source control repository pull request reviewers review approval merged main branch">
+  <div class="pgnum">Page 23 · Org Development Model — Develop, Retrieve &amp; Commit</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model is a <strong>source-driven development process</strong> that utilizes a <strong>source control repository</strong> to store and track changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Develop, Retrieve &amp; Deploy</h4>
+      <p>A developer can make changes in the <strong>local DX project</strong>. For example, they can create an Apex class for a new feature. Changes made in the Developer sandbox, such as a new custom object, can be <strong>retrieved</strong> to the local repository. Changes made in the local repository can be <strong>deployed</strong> to the Developer sandbox.</p>
+    </div>
+    <div class="card">
+      <h4>Commit Changes</h4>
+      <p>After all the changes have been made, they can be <strong>committed</strong> to the <strong>source control repository</strong>. A <strong>pull request</strong> can be created and <strong>reviewers</strong> can be assigned to it for <strong>review</strong> and <strong>approval</strong>. Once it is approved, the changes can be <strong>merged</strong> with the main branch.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Pull request review with required approvers is the technical implementation of your change approval process. In a regulated environment, the PR approval (with audit log in Git) replaces or supplements the manual CAB — every change to production has a named approver, a timestamp, and a diff. This is exactly the "auditability" the JD requires.</p>
+  </div>
+</section>
+
+<!-- ===== ORG — BUILD RELEASE ARTIFACT & UAT ===== -->
+<section class="slide" id="org-build-uat" data-search="org development model build release artifact final release artifact manifest package.xml sandbox production orgs user acceptance testing uat partial sandbox deploy">
+  <div class="pgnum">Page 24 · Org Development Model — Build Release Artifact &amp; UAT</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model is a <strong>source-driven development process</strong> that utilizes a <strong>source control repository</strong> to store and track changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Build Release Artifact</h4>
+      <p>After developing all the changes and committing them to the source control repository, the <strong>final release artifact</strong> (a manifest file named <strong>package.xml</strong>) can be built for all the components that need to be deployed to sandbox and production orgs.</p>
+    </div>
+    <div class="card">
+      <h4>User Acceptance Testing</h4>
+      <p>The release artifact can be deployed to a <strong>partial sandbox</strong> for <strong>user-acceptance testing (UAT)</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ORG — STAGING & RELEASE ===== -->
+<section class="slide" id="org-staging-release" data-search="org development model staging full sandbox regression testing validation results tests no missing invalid metadata release pre-deployment tasks quick deploy 10 days post-deployment steps">
+  <div class="pgnum">Page 25 · Org Development Model — Staging &amp; Release</div>
+  <h2>Org Development Model</h2>
+  <p class="lede">The Org Development Model is a <strong>source-driven development process</strong> that utilizes a <strong>source control repository</strong> to store and track changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Staging</h4>
+      <p>A <strong>Full sandbox</strong> can be used for <strong>staging and regression testing</strong>. Before deploying to production, <strong>validation</strong> can be performed, which <strong>verifies the results of tests</strong> and ensures that there's <strong>no missing or invalid metadata</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Release</h4>
+      <p>Before releasing the changes to production, <strong>pre-deployment tasks</strong> are completed and a <strong>validation</strong> is performed. The validation sets up the <strong>quick deploy</strong>, which can be performed <strong>within 10 days</strong>. After the quick deploy, <strong>post-deployment steps</strong> are completed.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The full Org Model pipeline is: Dev sandbox → Dev Pro (integration) → Partial (UAT) → Full (staging + validation) → Production (quick deploy). Being able to describe this end-to-end flow fluently, including the purpose of each environment tier, is a strong signal of hands-on experience.</p>
+  </div>
+</section>
+
+<!-- ===== SECTION DIVIDER: PACKAGE DEVELOPMENT MODEL ===== -->
+<section class="slide title-slide" id="package-divider" data-search="package development model section divider">
+  <div class="pgnum" style="color:#cbd6e6">Page 26 · Section</div>
+  <h2>Package Development Model</h2>
+</section>
+
+<!-- ===== PACKAGE — INTRO / VERSION CONTROL ===== -->
+<section class="slide" id="package-intro" data-search="package development model modular units functionality packages release artifact group related code customizations lightning web components apex classes custom objects custom fields version control system source of truth">
+  <div class="pgnum">Page 27 · Package Development Model — Package &amp; Version Control</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development model focuses on creating <strong>modular units of functionality</strong> called <strong>packages</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Package</h4>
+      <p>In the Package Development Model, a release artifact called <strong>package</strong> is created. It is a <strong>group of related code and customizations</strong>. For example, a package can contain Lightning web components, Apex classes, custom objects, and custom fields for a custom application in an org.</p>
+    </div>
+    <div class="card">
+      <h4>Version Control System</h4>
+      <p>All the source and metadata for the packages is stored in a <strong>source control repository</strong>, which represents the <strong>source of truth</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Packages are the explicit "platform components" and "reusable abstractions" the Fed Platform Engineer JD describes. Each package is a versioned, independently installable unit — one package per bounded domain (e.g., a core utilities package, a case management package). Application teams consume specific versions, giving the platform team full control over what ships to production.</p>
+  </div>
+</section>
+
+<!-- ===== PACKAGE — SCRATCH ORGS & PACKAGE RELEASE ===== -->
+<section class="slide" id="package-scratch-release" data-search="package development model scratch orgs development org edition features preferences declarative development package release teams develop separately independent releases versionable easy to maintain update install upgrade">
+  <div class="pgnum">Page 28 · Package Development Model — Scratch Orgs &amp; Package Release</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development model focuses on creating <strong>modular units of functionality</strong> called <strong>packages</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Scratch Orgs</h4>
+      <p>A developer can quickly spin up a <strong>scratch (development) org</strong> from the source to work specifically on a package. It can be configured with just the <strong>edition, features, and preferences</strong> needed for the package and used for <strong>declarative development</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Package Release</h4>
+      <p>Teams can <strong>develop separately</strong> and build towards a release of the package. This allows <strong>more frequent, independent releases</strong>. The goal is to create packages that are <strong>versionable</strong>, easy to <strong>maintain</strong>, <strong>update</strong>, <strong>install</strong>, and <strong>upgrade</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Scratch orgs are ephemeral (up to 30 days), defined entirely by source — they are the closest Salesforce equivalent to a Docker container. Each CI build spins up a fresh scratch org, pushes source, runs tests, and tears it down. This eliminates "works in my sandbox" problems and is the strongest signal of a mature Salesforce DevOps practice.</p>
+  </div>
+</section>
+
+<!-- ===== PACKAGE — UNLOCKED PACKAGES & CLI ===== -->
+<section class="slide" id="package-unlocked-cli" data-search="package development model unlocked packages internal business applications organize existing metadata app extend new metadata salesforce cli manage dx projects create scratch orgs push pull metadata unit tests build automation scripts deploy install packages run tests">
+  <div class="pgnum">Page 29 · Package Development Model — Unlocked Packages &amp; Salesforce CLI</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development model focuses on creating <strong>modular units of functionality</strong> called <strong>packages</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Unlocked Packages</h4>
+      <p>Unlocked packages are suitable for <strong>internal business applications</strong>. An unlocked package can be used to organize <strong>existing metadata</strong>, package an <strong>app</strong>, <strong>extend</strong> an app, or package <strong>new metadata</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce CLI</h4>
+      <p>Salesforce CLI can be used to <strong>manage DX projects</strong>, create <strong>scratch orgs</strong>, <strong>push</strong> and <strong>pull</strong> metadata to and from a scratch org, and run <strong>unit tests</strong>. It can also be used as part of <strong>build automation scripts</strong> to <strong>create and access</strong> orgs, <strong>deploy</strong> source, <strong>install packages</strong>, and <strong>run tests</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Unlocked packages are the right choice for internal enterprise platform development — not managed packages (those are for ISV/AppExchange). Every sf package command in a GitLab CI pipeline (create version → promote → install) is automatable, auditable, and repeatable. This is the "automation for deployments to reduce manual processes" the JD describes.</p>
+  </div>
+</section>
+
+<!-- ===== PACKAGE — VS CODE EXTENSIONS & SANDBOXES ===== -->
+<section class="slide" id="package-vscode-sandboxes" data-search="package development model salesforce extensions vs code integrated development environment create projects package development interact salesforce cli sandboxes targets destinations testing installation user acceptance staging continuous delivery testing">
+  <div class="pgnum">Page 30 · Package Development Model — VS Code Extensions &amp; Sandboxes</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development model focuses on creating <strong>modular units of functionality</strong> called <strong>packages</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Salesforce Extensions for VS Code</h4>
+      <p>Salesforce Extensions for VS Code is an integrated development environment that can be used to <strong>create projects for package development</strong> and <strong>interact with the Salesforce CLI</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Sandboxes</h4>
+      <p>While scratch orgs are used for package development, sandboxes are used as <strong>targets/destinations for testing the installation of the package version</strong>. They can be used for <strong>user acceptance testing</strong>, <strong>staging</strong>, and <strong>continuous delivery testing</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Key distinction: in the Package model, scratch orgs are for development/build; sandboxes are for testing and validating the package install — they simulate what will happen in production.</div>
+</section>
+
+<!-- ===== PACKAGE — DX PROJECT & SYNCHRONIZATION ===== -->
+<section class="slide" id="package-dx-sync" data-search="package development model salesforce dx project default package directory source format multiple packages single dx project synchronization track local changes scratch org salesforce cli list pushed pulled">
+  <div class="pgnum">Page 31 · Package Development Model — Salesforce DX Project &amp; Synchronization</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development model focuses on creating <strong>modular units of functionality</strong> called <strong>packages</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Salesforce DX Project</h4>
+      <p>When a new Salesforce DX project is created, a <strong>default 'package' directory</strong> is created. The project directory stores the metadata in <strong>source format</strong>. Multiple packages can be organized into a single DX project.</p>
+    </div>
+    <div class="card">
+      <h4>Synchronization</h4>
+      <p>Salesforce DX <strong>tracks local changes</strong> as well as any <strong>changes made in the scratch org</strong>. Using Salesforce CLI, a <strong>list of changes</strong> can be <strong>viewed</strong>, local changes can be <strong>pushed</strong>, and changes in the scratch org can be <strong>pulled</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PACKAGE — SYNCHRONIZATION (DX format) & TESTING ===== -->
+<section class="slide" id="package-sync-testing" data-search="package development model synchronization dx project format large source files digestible manage version control system source structure fewer merge conflicts testing manual exploratory continuous integration ci automate package versions release testing continuous delivery automation">
+  <div class="pgnum">Page 32 · Package Development Model — DX Source Format &amp; CI Testing</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development model focuses on creating <strong>modular units of functionality</strong> called <strong>packages</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Synchronization — DX Source Format</h4>
+      <p>In the DX project format, large source files are broken down to make them <strong>more digestible</strong> and <strong>easier to manage</strong> with a version control system. The source structure makes it easy to find what needs to be updated. It also results in <strong>fewer merge conflicts</strong> during development.</p>
+    </div>
+    <div class="card">
+      <h4>Testing</h4>
+      <p>To perform <strong>manual or exploratory testing</strong>, metadata is pushed into a separate scratch org. <strong>Continuous Integration (CI)</strong> is used to automate consistent test runs against every set of merged changes. <strong>Package versions</strong> are created and installed in each testing environment for <strong>release testing</strong> or <strong>continuous delivery automation</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>CI running against every merge is the automated quality gate that replaces manual pre-deploy checks. In a GitLab CI pipeline: push triggers a scratch org build → tests run → if green, a new package version is created and promoted. The combination of fewer merge conflicts (DX source format) and automated CI makes the Package model the most scalable for a platform team managing 33+ repos.</p>
+  </div>
+</section>
+
+<!-- ===== PACKAGE — CONTINUOUS DELIVERY & DEPLOYMENT ===== -->
+<section class="slide" id="package-continuous-delivery" data-search="package development model continuous delivery deployment process tested package build phase sandbox best representation production steps replicated tested deployment artifact package version installed production environment">
+  <div class="pgnum">Page 33 · Package Development Model — Continuous Delivery &amp; Deployment</div>
+  <h2>Package Development Model</h2>
+  <p class="lede">The Package Development model focuses on creating <strong>modular units of functionality</strong> called <strong>packages</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Continuous Delivery</h4>
+      <p>For continuous delivery, the process for deployment and release to production is tested. Testing is performed with the <strong>package created in the build phase</strong>. It is installed in a <strong>sandbox that is the best representation of production</strong>. The steps used to release to production are <strong>replicated and tested</strong> in the sandbox.</p>
+    </div>
+    <div class="card">
+      <h4>Deployment</h4>
+      <p>After creating and testing the app or customizations, the <strong>deployment artifact</strong> is created. A <strong>package version</strong> is installed in the production environment.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The Package model's deployment story is clean: one artifact (the package version), installed identically in each environment in sequence. Compare to the Org model where you might have different package.xml manifests per environment. This consistency is what "repeatable, auditable deployment" means in practice — and it is the strongest exam/interview answer for "how do you ensure prod gets exactly what was tested?"</p>
+  </div>
+</section>
+
+<!-- ===== SECTION DIVIDER: PEOPLE & ROLES ===== -->
+<section class="slide title-slide" id="people-divider" data-search="people roles section divider">
+  <div class="pgnum" style="color:#cbd6e6">Page 34 · Section</div>
+  <h2>People &amp; Roles</h2>
+</section>
+
+<!-- ===== ROLES — PM / RELEASE MANAGER / ARCHITECT ===== -->
+<section class="slide" id="roles-pm-rm-architect" data-search="key roles application lifecycle management project manager planning executing finalizing timeline budget release manager release process development testing deployment architect designing building delivering solutions best practices">
+  <div class="pgnum">Page 35 · Key Roles — Project Manager, Release Manager, Architect</div>
+  <h2>Key Roles in Application Lifecycle Management</h2>
+  <p class="lede">In a typical application lifecycle management process for Salesforce development, various key people and roles are involved.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Project Manager</h4>
+      <p>A project manager is responsible for <strong>planning, executing, and finalizing</strong> projects according to strict <strong>timeline</strong> and <strong>budget</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Release Manager</h4>
+      <p>A release manager manages the <strong>release process</strong> and oversees the <strong>development, testing, and deployment</strong> phases of the release cycle.</p>
+    </div>
+    <div class="card">
+      <h4>Architect</h4>
+      <p>A Salesforce architect is responsible for <strong>designing, building, and delivering solutions</strong> based on Salesforce best practices.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When they ask "what's your role in the ALM process," you span multiple of these: you architect the DX/pipeline design, you act as release manager owning the pipeline and environments, and you collaborate with PMs on sprint cadence. Demonstrating multi-role coverage at the platform-engineer level signals seniority.</p>
+  </div>
+</section>
+
+<!-- ===== ROLES — DESIGNER / BA / DEVELOPERS ===== -->
+<section class="slide" id="roles-designer-ba-dev" data-search="key roles designer user interface application features user experience business analyst analyzes business needs translates technical requirements project goals developers developing customizing programmatic">
+  <div class="pgnum">Page 36 · Key Roles — Designer, Business Analyst, Developers</div>
+  <h2>Key Roles in Application Lifecycle Management</h2>
+  <p class="lede">In a typical application lifecycle management process for Salesforce development, various key people and roles are involved.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Designer</h4>
+      <p>A Salesforce designer is responsible for <strong>designing the user interface</strong> for an application or features while focusing on the <strong>user experience</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Business Analyst</h4>
+      <p>A business analyst <strong>analyzes business needs</strong> and <strong>translates them into technical requirements</strong>, ensuring that project goals align with business needs.</p>
+    </div>
+    <div class="card">
+      <h4>Developers</h4>
+      <p>Salesforce developers are responsible for <strong>developing and customizing</strong> features using <strong>programmatic</strong> approaches.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ROLES — ADMIN / QA / STAKEHOLDERS ===== -->
+<section class="slide" id="roles-admin-qa-stakeholders" data-search="key roles administrators managing salesforce environments declarative changes qa testers quality assurance functions as intended bugs issues stakeholders crucial feedback input planning testing phases">
+  <div class="pgnum">Page 37 · Key Roles — Administrators, QA Testers, Stakeholders</div>
+  <h2>Key Roles in Application Lifecycle Management</h2>
+  <p class="lede">In a typical application lifecycle management process for Salesforce development, various key people and roles are involved.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Administrators</h4>
+      <p>Salesforce administrators are responsible for <strong>managing the Salesforce environments</strong> and making <strong>declarative changes</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>QA Testers</h4>
+      <p>Quality Assurance (QA) testers ensure that the developed application <strong>functions as intended</strong> and <strong>identify bugs or issues</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Stakeholders</h4>
+      <p>Stakeholders provide <strong>crucial feedback and input</strong>, particularly during the planning and testing phases.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STAKEHOLDER GROUPS ===== -->
+<section class="slide" id="stakeholder-groups" data-search="stakeholder groups executive leadership executive sponsors steering committee communicate key information recurring updates readiness leadership team sales service marketing visible project sponsors managers super users build awareness championing core end users key input communications training readiness activities">
+  <div class="pgnum">Page 38 · Stakeholder Groups</div>
+  <h2>Stakeholder Groups</h2>
+  <p class="lede">There are various stakeholder groups who participate in the application lifecycle management process.</p>
+  <table class="dttable">
+    <thead>
+      <tr><th>Group</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Executive Leadership</strong></td>
+        <td>Includes <strong>executive sponsors</strong> and the <strong>steering committee</strong>. They communicate key information to leaders and end users and receive recurring updates on the readiness status.</td>
+      </tr>
+      <tr>
+        <td><strong>Leadership Team</strong></td>
+        <td>Leaders from departments such as sales, service, and marketing. They act as <strong>visible project sponsors</strong> for Salesforce implementation and associated changes.</td>
+      </tr>
+      <tr>
+        <td><strong>Managers &amp; Super Users</strong></td>
+        <td>Managers <strong>build awareness and understanding</strong> and are responsible for <strong>championing Salesforce readiness activities</strong> to their staff.</td>
+      </tr>
+      <tr>
+        <td><strong>Core End Users</strong></td>
+        <td>Core end users <strong>provide key input</strong> on the needs of the primary users based on received communications and <strong>attend training and readiness activities</strong>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a central bank, the "steering committee" maps directly to the Change Advisory Board (CAB) and executive risk governance. Knowing which stakeholder tier approves production releases — and structuring communications appropriately to each tier — is a core platform engineer responsibility that distinguishes a technical lead from an individual contributor.</p>
+  </div>
+</section>
+
+<!-- ===== SECTION DIVIDER: BUSINESS SCENARIO ===== -->
+<section class="slide title-slide" id="scenario-divider" data-search="business scenario section divider">
+  <div class="pgnum" style="color:#cbd6e6">Page 39 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- ===== BUSINESS SCENARIO — COSMIC TECHNOLOGY GROUP ===== -->
+<section class="slide" id="scenario-cosmic" data-search="business scenario cosmic technology group multinational corporation salesforce solutions emea apac regional teams complexity scale consistency quality efficiency alm maturity assess recommend">
+  <div class="pgnum">Page 40 · Business Scenario — Cosmic Technology Group</div>
+  <h2>Business Scenario</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Technology Group, a multinational corporation, specializes in providing complex Salesforce solutions to a diverse range of clients. The company's portfolio includes large-scale Salesforce integrations, custom application development, and system overhauls.</p>
+    <p style="margin-top:8px">Two regional teams provide Salesforce development services. The <strong>EMEA team</strong> focuses on clients in Europe, and the <strong>APAC team</strong> serves the Asia-Pacific market, but they often work together on some projects. Given the complexity and scale of their projects, the company faces challenges in maintaining <strong>consistency, quality, and efficiency</strong> across the teams.</p>
+    <p style="margin-top:8px">A Salesforce architect is brought on board to <strong>assess the maturity</strong> of their current ALM processes, evaluate the existing people, technology, and processes utilized by the two regional teams, and recommend improvements.</p>
+  </div>
+</section>
+
+<!-- ===== SECTION DIVIDER: REQUIREMENTS & SOLUTIONS ===== -->
+<section class="slide title-slide" id="req-solutions-divider" data-search="requirements solutions section divider">
+  <div class="pgnum" style="color:#cbd6e6">Page 41 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- ===== REQUIREMENT 1 ===== -->
+<section class="slide" id="requirement-1" data-search="requirement 1 banking corporation large-scale implementation initial system design integration legacy banking security protocols sophisticated application lifecycle management rigorous testing quality control high maturity tool manage requirements defects collaboration">
+  <div class="pgnum">Page 42 · Requirement 1</div>
+  <h2>Requirement 1 — Large-Scale Banking Implementation</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The two regional teams need to work together on a large-scale Salesforce implementation project for a multinational banking corporation. This project involves initial system design, integration with legacy banking systems, and implementation of advanced security protocols. Given the project's complexity, there's a need for a <strong>sophisticated application lifecycle management process</strong> that supports <strong>rigorous testing and quality control</strong> and aligns with the organization's high maturity level. This process must involve a <strong>tool</strong> to manage requirements and defects and facilitate seamless communication and collaboration.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This scenario is structurally identical to the Fed's environment: a large regulated institution, multiple teams, legacy system integrations, security protocols, and a demand for rigorous quality control. The answer pattern here (Org model + Git + project management tool + layered sandbox strategy) is exactly the answer you would give for the Fed's Salesforce platform.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 1 PART 1 ===== -->
+<section class="slide" id="solution-1-part1" data-search="solution 1 org development model source control system git developer sandbox developer pro sandbox partial sandbox uat full sandbox staging training">
+  <div class="pgnum">Page 43 · Solution 1 (Part 1) — Org Development Model &amp; Sandbox Strategy</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the large-scale Salesforce implementation project, the teams should adopt the <strong>org development model</strong>. A <strong>source control system</strong> like Git should be integrated with the development lifecycle for effective code management and version control. The developers of the two regional teams should work within separate Salesforce <strong>Developer sandbox</strong> environments, which would promote focused development while maintaining project alignment. Developed features can be integrated in a <strong>Developer Pro sandbox</strong>. A <strong>Partial sandbox</strong> can be used for user-acceptance testing. A <strong>Full sandbox</strong> can be used for staging and training.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 1 PART 2 ===== -->
+<section class="slide" id="solution-1-part2" data-search="solution 1 project management tool jira agile accelerator manage requirements track development tasks log defects cross-regional coordination synchronicity">
+  <div class="pgnum">Page 44 · Solution 1 (Part 2) — Project Management Tool</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A <strong>project management tool</strong>, such as <strong>Jira</strong> or <strong>Agile Accelerator</strong>, should be implemented to manage requirements, track development tasks, and log defects across teams. Regular cross-regional coordination meetings should be scheduled to ensure synchronicity in development efforts and address any emerging issues.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 1 PART 3 — PIPELINE DIAGRAM ===== -->
+<section class="slide" id="solution-1-part3" data-search="solution 1 pipeline diagram develop test dev sandbox build release dev pro sandbox test release partial sandbox uat release full sandbox staging training production source control system project management tool project manager developers qa testers end users">
+  <div class="pgnum">Page 45 · Solution 1 (Part 3) — Pipeline Diagram</div>
+  <h2>Solution 1 (Part 3) — Full Pipeline</h2>
+  <pre class="code"><span class="c">-- Environments --</span>
+Develop &amp; Test       Build Release       Test Release        Release
+Dev Sandbox (×3) ──▶ Dev Pro Sandbox ──▶ Partial Sandbox ──▶ Full Sandbox (Staging &amp; Training) ──▶ Production
+                                          (UAT)
+
+<span class="c">-- Supporting tools --</span>
+Source Control System        Project Management Tool
+
+<span class="c">-- Roles --</span>
+Project Manager    Salesforce Developers    QA Testers    End Users</pre>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This diagram is the canonical answer for "design an environment strategy for a multi-team Salesforce project using the Org Development Model." Memorize the four phases (Develop &amp; Test → Build Release → Test Release → Release) and their corresponding sandbox types. The roles layer beneath shows who is responsible at each stage.</p>
+  </div>
+</section>
+
+<!-- ===== REQUIREMENT 2 ===== -->
+<section class="slide" id="requirement-2" data-search="requirement 2 emea team complex salesforce project interrelated applications financial services custom financial tracking human capital management data analytics seamless integration upgradability high maturity package development model scratch orgs source control versioning tools roles">
+  <div class="pgnum">Page 46 · Requirement 2 — EMEA Complex Financial Services Project</div>
+  <h2>Requirement 2 — EMEA Complex Financial Services Project</h2>
+  <div class="scenario">
+    <h4>Scenario (Part 1)</h4>
+    <p>The EMEA team needs to work on a complex Salesforce project. It involves the development of a series of <strong>complex, interrelated applications</strong> for a financial services client. These include a custom financial tracking tool, a human capital management application, and data analytics capabilities. Given the sophistication of these applications and the client's expectation for <strong>seamless integration and upgradability</strong>, a <strong>high degree of coordination and control</strong> is required throughout the development lifecycle.</p>
+  </div>
+  <div class="scenario">
+    <h4>Scenario (Part 2)</h4>
+    <p>The requirement is for an Application Lifecycle Management (ALM) process that aligns with the company's <strong>high maturity level</strong>, leveraging the <strong>package development model</strong> for modular development, <strong>scratch orgs</strong> for isolated testing environments, and a <strong>source control system</strong> for versioning, along with the appropriate <strong>tools and roles</strong> to support these processes.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The triggers here — interrelated applications, upgradability, high maturity — are exactly the conditions that justify the Package Development Model over the Org model. At the Fed, with multiple application domains (case management, integrations, data platforms), a package-per-domain architecture ensures teams can upgrade one domain without destabilizing others. This is the highest-value architectural decision in the Fed Platform Engineer role.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 2 PART 1 ===== -->
+<section class="slide" id="solution-2-part1" data-search="solution 2 package development model smaller manageable packages financial tool hcm app analytics independent unlocked package easier maintenance upgradability source control system git salesforce dx version control branch separation scratch orgs isolated environments">
+  <div class="pgnum">Page 47 · Solution 2 (Part 1) — Unlocked Packages &amp; Scratch Orgs</div>
+  <h2>Solution 2 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The project should be broken down into smaller, manageable packages using the package development model. Each module (financial tool, HCM app, and analytics) should be developed as an independent <strong>unlocked package</strong>, allowing for <strong>easier maintenance</strong> and <strong>upgradability</strong>. A <strong>source control system</strong> like Git, integrated with <strong>Salesforce DX</strong>, should be used for version control. Each development stream should have its own branch, ensuring clean separation of code and configurations. <strong>Scratch orgs</strong> should be utilized by individual developers and testers. They can provide isolated environments to develop and test each module without impacting other development streams.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 2 PART 2 ===== -->
+<section class="slide" id="solution-2-part2" data-search="solution 2 roles salesforce developers coding configuration packages qa testers scratch orgs testing interoperability project managers oversee jira agile accelerator cicd tools automate build deployment release manager unified plan releases technical deployment tooling">
+  <div class="pgnum">Page 48 · Solution 2 (Part 2) — Roles &amp; CI/CD</div>
+  <h2>Solution 2 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The ALM process should consist of various key roles and people. <strong>Salesforce Developers</strong> should be assigned to coding and configuration tasks within their respective packages. <strong>QA Testers</strong> can use scratch orgs for testing each package, ensuring functionality and interoperability. <strong>Project Managers</strong> can oversee the project, track progress, and coordinate using an ALM tool like <strong>Jira</strong> or <strong>Agile Accelerator</strong>. In addition, <strong>CI/CD tools</strong> can be utilized to automate the build and deployment process for efficiency and reduced error rate. A <strong>Release Manager</strong> can assist in creating a unified plan for releases and also identify and assure use of technical deployment tooling (such as CI/CD tools).</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This solution describes a platform team structure: each functional domain has dedicated developers, QA testers validate package interoperability (not just individual packages), and the Release Manager owns the CI/CD toolchain. The Release Manager role is the one most closely aligned to the Fed Platform Engineer JD — it spans architecture, automation, and governance simultaneously.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION 2 PART 3 — PIPELINE DIAGRAM ===== -->
+<section class="slide" id="solution-2-part3" data-search="solution 2 pipeline diagram development unit testing scratch org continuous integration continuous delivery dev pro sandbox partial sandbox uat continuous deployment full sandbox training production source control project management cicd tools project managers release manager salesforce developers qa testers end users">
+  <div class="pgnum">Page 49 · Solution 2 (Part 3) — CI/CD Pipeline Diagram</div>
+  <h2>Solution 2 (Part 3) — Full CI/CD Pipeline</h2>
+  <pre class="code"><span class="c">-- Environments --</span>
+Dev &amp; Unit Testing      Continuous Integration   Continuous Delivery         Continuous Deployment
+Scratch Org (×3) ──────▶ Scratch Org ───────────▶ Dev Pro + Partial (UAT) ──▶ Full Sandbox (Training) + Production
+
+<span class="c">-- Supporting tools --</span>
+Source Control System    Project Management Tool    CI/CD Tools
+
+<span class="c">-- Roles --</span>
+Project Managers    Release Manager    Salesforce Developers    QA Testers    End Users</pre>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This is the Package Model's full CI/CD pipeline — the gold standard for a mature Salesforce DevOps practice. The key difference from Solution 1 (Org model): scratch orgs replace developer sandboxes in the early stages, and CI/CD tools automate every promotion gate. The Release Manager role owning the pipeline and the CI/CD toolchain is exactly the function described in the Fed Platform Engineer JD.</p>
+  </div>
+</section>
+
+<!-- ===== LEARN MORE ===== -->
+<section class="slide" id="learn-more" data-search="learn more salesforce documentation application lifecycle development models change set org package stakeholder management structure center of excellence governance">
+  <div class="pgnum">Page 50 · Learn More</div>
+  <h2>Learn More — Salesforce Documentation</h2>
+  <ul>
+    <li>Application Lifecycle and Development Models</li>
+    <li>Change Set Development Model</li>
+    <li>Org Development Model</li>
+    <li>Package Development Model</li>
+    <li>Stakeholder Management Structure</li>
+    <li>Managing Governance with a Center Of Excellence</li>
+  </ul>
+  <div class="note">These are the canonical Salesforce Help &amp; Trailhead Architect documentation pages. Cross-reference with the official exam guide topics for the Planning section of the Dev Lifecycle &amp; Deployment credential.</div>
+</section>
+
+<!-- ===== CHEATSHEET ===== -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points development models change set org package scratch orgs sandbox types roles decision matrix exam traps">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Planning: Development Models</h2>
+
+  <h3>Three Development Models — Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Model</th><th>Source of Truth</th><th>Dev Environments</th><th>Key Tools</th><th>Best For</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Change Set</strong></td>
+        <td>The org itself</td>
+        <td>Developer sandboxes → Dev Pro → Full</td>
+        <td>Salesforce Setup (change sets)</td>
+        <td>Low maturity, simple teams, no coding required</td>
+      </tr>
+      <tr>
+        <td><strong>Org Development</strong></td>
+        <td>Source control (Git) + package.xml</td>
+        <td>Developer sandboxes → Dev Pro → Partial → Full</td>
+        <td>Salesforce CLI, VS Code Extensions, Git, Jira</td>
+        <td>Existing brownfield orgs, mixed admin/dev teams, moderate maturity</td>
+      </tr>
+      <tr>
+        <td><strong>Package Development</strong></td>
+        <td>Source control + versioned package</td>
+        <td>Scratch orgs → Scratch (CI) → Dev Pro + Partial → Full → Production</td>
+        <td>Salesforce CLI, VS Code, Git, CI/CD tools, unlocked packages</td>
+        <td>High maturity, modular greenfield, multi-team, internal platform engineering</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Change Set Limitations (exam traps)</h3>
+  <ul>
+    <li>Change sets <strong>cannot delete</strong> components — deletion must be done manually in the target org.</li>
+    <li>Change sets <strong>cannot rename</strong> components directly — delete in target, then send new name in a change set.</li>
+    <li>Once deployed successfully, a change set <strong>cannot be rolled back</strong>.</li>
+    <li>Some metadata types are <strong>not supported</strong> in Metadata API — use the Metadata Coverage report; these require manual migration.</li>
+    <li>Change sets only work between orgs <strong>affiliated with the same production org</strong>.</li>
+    <li>No version control, no audit trail beyond manual tracking — weakest on auditability.</li>
+  </ul>
+
+  <h3>Org Development Model — Release Pipeline</h3>
+  <table class="dttable">
+    <thead><tr><th>Phase</th><th>Environment</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Develop &amp; Test</td><td>Developer sandboxes</td><td>Build and unit test features in isolation</td></tr>
+      <tr><td>Build Release</td><td>Developer Pro sandbox</td><td>Integration — merge all developer streams</td></tr>
+      <tr><td>Test Release</td><td>Partial sandbox</td><td>User-acceptance testing (UAT)</td></tr>
+      <tr><td>Release</td><td>Full sandbox + Production</td><td>Staging, validation, quick deploy, training, production rollout</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Package Development Model — CI/CD Pipeline</h3>
+  <table class="dttable">
+    <thead><tr><th>Phase</th><th>Environment</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Development &amp; Unit Testing</td><td>Scratch orgs (per developer)</td><td>Isolated, ephemeral, source-defined development</td></tr>
+      <tr><td>Continuous Integration</td><td>Scratch org (CI build)</td><td>Automated tests on every merge</td></tr>
+      <tr><td>Continuous Delivery</td><td>Dev Pro + Partial (UAT)</td><td>Package version install testing, UAT</td></tr>
+      <tr><td>Continuous Deployment</td><td>Full sandbox + Production</td><td>Staging, training, production release</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Org vs Package — Key Differences</h3>
+  <table class="dttable">
+    <thead><tr><th></th><th>Org Development Model</th><th>Package Development Model</th></tr></thead>
+    <tbody>
+      <tr><td>Source of truth</td><td>Git + package.xml manifest</td><td>Git + versioned package artifact</td></tr>
+      <tr><td>Dev environment</td><td>Sandbox (long-lived, org copy)</td><td>Scratch org (ephemeral, source-defined)</td></tr>
+      <tr><td>Deployment artifact</td><td>package.xml (component list)</td><td>Package version (immutable artifact)</td></tr>
+      <tr><td>Rollback</td><td>Re-deploy previous package.xml</td><td>Install previous package version</td></tr>
+      <tr><td>Modularity</td><td>Whole-org metadata</td><td>Per-package bounded domain</td></tr>
+      <tr><td>CI/CD fit</td><td>Good</td><td>Best (scratch org per build)</td></tr>
+      <tr><td>Best for</td><td>Existing orgs, mixed teams</td><td>Greenfield, multi-team, platform engineering</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Key Roles — Who Does What</h3>
+  <table class="dttable">
+    <thead><tr><th>Role</th><th>Primary Responsibility in ALM</th></tr></thead>
+    <tbody>
+      <tr><td>Project Manager</td><td>Planning, executing, finalizing — timeline and budget</td></tr>
+      <tr><td>Release Manager</td><td>Owns the release process, pipeline, and toolchain; coordinates dev/test/deploy phases</td></tr>
+      <tr><td>Architect</td><td>Designs, builds, and ensures solutions follow Salesforce best practices</td></tr>
+      <tr><td>Developer</td><td>Programmatic customization in their package/branch/sandbox</td></tr>
+      <tr><td>Administrator</td><td>Declarative changes; manages environments</td></tr>
+      <tr><td>Business Analyst</td><td>Translates business needs into technical requirements</td></tr>
+      <tr><td>QA Tester</td><td>Validates functionality, identifies bugs; tests package interoperability</td></tr>
+      <tr><td>Stakeholders</td><td>Provide input during planning and testing; executive sponsors approve releases</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Points</h3>
+  <ul>
+    <li><strong>Change Set → Org → Package</strong> is a maturity progression: each step adds auditability, repeatability, and scalability.</li>
+    <li>The Org Development Model uses <strong>package.xml</strong> as the release artifact; the Package model uses a <strong>package version</strong>.</li>
+    <li>Scratch orgs are used for <strong>development</strong> in the Package model; sandboxes are used as <strong>install targets</strong> for testing the package version.</li>
+    <li>Validation (check-only deploy) qualifies for <strong>quick deploy within 10 days</strong> — lets you run tests before the release window, then deploy fast during it.</li>
+    <li>For complex, interrelated applications with upgradability requirements → <strong>Package Development Model with unlocked packages</strong>.</li>
+    <li>For multi-team large-scale projects where an existing org must be source-controlled → <strong>Org Development Model</strong>.</li>
+    <li>A Release Manager's key function is owning the pipeline AND the toolchain — not just scheduling; this is the Fed Platform Engineer core function.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

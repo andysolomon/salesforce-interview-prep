@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploying — Pre &amp; Post-Deployment Steps — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Deploying — Pre &amp; Post-Deployment Steps</h1>
+  <div class="sub">Approaches to handle pre and post-deployment steps, including items not supported via the APIs · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (21 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Deployment Steps</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#deployment-steps-overview">Deployment Steps Overview</a></li>
+      <li><a href="#section-deployment-steps">Section: Deployment Steps</a></li>
+      <li><a href="#pre-deployment-planning">Pre-Deployment: Planning, Testing, Audit Trail</a></li>
+      <li><a href="#pre-deployment-dependencies">Pre-Deployment: Dependencies, Backup, Manual Steps</a></li>
+      <li><a href="#pre-deployment-automation">Pre-Deployment: Automation, Test Scripts, Unsupported</a></li>
+      <li><a href="#deployment">Deployment</a></li>
+      <li><a href="#post-deployment-validation">Post-Deployment: Validation, Reactivation, Manual Changes</a></li>
+      <li><a href="#post-deployment-data">Post-Deployment: Data Migration, Monitoring, Additional Steps</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Green Innovations Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2-part1">Solution 2 (Part 1)</a></li>
+      <li><a href="#solution-2-part2">Solution 2 (Part 2)</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover deploying pre post deployment steps salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Deploying — Pre &amp; Post-Deployment Steps</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario, describe approaches to handle pre and post-deployment steps, including items not supported via the APIs · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents deployment steps business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#pre-deployment-planning">Deployment Steps</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives identify pre-deployment post-deployment steps describe approaches handle pre post deployment business requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Identify various pre-deployment steps that should be performed prior to a deployment.</li>
+    <li>Identify various post-deployment steps should be performed after a deployment.</li>
+    <li>Describe approaches to handle pre and post-deployment steps for the given business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction pre-deployment steps planning sandbox testing documentation manual steps freezing users post-deployment reactivating validation rules email deliverability data migration monitoring deployment activities tool validation dependencies">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Salesforce deployments often require pre and post-deployment steps. <strong>Pre-deployment steps</strong> include important activities such as planning, sandbox testing, documentation of manual steps, freezing users, etc. It is necessary to perform these steps to ensure that no issues arise during or after the deployment.</p>
+  <p><strong>Deployment activities</strong> include choosing a suitable tool, performing deployment validation, identifying the correct order of dependencies, and performing the deployment.</p>
+  <p><strong>Post-deployment steps</strong> are necessary to make sure that the deployed components work as expected. Some important steps include reactivating deactivated features, such as validation rules and email deliverability, performing data migration in the correct order, monitoring the deployed features, etc.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a regulated institution, every deployment — including pre and post steps — must be documented in a formal runbook approved before execution. The freeze-users / disable-automation / re-enable sequence maps directly to the change-control window in a Fed deployment plan. Regulators and internal audit teams will ask to see the runbook, evidence of validation, and sign-off records.</p>
+  </div>
+</section>
+
+<!-- DEPLOYMENT STEPS OVERVIEW -->
+<section class="slide" id="deployment-steps-overview" data-search="deployment steps overview pre-deployment planning audit trail backup metadata documentation automation post-deployment testing reactivation unfreezing email deliverability deployment tool validation order dependencies">
+  <div class="pgnum">Page 5 · Deployment Steps Overview</div>
+  <h2>Deployment Steps</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Pre-Deployment Steps</h4>
+      <p>Pre-deployment steps include planning, checking the audit trail, backing up data and metadata, documenting manual steps, disabling automation, etc.</p>
+    </div>
+    <div class="card">
+      <h4>Deployment Steps</h4>
+      <p>A suitable deployment tool should be selected. Deployment validation should be performed prior to the actual deployment. The order of dependent components should be identified.</p>
+    </div>
+    <div class="card">
+      <h4>Post-Deployment Steps</h4>
+      <p>Post-deployment steps include post-deployment testing, reactivation of features that were deactivated, unfreezing users, re-enabling email deliverability, etc.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: DEPLOYMENT STEPS -->
+<section class="slide title-slide" id="section-deployment-steps" data-search="section deployment steps">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Deployment Steps</h2>
+</section>
+
+<!-- PRE-DEPLOYMENT STEPS: PLANNING, TESTING, AUDIT TRAIL -->
+<section class="slide" id="pre-deployment-planning" data-search="pre-deployment steps planning well-planned implications positive negative scenarios users notified frozen asked not to log in testing sandbox true copy replica production environment audit trail checked no changes overwritten">
+  <div class="pgnum">Page 7 · Pre-Deployment Steps (Planning, Testing, Audit Trail)</div>
+  <h2>Pre-Deployment Steps</h2>
+  <p class="lede">Pre-deployment steps are <strong>activities</strong> that are performed <strong>before</strong> a Salesforce deployment.</p>
+
+  <h3>Planning</h3>
+  <p>A Salesforce deployment should be <strong>well-planned</strong>. The deployment implications should be considered. Various <strong>positive and negative scenarios</strong> should be built and tested. All users should be <strong>notified</strong> and <strong>frozen</strong> or <strong>asked not to log in</strong> during the deployment timeframe.</p>
+
+  <h3>Testing</h3>
+  <p>A sandbox that is a <strong>true copy/replica</strong> of the production environment should be used to test the application before deployment.</p>
+
+  <h3>Audit Trail</h3>
+  <p>The audit trail in the production environment should be <strong>checked</strong> to ensure that <strong>no changes</strong> were made that would be overwritten.</p>
+
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Checking the audit trail before deploying is a critical segregation-of-duties control: it confirms no unauthorized changes were made directly in production since the last deployment. At the Fed, production changes outside the approved pipeline are a control deficiency. Freezing users during the deployment window is also an auditable change-control step — it prevents mid-deployment data writes that could corrupt migrated records.</p>
+  </div>
+</section>
+
+<!-- PRE-DEPLOYMENT STEPS: DEPENDENCIES, BACKUP, MANUAL STEPS DOCUMENTATION -->
+<section class="slide" id="pre-deployment-dependencies" data-search="pre-deployment dependencies checked related components included package backup data metadata exported backed up components replaced modified manual steps documentation data migration feature activations documented prior deployment">
+  <div class="pgnum">Page 8 · Pre-Deployment Steps (Dependencies, Backup, Manual Steps)</div>
+  <h2>Pre-Deployment Steps</h2>
+  <p class="lede">Pre-deployment steps are <strong>activities</strong> that are performed <strong>before</strong> a Salesforce deployment.</p>
+
+  <h3>Dependencies</h3>
+  <p>Dependencies should be <strong>checked</strong> and all <strong>related components</strong> should be included in the package.</p>
+
+  <h3>Backup</h3>
+  <p><strong>Data and metadata</strong> should be <strong>exported/backed up</strong>, especially for components that are being replaced or modified.</p>
+
+  <h3>Manual Steps Documentation</h3>
+  <p>Any manual steps required, such as <strong>data migration</strong> and <strong>feature activations</strong>, should be <strong>documented</strong> prior to the deployment.</p>
+
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Manual steps documentation is the key differentiator in this deck. When asked about unsupported metadata (e.g., org-wide email addresses, sharing settings), the answer is always: document the manual steps before deployment, perform them after the automated deployment completes. A well-structured runbook enumerates every manual step with owner, sequence, and verification criteria.</p>
+  </div>
+</section>
+
+<!-- PRE-DEPLOYMENT STEPS: AUTOMATION, TEST SCRIPTS, UNSUPPORTED COMPONENTS -->
+<section class="slide" id="pre-deployment-automation" data-search="pre-deployment automation validation rules flows apex triggers deactivated email deliverability disabled mass changes system emails notifications test scripts training sessions users sandbox unsupported components api sharing settings organization-wide email address identified manual deployment planned">
+  <div class="pgnum">Page 9 · Pre-Deployment Steps (Automation, Test Scripts, Unsupported Components)</div>
+  <h2>Pre-Deployment Steps</h2>
+  <p class="lede">Pre-deployment steps are <strong>activities</strong> that are performed <strong>before</strong> a Salesforce deployment.</p>
+
+  <h3>Automation</h3>
+  <p><strong>Validation Rules, Flows, and Apex Triggers</strong> that would prevent the deployment of new records or changes should be <strong>deactivated</strong>. Email deliverability should be <strong>disabled</strong> to ensure that mass changes <strong>do not trigger system emails and notifications</strong>.</p>
+
+  <h3>Test Scripts &amp; Training</h3>
+  <p><strong>Test Scripts</strong> to run after the deployment should be prepared. <strong>Training sessions</strong> should be organized for users in a sandbox environment.</p>
+
+  <h3>Unsupported Components</h3>
+  <p>Components <strong>not supported by the API</strong>, such as sharing settings and organization-wide email address, should be <strong>identified</strong>, and their <strong>manual deployment should be planned</strong>.</p>
+
+  <div class="note">Unsupported components are a classic exam trap. The Metadata API and Tooling API do not cover everything — sharing settings and org-wide email addresses are the canonical examples. If the exam scenario mentions these, the answer is always: identify them pre-deployment, document the manual steps, and perform them post-deployment.</div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Disabling automation and email deliverability before bulk data operations is an important control to prevent alert fatigue and unintended notifications to customers or counterparties. In a regulated environment, an unplanned mass email to clients could trigger a supervisory inquiry. Documenting the disable/re-enable sequence in the runbook ensures no step is forgotten under deployment pressure.</p>
+  </div>
+</section>
+
+<!-- DEPLOYMENT -->
+<section class="slide" id="deployment" data-search="deployment steps activities performed during salesforce deployment tool change sets metadata api deployment package validation first validated success failure messages deployment order dependencies deployment execution prepared package selected tool">
+  <div class="pgnum">Page 10 · Deployment</div>
+  <h2>Deployment</h2>
+  <p class="lede">Deployment steps are <strong>activities</strong> that are performed <strong>during</strong> a Salesforce deployment.</p>
+
+  <h3>Deployment Tool</h3>
+  <p>A suitable deployment tool, such as <strong>Change Sets</strong> or <strong>Metadata API</strong>, should be selected. The <strong>deployment package</strong> should be prepared accordingly.</p>
+
+  <h3>Deployment Validation</h3>
+  <p>Before performing the actual deployment, it should be <strong>validated</strong>. For example, when <strong>deploying a change set</strong>, it should <strong>first be validated</strong> to view the <strong>success or failure messages</strong> during the actual deployment.</p>
+
+  <h3>Deployment Order</h3>
+  <p>The correct order of deployment should be identified for the components with <strong>dependencies</strong> to ensure their successful deployment.</p>
+
+  <h3>Deployment Execution</h3>
+  <p>The deployment should be performed using the <strong>prepared deployment package</strong> and the <strong>selected deployment tool</strong>.</p>
+
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Validate-before-deploy is the standard exam answer for avoiding deployment surprises. After a successful validation of a Change Set, Salesforce allows a quick deployment that skips re-running Apex tests — a significant time saver for large orgs. Be prepared to articulate this distinction between a full deploy and a quick deploy after prior validation.</p>
+  </div>
+</section>
+
+<!-- POST-DEPLOYMENT STEPS: VALIDATION, REACTIVATION, MANUAL CHANGES -->
+<section class="slide" id="post-deployment-validation" data-search="post-deployment steps validation testing deployed components interaction existing components production reactivation features validation rules flows triggers deactivated unfrozen email deliverability enabled manual changes configuration not automated api performed manually">
+  <div class="pgnum">Page 11 · Post-Deployment Steps (Validation, Reactivation, Manual Changes)</div>
+  <h2>Post-Deployment Steps</h2>
+  <p class="lede">Post-deployment steps are <strong>activities</strong> that are performed <strong>after</strong> a Salesforce deployment.</p>
+
+  <h3>Validation</h3>
+  <p><strong>Post-deployment testing</strong> should be performed to ensure that all <strong>deployed components</strong> and <strong>their interaction with existing components</strong> work as expected in the production environment.</p>
+
+  <h3>Reactivation</h3>
+  <p>Any features, such as validation rules, flows, and triggers, that were <strong>deactivated</strong> before the deployment should be <strong>reactivated</strong>. User accounts should be <strong>unfrozen</strong>. <strong>Email deliverability</strong> should be <strong>enabled</strong> to ensure that users can receive emails again.</p>
+
+  <h3>Manual Changes</h3>
+  <p>Any configuration changes that could <strong>not be automated</strong> via the API should be <strong>performed manually</strong>.</p>
+
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The reactivation checklist — rules, flows, triggers, user accounts, email deliverability — must be explicitly tracked in the deployment runbook with a responsible owner and a sign-off step for each item. At a Fed-regulated institution, leaving validation rules deactivated post-deployment is a data-integrity control gap that could surface in an audit. A formal post-deployment checklist with timestamped sign-offs is the control evidence.</p>
+  </div>
+</section>
+
+<!-- POST-DEPLOYMENT STEPS: DATA MIGRATION, MONITORING, ADDITIONAL STEPS -->
+<section class="slide" id="post-deployment-data" data-search="post-deployment data migration updates new fields changes data structures monitoring support deployed features monitored no issues support end users encounter issues additional steps system documentation updated communicate changes end users stakeholders training">
+  <div class="pgnum">Page 12 · Post-Deployment Steps (Data Migration, Monitoring, Additional Steps)</div>
+  <h2>Post-Deployment Steps</h2>
+  <p class="lede">Post-deployment steps are <strong>activities</strong> that are performed <strong>after</strong> a Salesforce deployment.</p>
+
+  <h3>Data Migration</h3>
+  <p><strong>Data migration or updates</strong> should be performed if the deployment involves <strong>new fields or changes to data structures</strong>.</p>
+
+  <h3>Monitoring &amp; Support</h3>
+  <p>The deployed features should be <strong>monitored</strong> to ensure that there are <strong>no issues</strong>. <strong>Support</strong> should be provided to <strong>end users who encounter issues</strong>.</p>
+
+  <h3>Additional Steps</h3>
+  <p><strong>System documentation</strong> should be updated to ensure that it reflects the deployed changes. Changes should be <strong>communicated</strong> to end users and stakeholders. <strong>Training</strong> should be provided if necessary.</p>
+
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Data migration order is a critical post-deployment step when parent-child relationships exist. Parent records must be loaded before child records to avoid lookup errors (e.g., Accounts before Contacts, Products before Opportunities, Opportunities before Opportunity Line Items). Expect a scenario question that asks you to sequence a migration — the answer is always parent-first, following the object relationship hierarchy.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 13 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic green innovations global leader sustainable energy solutions salesforce client relations project management analytics renewable energy environmental impact assessments north america europe deployment teams pre post deployment steps architect">
+  <div class="pgnum">Page 14 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Green Innovations</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Green Innovations, a global leader in sustainable energy solutions, leverages Salesforce to manage its extensive client relations, project management, and analytics. The company's offerings range from renewable energy projects to environmental impact assessments, requiring sophisticated Salesforce customizations to meet diverse client needs.</p>
+    <p style="margin-top:8px;">With operations spanning North America and Europe, the company utilizes two primary Salesforce development teams. Despite their expertise, performing complex deployments across teams and ensuring consistent performance has been challenging. To streamline deployment processes and enhance application reliability, the company's Salesforce architect needs to analyze the existing deployment processes and recommend pre and post-deployment steps to improve the overall efficiency and consistency of Salesforce deployments.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 15 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 north america custom application clients sales opportunities energy solutions accounts contacts leads opportunities opportunity line items products external system metadata components organization-wide email address not supported metadata api manual deployment pre post deployment steps data migration order">
+  <div class="pgnum">Page 16 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The development team in North America has been working on a new custom application for managing clients, sales opportunities, and energy solutions. The application utilizes accounts, contacts, leads, opportunities, opportunity line items, and products, which need to be migrated from an external system. In addition, it uses certain metadata components, such as an organization-wide email address, that are not supported by the Metadata API. The architect needs to recommend appropriate approaches to handle the deployment process, including the pre and post-deployment steps and the data migration order.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 document manual deployment steps components cannot be deployed automatically organization-wide email address metadata api manual deployment steps data migration records order parent records accounts contacts leads products opportunities opportunity line items">
+  <div class="pgnum">Page 17 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Prior to the deployment, it is a best practice to <strong>document the manual deployment steps</strong> for any <strong>components that cannot be deployed automatically</strong>, such as the steps required for setting up the organization-wide email address required by the application. A suitable deployment tool, such as <strong>Metadata API</strong>, should be utilized for deploying the application components. Once the deployment is complete, the manual deployment steps should be performed. This should be followed by the <strong>data migration of records in this order</strong> to ensure that parent records are loaded before the related records: <strong>Accounts, Contacts, Leads, Products, Opportunities, and Opportunity Line Items</strong></p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This solution exemplifies the two-track deployment pattern: automated track (Metadata API) for supported components, manual track (runbook steps) for unsupported ones. The data migration order — Accounts → Contacts → Leads → Products → Opportunities → Opportunity Line Items — follows the parent-child relationship chain. Memorize this order; it appears frequently in scenario questions.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Documenting manual steps for API-unsupported components before deployment is the runbook discipline that a regulated institution demands. At the Fed, a deployment without a written, approved runbook covering manual steps would not be approved by the Change Advisory Board (CAB). The org-wide email address is a canonical example: it must be set manually, and the runbook must capture the before/after values with a verification step.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 european development team custom data analytics application customer engagement data custom dashboards multiple running users change sets deployment avoid delays quick deployment data migration accounts contacts cases on-premises system data migration testing">
+  <div class="pgnum">Page 18 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The European development team is working on a custom data analytics application that focuses on customer engagement data. The application contains several custom dashboards with multiple running users. The team is planning to use Change Sets for the deployment of the application and would like to avoid possible delays during deployment. After the deployment, thousands of customer accounts, contacts, and cases will be migrated from an on-premises system. The architect must provide deployment-related considerations and identify the key areas that must be tested as part of the data migration process.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 PART 1 -->
+<section class="slide" id="solution-2-part1" data-search="solution 2 part 1 change sets validated success failure messages quick deployment custom dashboards user fields preserved metadata deployment locate matching user comparing usernames source org target org username does not exist error deployment stops resolved removed">
+  <div class="pgnum">Page 19 · Solution 2 (Part 1)</div>
+  <h2>Solution 2 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A few days before the planned deployment date, the <strong>Change Sets</strong> should be <strong>validated</strong> to view any success or failure messages that would occur during the actual deployment. After the validation, a <strong>quick deployment</strong> can be performed. For the deployment of the custom dashboards, it is important to note that <strong>user fields are preserved</strong> during a metadata deployment. Salesforce attempts to <strong>locate a matching user</strong> in the target org by comparing usernames during the deployment. If a <strong>username in the source org</strong> does not exist in the <strong>target org</strong>, <strong>Salesforce displays an error</strong> and the <strong>deployment stops</strong> until the username is resolved or removed.</p>
+  </div>
+  <div class="note">Quick deployment is only available after a successful validation run that executed and passed all Apex tests. The test run results are reused, meaning the quick deploy skips test execution and deploys faster. This is the key mechanism for minimizing production downtime.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Dashboard running-user mismatches are a common real-world deployment blocker. The exam expects you to know: (1) user fields are preserved in metadata deployments, (2) Salesforce resolves users by username match between orgs, and (3) a missing username causes the deployment to halt. The fix is to either ensure matching usernames exist in the target org or remove the running user reference before deploying.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 PART 2 -->
+<section class="slide" id="solution-2-part2" data-search="solution 2 part 2 data migration testing case association correct account contact case ownership associated entitlements milestones data transformation on-premises system key areas tested">
+  <div class="pgnum">Page 20 · Solution 2 (Part 2)</div>
+  <h2>Solution 2 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Some key areas that can be tested as part of the data migration include <strong>case association</strong> with the correct account and contact, <strong>case ownership</strong> along with <strong>associated entitlements and milestones</strong>, and <strong>data transformation</strong> against the on-premises system.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Data migration testing for a regulated institution goes beyond record counts. Verifying case ownership, entitlements, and milestones post-migration ensures that SLA commitments and access controls are correctly transferred. At the Fed, a data migration that incorrectly assigns ownership could result in unauthorized access to sensitive records — a compliance finding. Testing data transformation against the source system is the reconciliation step that satisfies audit requirements for data integrity.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more understanding metadata api change set development model maintaining user preferences deploy your changes salesforce deployment checklist further reading trailhead">
+  <div class="pgnum">Page 21 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Understanding Metadata API</li>
+    <li>Change Set Development Model</li>
+    <li>Maintaining User Preferences</li>
+    <li>Deploy Your Changes</li>
+    <li>Salesforce Deployment Checklist</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary pre-deployment post-deployment steps unsupported metadata api manual steps data migration order quick deployment change sets validation runbook exam gotchas decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Pre &amp; Post-Deployment Steps</h2>
+
+  <h3>Pre-Deployment Steps — Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Step</th><th>What to Do</th><th>Why It Matters</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Planning</strong></td><td>Notify and freeze users; test positive and negative scenarios</td><td>Prevents mid-deployment data changes; ensures rollback scenarios are defined</td></tr>
+      <tr><td><strong>Audit Trail Check</strong></td><td>Review production audit trail before deploying</td><td>Catches unauthorized direct-in-prod changes that would be overwritten</td></tr>
+      <tr><td><strong>Dependencies</strong></td><td>Include all related/dependent components in the package</td><td>Prevents deployment failures due to missing references</td></tr>
+      <tr><td><strong>Backup</strong></td><td>Export data and metadata being replaced or modified</td><td>Enables rollback if deployment causes issues</td></tr>
+      <tr><td><strong>Manual Steps Documentation</strong></td><td>Document all API-unsupported configuration steps (e.g., org-wide email address, sharing settings)</td><td>Ensures nothing is missed post-deploy; supports runbook sign-off</td></tr>
+      <tr><td><strong>Disable Automation</strong></td><td>Deactivate validation rules, flows, Apex triggers; disable email deliverability</td><td>Prevents mass-change side effects and spurious email notifications</td></tr>
+      <tr><td><strong>Test Scripts &amp; Training</strong></td><td>Prepare post-deploy test scripts; run training in sandbox</td><td>Enables rapid post-deploy validation; users ready at go-live</td></tr>
+      <tr><td><strong>Unsupported Components ID</strong></td><td>Identify components not supported by Metadata/Tooling API; plan manual steps</td><td>Prevents post-deploy gaps; keeps runbook complete</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Deployment Steps — Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Step</th><th>What to Do</th><th>Key Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Tool Selection</strong></td><td>Choose Change Sets or Metadata API; prepare package</td><td>Match tool to team capability and org structure</td></tr>
+      <tr><td><strong>Validation</strong></td><td>Validate before deploying; review success/failure messages</td><td>Enables quick deployment (skip Apex test re-run) after successful validation</td></tr>
+      <tr><td><strong>Deployment Order</strong></td><td>Deploy dependent components in correct sequence</td><td>Objects referenced by others must exist before their dependents</td></tr>
+      <tr><td><strong>Execution</strong></td><td>Deploy using prepared package and selected tool</td><td>Quick deploy available after prior successful validation</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Post-Deployment Steps — Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Step</th><th>What to Do</th><th>Why It Matters</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Validation / Testing</strong></td><td>Run test scripts against deployed components and their interactions</td><td>Confirms production behavior matches sandbox; catches integration issues</td></tr>
+      <tr><td><strong>Reactivation</strong></td><td>Re-enable validation rules, flows, triggers; unfreeze users; enable email deliverability</td><td>Restores normal org operation; missed re-activations = data integrity gaps</td></tr>
+      <tr><td><strong>Manual Changes</strong></td><td>Execute all documented manual steps (API-unsupported config)</td><td>Completes deployment of components outside the automated package</td></tr>
+      <tr><td><strong>Data Migration</strong></td><td>Load records in parent-first order</td><td>Prevents lookup relationship failures</td></tr>
+      <tr><td><strong>Monitoring &amp; Support</strong></td><td>Monitor deployed features; provide support to end users</td><td>Rapid issue detection and resolution at go-live</td></tr>
+      <tr><td><strong>Documentation &amp; Communication</strong></td><td>Update system docs; communicate changes; provide training</td><td>Keeps org documentation current; prepares users for new functionality</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Data Migration Order (Canonical)</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Order</th><th>Object</th><th>Reason</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Accounts</strong></td><td>Top-level parent; no dependencies</td></tr>
+      <tr><td>2</td><td><strong>Contacts</strong></td><td>Child of Account</td></tr>
+      <tr><td>3</td><td><strong>Leads</strong></td><td>Independent; no parent dependency</td></tr>
+      <tr><td>4</td><td><strong>Products</strong></td><td>Required before Opportunities can reference them</td></tr>
+      <tr><td>5</td><td><strong>Opportunities</strong></td><td>Child of Account; references Products</td></tr>
+      <tr><td>6</td><td><strong>Opportunity Line Items</strong></td><td>Child of Opportunity; references Products</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Org-wide email address and sharing settings are NOT supported by the Metadata API</strong> — they must be set manually. Always document them in the pre-deployment runbook.</li>
+    <li><strong>Quick deployment requires a prior successful validation</strong> — the validation must have run and passed Apex tests. Quick deploy then reuses those results.</li>
+    <li><strong>Dashboard running users cause deployment failures</strong> if the username exists in the source org but not the target org. Resolve by matching usernames or removing the running user before deploying.</li>
+    <li><strong>Re-enable email deliverability post-deployment</strong> — forgetting this is a common post-deploy oversight that leaves users unable to receive system emails.</li>
+    <li><strong>Audit trail check is a pre-deployment step</strong>, not just a monitoring tool. It detects direct-in-prod changes that would be silently overwritten by the deployment.</li>
+    <li><strong>Data migration order follows parent-child relationships</strong>. Accounts before Contacts, Products before Opportunities, Opportunities before Opportunity Line Items.</li>
+    <li><strong>Data migration testing key areas</strong>: case association (correct account/contact), case ownership (with entitlements and milestones), and data transformation validation against the source system.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve platform engineer, the pre/post-deployment process is a change-control event with formal governance requirements. The pre-deployment runbook (including documented manual steps, automation disable/re-enable sequence, user freeze, and audit trail review) is the evidence package submitted to the Change Advisory Board for approval. The post-deployment checklist (reactivations, manual config steps, data migration, monitoring) must be completed with timestamped sign-offs by named owners. Any API-unsupported configuration (sharing settings, org-wide email addresses) must appear explicitly in the runbook with before/after values and a verification step — regulators and internal audit will ask for this evidence during change reviews and incident investigations.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

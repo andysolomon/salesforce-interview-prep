@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing — Testing Methodologies — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Testing — Testing Methodologies</h1>
+  <div class="sub">Given a customer scenario, describe and recommend an appropriate testing methodology · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (28 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Testing Methodologies</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#methodologies-overview">Methodologies Overview</a></li>
+      <li><a href="#section-methodologies">Section: Testing Methodologies</a></li>
+      <li><a href="#testing-categories">Testing Categories</a></li>
+      <li><a href="#testing-categories-when">When to Use Each Category</a></li>
+      <li><a href="#types-unit-integration-system">Types: Unit, Integration, System</a></li>
+      <li><a href="#types-uat-functional-regression">Types: UAT, Functional, Regression</a></li>
+      <li><a href="#types-production-performance-load">Types: Production, Performance, Load &amp; Stress</a></li>
+      <li><a href="#unit-testing-considerations-1">Unit Testing — Apex &amp; Coverage</a></li>
+      <li><a href="#unit-testing-considerations-2">Unit Testing — Test Classes &amp; Mocks</a></li>
+      <li><a href="#uat-considerations">UAT Considerations</a></li>
+      <li><a href="#performance-testing-1">Performance Testing — Objectives &amp; Approval</a></li>
+      <li><a href="#performance-testing-2">Performance Testing — Test Plan &amp; Monitoring</a></li>
+      <li><a href="#performance-testing-3">Performance Testing — Sandbox &amp; Other Considerations</a></li>
+      <li><a href="#automated-testing">Automated Testing Considerations</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Retail Group Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1-part1">Requirement 1 (Part 1)</a></li>
+      <li><a href="#requirement-1-part2">Requirement 1 (Part 2)</a></li>
+      <li><a href="#solution-1-part1">Solution 1 (Part 1)</a></li>
+      <li><a href="#solution-1-part2">Solution 1 (Part 2)</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER (Page 1) -->
+<section class="slide title-slide" id="cover" data-search="cover testing testing methodologies salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Testing — Testing Methodologies</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer scenario, describe and recommend an appropriate testing methodology · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS (Page 2) -->
+<section class="slide" id="toc-slide" data-search="table of contents testing methodologies business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#section-methodologies">Testing Methodologies</a></li>
+    <li><a class="toc-link" href="#section-business">Business Scenario</a></li>
+    <li><a class="toc-link" href="#section-requirements">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES (Page 3) -->
+<section class="slide" id="learning-objectives" data-search="learning objectives two main categories testing performed salesforce explain different types testing methodologies describe recommend appropriate testing methodologies various requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the two main categories of testing performed in Salesforce.</li>
+    <li>Explain the different types of testing methodologies utilized in Salesforce.</li>
+    <li>Describe and recommend appropriate testing methodologies for various requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION (Page 4) -->
+<section class="slide" id="introduction" data-search="introduction unit testing integration testing system testing user acceptance testing UAT regression testing performance testing load testing stress testing robust reliable deployment comprehensive">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In the Salesforce landscape, a comprehensive testing approach is vital for ensuring applications meet both performance and business criteria. This approach includes <strong>unit testing</strong> to check individual components, <strong>integration testing</strong> for verifying component interactions, and <strong>system testing</strong> to assess the application as a whole. <strong>User Acceptance Testing (UAT)</strong> confirms the solution aligns with user expectations and business needs. <strong>Regression testing</strong> ensures new updates do not disrupt existing functionalities. On the performance front, <strong>performance testing</strong>, <strong>load testing</strong>, and <strong>stress testing</strong> evaluate how the application behaves under various loads and conditions. Collectively, these methodologies guarantee that Salesforce applications are robust, reliable, and ready for deployment.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked to describe your Salesforce testing approach, lead with the layered model: unit → integration → system → UAT → regression, with performance/load/stress as a parallel track for high-volume scenarios. Each layer catches a different category of defect. Architect-altitude means knowing which layer to invoke given a specific risk profile — not just listing all the types.</p>
+  </div>
+</section>
+
+<!-- SALESFORCE TESTING METHODOLOGIES OVERVIEW (Page 5) -->
+<section class="slide" id="methodologies-overview" data-search="salesforce testing methodologies overview unit testing integration testing system testing user acceptance testing functional testing regression testing production testing performance testing load testing stress testing">
+  <div class="pgnum">Page 5 · Salesforce Testing Methodologies Overview</div>
+  <h2>Salesforce Testing Methodologies</h2>
+  <p class="lede">Nine distinct testing methodologies can be utilized in Salesforce, each serving a specific purpose in the overall testing strategy.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Unit Testing</h4>
+      <p>Focuses on verifying the functionality of the smallest testable parts of an application.</p>
+    </div>
+    <div class="card">
+      <h4>Integration Testing</h4>
+      <p>Verifies the interactions between different components of an application.</p>
+    </div>
+    <div class="card">
+      <h4>System Testing</h4>
+      <p>Focuses on testing the complete Salesforce system to ensure that everything works together as expected.</p>
+    </div>
+    <div class="card">
+      <h4>User Acceptance Testing</h4>
+      <p>Performed by end users in a full copy sandbox.</p>
+    </div>
+    <div class="card">
+      <h4>Functional Testing</h4>
+      <p>Ensures that features perform as expected according to technical specifications.</p>
+    </div>
+    <div class="card">
+      <h4>Regression Testing</h4>
+      <p>Performed to ensure that existing features are not affected by new changes.</p>
+    </div>
+    <div class="card">
+      <h4>Production Testing</h4>
+      <p>Performed in production to verify an implementation.</p>
+    </div>
+    <div class="card">
+      <h4>Performance Testing</h4>
+      <p>Evaluates an application under different load conditions.</p>
+    </div>
+    <div class="card">
+      <h4>Load &amp; Stress Testing</h4>
+      <p>Load testing mimics expected data volume and/or user traffic. Stress testing pushes an application to its limits, and even beyond, to find potential breaking points.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: TESTING METHODOLOGIES (Page 6) -->
+<section class="slide title-slide" id="section-methodologies" data-search="section testing methodologies">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Testing Methodologies</h2>
+</section>
+
+<!-- SALESFORCE TESTING CATEGORIES (Page 7) -->
+<section class="slide" id="testing-categories" data-search="salesforce testing categories manual testing automated testing selenium copado provar ACCELQ repetitive scalable human error automation tools scripts executed automatically">
+  <div class="pgnum">Page 7 · Salesforce Testing Categories</div>
+  <h2>Salesforce Testing Categories</h2>
+  <p class="lede">Salesforce testing can be performed <strong>manually</strong> or <strong>automated</strong> using automation tools.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Manual Testing</h4>
+      <p>In manual testing, tests are <strong>set up and executed manually</strong> using traditional methods with the <strong>minimum use of tools</strong>. It can be used for a variety of different test types and testing scenarios. However, it requires performing <strong>repetitive</strong> tasks, <strong>does not scale</strong>, and is prone to <strong>human error</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Automated Testing</h4>
+      <p>Automated testing involves the use of <strong>automation tools</strong> to test Salesforce applications or features. Test scripts are <strong>executed automatically</strong> at scale. It <strong>avoids repetitive and error-prone manual testing activities</strong>. Examples are Selenium, Copado, Provar, ACCELQ, etc.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a regulated environment, the repeatability and audit trail of automated testing are not optional. Manual testing cannot provide the evidence-of-execution artifacts that examiners expect for regression and release-gate testing. Automated test runs integrated into CI/CD pipelines generate timestamped, reproducible records — exactly the kind of control evidence that satisfies both internal audit and external regulators.</p>
+  </div>
+</section>
+
+<!-- USING MANUAL VS. AUTOMATED TESTING (Page 8) -->
+<section class="slide" id="testing-categories-when" data-search="when to use manual testing automated testing human judgment subjective evaluation one-off non-repetitive scenarios repeatable regression data-driven CI/CD pipeline integration">
+  <div class="pgnum">Page 8 · Salesforce Testing Categories — When to Use</div>
+  <h2>Salesforce Testing Categories — When to Use Each</h2>
+  <p class="lede">Salesforce testing can be performed <strong>manually</strong> or <strong>automated</strong> using automation tools.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Using Manual Testing</h4>
+      <p>Manual testing is suitable for testing scenarios that require <strong>human judgment or subjective evaluation</strong>. It can be used to test <strong>one-off, non-repetitive scenarios</strong> that would be counter-productive to automate.</p>
+    </div>
+    <div class="card">
+      <h4>Using Automated Testing</h4>
+      <p>Automated testing can be used to test <strong>repeatable test scenarios</strong> that would require <strong>considerable time and manual effort</strong>. It can be used for <strong>regression testing</strong>, <strong>data-driven testing</strong> with various input values, data sets, and data scenarios, integrating testing into the <strong>CI/CD pipeline</strong>, etc.</p>
+    </div>
+  </div>
+  <div class="note">The decision to automate is an investment: setup cost is high but the payoff is in repeated runs and consistency. Automate what you run repeatedly; keep manual for exploratory and judgment-based scenarios.</div>
+</section>
+
+<!-- TYPES OF SALESFORCE TESTING: UNIT, INTEGRATION, SYSTEM (Page 9) -->
+<section class="slide" id="types-unit-integration-system" data-search="unit testing smallest testable parts Apex methods isolation integration testing interactions components Apex classes external APIs system testing complete salesforce system features configurations customizations">
+  <div class="pgnum">Page 9 · Types of Salesforce Testing — Unit, Integration, System</div>
+  <h2>Types of Salesforce Testing — Unit, Integration &amp; System</h2>
+  <p class="lede">Several different types of Salesforce testing can be utilized based on the testing requirements.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Unit Testing</h4>
+      <p>Unit tests focus on verifying the <strong>smallest testable parts</strong> of an application, typically individual <strong>Apex methods</strong>, to ensure that they <strong>work correctly in isolation</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Integration Testing</h4>
+      <p>Integration tests focus on verifying the <strong>interactions between different components</strong>, such as <strong>Apex classes and external APIs</strong>, to ensure that they work as expected.</p>
+    </div>
+    <div class="card">
+      <h4>System Testing</h4>
+      <p>System testing focuses on testing the <strong>complete Salesforce system</strong> to ensure that all <strong>features, configurations, and customizations</strong> work together as expected.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TYPES OF SALESFORCE TESTING: UAT, FUNCTIONAL, REGRESSION (Page 10) -->
+<section class="slide" id="types-uat-functional-regression" data-search="user acceptance testing UAT end-users system meets business needs requirements final step deployment functional testing features technical specifications function input output regression testing after changes new features updates enhancements existing functionalities adversely affected">
+  <div class="pgnum">Page 10 · Types of Salesforce Testing — UAT, Functional, Regression</div>
+  <h2>Types of Salesforce Testing — UAT, Functional &amp; Regression</h2>
+  <p class="lede">Several different types of Salesforce testing can be utilized based on the testing requirements.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>User Acceptance Testing</h4>
+      <p>User Acceptance Testing (UAT) is <strong>performed by end-users</strong> to ensure that the <strong>system meets business needs and requirements</strong>. It is the <strong>final step before deployment</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Functional Testing</h4>
+      <p>Functional testing is used to ensure that features perform as expected according to technical specifications. Each <strong>function is examined</strong> by <strong>providing input</strong> and <strong>comparing the output</strong> to functional requirements.</p>
+    </div>
+    <div class="card">
+      <h4>Regression Testing</h4>
+      <p>Regression testing is performed <strong>after changes (new features, updates, enhancements, etc.) to the system</strong> to ensure that existing functionalities are not adversely affected.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>UAT vs. functional testing is a common exam trap. Functional testing verifies against technical specifications — it is developer/QA-driven. UAT verifies against business requirements — it is end-user-driven and is the gate before go-live. Regression is the safety net run after any change, ensuring you haven't broken what was previously working.</p>
+  </div>
+</section>
+
+<!-- TYPES OF SALESFORCE TESTING: PRODUCTION, PERFORMANCE, LOAD & STRESS (Page 11) -->
+<section class="slide" id="types-production-performance-load" data-search="production testing production environment successful implementation code configurations performance testing performance scalability responsiveness load conditions load testing expected user traffic stress testing limits breaking points">
+  <div class="pgnum">Page 11 · Types of Salesforce Testing — Production, Performance, Load &amp; Stress</div>
+  <h2>Types of Salesforce Testing — Production, Performance &amp; Load/Stress</h2>
+  <p class="lede">Several different types of Salesforce testing can be utilized based on the testing requirements.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Production Testing</h4>
+      <p>Production testing is performed in the <strong>production environment</strong> to ensure the <strong>successful implementation</strong> of all the code and configurations.</p>
+    </div>
+    <div class="card">
+      <h4>Performance Testing</h4>
+      <p>Performance testing focuses on evaluating the <strong>performance, scalability, and responsiveness</strong> of a Salesforce application under different load conditions.</p>
+    </div>
+    <div class="card">
+      <h4>Load &amp; Stress Testing</h4>
+      <p><strong>Load testing</strong> focuses on mimicking the <strong>expected user traffic</strong> to see how an application performs under that load. <strong>Stress testing</strong> pushes it to its <strong>limits, and even beyond</strong>, to find potential breaking points.</p>
+    </div>
+  </div>
+  <div class="note">Performance testing can only be performed in a sandbox — it is NOT permitted in production. Load and stress testing require prior approval from Salesforce Support, submitted at least two weeks in advance.</div>
+</section>
+
+<!-- CONSIDERATIONS FOR UNIT TESTING — PART 1 (Page 12) -->
+<section class="slide" id="unit-testing-considerations-1" data-search="unit testing apex test methods assertions code coverage 75% minimum deployment production Apex classes triggers Visualforce pages flows individual components correctness functionality isolation">
+  <div class="pgnum">Page 12 · Considerations for Unit Testing — Apex &amp; Coverage</div>
+  <h2>Considerations for Unit Testing</h2>
+  <p class="lede">Unit testing involves <strong>testing individual components or units of code</strong> to ensure their correctness and functionality in isolation.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Apex Test Methods</h4>
+      <p>Developers use unit testing to verify the behavior of Apex code. <strong>Apex test methods</strong> are usually very specific and can be used to test the behavior of individual <strong>Apex classes</strong>, <strong>triggers</strong>, <strong>Visualforce pages</strong>, or <strong>flows</strong>. <strong>Assertions</strong> can be used to verify the Apex code behavior.</p>
+    </div>
+    <div class="card">
+      <h4>Code Coverage</h4>
+      <p>Salesforce requires a <strong>minimum of 75% code coverage</strong> for Apex code to ensure that most of the code is tested, which is <strong>crucial before deployment to production</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The 75% Salesforce platform minimum is a floor, not a target. In a regulated financial institution deploying custom Apex, internal quality gates should enforce higher coverage thresholds (often 85–90%+) as a release-control. Code coverage metrics should be tracked, trended, and reported as part of the change-control package submitted to the release manager and audit.</p>
+  </div>
+</section>
+
+<!-- CONSIDERATIONS FOR UNIT TESTING — PART 2 (Page 13) -->
+<section class="slide" id="unit-testing-considerations-2" data-search="unit testing test classes methods @isTest annotation 6 MB apex code org limit mock object HTTP callout bypass dependencies objects methods states behaviors cannot send emails external services">
+  <div class="pgnum">Page 13 · Considerations for Unit Testing — Test Classes &amp; Mocks</div>
+  <h2>Considerations for Unit Testing</h2>
+  <p class="lede">Unit testing involves <strong>testing individual components or units of code</strong> to ensure their correctness and functionality in isolation.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Test Classes &amp; Methods</h4>
+      <p>Apex test classes and methods use the <strong>@isTest</strong> annotation. Test classes <strong>don't count toward the limit of 6 MB of Apex code</strong> in each org.</p>
+    </div>
+    <div class="card">
+      <h4>Considerations</h4>
+      <p>Test methods <strong>cannot send emails or make callouts</strong> to external services. A <strong>mock object</strong> is needed whenever Apex code needs to make an <strong>HTTP callout</strong>. A mock can also be used to <strong>bypass the dependencies of other objects, methods, states, or behaviors</strong>.</p>
+    </div>
+  </div>
+  <div class="note">@isTest is load-bearing: only methods annotated with @isTest (or @testSetup) count as test code. Forgetting the annotation means the method runs as production code and counts against the 6 MB limit — an easy mistake with real consequences.</div>
+</section>
+
+<!-- CONSIDERATIONS FOR UAT (Page 14) -->
+<section class="slide" id="uat-considerations" data-search="user acceptance testing UAT end-users before deployment production real-world scenarios validation usability functionality user perspective business processes RTM requirements traceability matrix test cases untested">
+  <div class="pgnum">Page 14 · Considerations for User Acceptance Testing</div>
+  <h2>Considerations for User Acceptance Testing</h2>
+  <p class="lede">User Acceptance Testing (UAT) is conducted by end-users <strong>before deployment to production</strong> to ensure that an application can <strong>handle the required tasks in real-world scenarios</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Validation</h4>
+      <p>UAT is critical for validating an application's <strong>usability</strong> and <strong>functionality</strong> from the <strong>user's perspective</strong>, ensuring it aligns with business processes.</p>
+    </div>
+    <div class="card">
+      <h4>RTM</h4>
+      <p>A <strong>Requirements Traceability Matrix (RTM)</strong> can be used to ensure that <strong>all the requirements have test cases</strong> associated with them so that no functionality is left untested during user acceptance testing.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The RTM is the architect's tool for proving completeness of test coverage at the requirement level — not code coverage, but requirements coverage. In regulated environments, the RTM becomes an audit artifact: it demonstrates that every business requirement was validated before go-live, which is the definition of defensible change control.</p>
+  </div>
+</section>
+
+<!-- CONSIDERATIONS FOR PERFORMANCE TESTING — OBJECTIVES & APPROVAL (Page 15) -->
+<section class="slide" id="performance-testing-1" data-search="performance testing real-world usage conditions potential performance bottlenecks optimize application objectives scale stable stress insights approval submitted salesforce support two weeks advance unapproved throttling blocking business case justification">
+  <div class="pgnum">Page 15 · Considerations for Performance Testing — Objectives &amp; Approval</div>
+  <h2>Considerations for Performance Testing</h2>
+  <p class="lede">Performance Testing simulates <strong>real-world usage conditions</strong> to identify <strong>potential performance bottlenecks</strong> and <strong>optimize an application's performance</strong> before it affects end-users.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Objectives</h4>
+      <p>Performance Testing determines <strong>areas of the application</strong> where performance issues might occur, assesses <strong>how well it can scale</strong> with an increasing number of users or data volume, verifies that <strong>it remains stable</strong> under various stress conditions, and <strong>provides insights</strong> into optimization.</p>
+    </div>
+    <div class="card">
+      <h4>Approval</h4>
+      <p>Performance tests must be <strong>submitted for approval</strong> to Salesforce Support <strong>at least two weeks in advance</strong> of the testing date. Unapproved testing is subject to throttling or blocking. The <strong>business case or scenario</strong> and <strong>business justification</strong> must be provided for performance testing.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The two-week advance approval requirement is a hard constraint, not a suggestion. For a regulated institution, this must be built into the release schedule — a missed approval window delays the entire release. Project plans for high-volume integrations should account for this lead time explicitly in the test planning phase.</p>
+  </div>
+</section>
+
+<!-- CONSIDERATIONS FOR PERFORMANCE TESTING — TEST PLAN & MONITORING (Page 16) -->
+<section class="slide" id="performance-testing-2" data-search="performance testing test plan performance assistant testing window scheduled scenarios success criteria monitoring salesforce support does not design interpret customer performance test results monitor test activity no issues salesforce services">
+  <div class="pgnum">Page 16 · Considerations for Performance Testing — Test Plan &amp; Monitoring</div>
+  <h2>Considerations for Performance Testing</h2>
+  <p class="lede">Performance Testing simulates <strong>real-world usage conditions</strong> to identify <strong>potential performance bottlenecks</strong> and <strong>optimize an application's performance</strong> before it affects end-users.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Test Plan</h4>
+      <p>A test plan can be generated and a testing window can be scheduled with the <strong>Performance Assistant</strong>. The test plan can be created based on the <strong>scenarios</strong> that need to be tested and their <strong>success criteria</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Monitoring</h4>
+      <p>Salesforce Support <strong>does not design or interpret customer performance test results</strong>. Its role is strictly to <strong>monitor test activity</strong> to ensure that there are <strong>no issues with Salesforce services</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Salesforce Support monitors your test to protect the multi-tenant platform — they are not your QA team. You own the test design, execution, and results interpretation. Understand this boundary clearly before entering a performance testing conversation.</div>
+</section>
+
+<!-- CONSIDERATIONS FOR PERFORMANCE TESTING — SANDBOX & OTHER (Page 17) -->
+<section class="slide" id="performance-testing-3" data-search="performance testing sandbox only load stress testing not permitted production multi-tenant platform governor limits developer console lightning usage app salesforce optimizer monitor analyze performance metrics">
+  <div class="pgnum">Page 17 · Considerations for Performance Testing — Sandbox &amp; Constraints</div>
+  <h2>Considerations for Performance Testing</h2>
+  <p class="lede">Performance Testing simulates <strong>real-world usage conditions</strong> to identify <strong>potential performance bottlenecks</strong> and <strong>optimize an application's performance</strong> before it affects end-users.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Sandbox Only</h4>
+      <p>Performance testing, including <strong>load</strong> and <strong>stress testing</strong>, can <strong>only be performed in a sandbox</strong>. It is <strong>not permitted in production environments</strong> since Salesforce is a <strong>multi-tenant platform</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Other Considerations</h4>
+      <p>Performance testing must take <strong>governor limits</strong> into account. Built-in monitoring tools, such as the <strong>Developer Console</strong>, <strong>Lightning Usage App</strong>, and <strong>Salesforce Optimizer</strong>, can be used to <strong>monitor</strong> and <strong>analyze performance metrics</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The production testing prohibition protects all Salesforce tenants on shared infrastructure — an important concept for a central bank, which must also protect its own internal tenants from resource contention. Governor limits in this context are analogous to resource-consumption controls in a shared computing environment: they are guardrails, not obstacles, and testing against them in a sandbox reveals the real capacity envelope before you put production workloads at risk.</p>
+  </div>
+</section>
+
+<!-- CONSIDERATIONS FOR AUTOMATED TESTING (Page 18) -->
+<section class="slide" id="automated-testing" data-search="automated testing unit integration functional regression performance UI testing continuous integration prevent regression branches merged deployments between environments automated tools">
+  <div class="pgnum">Page 18 · Considerations for Automated Testing</div>
+  <h2>Considerations for Automated Testing</h2>
+  <p class="lede">Automated testing tools can be utilized for <strong>unit testing</strong>, <strong>integration testing</strong>, <strong>functional testing</strong>, <strong>regression testing</strong>, <strong>performance testing</strong>, and <strong>UI testing</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Continuous Integration</h4>
+      <p>Test automation can be run for different types of tests, especially <strong>unit and functional tests</strong>, as part of a <strong>continuous integration strategy</strong>. This is useful to <strong>prevent regression</strong>, ensuring that newly released features do not break other previously existing and stable functionality.</p>
+    </div>
+    <div class="card">
+      <h4>Merging</h4>
+      <p>When using an automated testing tool to help <strong>manage deployments</strong> between Salesforce environments, <strong>automated tests should be run when branches are merged</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For a Fed platform engineer, automated tests run on branch merge in a GitLab CI pipeline are not just a developer convenience — they are a release-control. They enforce the principle that no untested code advances toward production. This is directly analogous to segregation of duties: the pipeline is the control that prevents a developer from self-approving a deploy without passing tests. Regulators and internal audit view this as a key automated control in the SDLC.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO (Page 19) -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 19 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO (Page 20) -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic retail group retail chain salesforce sales cloud service cloud lightning platform custom applications development teams new functionalities robust testing methodologies efficiency reliability architect analyze recommend">
+  <div class="pgnum">Page 20 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Retail Group</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Retail Group, a rapidly growing retail chain, leverages Salesforce for customer engagement and various internal operations. It utilizes Sales Cloud for sales processes, Service Cloud for customer interactions, and various custom applications on the Lightning platform for retail operations. With an expanding footprint and the need for innovative features to enhance its business processes and streamline operations, there's a pressing need for new custom applications in Salesforce.</p>
+    <p style="margin-top:8px;">The development teams have embarked on multiple Salesforce projects for the development of new functionalities, which require robust testing methodologies to ensure efficiency and reliability. The company's Salesforce architect needs to analyze the given technical requirements and recommend appropriate testing methodologies.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS (Page 21) -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 21 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 PART 1 (Page 22) -->
+<section class="slide" id="requirement-1-part1" data-search="requirement 1 part 1 custom REST web service order management orders order line items external system 150000 orders per day 20 line items inbound request platform slowdowns peak business hours performance testing">
+  <div class="pgnum">Page 22 · Requirement 1 (Part 1)</div>
+  <h2>Requirement 1 (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A development team has started working on a custom application for order management in Salesforce. The team has the following technical requirements:</p>
+    <ol>
+      <li>A custom REST web service has been developed. It processes orders and order line items received from an external system. It is expected to receive more than 150,000 orders per day, and each order can have up to 20 line items. An inbound request can contain only one order and its corresponding line items. The architect needs to recommend testing methodologies to ensure that users don't face platform slowdowns during peak business hours.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- REQUIREMENT 1 PART 2 (Page 23) -->
+<section class="slide" id="requirement-1-part2" data-search="requirement 1 part 2 HTTP callouts Apex code external system mock objects test classes continuous integration CI workflow automated testing tool deployments between environments regression UAT environment functionality untested user acceptance testing">
+  <div class="pgnum">Page 23 · Requirement 1 (Part 2)</div>
+  <h2>Requirement 1 (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <ol start="2">
+      <li>HTTP callouts are used in Apex code to send processed order information to an external system. The architect must provide relevant considerations for writing Apex test classes for testing HTTP callouts.</li>
+      <li>The development team is considering the use of an automated testing tool in a Continuous Integration (CI) workflow to manage deployments between environments. A suitable testing strategy is required to prevent regression.</li>
+      <li>When the application components have been deployed in a UAT environment, the team wants to ensure that no functionality is left untested during user acceptance testing.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 1 (Page 24) -->
+<section class="slide" id="solution-1-part1" data-search="solution 1 part 1 performance testing full copy sandbox load testing 150000 orders 20 line items mock objects HTTP callouts HttpCalloutMock interface automated tests branches merged unit functional test automation continuous integration prevent regression">
+  <div class="pgnum">Page 24 · Solution 1 (Part 1)</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <ol>
+      <li>To ensure that users don't experience slowdowns during peak business hours, <strong>performance testing</strong> should be conducted in a full copy sandbox. <strong>Load testing</strong> can be performed using the expected load of 150,000 orders and 20 line items per order.</li>
+      <li>To test HTTP callouts in Apex test classes, <strong>mock objects</strong> are required. An <strong>HTTP response mock</strong> can be created by defining a class that extends the <strong>HttpCalloutMock</strong> interface.</li>
+      <li>When using an automated testing tool for deployments, <strong>automated tests should be run</strong> when <strong>branches are merged</strong>. <strong>Unit and functional test automation</strong> can be utilized as part of the continuous integration strategy to <strong>prevent regression</strong> and ensure that the new features do not break any existing and stable functionality.</li>
+    </ol>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This scenario is a three-part testing question in a single requirement — a common exam pattern. Match each sub-requirement to its methodology: high-volume inbound → performance/load testing in sandbox; HTTP callouts in Apex → HttpCalloutMock; CI deployment management → automated tests on branch merge. The architect demonstrates mastery by mapping each risk precisely to the right tool, not by naming all testing types generically.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 2 (Page 25) -->
+<section class="slide" id="solution-1-part2" data-search="solution 1 part 2 requirements traceability matrix RTM user requirements test cases all requirements have test cases functionality untested user acceptance testing UAT">
+  <div class="pgnum">Page 25 · Solution 1 (Part 2)</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <ol start="4">
+      <li>A <strong>Requirements Traceability Matrix (RTM)</strong> document can be used to map user requirements to test cases. It can be used to ensure that <strong>all the requirements have test cases</strong> associated with them and no functionality is left untested during user acceptance testing.</li>
+    </ol>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The RTM is a critical governance artifact in regulated change management. At the Federal Reserve, every deployment to production requires documented evidence that all requirements were tested. The RTM provides that linkage in an auditable, traceable format — not as a developer's checklist, but as a formal change-control deliverable reviewed by the release manager before go-live approval.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 (Page 26) -->
+<section class="slide" id="requirement-2" data-search="requirement 2 custom application Lightning web components case management validation rules flows Case object support agents inbound customer service calls slowdowns high call volume performance testing considerations">
+  <div class="pgnum">Page 26 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A custom application comprising multiple Lightning web components has been created for case management. The components use validation rules and flows defined on the Case object. It will be used by support agents to handle inbound customer service calls. The architect must recommend testing methodologies to ensure that the application does not experience slowdowns under high call volume. Any considerations related to testing must also be described.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 (Page 27) -->
+<section class="slide" id="solution-2" data-search="solution 2 performance testing load testing full copy sandbox high call volume submitted salesforce support approval two weeks business justification monitors test activity no issues does not permit performance testing production multi-tenant environment shared resources">
+  <div class="pgnum">Page 27 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p><strong>Performance testing</strong> and <strong>load testing</strong> can be performed in a <strong>full copy sandbox</strong> to ensure that the application does not experience slowdowns during high call volume. The request for performance testing must be submitted to Salesforce Support for approval <strong>at least two weeks in advance</strong>. A <strong>business justification</strong> must be provided. Salesforce <strong>monitors test activity</strong> to ensure that there are no issues with Salesforce services. It is important to note that Salesforce <strong>does not permit performance testing in production</strong> since it's a multi-tenant environment with shared resources.</p>
+  </div>
+  <div class="note">Two separate scenarios in this deck (Req 1 and Req 2) both arrive at the same answer: performance/load testing in a full copy sandbox with pre-approval. This repetition is intentional — it is the canonical answer pattern for any "ensure no slowdowns under load" scenario question on the exam.</div>
+</section>
+
+<!-- LEARN MORE (Page 28) -->
+<section class="slide" id="learn-more" data-search="learn more apex testing advanced apex testing types salesforce testing when to use salesforce testing complete guide performance test FAQs introduction performance testing continuous integration further reading trailhead">
+  <div class="pgnum">Page 28 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Apex Testing</li>
+    <li>Advanced Apex Testing</li>
+    <li>Types of Salesforce Testing and When To Use Them</li>
+    <li>Salesforce Testing</li>
+    <li>Complete Guide to Salesforce Testing</li>
+    <li>Performance Test FAQs</li>
+    <li>Introduction to Performance Testing</li>
+    <li>Continuous Integration</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points testing methodologies unit testing integration testing system testing UAT functional regression production performance load stress automated manual apex HttpCalloutMock RTM code coverage 75% CI CD exam gotchas decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Testing Methodologies</h2>
+
+  <h3>Testing Type Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Testing Type</th><th>What It Tests</th><th>Who Runs It</th><th>Key Constraint / Tool</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Unit Testing</strong></td>
+        <td>Smallest testable parts (individual Apex methods) in isolation</td>
+        <td>Developer</td>
+        <td>@isTest annotation; 75% min coverage required; mocks for HTTP callouts</td>
+      </tr>
+      <tr>
+        <td><strong>Integration Testing</strong></td>
+        <td>Interactions between components (Apex classes, external APIs)</td>
+        <td>Developer / QA</td>
+        <td>HttpCalloutMock for callout testing</td>
+      </tr>
+      <tr>
+        <td><strong>System Testing</strong></td>
+        <td>Complete Salesforce system — all features, configs, customizations together</td>
+        <td>QA / Architect</td>
+        <td>Full system scope; requires stable environment</td>
+      </tr>
+      <tr>
+        <td><strong>Functional Testing</strong></td>
+        <td>Features perform per technical specifications (input → expected output)</td>
+        <td>QA</td>
+        <td>Automated or manual; driven by technical spec, not user story</td>
+      </tr>
+      <tr>
+        <td><strong>UAT</strong></td>
+        <td>System meets business requirements in real-world scenarios</td>
+        <td>End Users</td>
+        <td>Full copy sandbox; RTM ensures complete requirements coverage; final gate before go-live</td>
+      </tr>
+      <tr>
+        <td><strong>Regression Testing</strong></td>
+        <td>Existing functionality not broken by new changes</td>
+        <td>QA / Automated</td>
+        <td>Automated in CI pipeline; run on every branch merge</td>
+      </tr>
+      <tr>
+        <td><strong>Performance Testing</strong></td>
+        <td>Scalability, responsiveness under load</td>
+        <td>QA / Architect</td>
+        <td>Sandbox only; Salesforce Support approval 2+ weeks in advance; business justification required</td>
+      </tr>
+      <tr>
+        <td><strong>Load Testing</strong></td>
+        <td>Behavior under expected user traffic / data volume</td>
+        <td>QA / Architect</td>
+        <td>Sandbox only; mirrors real expected load (e.g., 150K orders/day)</td>
+      </tr>
+      <tr>
+        <td><strong>Stress Testing</strong></td>
+        <td>Behavior at and beyond breaking point</td>
+        <td>QA / Architect</td>
+        <td>Sandbox only; finds the failure threshold</td>
+      </tr>
+      <tr>
+        <td><strong>Production Testing</strong></td>
+        <td>Successful implementation of all code/configs in production org</td>
+        <td>Developer / Admin</td>
+        <td>Post-deploy smoke test; NOT load/stress (prohibited in production)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Manual vs. Automated — Selection Guide</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Use Manual When…</th><th>Use Automated When…</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Human judgment or subjective evaluation is required</td>
+        <td>Scenario is repeatable and would require considerable manual effort each run</td>
+      </tr>
+      <tr>
+        <td>One-off, non-repetitive scenario that would be counter-productive to automate</td>
+        <td>Regression testing — run after every change to ensure nothing is broken</td>
+      </tr>
+      <tr>
+        <td>Exploratory testing of new, unfamiliar functionality</td>
+        <td>Data-driven testing with many input value combinations</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>CI/CD pipeline integration — automated tests run on branch merge</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Scenario Pattern: "No Slowdowns Under Load"</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Requirement Signal</th><th>Canonical Answer</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>High-volume inbound, peak hours, don't want slowdowns</td>
+        <td>Performance testing + load testing in a full copy sandbox; approval to Salesforce Support ≥2 weeks in advance</td>
+      </tr>
+      <tr>
+        <td>HTTP callouts in Apex test classes</td>
+        <td>Create a class that extends HttpCalloutMock; mock objects required — test methods cannot make real callouts</td>
+      </tr>
+      <tr>
+        <td>CI deployments, prevent regression</td>
+        <td>Automated tests run when branches are merged; unit + functional test automation in CI strategy</td>
+      </tr>
+      <tr>
+        <td>Ensure no UAT functionality left untested</td>
+        <td>Requirements Traceability Matrix (RTM) — maps every requirement to one or more test cases</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>75% code coverage is the platform minimum — not the organizational target.</strong> Architects should enforce higher thresholds (e.g., 85–90%) via CI gates for regulated or high-risk deployments.</li>
+    <li><strong>Performance/load/stress testing is SANDBOX ONLY.</strong> It is never permitted in production — Salesforce is multi-tenant and shared resources protect all customers.</li>
+    <li><strong>Two-week advance approval from Salesforce Support is required for performance testing.</strong> This must be factored into the project release schedule — missing the window delays go-live.</li>
+    <li><strong>Salesforce Support monitors your test; they do NOT design or interpret your results.</strong> The customer owns test design and analysis.</li>
+    <li><strong>Test methods cannot make real HTTP callouts.</strong> Always use a class implementing HttpCalloutMock. Forgetting the mock causes test failures that block deployment.</li>
+    <li><strong>@isTest annotation is mandatory.</strong> Test classes do NOT count toward the 6 MB Apex code limit per org.</li>
+    <li><strong>UAT ≠ Functional Testing.</strong> Functional testing is driven by technical specifications (QA/developer); UAT is driven by end-users validating business needs — it is the final gate before production.</li>
+    <li><strong>RTM = completeness insurance for UAT.</strong> It ensures every business requirement has at least one test case — no gaps, auditable by design.</li>
+    <li><strong>Automated tests should run on branch merge in a CI/CD pipeline.</strong> This is the canonical answer for "prevent regression in a deployment workflow" scenarios.</li>
+    <li><strong>Regression testing triggers: any change to the system</strong> — new features, updates, enhancements, bug fixes. It is not a one-time activity; it runs after every change.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve platform engineer, testing is not just a quality gate — it is a <strong>control</strong>. The full testing lifecycle maps directly to the SDLC controls that regulators examine: unit tests with enforced coverage thresholds demonstrate that developers cannot merge untested code; automated regression in CI pipelines enforces that no change advances without passing tests (a segregation-of-duties analog); performance testing approval processes align with change-advisory board reviews for high-risk changes; and the RTM provides the audit artifact demonstrating that every business requirement was verified before go-live. Together, these form a defensible, documented, repeatable evidence package — exactly what examiners and internal audit ask for during a technology audit cycle.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

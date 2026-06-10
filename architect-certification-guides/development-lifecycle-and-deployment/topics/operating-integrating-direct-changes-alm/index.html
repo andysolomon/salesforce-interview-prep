@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operating — Integrating Direct Changes into ALM — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Operating — Integrating Direct Changes into ALM</h1>
+  <div class="sub">Given a scenario where changes are made directly in production, explain the implications on the development lifecycle and the steps to integrate changes into Application Lifecycle Management · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (21 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Integrating Direct Changes</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#overview">Integrating Direct Changes — Overview</a></li>
+      <li><a href="#section-integrating">Section: Integrating Direct Changes</a></li>
+      <li><a href="#risks">Risks of Direct Changes in Production</a></li>
+      <li><a href="#best-practices">Best Practices for Direct Changes</a></li>
+      <li><a href="#tools">Tools for Direct Changes</a></li>
+      <li><a href="#alm-integration">Integrating Direct Changes into ALM</a></li>
+      <li><a href="#communication-training">Communication &amp; Training</a></li>
+      <li><a href="#monitoring-coordination">Monitoring &amp; Coordination</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic AI Innovations Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2a">Solution 2 (Part 1)</a></li>
+      <li><a href="#solution-2b">Solution 2 (Part 2)</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover operating integrating direct changes alm application lifecycle management salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Operating — Integrating Direct Changes into ALM</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario where changes are made directly in production, explain the implications on the development lifecycle and the steps to integrate changes into Application Lifecycle Management · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents integrating direct changes business scenario requirements solutions alm">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#risks">Integrating Direct Changes</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives direct changes production challenges considerations best practices integrate alm application lifecycle management recommend strategies">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Identify the challenges, considerations, and best practices related to direct changes in production.</li>
+    <li>Describe how to integrate direct production changes into Application Lifecycle Management.</li>
+    <li>Recommend appropriate strategies to integrate direct production changes in Application Lifecycle Management.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction integrating changes production environment unique challenges considerations application lifecycle management ALM implications development lifecycle disruptions workflow system integrity compliance strategies risks seamless integration rapid deployment testing validation system stability user experience">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Integrating changes directly into a production environment in Salesforce presents <strong>unique challenges</strong> and <strong>considerations</strong>. It is important to manage these changes within the broader context of <strong>Application Lifecycle Management (ALM)</strong>. Such changes have <strong>implications</strong> on the development lifecycle, from potential disruptions to workflow, system integrity, and compliance issue, making it necessary to utilize <strong>strategies</strong> for effectively incorporating them into the ALM process. The <strong>risks</strong> associated with direct production changes need to be mitigated, ensuring seamless integration, and maintaining the balance between rapid deployment needs and the necessity for rigorous testing and validation processes. Architects should be able to make informed decisions with the aim of upholding system stability and user experience while accommodating urgent business requirements.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, any change to a production Salesforce org touches a regulated, audited system. The tension between "urgent business need" and "rigorous validation" is never abstract — regulators expect every production change to carry a documented rationale, approval chain, and post-change validation record. Architects who can articulate the ALM integration steps are demonstrating the change-control maturity that examiners require.</p>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<section class="slide" id="overview" data-search="integrating direct changes overview risks best practices tools integration errors conflicts regulatory compliance emergency hotfixes review authorization deployment sandboxes sandbox refresh retroactively incorporate downstream validation">
+  <div class="pgnum">Page 5 · Integrating Direct Changes — Overview</div>
+  <h2>Integrating Direct Changes — Overview</h2>
+  <p class="lede">Four dimensions frame the management of direct production changes.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Risks</h4>
+      <p>Risks associated with direct changes in production include errors, conflicts, and regulatory and compliance issues.</p>
+    </div>
+    <div class="card">
+      <h4>Best Practices</h4>
+      <p>Emergency hotfixes, review, and authorization can be utilized for managing direct changes in production.</p>
+    </div>
+    <div class="card">
+      <h4>Tools</h4>
+      <p>Deployment tools, sandboxes, and sandbox refresh cycles should be used for direct changes in production.</p>
+    </div>
+    <div class="card">
+      <h4>Integration</h4>
+      <p>After direct changes in production, a strategy should be developed to integrate them into the ALM. The changes should be tested as well.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: INTEGRATING DIRECT CHANGES -->
+<section class="slide title-slide" id="section-integrating" data-search="section integrating direct changes">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Integrating Direct Changes</h2>
+</section>
+
+<!-- RISKS OF DIRECT CHANGES IN PRODUCTION -->
+<section class="slide" id="risks" data-search="risks direct changes production without performing testing errors live environment diagnosis rectification conflicts integrations system instability failure regulatory compliance data security user privacy validated">
+  <div class="pgnum">Page 7 · Risks of Direct Changes in Production</div>
+  <h2>Risks of Direct Changes in Production</h2>
+  <p class="lede">Making direct changes in production <strong>without performing testing</strong> has certain risks.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Testing Protocol Bypass</h4>
+      <p><strong>Bypassing established testing protocols</strong> can introduce errors into the live environment, <strong>complicating diagnosis and rectification</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Conflicts &amp; Instability</h4>
+      <p><strong>Direct changes</strong> risk conflicting with other ongoing updates or integrations, potentially causing <strong>system instability or failure</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Regulatory &amp; Compliance</h4>
+      <p><strong>Regulatory and compliance issues</strong> may arise if <strong>changes affecting data security or user privacy</strong> haven't been rigorously validated.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The exam will present a scenario where a direct production change broke something. The three-risk pattern — testing bypass → errors; conflict → instability; unvalidated security/privacy → compliance — maps precisely to the three canonical risks. Identify which risk category the scenario falls into, then name the matching mitigation.</p>
+  </div>
+</section>
+
+<!-- BEST PRACTICES FOR DIRECT CHANGES IN PRODUCTION -->
+<section class="slide" id="best-practices" data-search="best practices direct changes production managing emergency hotfixes dedicated process emergency change direct updates review authorization close collaboration developers QA teams stakeholders reviewed authorized before implementation">
+  <div class="pgnum">Page 8 · Best Practices for Direct Changes in Production</div>
+  <h2>Best Practices for Direct Changes in Production</h2>
+  <p class="lede">Certain <strong>best practices</strong> can be utilized for <strong>managing direct changes</strong> in production.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Emergency Hotfixes</h4>
+      <p>A <strong>dedicated process</strong> should be established for <strong>emergency hotfixes</strong>, clearly defining what constitutes an <strong>emergency change</strong> that warrants <strong>direct updates</strong> in production.</p>
+    </div>
+    <div class="card">
+      <h4>Review &amp; Authorization</h4>
+      <p><strong>Close collaboration</strong> should be fostered between <strong>developers, QA teams, and stakeholders</strong> to ensure changes are thoroughly <strong>reviewed and authorized</strong> before implementation.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Segregation of duties is a foundational internal-control requirement at any central bank. The "review &amp; authorization" best practice directly implements that control: no single person approves and executes a production change. A written emergency-hotfix policy provides the documented procedure auditors will ask for during IT general-controls reviews.</p>
+  </div>
+</section>
+
+<!-- TOOLS FOR DIRECT CHANGES IN PRODUCTION -->
+<section class="slide" id="tools" data-search="tools direct changes production release management deployment tools sandbox refresh cycles plan execute minimize disruptions thoroughly documented standard cadence sandboxes testing significant changes minor low-impact updates assessing potential effects">
+  <div class="pgnum">Page 9 · Tools for Direct Changes in Production</div>
+  <h2>Tools for Direct Changes in Production</h2>
+  <p class="lede"><strong>Release management tools</strong> offered by Salesforce can be utilized for <strong>direct changes</strong> in production.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Tools</h4>
+      <p><strong>Deployment tools</strong> offered by Salesforce and <strong>sandbox refresh cycles</strong> can be leveraged to <strong>plan and execute</strong> changes methodically, <strong>minimizing disruptions</strong> to the development lifecycle. Changes should be <strong>thoroughly documented</strong> and follow a <strong>standard cadence</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Sandboxes</h4>
+      <p>Salesforce <strong>sandboxes</strong> should be used for <strong>testing significant changes</strong> to ensure they don't negatively impact live data. <strong>Direct changes</strong> should be reserved for <strong>minor, low-impact updates</strong> after assessing all potential effects.</p>
+    </div>
+  </div>
+  <div class="note">The sandbox-first rule is absolute for significant changes — only truly minor, low-impact updates (e.g., picklist value additions, simple field label changes) should bypass the sandbox. When in doubt, use the sandbox. The standard cadence and thorough documentation requirements ensure every change is traceable.</div>
+</section>
+
+<!-- INTEGRATING DIRECT CHANGES INTO ALM -->
+<section class="slide" id="alm-integration" data-search="integrating direct changes ALM application lifecycle management strategy retroactively incorporate downstream environments updated validation retrospective analysis testing sandbox environments validate impact align broader system functionalities">
+  <div class="pgnum">Page 10 · Integrating Direct Changes into ALM</div>
+  <h2>Integrating Direct Changes into ALM</h2>
+  <p class="lede">Direct changes in production <strong>should be integrated</strong> into <strong>Application Lifecycle Management</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Strategy</h4>
+      <p>For direct changes made in production, a <strong>strategy</strong> should be developed to <strong>retroactively incorporate</strong> these changes into the ALM process. <strong>Downstream environments</strong> should be <strong>updated</strong> to ensure that they reflect the changes made in production.</p>
+    </div>
+    <div class="card">
+      <h4>Validation</h4>
+      <p><strong>Retrospective analysis</strong> and <strong>testing</strong> should be conducted in <strong>sandbox environments</strong> even after direct changes to production, to <strong>validate their impact</strong> and ensure they <strong>align with broader system functionalities</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the canonical answer for "what do you do after a direct production change?": (1) retroactively update downstream environments so sandboxes match production, (2) run retrospective analysis and testing in sandbox to validate impact, (3) ensure the change is captured in version control / source of truth. An architect who stops at "it's already in production" has failed the ALM integration step.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Reconciling drift back into the version-control source of truth is an audit imperative. If production diverges from the documented baseline, the next examiner review will surface it as a finding. Retroactively incorporating changes — and refreshing downstream sandboxes — closes that gap and keeps the ALM pipeline the authoritative record of what is actually running in production.</p>
+  </div>
+</section>
+
+<!-- COMMUNICATION & TRAINING -->
+<section class="slide" id="communication-training" data-search="communication training direct changes production prioritized team stakeholders clear understanding reasons expected outcomes training briefing sessions users affected smooth adoption minimize operational disruptions">
+  <div class="pgnum">Page 11 · Communication &amp; Training</div>
+  <h2>Communication &amp; Training</h2>
+  <p class="lede"><strong>Proper communication and training</strong> should be conducted for any <strong>direct changes in production</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Communication</h4>
+      <p>Communication should be <strong>prioritized with the team and stakeholders</strong> about any direct changes made in production, ensuring there is a <strong>clear understanding of the reasons and expected outcomes</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Training</h4>
+      <p><strong>Training or briefing sessions</strong> should be conducted for users affected by the direct changes to ensure <strong>smooth adoption</strong> and <strong>minimize operational disruptions</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Communication is often the overlooked step. A technically perfect production change that surprises end users or downstream teams creates its own incident. The communication step is part of the change management process, not an optional courtesy.</div>
+</section>
+
+<!-- MONITORING & COORDINATION -->
+<section class="slide" id="monitoring-coordination" data-search="monitoring coordination ongoing adjustment essential direct changes production continuously monitored unforeseen impacts issues further adjustments sandboxes high-impact changes direct production changes sandbox testing not feasible change urgency">
+  <div class="pgnum">Page 12 · Monitoring &amp; Coordination</div>
+  <h2>Monitoring &amp; Coordination</h2>
+  <p class="lede"><strong>Ongoing monitoring</strong>, <strong>adjustment</strong>, and <strong>coordination</strong> are essential for direct changes in production.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Monitoring &amp; Adjustment</h4>
+      <p>After implementing direct changes in production, the system should be <strong>continuously monitored</strong> for any <strong>unforeseen impacts or issues</strong> that may arise. <strong>Further adjustments</strong> should be made if needed.</p>
+    </div>
+    <div class="card">
+      <h4>Coordination</h4>
+      <p><strong>Sandboxes</strong> should be used for testing whenever possible, especially for <strong>high-impact changes</strong>. <strong>Direct production changes</strong> should be reserved for situations where <strong>sandbox testing is not feasible</strong> or the <strong>change urgency</strong> justifies it.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The coordination card contains the exam-critical rule: direct production changes are the exception, not the default. The only valid justifications are (a) sandbox testing genuinely not feasible or (b) urgency so extreme it outweighs the risk. Any scenario where sandbox testing is available and time permits should route through the normal pipeline.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 13 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic AI innovations artificial intelligence salesforce AI-powered customer service tools data analysis surge demand minor updates directly production live environment sensitive data architect implications development lifecycle application lifecycle management ALM methodically planned tested deployed system reliability compliance">
+  <div class="pgnum">Page 14 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic AI Innovations</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic AI Innovations, an emerging force in artificial intelligence, uses Salesforce to bolster its AI-powered customer service tools and data analysis capabilities. Amidst a surge in demand for its AI solutions, the urgency to push minor updates directly in production arises to swiftly add or modify features. However, the company's development team is aware of the complexities involved in modifying a live environment, especially one that handles vast amounts of sensitive data. The Salesforce architect must advise on the implications of making direct changes in production on the development lifecycle. The architect's guidance will be pivotal in integrating these changes into the company's Application Lifecycle Management strategy, ensuring that updates are methodically planned, tested, and deployed to maintain system reliability and compliance while supporting the rapid evolution of its solutions.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 15 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 minor change policy low-risk user stories salesforce administrator directly production highly regulated audited continuous integration continuous delivery CI/CD best practices change policy">
+  <div class="pgnum">Page 16 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company is considering the implementation of a minor change policy for low-risk user stories that are commonly handled by a Salesforce administrator. It would allow the administrator to make these changes directly in production. The production environment is highly regulated and audited. The development workflow currently does not utilize continuous integration/continuous delivery (CI/CD). The architect must suggest best practices that the company should follow for the new change policy.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 minor change policy thoroughly documented standard cadence reviewed compliance requirements regulations security principles explicit stakeholder approval downstream environments updated tested sandbox environments normal development workflow">
+  <div class="pgnum">Page 17 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the new change policy, minor changes should be <strong>thoroughly documented</strong> and follow a <strong>standard cadence</strong>. Before making any changes in production, they should be <strong>reviewed</strong> against compliance requirements, regulations, and security principles, and <strong>explicit stakeholder approval</strong> should be obtained. After making the changes, the <strong>downstream environments</strong> should be updated, and the changes should still be <strong>tested</strong> in sandbox environments using the normal development workflow.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a highly regulated, audited environment like a central bank, the three-step pattern here is mandatory: document + approve before, execute with authorization, then back-propagate and validate after. Regulators will ask for evidence of each step. "Explicit stakeholder approval" is not a courtesy — it is the segregation-of-duties control that prevents an individual from both requesting and approving a production change.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Solution 1 is the complete lifecycle for a direct minor change: document → review against compliance → get approval → make change → update downstream → test retroactively. Memorize this six-step sequence. The exam will test whether you know that "done" doesn't mean the change is deployed — it means the sandboxes are updated and retrospective testing is complete.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 apex unit tests failing production deployments developer sandbox lightning web component opportunity fields consultant minor changes production dependent components custom field architect failing unit tests earlier">
+  <div class="pgnum">Page 18 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A developer has noticed that Apex unit tests are failing in production during deployments, but they still function as expected in the other environments. It has been revealed that a Salesforce consultant has been making minor changes in production while disregarding the need to add dependent components. One of the developers is working in a Developer sandbox on a Lightning web component that utilizes Opportunity fields. The consultant has added a new custom field in production. The architect must provide suggestions to discover the failing unit tests earlier and assist the developer.</p>
+  </div>
+  <div class="note">This scenario illustrates production drift: the consultant's untracked direct changes have made production diverge from the downstream sandboxes, causing test failures that only surface at deployment time — exactly the risk the ALM integration steps are designed to prevent.</div>
+</section>
+
+<!-- SOLUTION 2 PART 1 -->
+<section class="slide" id="solution-2a" data-search="solution 2 part 1 failing unit tests earlier manage changes production consultant trained special sandbox deployment daily metadata backup source control system differences published spot discrepancies potential causes test failures production environment">
+  <div class="pgnum">Page 19 · Solution 2 (Part 1)</div>
+  <h2>Solution 2 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>To help the company discover failing unit tests earlier and manage changes in production more effectively, the consultant should be <strong>trained</strong> to make changes in a <strong>special sandbox</strong>, followed by their deployment to production. Also, a <strong>daily metadata backup</strong> should be committed to a <strong>source control system</strong> and the <strong>differences</strong> should be published so that the development team can <strong>easily spot discrepancies</strong> and <strong>potential causes for test failures</strong> before they affect the production environment.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Daily metadata backup to source control is the mechanism that surfaces production drift before it becomes an audit finding. Publishing diffs gives the team a living audit trail of every change made outside the standard pipeline. At a regulated institution this pattern also satisfies the requirement to maintain an authoritative, versioned record of the system configuration.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 PART 2 -->
+<section class="slide" id="solution-2b" data-search="solution 2 part 2 developer developer sandbox refresh changes production reflected sandbox lightning web component change set deploy production sandbox downstream propagation">
+  <div class="pgnum">Page 20 · Solution 2 (Part 2)</div>
+  <h2>Solution 2 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>To assist the developer in the development process after the addition of a new custom field to production, the consultant should <strong>refresh the Developer sandbox</strong> to ensure that changes made in production are reflected in the sandbox that the developer is using to work on the Lightning web component. Another option is <strong>using a Change Set to deploy the changes</strong> from <strong>production to the sandbox</strong>.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Two valid mechanisms to propagate production changes back to a sandbox: (1) sandbox refresh — gets all org metadata but takes longer and disrupts in-progress work; (2) Change Set from production to sandbox — surgical, deploys only the specific components needed. The exam may ask which is more appropriate given constraints. If the developer has significant in-progress work, a Change Set is less disruptive than a full refresh.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more salesforce sandbox managing changes production deployment best practices difference production sandbox further reading trailhead resources">
+  <div class="pgnum">Page 21 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce and Trailhead resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Salesforce Sandbox – Managing Changes in Production</li>
+    <li>Salesforce Deployment Best Practices</li>
+    <li>The Difference between Salesforce Production &amp; Sandbox</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points integrating direct changes alm application lifecycle management risks best practices tools integration communication training monitoring coordination exam traps decision matrix sandbox refresh change set source control metadata backup">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Integrating Direct Changes into ALM</h2>
+
+  <h3>Direct Change Risk-to-Mitigation Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Risk / Situation</th><th>Canonical Mitigation / Action</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Testing protocols bypassed → errors in live environment</td>
+        <td>Establish emergency hotfix process defining what warrants a direct production change; all other changes go through sandbox first</td>
+      </tr>
+      <tr>
+        <td>Direct change conflicts with ongoing updates → system instability</td>
+        <td>Review &amp; authorization step: developers, QA, and stakeholders must approve before implementation</td>
+      </tr>
+      <tr>
+        <td>Unvalidated security/privacy change → compliance failure</td>
+        <td>Review against compliance requirements and regulations before production; explicit stakeholder approval required</td>
+      </tr>
+      <tr>
+        <td>Production diverges from downstream sandboxes (drift)</td>
+        <td>Retroactively update downstream environments; refresh sandbox or deploy Change Set from production to sandbox</td>
+      </tr>
+      <tr>
+        <td>Changes not captured in version control → no audit trail</td>
+        <td>Daily metadata backup committed to source control; differences published so team can spot discrepancies</td>
+      </tr>
+      <tr>
+        <td>Apex tests fail at deployment due to undocumented prod changes</td>
+        <td>Train consultant to use special sandbox → deploy to prod; surface diffs early via source control comparison</td>
+      </tr>
+      <tr>
+        <td>Developer sandbox missing new production field (LWC broken)</td>
+        <td>Refresh Developer sandbox OR use Change Set from production to sandbox to propagate the specific component</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>ALM Integration Steps After a Direct Production Change</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Step</th><th>Action</th><th>Why It Matters</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1. Document</td><td>Thoroughly document the change with rationale and expected outcomes</td><td>Audit trail; compliance evidence</td></tr>
+      <tr><td>2. Review &amp; Approve</td><td>Review against compliance, regulations, and security; obtain explicit stakeholder approval</td><td>Segregation of duties; regulatory requirement</td></tr>
+      <tr><td>3. Execute</td><td>Make the change in production following standard cadence</td><td>Consistent, predictable deployment</td></tr>
+      <tr><td>4. Communicate</td><td>Notify team and stakeholders; brief affected users</td><td>Smooth adoption; prevent surprise incidents</td></tr>
+      <tr><td>5. Update Downstream</td><td>Refresh sandbox or deploy Change Set from production to sandbox</td><td>Eliminate drift; unblock downstream developers</td></tr>
+      <tr><td>6. Retroactive Validation</td><td>Run retrospective analysis and testing in sandbox environments</td><td>Validate impact; confirm alignment with broader system</td></tr>
+      <tr><td>7. Monitor</td><td>Continuously monitor production for unforeseen impacts; make further adjustments if needed</td><td>Catch issues before they escalate</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Sandbox Refresh vs. Change Set — Propagating Production Changes Back</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Mechanism</th><th>When to Use</th><th>Trade-off</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Sandbox Refresh</strong></td>
+        <td>Developer has minimal in-progress work; need full org parity</td>
+        <td>Complete but time-consuming; destroys in-progress work in sandbox</td>
+      </tr>
+      <tr>
+        <td><strong>Change Set (prod → sandbox)</strong></td>
+        <td>Developer has significant in-progress work; only a few components need propagating</td>
+        <td>Surgical and non-destructive; only deploys specified components</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Direct production changes are the exception, not the rule.</strong> The only valid justifications are: sandbox testing not feasible, or urgency so extreme it outweighs the risk.</li>
+    <li><strong>"Done" does not mean deployed.</strong> A direct production change is only complete when downstream environments are updated and retrospective testing is finished.</li>
+    <li><strong>Daily metadata backup to source control</strong> is the mechanism that surfaces drift and enables early detection of test failures — not a nice-to-have, but a core ALM hygiene practice.</li>
+    <li><strong>Sandbox refresh vs. Change Set:</strong> refresh = full parity but disruptive; Change Set = surgical but partial. Pick based on developer's in-progress work.</li>
+    <li><strong>Segregation of duties:</strong> the person making the change must not be the person approving it. Explicit stakeholder approval is the control, not just a process step.</li>
+    <li><strong>Retroactive validation in sandbox</strong> is required even after a direct production change — the fact that the change is already live does not eliminate the need to validate its impact against the broader system.</li>
+    <li><strong>Communication and training are part of the change process</strong>, not optional. Users surprised by a production change create their own incidents.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a central bank platform engineer, the highest-stakes implication of direct production changes is audit exposure. Every un-documented, un-approved, un-backported production change is a potential IT General Controls finding. The ALM integration steps in this deck — document, approve, execute, communicate, update downstream, validate retroactively, monitor — are not suggestions; they are the control evidence package that satisfies internal audit and regulatory examiners. The daily metadata backup to source control closes the audit trail loop by making any production drift immediately visible and attributable.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

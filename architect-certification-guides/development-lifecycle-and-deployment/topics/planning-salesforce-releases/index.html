@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning — Salesforce Releases — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Planning — Salesforce Releases</h1>
+  <div class="sub">Summer / Winter / Spring release strategy &amp; risk mitigation · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (28 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Front matter</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#objectives">Learning Objectives</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#risk-overview">Releases &amp; Risk Overview</a></li>
+    </ul>
+    <h3>Salesforce Releases</h3>
+    <ul>
+      <li><a href="#sf-releases-title">Section: Salesforce Releases</a></li>
+      <li><a href="#releases-upgrades">Upgrades &amp; Release Cycle</a></li>
+      <li><a href="#releases-trust">Salesforce Trust &amp; Lightning</a></li>
+      <li><a href="#sandbox-preview-early">Sandbox Preview — Early Access</a></li>
+      <li><a href="#sandbox-preview-location">Sandbox Preview — Location</a></li>
+      <li><a href="#sandbox-preview-guide">Sandbox Preview — Guide</a></li>
+      <li><a href="#release-notes-feedback">Release Notes — Feedback &amp; Comms</a></li>
+      <li><a href="#release-notes-sections">Release Notes — Sections &amp; Process</a></li>
+      <li><a href="#pre-release-org">Pre-Release Org</a></li>
+      <li><a href="#benefits-new-features">Benefits of New Features</a></li>
+      <li><a href="#implementation-new-features">Implementation of New Features</a></li>
+      <li><a href="#testing-new-features">Testing of New Features</a></li>
+      <li><a href="#types-of-testing">Types of Testing</a></li>
+      <li><a href="#testing-considerations">Testing Considerations</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#biz-scenario-title">Section: Business Scenario</a></li>
+      <li><a href="#biz-scenario">Cosmic Innovations Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#req-solutions-title">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#req-1">Requirement 1 — Release Calendar</a></li>
+      <li><a href="#sln-1">Solution 1 — Release Calendar</a></li>
+      <li><a href="#sln-1-timeline">Solution 1 — Timeline Diagram</a></li>
+      <li><a href="#req-2">Requirement 2 — Sandbox Mismatch</a></li>
+      <li><a href="#sln-2">Solution 2 — Sandbox Alignment</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- ============ COVER ============ -->
+<section class="slide title-slide" id="cover" data-search="cover planning salesforce releases spring summer winter risk mitigation focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Planning — Salesforce Releases</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer scenario involving a new Salesforce release (Summer, Winter, Spring), recommend the appropriate strategy to mitigate risks.</p>
+</section>
+
+<!-- ============ TABLE OF CONTENTS ============ -->
+<section class="slide" id="toc-slide" data-search="table of contents salesforce releases business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#sf-releases-title">Salesforce Releases</a></li>
+    <li><a class="toc-link" href="#biz-scenario-title">Business Scenario</a></li>
+    <li><a class="toc-link" href="#req-solutions-title">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- ============ LEARNING OBJECTIVES ============ -->
+<section class="slide" id="objectives" data-search="learning objectives release readiness preview sandbox release notes testing implementation principles">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Identify the various aspects of Salesforce releases that should be considered for release readiness.</li>
+    <li>Describe how to generate a preview sandbox to test new features prior to a Salesforce release.</li>
+    <li>Identify the considerations related to the use of release notes.</li>
+    <li>Describe the principles that should be followed for the testing and implementation of new features.</li>
+    <li>Identify the different types of testing and the related considerations.</li>
+  </ul>
+</section>
+
+<!-- ============ INTRODUCTION ============ -->
+<section class="slide" id="intro" data-search="introduction spring summer winter preview sandbox release notes change management testing unit functional regression">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Salesforce releases new features and enhancements three times a year during the <strong>Spring, Summer and Winter seasons</strong>. A <strong>preview sandbox</strong> can be used to test new features before they are released in the production environment. The <strong>location of a sandbox (preview or non-preview instance)</strong> depends on the timing of its most recent refresh.</p>
+  <p><strong>Release Notes</strong> should be reviewed to identify the different types of features in a release. <strong>Change management principles</strong> should be followed for the implementation of new features. Various <strong>types of testing</strong>, such as unit testing, functional testing, and regression testing, can be conducted in a preview sandbox prior to a release.</p>
+</section>
+
+<!-- ============ RISK OVERVIEW DIAGRAM ============ -->
+<section class="slide" id="risk-overview" data-search="salesforce releases risk mitigation seasonal releases preview sandbox release notes implementation testing considerations overview">
+  <div class="pgnum">Page 5 · Releases &amp; Risk Overview</div>
+  <h2>Salesforce Releases &amp; Risk Mitigation — at a glance</h2>
+  <p class="lede">Six interconnected dimensions of release readiness, all feeding into the release calendar at the center.</p>
+  <div class="cards">
+    <div class="card"><h4>Seasonal Releases</h4><p>Salesforce releases new features and enhancements three times a year during the Spring, Summer and Winter seasons.</p></div>
+    <div class="card"><h4>Preview Sandbox</h4><p>A sandbox can be refreshed during the preview window to test new features before their general release in production.</p></div>
+    <div class="card"><h4>Release Notes</h4><p>Filters can be used to find specific updates in release notes. They contain various sections that can be checked.</p></div>
+    <div class="card"><h4>Implementation</h4><p>Change management principles should be followed for implementing new features in a Salesforce release.</p></div>
+    <div class="card"><h4>Testing</h4><p>Various types of testing can be performed in a preview sandbox before a release hits the production org.</p></div>
+    <div class="card"><h4>Considerations</h4><p>Various considerations are applicable for testing new features before a release.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle — JD direct mapping</h4>
+    <p>The JD competency <strong>"Performs new Salesforce release evaluations and assess impact"</strong> maps <em>directly</em> to this deck. At the Federal Reserve Bank of Chicago, every platform release must be assessed for impact on 33+ active repos and dozens of app teams before it hits production. The six dimensions above — preview sandboxes, release notes triage, change management, testing types, and considerations — constitute the structured evaluation process the role demands. Walk an interviewer through this wheel and show how you'd operationalize it inside the Fed's existing change-management gate.</p>
+  </div>
+</section>
+
+<!-- ============ SECTION TITLE: SALESFORCE RELEASES ============ -->
+<section class="slide title-slide" id="sf-releases-title" data-search="salesforce releases section">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Salesforce Releases</h2>
+</section>
+
+<!-- ============ RELEASES — UPGRADES & RELEASE CYCLE ============ -->
+<section class="slide" id="releases-upgrades" data-search="salesforce releases upgrades automatic seamless scheduled maintenance release cycle 3 months 4 6 weeks sandbox production">
+  <div class="pgnum">Page 7 · Upgrades &amp; Release Cycle</div>
+  <h2>Salesforce Releases — Upgrades &amp; Release Cycle</h2>
+  <p class="lede">Salesforce releases new features and enhancements three times a year during the Spring, Summer, and Winter seasons.</p>
+  <div class="cards">
+    <div class="card"><h4>Upgrades</h4><p>Each release brings <strong>automatic, seamless upgrades</strong> with <strong>minimal scheduled maintenance</strong>, ensuring all customers run on the same, latest version of Salesforce.</p></div>
+    <div class="card"><h4>Release Cycle</h4><p>The release cycle starts approximately <strong>3 months before live production</strong>, with sandbox instances upgraded <strong>4–6 weeks prior to the production release</strong>.</p></div>
+  </div>
+  <div class="note">Because upgrades are automatic, every org in your estate — including production — will receive the release. The 4–6 week sandbox preview window is your only opportunity to catch regressions before they hit production users.</div>
+</section>
+
+<!-- ============ RELEASES — TRUST & LIGHTNING ============ -->
+<section class="slide" id="releases-trust" data-search="salesforce trust release dates published year advance planning lightning experience focus innovation productivity new features classic">
+  <div class="pgnum">Page 8 · Salesforce Trust &amp; Lightning Experience</div>
+  <h2>Salesforce Releases — Trust &amp; Lightning Experience</h2>
+  <p class="lede">Salesforce releases new features and enhancements three times a year during the Spring, Summer, and Winter seasons.</p>
+  <div class="cards">
+    <div class="card"><h4>Salesforce Trust</h4><p>Release dates are published <strong>up to a year in advance</strong> on the Salesforce Trust website, allowing for early planning.</p></div>
+    <div class="card"><h4>Lightning Experience</h4><p>Lightning Experience is the <strong>focus of innovation</strong> in Salesforce releases, bringing <strong>productivity boosts</strong> and <strong>new features</strong> not available in Salesforce Classic.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about release planning: lead with "I'd subscribe to Salesforce Trust release calendar notifications a year in advance and incorporate seasonal release windows into our internal PI planning calendar." This signals proactive governance, not reactive scrambling.</p>
+  </div>
+</section>
+
+<!-- ============ SANDBOX PREVIEW — EARLY ACCESS ============ -->
+<section class="slide" id="sandbox-preview-early" data-search="sandbox preview early access 4 6 weeks before production upgrade non-preview updates later evaluation user communication">
+  <div class="pgnum">Page 9 · Sandbox Preview — Early Access &amp; Non-Preview</div>
+  <h2>Sandbox Preview — Early Access</h2>
+  <p class="lede">Sandboxes allow previewing and testing new Salesforce features before their general release.</p>
+  <div class="cards">
+    <div class="card"><h4>Early Access</h4><p><strong>Preview sandboxes</strong> provide early access to new features about <strong>4–6 weeks before the production upgrade</strong>, enabling evaluation and user communication.</p></div>
+    <div class="card"><h4>Non-Preview</h4><p>Not all sandboxes are eligible for early upgrades; <strong>'non-preview' sandboxes</strong> receive updates later, sometimes after production release.</p></div>
+  </div>
+  <div class="note">Not every sandbox automatically becomes a preview sandbox. Whether a sandbox is on a preview or non-preview instance depends entirely on when it was last refreshed relative to the preview cut-off date.</div>
+</section>
+
+<!-- ============ SANDBOX PREVIEW — LOCATION ============ -->
+<section class="slide" id="sandbox-preview-location" data-search="sandbox location preview non-preview instance timing most recent refresh preview period cut-off date preview access">
+  <div class="pgnum">Page 10 · Sandbox Preview — Location</div>
+  <h2>Sandbox Preview — Location &amp; the Cut-off Date</h2>
+  <p class="lede">Sandboxes allow previewing and testing new Salesforce features before their general release.</p>
+  <div class="cards">
+    <div class="card"><h4>Sandbox Location</h4><p>The location of a sandbox (preview or non-preview instance) depends on the <strong>timing of its most recent refresh</strong>. If a sandbox is <strong>refreshed during the sandbox preview period</strong>, it is moved to a <strong>non-preview instance</strong>.</p></div>
+    <div class="card"><h4>Preview Access</h4><p>Refreshing a sandbox <strong>before the sandbox preview cut-off date</strong> sends it to a <strong>preview instance</strong>. To ensure access, the sandbox should be maintained <strong>without refreshing it after the cut-off date</strong>.</p></div>
+  </div>
+  <div class="note">Classic exam trap: a sandbox refreshed <em>during</em> the preview window lands on a non-preview instance and therefore does NOT get the early upgrade. Refresh before the cut-off, then leave it alone.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Interviewers love this gotcha: "How do you ensure you have a preview sandbox for the upcoming release?" Answer: "Refresh the sandbox you want as a preview sandbox <em>before</em> the sandbox preview cut-off date, then do not refresh it again until after production goes live. I'd also consult the Sandbox Preview Guide to confirm which instances are preview vs non-preview."</p>
+  </div>
+</section>
+
+<!-- ============ SANDBOX PREVIEW — GUIDE ============ -->
+<section class="slide" id="sandbox-preview-guide" data-search="sandbox preview guide salesforce preview non-preview instance lookup recommendations at least one sandbox preview instance">
+  <div class="pgnum">Page 11 · Sandbox Preview — Guide &amp; Recommendations</div>
+  <h2>Sandbox Preview — Guide &amp; Recommendations</h2>
+  <p class="lede">Sandboxes allow previewing and testing new Salesforce features before their general release.</p>
+  <div class="cards">
+    <div class="card"><h4>Preview Guide</h4><p>The <strong>Salesforce Sandbox Preview Guide</strong> can be used to ensure access to a preview sandbox that gets an early upgrade.</p></div>
+    <div class="card"><h4>Recommendations</h4><p>Each sandbox instance can be looked up in the guide to see if it's a preview or non-preview instance. Recommendations can be followed to ensure that there's <strong>at least one sandbox on a preview instance</strong>.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>A large enterprise org estate will have many sandboxes on multiple instances. The Fed requires having at least one Full or Partial sandbox on a preview instance dedicated to release impact assessment — this becomes a standing item on the quarterly release readiness checklist, just like a CAB entry. Documenting this in a runbook satisfies the auditability requirement.</p>
+  </div>
+</section>
+
+<!-- ============ RELEASE NOTES — FEEDBACK & COMMUNICATION ============ -->
+<section class="slide" id="release-notes-feedback" data-search="release notes filters quick wins low-hanging fruit automatically enabled minimal admin action feedback super users communication stakeholders channels notifications email webinars">
+  <div class="pgnum">Page 12 · Release Notes — Feedback &amp; Communication</div>
+  <h2>Release Notes — Feedback &amp; Communication</h2>
+  <p class="lede"><strong>Release Notes filters</strong> can be used to identify features that are <strong>automatically enabled (Quick Wins)</strong> and those that need <strong>minimal admin action (Low-hanging Fruit)</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Feedback</h4><p><strong>Super users</strong> can be engaged for <strong>feedback on Quick Wins</strong> and <strong>Low-hanging Fruit</strong> to ensure user relevance and facilitate training.</p></div>
+    <div class="card"><h4>Communication</h4><p><strong>Upcoming release details</strong> should be <strong>communicated to users and stakeholders</strong>, focusing on benefits and incorporating feedback for phased rollouts. Communication channels include in-app notifications, customized help menu, email, newsletters, cheat sheets, lunch and learns, virtual meetings, and webinars.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Automatically enabled features ("Quick Wins") are the release readiness risk most often overlooked. The exam expects you to know: filter release notes by "Automatically On" to find changes that will affect users on go-live day with zero admin action — those are the ones that could break existing behavior silently. Always review these first.</p>
+  </div>
+</section>
+
+<!-- ============ RELEASE NOTES — SECTIONS & PROCESS ============ -->
+<section class="slide" id="release-notes-sections" data-search="release notes sections drill down cloud analytics cloud independent areas process mark calendar engage community preview sandbox review prepare users every three months">
+  <div class="pgnum">Page 13 · Release Notes — Sections &amp; Process</div>
+  <h2>Release Notes — Sections &amp; Repeating Process</h2>
+  <p class="lede"><strong>Release Notes filters</strong> can be used to identify features that are <strong>automatically enabled (Quick Wins)</strong> and those that need <strong>minimal admin action (Low-hanging Fruit)</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Sections</h4><p>The various sections in the release notes can be used as reference or to check for updates. It is possible to <strong>drill down by cloud</strong> as well as <strong>cloud-independent areas</strong> such as Analytics.</p></div>
+    <div class="card"><h4>Process</h4><p>This process should be repeated <strong>every three months</strong>: <strong>mark calendar dates</strong>, <strong>engage with community</strong>, <strong>preview in sandbox</strong>, <strong>review Release Notes</strong>, and <strong>prepare users</strong>.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The five-step cadence — mark dates, engage community, preview, review notes, prepare users — is a textbook change management loop. At the Fed this maps directly onto a quarterly CAB submission: a formal impact assessment submitted before each seasonal release window, with a testing sign-off before production is upgraded. The "every three months" cadence aligns perfectly with Salesforce's release schedule.</p>
+  </div>
+</section>
+
+<!-- ============ PRE-RELEASE ORG ============ -->
+<section class="slide" id="pre-release-org" data-search="pre-release org earliest possible look new features 3 4 weeks before sandbox preview availability customizations sneak peek">
+  <div class="pgnum">Page 14 · Pre-Release Org</div>
+  <h2>Pre-Release Org</h2>
+  <p class="lede">A <strong>pre-release org</strong> allows getting the <strong>earliest possible look</strong> at new features in action.</p>
+  <div class="cards">
+    <div class="card"><h4>Availability</h4><p>Sign-up for a <strong>pre-release org</strong> is available <strong>3–4 weeks before the sandbox preview starts</strong>.</p></div>
+    <div class="card"><h4>Customizations</h4><p>A pre-release org <strong>does not contain</strong> any of the <strong>customizations</strong>, but they can be used to get a sneak peek at what's coming.</p></div>
+  </div>
+  <div class="note">Pre-release orgs are completely separate from your production org — no customizations, no data. They're useful for exploring new standard features but cannot substitute for testing against your own org's custom code and configuration.</div>
+</section>
+
+<!-- ============ BENEFITS OF NEW FEATURES ============ -->
+<section class="slide" id="benefits-new-features" data-search="benefits new features new functionality improvements reduced technical debt simplified backlog workarounds limitations customizations">
+  <div class="pgnum">Page 15 · Benefits of New Features</div>
+  <h2>Benefits of New Features</h2>
+  <p class="lede">There are several <strong>benefits of new features</strong> released by Salesforce.</p>
+  <div class="cards">
+    <div class="card"><h4>New Functionality</h4><p>New functionality is delivered to users without custom code or third-party apps.</p></div>
+    <div class="card"><h4>Improvements</h4><p>Existing customizations are improved by eliminating workarounds or limitations.</p></div>
+    <div class="card"><h4>Reduced Technical Debt</h4><p>Unnecessary complexity or technical debt is removed, reducing time to deploy.</p></div>
+    <div class="card"><h4>Simplified Backlog</h4><p>Customizations in the backlog are simplified or enhanced.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked "why invest time evaluating every seasonal release?", the answer is not just "to avoid regressions." Releases also <em>deliver value</em> — new native functionality can replace custom-built workarounds, reducing technical debt and backlog size. Platforms engineers who evaluate releases proactively surface those opportunities; those who don't leave money on the table.</p>
+  </div>
+</section>
+
+<!-- ============ IMPLEMENTATION OF NEW FEATURES ============ -->
+<section class="slide" id="implementation-new-features" data-search="implementation new features change management principles forward planning two months december april august roles responsibilities processes product owners subject matter experts release matrix custom object">
+  <div class="pgnum">Page 16 · Implementation of New Features</div>
+  <h2>Implementation of New Features</h2>
+  <p class="lede"><strong>New features</strong> should be implemented by following <strong>change management principles</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4>Forward Planning</h4><p><strong>Forward planning</strong> should be used to ensure that the needed technical resources are available. Planning can be started <strong>two months before the release in production</strong> (early December, April, and August).</p></div>
+    <div class="card"><h4>Roles, Responsibilities &amp; Processes</h4><p><strong>Roles, responsibilities, and processes</strong> should be defined. Several individuals or teams may be responsible. Examples include product owners, subject matter experts, and technical experts.</p></div>
+    <div class="card"><h4>Advanced Tools</h4><p><strong>Advanced tools</strong> such as the <strong>Release Matrix</strong> and a <strong>Release Management custom object</strong> can be used to manage release updates and make it easier to collaborate around prioritization and deployment.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Starting planning two months early (December, April, August) maps directly to a standing quarterly review in a regulated environment. A <strong>Release Matrix</strong> tracking feature-by-feature impact (auto-enabled vs admin action required, risk level, testing needed) is the kind of artifact that satisfies an internal audit or a CAB: it's auditable, assignable, and version-controlled. Build it in a Release Management custom object or a GitLab wiki — either way it's trackable.</p>
+  </div>
+</section>
+
+<!-- ============ TESTING OF NEW FEATURES ============ -->
+<section class="slide" id="testing-new-features" data-search="testing new features complexity change management three principles time people environments CI continuous integration automated tools user experience custom code sandbox preview adjusted schedules">
+  <div class="pgnum">Page 17 · Testing of New Features</div>
+  <h2>Testing of New Features</h2>
+  <p class="lede">The <strong>testing approach</strong> for new features depends on the <strong>complexity</strong> of the Salesforce org. The <strong>three change management principles</strong> should be considered.</p>
+  <div class="cards">
+    <div class="card"><h4>Time &amp; Resources</h4><p><strong>Time for testing activities</strong> should be factored in ahead of a Salesforce release deployment. The <strong>required people and testing environments</strong> should be considered. Other Salesforce project schedules may need to be <strong>adjusted</strong>.</p></div>
+    <div class="card"><h4>User Experience &amp; Code</h4><p><strong>New features that impact the user experience</strong>, such as changes to the user interface, and any existing custom code, should be tested. Tests should be conducted in a <strong>sandbox preview</strong> upgraded with the new Salesforce release.</p></div>
+    <div class="card"><h4>Automated Testing (CI)</h4><p><strong>Automated testing tools, called CI (Continuous Integration) tools</strong>, can be used when there are multiple developers or complex custom code. Considerations such as cost, in-house expertise, and compatibility are applicable.</p></div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The slide explicitly calls out CI tools for multi-developer orgs with complex custom code. This is the opening to describe your automated regression suite: "I'd run the existing CI pipeline against the preview sandbox instance, catching any test failures surfaced by the new release before we're in the non-preview window."</p>
+  </div>
+</section>
+
+<!-- ============ TYPES OF TESTING ============ -->
+<section class="slide" id="types-of-testing" data-search="types testing five unit integration functional user acceptance UAT performance testing new features catch bugs code interactions technical requirements end users large volumes records">
+  <div class="pgnum">Page 18 · Types of Testing</div>
+  <h2>Types of Testing</h2>
+  <p class="lede">There are <strong>five main types of testing</strong> that can be utilized for testing new features.</p>
+  <table class="dttable">
+    <thead>
+      <tr><th>Type</th><th>What it tests</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Unit tests</strong></td><td>Smallest bits of custom code — used to catch bugs early.</td></tr>
+      <tr><td><strong>Integration tests</strong></td><td>Code interactions with anything not native in the org (external systems, APIs).</td></tr>
+      <tr><td><strong>Functional tests</strong></td><td>Verify that features work as defined in the technical requirements.</td></tr>
+      <tr><td><strong>User-acceptance testing (UAT)</strong></td><td>Allows end users to accept or reject the final feature delivery.</td></tr>
+      <tr><td><strong>Performance testing</strong></td><td>Evaluates system response when large volumes of records or operations are being handled.</td></tr>
+    </tbody>
+  </table>
+  <div class="note">All five types can be conducted in a preview sandbox during the 4–6 week window before the production upgrade. The order matters: run unit &rarr; integration &rarr; functional &rarr; UAT &rarr; performance, so bugs are caught at the cheapest possible layer.</div>
+</section>
+
+<!-- ============ TESTING CONSIDERATIONS ============ -->
+<section class="slide" id="testing-considerations" data-search="testing considerations sandbox management test data integration testing API UI testing performance testing governor limits Classic Lightning rebuild">
+  <div class="pgnum">Page 19 · Testing Considerations</div>
+  <h2>Testing Considerations</h2>
+  <p class="lede">There are various <strong>considerations for testing new features</strong> before a release.</p>
+  <div class="cards">
+    <div class="card"><h4>Sandbox Management</h4><p>One or more sandboxes need to be created for testing. Reliable re-execution of tests requires a <strong>refresh or reset</strong>.</p></div>
+    <div class="card"><h4>Test Data</h4><p>Test data needs to be generated using a suitable approach in developer sandboxes since they do <strong>not contain any production data</strong>.</p></div>
+    <div class="card"><h4>Integration Testing</h4><p>Integration with third-party systems requires running tests on <strong>both sides of the integration</strong>.</p></div>
+    <div class="card"><h4>API &amp; UI Testing</h4><p>API tests should be used instead of UI tests wherever possible since UI testing is costly to maintain. A <strong>dedicated UI tool</strong> should be used.</p></div>
+    <div class="card"><h4>Performance Testing</h4><p>It is necessary to ensure that <strong>governor limits are not reached</strong> during performance tests. Performance tests should <strong>not be automated</strong>.</p></div>
+    <div class="card"><h4>Salesforce Classic Testing</h4><p>Some tests built for Salesforce Classic won't run in Lightning Experience, so it may be necessary to <strong>rebuild them</strong>.</p></div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Three of these six considerations map directly to Fed-context risks: <strong>integration testing</strong> (the Fed's Salesforce integrates with core banking, Oracle, and middleware — third-party tests must be coordinated), <strong>API over UI testing</strong> (aligns with your Playwright work — reserve UI tests for genuine UX journeys, not API behavior), and <strong>performance testing not automated</strong> (a common oversight — governor-limit failures at scale must be caught manually in a Full sandbox with representative data volumes before release day).</p>
+  </div>
+</section>
+
+<!-- ============ SECTION TITLE: BUSINESS SCENARIO ============ -->
+<section class="slide title-slide" id="biz-scenario-title" data-search="business scenario section">
+  <div class="pgnum" style="color:#cbd6e6">Page 20 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- ============ BUSINESS SCENARIO ============ -->
+<section class="slide" id="biz-scenario" data-search="business scenario cosmic innovations global enterprise multiple business units sales customer service marketing seasonal releases spring summer winter major minor releases deployment architect">
+  <div class="pgnum">Page 21 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Innovations</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Innovations is a global enterprise with a vast Salesforce implementation spanning multiple business units, including sales, customer service, and marketing. The company leverages Salesforce for a wide range of processes and custom applications, making the regular Salesforce seasonal releases (Spring, Summer, and Winter) crucial for the organization.</p>
+    <p style="margin-top:8px">With the upcoming Salesforce Spring release, it faces the challenge of aligning its major, minor, and Salesforce seasonal releases to minimize disruption and maximize the benefits of new features. Additionally, there exist challenges related to release planning and deployment practices. A Salesforce architect has been hired to recommend the appropriate strategies based on the company's requirements.</p>
+  </div>
+</section>
+
+<!-- ============ SECTION TITLE: REQUIREMENTS & SOLUTIONS ============ -->
+<section class="slide title-slide" id="req-solutions-title" data-search="requirements solutions section">
+  <div class="pgnum" style="color:#cbd6e6">Page 22 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- ============ REQUIREMENT 1 ============ -->
+<section class="slide" id="req-1" data-search="requirement 1 CTO misalignment release cycles seasonal releases internal major minor inefficiencies increased risk deployment plan sandbox refresh full sandbox delaying critical updates">
+  <div class="pgnum">Page 23 · Requirement 1</div>
+  <h2>Requirement 1 — Release Calendar Misalignment</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The CTO of the company has noticed that the misalignment of release cycles between Salesforce seasonal releases and internal major and minor releases is leading to inefficiencies and increased risk. An upcoming major release will be deployed one week after Salesforce updates the production org. The current deployment plan does not account for the Salesforce Spring release and the time required for refreshing the full sandbox, potentially delaying the deployment of critical updates.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUTION 1 ============ -->
+<section class="slide" id="sln-1" data-search="solution 1 release calendar align seasonal internal cycles train align teams sandbox refreshed six weeks before go-live preview instance testing complete deploy production">
+  <div class="pgnum">Page 24 · Solution 1</div>
+  <h2>Solution 1 — Establish a Release Calendar</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The company should establish a comprehensive <strong>release calendar</strong> that aligns Salesforce seasonal releases with the internal release cycles. This calendar should be used to <strong>train and align</strong> all relevant teams, ensuring everyone is prepared for upcoming releases. In addition, the deployment plan should account for the production environment update and sandbox refresh time. To ensure seamless testing and deployment, the full sandbox should be <strong>refreshed approximately six weeks before go-live</strong> to ensure that it is on a <strong>preview instance</strong> for the purpose of testing. Once testing is complete and Salesforce has updated the production environment, the changes can be deployed to production.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the canonical exam answer for "release calendar + sandbox timing": refresh the Full sandbox ~6 weeks before go-live (which places it in the preview window), complete testing there, wait for prod to upgrade, then deploy. The mistake Cosmic Innovations made was not accounting for this lead time in their deployment plan — a classic gotcha.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUTION 1 — TIMELINE DIAGRAM ============ -->
+<section class="slide" id="sln-1-timeline" data-search="solution 1 timeline sandbox preview window non-preview window 8 weeks 4 weeks blog post reminder sandbox preview upgrade current production release next production release">
+  <div class="pgnum">Page 25 · Solution 1 — Release Timeline</div>
+  <h2>Solution 1 — Release Window Timeline</h2>
+  <p class="lede">Visual representation of the sandbox preview vs non-preview windows relative to the production release cycle.</p>
+  <table class="dttable">
+    <thead>
+      <tr><th>Phase</th><th>Duration</th><th>What happens</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Current Production Release → Blog Post Reminder</td><td>~8 weeks</td><td><strong>Sandbox Preview Window</strong> is open. Sandboxes refreshed in this window land on a preview instance and will receive the early upgrade.</td></tr>
+      <tr><td>Blog Post Reminder → Sandbox Preview Upgrade</td><td>~4 weeks</td><td>Still within the preview window. The blog post reminder signals the preview upgrade is coming. Ensure your test sandbox has already been refreshed (before the cut-off).</td></tr>
+      <tr><td>Sandbox Preview Upgrade → Next Production Release</td><td>~4 weeks</td><td><strong>Sandbox Non-Preview Window</strong>. Sandboxes refreshed now go to a non-preview instance. Preview-enabled sandboxes have the new release for testing. Production upgrade occurs at the end of this window.</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Key takeaway: the <strong>Sandbox Preview Upgrade</strong> happens approximately 4 weeks before the Next Production Release. To have a preview sandbox, you must refresh it <em>before</em> the Sandbox Preview Upgrade date — i.e., during the first 8-week window.</div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Translating this to operational practice: enter all three annual preview cut-off dates into the team's change management calendar as hard deadlines. Missing the cut-off means you lose your preview window — no early regression testing — which violates the spirit of the "Performs new Salesforce release evaluations and assess impact" JD requirement. Automate a Jira/GitLab ticket creation rule to fire 10 weeks before each seasonal release, kicking off the sandbox refresh checklist.</p>
+  </div>
+</section>
+
+<!-- ============ REQUIREMENT 2 ============ -->
+<section class="slide" id="req-2" data-search="requirement 2 developer pro sandbox partial copy sandbox UAT metadata types not recognized preview release version mismatch multiple ongoing projects robust strategy">
+  <div class="pgnum">Page 26 · Requirement 2</div>
+  <h2>Requirement 2 — Sandbox Version Mismatch</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A development team is facing issues while deploying metadata from a developer pro sandbox to a partial copy sandbox used for user-acceptance testing. The UAT sandbox is not recognizing some new Salesforce metadata types. There was no issue while deploying the same metadata from a developer sandbox to the developer pro sandbox. With several ongoing development projects, the company needs a robust strategy to prepare for the Salesforce release without impacting these projects.</p>
+  </div>
+</section>
+
+<!-- ============ SOLUTION 2 ============ -->
+<section class="slide" id="sln-2" data-search="solution 2 sandbox version mismatch developer pro preview partial copy not preview same release version release notes automatically enabled features manual intervention regression tests upgraded sandbox">
+  <div class="pgnum">Page 27 · Solution 2 — Sandbox Version Alignment</h2>
+  <h2>Solution 2 — Sandbox Version Alignment</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The discrepancy between the two sandbox environments is most likely because the developer pro sandbox is on a <strong>preview release</strong> but the partial copy sandbox is not. It is important to ensure that <strong>both environments are on the same Salesforce release version</strong> to facilitate smooth metadata deployment. Additionally, the release strategy should include thoroughly <strong>reviewing the release notes</strong> for automatically-enabled features, features that require manual intervention, and areas of testing, <strong>refreshing a sandbox during the release preview window</strong> to test the upcoming release, and <strong>running regression tests</strong> in an upgraded sandbox to detect any issues.</p>
+  </div>
+  <div class="note">Root cause: version mismatch between sandboxes. New metadata types introduced in the preview release are not recognized by the non-preview sandbox, because the non-preview sandbox is running the older version. Always verify all pipeline environments are on the same release before deploying.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is a high-value exam scenario. The diagnostic question is: "Are all sandboxes in my deployment pipeline on the same Salesforce release version?" If developer sandboxes are on a preview instance and downstream UAT sandboxes are on non-preview, new metadata types will fail to deploy downstream. The fix is version alignment — not fixing metadata — and the prevention is a release strategy that controls which sandboxes are on preview vs non-preview.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Fed, a sandbox version mismatch mid-sprint could block a critical deployment. The mitigation is an environment inventory (a simple table of sandbox name → instance → current release version, updated each release cycle) and a policy that downstream UAT/Staging sandboxes are kept at the same release as developer sandboxes until a controlled cut-over. This inventory becomes an audit artifact showing the release evaluation process was followed.</p>
+  </div>
+</section>
+
+<!-- ============ LEARN MORE ============ -->
+<section class="slide" id="learn-more" data-search="learn more salesforce release readiness strategies advanced release readiness references">
+  <div class="pgnum">Page 28 · Learn More</div>
+  <h2>Learn More</h2>
+  <ul>
+    <li>Salesforce Release Readiness Strategies</li>
+    <li>Advanced Salesforce Release Readiness Strategies</li>
+  </ul>
+</section>
+
+<!-- ============ CHEATSHEET ============ -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points quick reference sandbox preview window timing cut-off release notes quick wins low hanging fruit types of testing considerations release calendar">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Planning: Salesforce Releases</h2>
+
+  <h3>The three releases (memorize the timing)</h3>
+  <table class="dttable">
+    <thead><tr><th>Release</th><th>General timing</th><th>Plan start (2 months early)</th></tr></thead>
+    <tbody>
+      <tr><td>Spring</td><td>January–February</td><td>Early December</td></tr>
+      <tr><td>Summer</td><td>May–June</td><td>Early April</td></tr>
+      <tr><td>Winter</td><td>September–October</td><td>Early August</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Preview sandbox timing (the most tested concept)</h3>
+  <table class="dttable">
+    <thead><tr><th>If you refresh…</th><th>Sandbox lands on…</th><th>Gets early upgrade?</th></tr></thead>
+    <tbody>
+      <tr><td>Before preview cut-off date</td><td>Preview instance</td><td>Yes — 4–6 weeks early</td></tr>
+      <tr><td>During / after preview cut-off</td><td>Non-preview instance</td><td>No — may be after prod</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Trap: refreshing a sandbox <em>during</em> the preview period moves it to a <strong>non-preview</strong> instance. Leave the sandbox untouched after the cut-off to keep it on preview.</div>
+
+  <h3>Pre-release org vs preview sandbox</h3>
+  <ul>
+    <li><strong>Pre-release org</strong> — available 3–4 weeks before sandbox preview; no customizations; sneak peek only.</li>
+    <li><strong>Preview sandbox</strong> — your own org's sandbox on a preview instance; includes customizations; use for regression/functional/UAT testing.</li>
+  </ul>
+
+  <h3>Release Notes filter taxonomy</h3>
+  <ul>
+    <li><strong>Automatically On (Quick Wins)</strong> — enabled on release day with no action; highest risk of silent regressions.</li>
+    <li><strong>Low-hanging Fruit</strong> — minimal admin action required; engage super users for feedback first.</li>
+    <li>Drill down by cloud or cloud-independent area (Analytics, etc.) to scope the review.</li>
+  </ul>
+
+  <h3>Five types of testing (in recommended order)</h3>
+  <ol>
+    <li><strong>Unit</strong> — smallest custom code bits, catch bugs early.</li>
+    <li><strong>Integration</strong> — code interactions with non-native systems; test both sides.</li>
+    <li><strong>Functional</strong> — verify behavior matches technical requirements.</li>
+    <li><strong>UAT</strong> — end users accept or reject final delivery.</li>
+    <li><strong>Performance</strong> — governor limits under large volume; do NOT automate.</li>
+  </ol>
+
+  <h3>Testing considerations (six gotchas)</h3>
+  <ul>
+    <li><strong>Sandbox management</strong> — reliable re-execution requires refresh or reset.</li>
+    <li><strong>Test data</strong> — developer sandboxes have no prod data; generate synthetic data.</li>
+    <li><strong>Integration testing</strong> — run tests on both sides of every integration.</li>
+    <li><strong>API over UI</strong> — UI tests are expensive to maintain; use a dedicated UI tool when you must.</li>
+    <li><strong>Performance tests</strong> — verify governor limits are not hit; these should NOT be automated.</li>
+    <li><strong>Classic vs Lightning</strong> — some Classic UI tests won't run in Lightning; rebuild them.</li>
+  </ul>
+
+  <h3>Decision matrix — scenario traps</h3>
+  <table class="dttable">
+    <thead><tr><th>Symptom</th><th>Root cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>New metadata types fail to deploy to UAT sandbox</td><td>Sandbox version mismatch — developer sandbox is on preview, UAT is not</td><td>Ensure all pipeline sandboxes are on the same release; align via sandbox instance inventory</td></tr>
+      <tr><td>Deployment plan delays critical updates after Salesforce upgrade</td><td>Deployment calendar didn't account for sandbox refresh time + preview window</td><td>Refresh full sandbox ~6 weeks before go-live; build Salesforce release dates into the internal release calendar</td></tr>
+      <tr><td>Sandbox refreshed during preview window ends up without early upgrade</td><td>Refresh during preview period moves sandbox to non-preview instance</td><td>Refresh before the cut-off date; consult Sandbox Preview Guide; do not refresh again until after production goes live</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Implementation checklist (change management)</h3>
+  <ol>
+    <li>Mark calendar: subscribe to Salesforce Trust release dates ~1 year in advance.</li>
+    <li>Start planning 2 months before production release (Dec / Apr / Aug).</li>
+    <li>Refresh at least one sandbox before the preview cut-off date.</li>
+    <li>Review release notes: filter for "Automatically On" features first.</li>
+    <li>Engage super users; communicate to stakeholders via multiple channels.</li>
+    <li>Run full test suite (unit → integration → functional → UAT → performance) in preview sandbox.</li>
+    <li>Build and maintain a Release Matrix — assign owners to each feature/risk item.</li>
+    <li>After production upgrade: deploy internal changes; run regression; sign off.</li>
+  </ol>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

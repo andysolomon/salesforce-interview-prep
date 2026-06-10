@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Releasing — Packaging Strategy (Managed, Unmanaged &amp; Unlocked Packages) — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Releasing — Packaging Strategy</h1>
+  <div class="sub">Analyze and explain the use cases and considerations when using managed, unmanaged, and unlocked packages · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (42 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Introduction</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#overview">Packages Overview</a></li>
+    </ul>
+    <h3>Managed Packages</h3>
+    <ul>
+      <li><a href="#section-managed">Section: Managed Packages</a></li>
+      <li><a href="#managed-overview">Managed Packages — Overview</a></li>
+      <li><a href="#managed-2gp-lifecycle">Managed 2GP &amp; Lifecycle</a></li>
+      <li><a href="#managed-metadata-appexchange">Metadata &amp; AppExchange</a></li>
+      <li><a href="#managed-namespace-ci">Namespace &amp; Continuous Integration</a></li>
+      <li><a href="#managed-code-sharing-versioning">Code Sharing &amp; Flexible Versioning</a></li>
+      <li><a href="#managed-parallel-tools">Parallel Development &amp; Tools</a></li>
+      <li><a href="#managed-dev-hub-config">Dev Hub &amp; Package Configuration</a></li>
+      <li><a href="#managed-version-numbering-scripts">Version Numbering &amp; Scripts</a></li>
+      <li><a href="#managed-customization-apex">Customization, Apex Settings &amp; Dev Orgs</a></li>
+      <li><a href="#managed-workflow">Managed 2GP Development Workflow</a></li>
+    </ul>
+    <h3>Unmanaged Packages</h3>
+    <ul>
+      <li><a href="#section-unmanaged">Section: Unmanaged Packages</a></li>
+      <li><a href="#unmanaged-customization-best-practice">Customization &amp; Best Practice</a></li>
+      <li><a href="#unmanaged-creation-upload">Creation &amp; Upload</a></li>
+      <li><a href="#unmanaged-uninstall-components">Uninstallation &amp; Components</a></li>
+      <li><a href="#unmanaged-renaming-conversion">Automatic Renaming &amp; Conversion</a></li>
+    </ul>
+    <h3>Unlocked Packages</h3>
+    <ul>
+      <li><a href="#section-unlocked">Section: Unlocked Packages</a></li>
+      <li><a href="#unlocked-use-cases-modular">Use Cases &amp; Modular Development</a></li>
+      <li><a href="#unlocked-source-driven-dependencies">Source-Driven Development &amp; Dependencies</a></li>
+      <li><a href="#unlocked-package-evolution-installation">Package Evolution &amp; Installation</a></li>
+      <li><a href="#unlocked-namespace-requirements">Namespace &amp; Requirements</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Learning Solutions Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#requirement-3">Requirement 3</a></li>
+      <li><a href="#solution-3">Solution 3</a></li>
+      <li><a href="#requirement-4">Requirement 4</a></li>
+      <li><a href="#solution-4">Solution 4</a></li>
+      <li><a href="#requirement-5">Requirement 5</a></li>
+      <li><a href="#solution-5">Solution 5</a></li>
+      <li><a href="#requirement-6">Requirement 6</a></li>
+      <li><a href="#solution-6">Solution 6</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover releasing packaging strategy managed unmanaged unlocked packages salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Releasing — Packaging Strategy (Managed, Unmanaged &amp; Unlocked Packages)</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario, analyze and explain the use cases and considerations when using managed, unmanaged, and unlocked packages · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents managed packages unmanaged packages unlocked packages business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#managed-overview">Managed Packages</a></li>
+    <li><a class="toc-link" href="#unmanaged-customization-best-practice">Unmanaged Packages</a></li>
+    <li><a class="toc-link" href="#unlocked-use-cases-modular">Unlocked Packages</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives managed packages unmanaged packages unlocked packages use cases considerations business requirement">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the use cases and considerations of managed packages.</li>
+    <li>Describe the use cases and considerations of unmanaged packages.</li>
+    <li>Describe the use cases and considerations of unlocked packages.</li>
+    <li>Explain the use cases and considerations when using a managed, unmanaged, or unlocked package for a given business requirement.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction managed unmanaged unlocked packages deployment distribution custom applications functionalities appexchange open-source ISV iterative development release management salesforce DX lifecycle">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In the Salesforce ecosystem, the deployment and distribution of custom applications and functionalities can be effectively managed through different types of packages: <strong>managed, unmanaged, and unlocked packages</strong>. Each package type serves distinct use cases, from distributing applications on the AppExchange, sharing open-source projects, to deploying modular customizations within an organization.</p>
+  <p><strong>Managed</strong> packages are ideal for ISVs to <strong>distribute and sell applications</strong> with upgrade paths and license management. <strong>Unmanaged</strong> packages are suitable for <strong>one-time distributions</strong> where the recipient may need to modify the source code. <strong>Unlocked packages</strong> provide more flexibility for <strong>iterative development</strong> and <strong>release management</strong> within <strong>Salesforce DX</strong>, offering a balance between controlled deployment and customization capability. Understanding when and how to use each package type is crucial for Salesforce developers and architects to ensure efficient, secure, and scalable application lifecycle management.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For a regulated organization like a central bank, the packaging model chosen directly affects how metadata changes are versioned, audited, and rolled back. Managed 2GP and unlocked packages both produce immutable, versioned artifacts — the kind of traceable deployment record that satisfies change-control and audit requirements in a GitLab CI/CD pipeline.</p>
+  </div>
+</section>
+
+<!-- OVERVIEW: ALL THREE PACKAGE TYPES -->
+<section class="slide" id="overview" data-search="managed package use cases considerations unmanaged package unlocked package overview appexchange open-source modular namespace source-driven dependencies">
+  <div class="pgnum">Page 5 · Packages Overview</div>
+  <h2>Managed, Unmanaged, and Unlocked Packages</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>I · Managed Package Use Cases</h4>
+      <p>Managed packages are used by Salesforce partners to create apps and distribute them to customers via the AppExchange marketplace.</p>
+    </div>
+    <div class="card">
+      <h4>II · Managed Package Considerations</h4>
+      <p>The same namespace can be assigned to multiple managed packages. Public Apex classes and methods can be shared across packages in the same namespace.</p>
+    </div>
+    <div class="card">
+      <h4>III · Unmanaged Package Considerations</h4>
+      <p>The components installed from an unmanaged package can be edited. Components can be added either explicitly or implicitly to an unmanaged package.</p>
+    </div>
+    <div class="card">
+      <h4>IV · Unlocked Package Considerations</h4>
+      <p>Unlocked packages utilize source-driven development, allow declaring multi-level dependencies, and can include a namespace for isolation or be namespace-free.</p>
+    </div>
+    <div class="card">
+      <h4>V · Unlocked Package Use Cases</h4>
+      <p>Unlocked packages are designed for customers and partners to organize and deploy metadata and business logic using modular development.</p>
+    </div>
+    <div class="card">
+      <h4>VI · Unmanaged Package Use Cases</h4>
+      <p>Unmanaged packages are used to distribute open-source projects to developers or for one-time upload of applications that require customization after installation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: MANAGED PACKAGES -->
+<section class="slide title-slide" id="section-managed" data-search="section managed packages">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Managed Packages</h2>
+</section>
+
+<!-- MANAGED PACKAGES — OVERVIEW (Container, Capabilities, Types) -->
+<section class="slide" id="managed-overview" data-search="managed packages container features customizations schema metadata components component app library capabilities distribute license pilot troubleshoot monetize types first-generation 1GP second-generation 2GP appexchange">
+  <div class="pgnum">Page 7 · Managed Packages — Overview</div>
+  <h2>Managed Packages</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Container</h3>
+  <p>A package is a container that holds a set of <strong>related features</strong>, <strong>customizations</strong>, and schema. It can include many different <strong>metadata components</strong> and allows packaging a single <strong>component</strong>, <strong>app</strong>, or <strong>library</strong>.</p>
+  <h3>Capabilities</h3>
+  <p>Managed packages allow partners to <strong>distribute</strong>, <strong>license</strong>, <strong>pilot features of</strong>, <strong>troubleshoot</strong>, and <strong>monetize</strong> their offerings.</p>
+  <h3>Types</h3>
+  <p>Salesforce offers <strong>first-generation managed packages (managed 1GP)</strong> and <strong>second-generation managed packages (managed 2GP)</strong>. Going forward, Salesforce recommends the use of <strong>managed 2GP</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about managed packages, lead with the ISV distribution story: AppExchange listing, IP protection, upgrade paths, and license management. Then differentiate 1GP vs 2GP — 2GP is source-driven and CLI-first, making it the current recommendation. This shows both conceptual breadth and awareness of platform evolution.</p>
+  </div>
+</section>
+
+<!-- MANAGED PACKAGES — MANAGED 2GP AND LIFECYCLE -->
+<section class="slide" id="managed-2gp-lifecycle" data-search="managed 2GP source-driven development minimal interaction API CLI-first flexible versioning namespace sharing declarative dependencies simplified patch versioning lifecycle metadata new package version immutable upgrade pushed">
+  <div class="pgnum">Page 8 · Managed 2GP &amp; Lifecycle</div>
+  <h2>Managed Packages — Managed 2GP &amp; Lifecycle</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Managed 2GP</h3>
+  <p>Managed 2GP offers benefits such as <strong>source-driven development</strong>, <strong>minimal interaction</strong> with Salesforce orgs, <strong>API- and CLI-first</strong> model, <strong>flexible versioning</strong>, <strong>namespace sharing</strong> across packages, <strong>declarative dependencies</strong>, and <strong>simplified patch versioning</strong>.</p>
+  <h3>Lifecycle</h3>
+  <p>Each package follows a <strong>distinct</strong> lifecycle. Whenever <strong>metadata</strong> is changed, added, or removed in a package, a <strong>new package version</strong> is created. Each package version has a version number and is an <strong>immutable</strong> artifact. When a new version is released, customers can <strong>upgrade</strong> to the latest package version or an upgrade can be <strong>pushed</strong> to them.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Immutable package versions are the packaging equivalent of a signed release artifact. In a regulated pipeline, every promotion from dev to staging to production should reference a specific, unmodifiable package version — not a living branch. This provides the traceable, auditable change history that examiners require.</p>
+  </div>
+</section>
+
+<!-- MANAGED PACKAGES — METADATA AND APPEXCHANGE -->
+<section class="slide" id="managed-metadata-appexchange" data-search="managed packages metadata features customizations schema apex classes custom objects flows metadata coverage report appexchange completed app security review marketing distribution listing">
+  <div class="pgnum">Page 9 · Managed Packages — Metadata &amp; AppExchange</div>
+  <h2>Managed Packages — Metadata &amp; AppExchange</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Metadata</h3>
+  <p><strong>Features</strong>, <strong>customizations</strong>, and <strong>schema</strong> that comprise an app can be added to a package. Examples of <strong>metadata components</strong> include Apex classes, custom objects, flows, etc. The <strong>Metadata Coverage Report</strong> can be viewed for a complete list of metadata components that can be added.</p>
+  <h3>AppExchange</h3>
+  <p>When a <strong>completed app</strong> has been packaged up, and the <strong>packaged app</strong> has been through the <strong>security review</strong>, it can be listed on the <strong>AppExchange</strong> for <strong>marketing</strong> and <strong>distribution</strong>.</p>
+</section>
+
+<!-- MANAGED PACKAGES — NAMESPACE AND CONTINUOUS INTEGRATION -->
+<section class="slide" id="managed-namespace-ci" data-search="managed packages namespace alphanumeric identifier registered multiple managed 2GPs code shared continuous integration CI jobs pull request source repository create package version scratch org install">
+  <div class="pgnum">Page 10 · Managed Packages — Namespace &amp; Continuous Integration</div>
+  <h2>Managed Packages — Namespace &amp; Continuous Integration</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Namespace</h3>
+  <p>A namespace is an <strong>alphanumeric identifier</strong> that can be created, registered, and associated with one or more packages. The <strong>same namespace</strong> can be assigned to <strong>multiple managed 2GPs</strong>. <strong>Code</strong> can be <strong>easily shared</strong> across packages in the same namespace.</p>
+  <h3>Continuous Integration</h3>
+  <p>End-to-end automation can be created using <strong>continuous integration (CI) jobs</strong>. For example, a CI job can be launched when a <strong>pull request</strong> against the <strong>source repository</strong> is created. The job can <strong>create a package version</strong> and <strong>a scratch org</strong>, and then <strong>install</strong> the package in the org.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The CI integration story is the architect-level answer to "how do you ensure package quality?" — a PR triggers a CI job that creates a new package version, spins up a scratch org, installs the package, runs Apex tests, and reports results. This is a concrete, repeatable pipeline that maps cleanly to any DevOps framework.</p>
+  </div>
+</section>
+
+<!-- MANAGED PACKAGES — CODE SHARING AND FLEXIBLE VERSIONING -->
+<section class="slide" id="managed-code-sharing-versioning" data-search="managed packages code sharing public apex classes methods namespaceAccessible annotation flexible versioning ancestor package version abandoned branch source control">
+  <div class="pgnum">Page 11 · Managed Packages — Code Sharing &amp; Flexible Versioning</div>
+  <h2>Managed Packages — Code Sharing &amp; Flexible Versioning</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Code Sharing</h3>
+  <p><strong>Public</strong> Apex classes and methods can be <strong>shared</strong> across <strong>all packages in the namespace</strong>. The <strong>@namespaceAccessible</strong> annotation can be added to an <strong>Apex class</strong>, making it available to all packages in the namespace.</p>
+  <h3>Flexible Versioning</h3>
+  <p>An <strong>ancestor</strong> needs to be specified for <strong>each new package version</strong>. A package version can be <strong>abandoned</strong> if it does not need to be built on, but only if <strong>customers haven't been upgraded</strong> to it yet. Moreover, when <strong>creating a package version</strong>, it can be <strong>tagged with the name of the branch</strong> in the source control system.</p>
+  <div class="note">The <strong>@namespaceAccessible</strong> annotation is the exam-specific mechanism for controlled code sharing across packages in the same namespace. Without it, public Apex in one package is not automatically callable from another package in the same namespace.</div>
+</section>
+
+<!-- MANAGED PACKAGES — PARALLEL DEVELOPMENT AND TOOLS -->
+<section class="slide" id="managed-parallel-tools" data-search="managed packages parallel development two teams build features same package merge branches abandoned tools Salesforce Extensions VS Code Salesforce CLI Dev Hub Source Control System">
+  <div class="pgnum">Page 12 · Managed Packages — Parallel Development &amp; Tools</div>
+  <h2>Managed Packages — Parallel Development &amp; Tools</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Parallel Development</h3>
+  <p><strong>Two or more development teams</strong> can build new features in <strong>parallel</strong> for the <strong>same package</strong> and then <strong>merge</strong> them when appropriate. Features can be built and tested without taking over the main branch. Unreleased versions can be easily abandoned.</p>
+  <h3>Tools</h3>
+  <p>The <strong>key tools</strong> used for building a managed 2GP are as follows:</p>
+  <ul>
+    <li>Salesforce Extensions for VS Code</li>
+    <li>Salesforce CLI</li>
+    <li>Dev Hub org</li>
+    <li>Source Control System</li>
+  </ul>
+</section>
+
+<!-- MANAGED PACKAGES — DEV HUB AND PACKAGE CONFIGURATION -->
+<section class="slide" id="managed-dev-hub-config" data-search="managed packages dev hub setting enabled Salesforce org designated find manage managed 2GP scratch orgs namespaces package configuration Salesforce DX project directory sfdx-project.json namespace API version path version name description definition file dependencies">
+  <div class="pgnum">Page 13 · Managed Packages — Dev Hub &amp; Package Configuration</div>
+  <h2>Managed Packages — Dev Hub &amp; Package Configuration</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Dev Hub</h3>
+  <p>The <strong>Dev Hub</strong> setting can be enabled for a Salesforce org to make it the <strong>Dev Hub org</strong>, which is the designated place to find and manage all the <strong>managed 2GP packages</strong>, <strong>scratch orgs</strong>, and <strong>namespaces</strong>.</p>
+  <h3>Package Configuration</h3>
+  <p>A <strong>Salesforce DX project directory</strong> contains <strong>one or more package directories</strong>. The <strong>sfdx-project.json</strong> configuration file describes the configuration for each package. It specifies information such as <strong>package namespace</strong>, <strong>API version</strong>, and the <strong>path</strong>, <strong>version name</strong>, <strong>description</strong>, <strong>definition file</strong>, and <strong>dependencies</strong> of each package.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The <strong>sfdx-project.json</strong> file is the source-of-record for package structure and dependencies — analogous to an infrastructure-as-code manifest. In a regulated pipeline, this file (stored in source control) provides the configuration audit trail: every change to package membership, dependency declaration, or API version target is a reviewable commit.</p>
+  </div>
+</section>
+
+<!-- MANAGED PACKAGES — VERSION NUMBERING AND SCRIPTS -->
+<section class="slide" id="managed-version-numbering-scripts" data-search="managed packages version numbering semantic versioning major minor patch build number NEXT LATEST RELEASED scripts continuous integration automate package development steps scratch org Apex tests email release manager">
+  <div class="pgnum">Page 14 · Managed Packages — Version Numbering &amp; Scripts</div>
+  <h2>Managed Packages — Version Numbering &amp; Scripts</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Version Numbering</h3>
+  <p>Package version numbers use the <strong>semantic versioning</strong> format. Each package version has <strong>major version</strong>, <strong>minor version</strong>, <strong>patch version</strong>, and <strong>build number</strong> (e.g., 4.1.7.NEXT). The build number can be <strong>NEXT</strong>, <strong>LATEST</strong>, or <strong>RELEASED</strong>.</p>
+  <h3>Scripts</h3>
+  <p>Continuous integration <strong>scripts</strong> can <strong>automate package development steps</strong>. For example, a script can be written to create a package version, create a scratch org, install the package version in the scratch org, run Apex tests, and email the test results to the release manager.</p>
+  <div class="note">Build number keywords: <strong>NEXT</strong> creates the next sequential build, <strong>LATEST</strong> references the most recently created version, and <strong>RELEASED</strong> references the most recently promoted (released) version. These are exact values that appear in exam questions.</div>
+</section>
+
+<!-- MANAGED PACKAGES — CUSTOMIZATION, APEX SETTINGS, DEVELOPER EDITION ORGS -->
+<section class="slide" id="managed-customization-apex" data-search="managed packages customization metadata component rules developer subscriber make changes remove apex settings deploy metadata non-certified package versions via apex setup developer edition orgs partner developer edition">
+  <div class="pgnum">Page 15 · Managed Packages — Customization, Apex Settings &amp; Developer Edition Orgs</div>
+  <h2>Managed Packages — Customization, Apex Settings &amp; Developer Edition Orgs</h2>
+  <p class="lede">Managed packages are used by <strong>Salesforce partners</strong> to <strong>create apps</strong> and <strong>distribute</strong> them to customers via the <strong>AppExchange</strong> marketplace.</p>
+  <h3>Customization</h3>
+  <p>Each <strong>metadata component</strong> in a package has <strong>certain rules</strong> that determine whether the <strong>developer</strong> or the <strong>subscriber</strong> can <strong>make changes</strong> to the component or <strong>remove</strong> it after the package version is installed.</p>
+  <h3>Apex Settings</h3>
+  <p>To enable deployment of metadata from Apex code in a package that is not yet certified, <strong>Deploy Metadata from Non-Certified Package Versions via Apex</strong> can be enabled on the <strong>Apex Settings</strong> page in Setup.</p>
+  <h3>Developer Edition Orgs</h3>
+  <p>A partner can use a <strong>Developer Edition</strong> or <strong>Partner Developer Edition</strong> org for the development of a managed package.</p>
+</section>
+
+<!-- MANAGED 2GP DEVELOPMENT WORKFLOW -->
+<section class="slide" id="managed-workflow" data-search="managed 2GP development workflow create salesforce DX project develop app configure create package create package version install test scratch org promote release package version">
+  <div class="pgnum">Page 16 · Managed 2GP Development Workflow</div>
+  <h2>Managed 2GP Development Workflow</h2>
+  <p class="lede">The six-step workflow for building and releasing a managed second-generation package.</p>
+  <ol>
+    <li><strong>Create a Salesforce DX Project</strong></li>
+    <li><strong>Develop an App</strong></li>
+    <li><strong>Configure and Create a Package</strong></li>
+    <li><strong>Create a Package Version</strong></li>
+    <li><strong>Install and Test the Package Version in a Scratch org</strong></li>
+    <li><strong>Promote and Release the Package Version</strong></li>
+  </ol>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This six-step workflow is a high-yield exam and interview item. Note that "Install and Test in a Scratch org" comes <em>before</em> "Promote and Release" — the scratch org is the gating quality check, not an afterthought. Promoting a version marks it as released and makes it available for production installs; you cannot un-release a promoted version.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: UNMANAGED PACKAGES -->
+<section class="slide title-slide" id="section-unmanaged" data-search="section unmanaged packages">
+  <div class="pgnum" style="color:#cbd6e6">Page 17 · Section</div>
+  <h2>Unmanaged Packages</h2>
+</section>
+
+<!-- UNMANAGED PACKAGES — CUSTOMIZATION AND BEST PRACTICE -->
+<section class="slide" id="unmanaged-customization-best-practice" data-search="unmanaged packages distribute open-source projects one-time upload applications customization after installation components edited created uploaded no control cannot change upgrade best practice not migrate metadata sandbox production only installed org upload still exists">
+  <div class="pgnum">Page 18 · Unmanaged Packages — Customization &amp; Best Practice</div>
+  <h2>Unmanaged Packages</h2>
+  <p class="lede">Unmanaged packages are used to <strong>distribute open-source projects</strong> to developers or for <strong>one-time upload of applications</strong> that require customization after installation.</p>
+  <h3>Customization</h3>
+  <p>The <strong>components</strong> installed from an unmanaged package can be <strong>edited</strong> in the org they're installed in. The developer who <strong>created and uploaded</strong> the package has no control and <strong>cannot change or upgrade</strong> them.</p>
+  <h3>Best Practice</h3>
+  <p>An unmanaged package should <strong>not be used to migrate metadata</strong> from a sandbox to production. Furthermore, it should <strong>only be installed</strong> if the org used to upload the package still exists.</p>
+  <div class="note">Unmanaged packages are <strong>not</strong> for sandbox-to-production metadata migration — that is a common wrong-answer trap. Use change sets, Salesforce CLI, or unlocked packages for that workflow.</div>
+</section>
+
+<!-- UNMANAGED PACKAGES — CREATION AND UPLOAD -->
+<section class="slide" id="unmanaged-creation-upload" data-search="unmanaged packages creation package manager setup components tab upload email installation link">
+  <div class="pgnum">Page 19 · Unmanaged Packages — Creation &amp; Upload</div>
+  <h2>Unmanaged Packages — Creation &amp; Upload</h2>
+  <p class="lede">Unmanaged packages are used to <strong>distribute open-source projects</strong> to developers or for <strong>one-time upload of applications</strong> that require customization after installation.</p>
+  <h3>Creation</h3>
+  <p>An unmanaged package can be created and uploaded on the <strong>Package Manager</strong> page in Setup. The <strong>Components</strong> tab can be used to add components to the package.</p>
+  <h3>Upload</h3>
+  <p>Once all the components have been added to an unmanaged package, it can be <strong>uploaded</strong>. An <strong>email with an installation link</strong> is sent once the package is uploaded successfully.</p>
+</section>
+
+<!-- UNMANAGED PACKAGES — UNINSTALLATION AND COMPONENTS -->
+<section class="slide" id="unmanaged-uninstall-components" data-search="unmanaged packages uninstallation dependencies metadata removed uninstall components explicitly implicitly included directly added automatically dependent custom object">
+  <div class="pgnum">Page 20 · Unmanaged Packages — Uninstallation &amp; Components</div>
+  <h2>Unmanaged Packages — Uninstallation &amp; Components</h2>
+  <p class="lede">Unmanaged packages are used to <strong>distribute open-source projects</strong> to developers or for <strong>one-time upload of applications</strong> that require customization after installation.</p>
+  <h3>Uninstallation</h3>
+  <p>Any <strong>dependencies on metadata</strong> in another package must be <strong>removed</strong> before attempting to <strong>uninstall an unmanaged package</strong>.</p>
+  <h3>Components</h3>
+  <p>Components can be added <strong>either explicitly</strong> or <strong>implicitly</strong> to an unmanaged package. Explicit components must be <strong>included directly</strong> in the package, while implicit components are <strong>added automatically</strong> when another dependent component, such as a custom object, is added.</p>
+</section>
+
+<!-- UNMANAGED PACKAGES — AUTOMATIC RENAMING AND CONVERSION -->
+<section class="slide" id="unmanaged-renaming-conversion" data-search="unmanaged packages automatic renaming report dashboard naming conflict blocked conversion converted managed package package manager setup registering namespace">
+  <div class="pgnum">Page 21 · Unmanaged Packages — Automatic Renaming &amp; Conversion</div>
+  <h2>Unmanaged Packages — Automatic Renaming &amp; Conversion</h2>
+  <p class="lede">Unmanaged packages are used to <strong>distribute open-source projects</strong> to developers or for <strong>one-time upload of applications</strong> that require customization after installation.</p>
+  <h3>Automatic Renaming</h3>
+  <p>Some components, such as Report and Dashboard, support <strong>automatic renaming</strong> if a <strong>naming conflict</strong> occurs during installation. For other components, the installation is <strong>blocked</strong> if a naming conflict occurs.</p>
+  <h3>Conversion</h3>
+  <p>An <strong>unmanaged package</strong> can be <strong>converted</strong> into a <strong>managed package</strong> on the <strong>Package Manager</strong> page in Setup after <strong>registering a namespace</strong>.</p>
+  <div class="note">Not all components handle naming conflicts gracefully. Reports and Dashboards auto-rename; most other component types block the install entirely. Know this distinction for scenario questions.</div>
+</section>
+
+<!-- SECTION DIVIDER: UNLOCKED PACKAGES -->
+<section class="slide title-slide" id="section-unlocked" data-search="section unlocked packages">
+  <div class="pgnum" style="color:#cbd6e6">Page 22 · Section</div>
+  <h2>Unlocked Packages</h2>
+</section>
+
+<!-- UNLOCKED PACKAGES — USE CASES AND MODULAR DEVELOPMENT -->
+<section class="slide" id="unlocked-use-cases-modular" data-search="unlocked packages designed customers partners organize deploy metadata business logic modular use cases iterative development release applications customers orgs distributing apps organize existing metadata package extend AppExchange package new metadata modular development better ownership change management development processes decreased cost">
+  <div class="pgnum">Page 23 · Unlocked Packages — Use Cases &amp; Modular Development</div>
+  <h2>Unlocked Packages — Use Cases &amp; Modular Development</h2>
+  <p class="lede">Unlocked packages are <strong>designed for customers and partners</strong> to <strong>organize and deploy metadata</strong> and <strong>business logic</strong> using <strong>modular</strong> development.</p>
+  <h3>Use Cases</h3>
+  <p>Unlocked packages are suitable for <strong>iterative development</strong> and <strong>release of applications</strong> within <strong>customers orgs</strong> or <strong>distributing apps</strong> not intended for AppExchange. It can be used to <strong>organize existing metadata</strong>, <strong>package</strong> an app, <strong>extend</strong> an AppExchange app, or <strong>package</strong> new metadata.</p>
+  <h3>Modular Development</h3>
+  <p>Unlocked packages facilitate modular app development, which provides benefits such as <strong>better ownership</strong> of functionality, more efficient <strong>change management</strong>, more efficient <strong>development processes</strong>, and <strong>decreased cost</strong> to deliver new features.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For an internal platform team (like a central bank's Salesforce center of excellence), unlocked packages are the recommended pattern: each business domain or product team owns its package, changes are source-driven and versioned, and the version control system — not the org — is the source of truth. This is directly analogous to microservices release ownership and maps well to a DevSecOps governance posture.</p>
+  </div>
+</section>
+
+<!-- UNLOCKED PACKAGES — SOURCE-DRIVEN DEVELOPMENT AND DEPENDENCIES -->
+<section class="slide" id="unlocked-source-driven-dependencies" data-search="unlocked packages source-driven development model source of truth metadata version control system rather than org dependencies multi-level dependencies managed unlocked packages">
+  <div class="pgnum">Page 24 · Unlocked Packages — Source-Driven Development &amp; Dependencies</div>
+  <h2>Unlocked Packages — Source-Driven Development &amp; Dependencies</h2>
+  <p class="lede">Unlocked packages are <strong>designed for customers and partners</strong> to <strong>organize and deploy metadata</strong> and <strong>business logic</strong> using <strong>modular</strong> development.</p>
+  <h3>Source-Driven Development</h3>
+  <p>Unlocked packages utilize a <strong>source-driven development model</strong>. The <strong>source of truth</strong> of the metadata contained in an unlocked package is the <strong>version control system</strong> rather than what's in the org.</p>
+  <h3>Dependencies</h3>
+  <p>Unlocked packages allow declaring <strong>multi-level dependencies</strong> on one or many <strong>managed</strong> and <strong>unlocked packages</strong>.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The "source of truth is version control, not the org" statement is the conceptual cornerstone of Salesforce DX. For unlocked packages, this means that a developer should never edit metadata directly in the org and call it done — the VCS is authoritative, and the org is just a deployment target. This is the answer that distinguishes an architect from a developer in an interview.</p>
+  </div>
+</section>
+
+<!-- UNLOCKED PACKAGES — PACKAGE EVOLUTION AND INSTALLATION -->
+<section class="slide" id="unlocked-package-evolution-installation" data-search="unlocked packages package evolution distinct life cycle continually evolves package version immutable artifact specific metadata features adds removes changes many package versions installation scratch sandbox trial developer edition production version number package upgrade">
+  <div class="pgnum">Page 25 · Unlocked Packages — Package Evolution &amp; Installation</div>
+  <h2>Unlocked Packages — Package Evolution &amp; Installation</h2>
+  <p class="lede">Unlocked packages are <strong>designed for customers and partners</strong> to <strong>organize and deploy metadata</strong> and <strong>business logic</strong> using <strong>modular</strong> development.</p>
+  <h3>Package Evolution</h3>
+  <p>An unlocked package has a distinct life cycle. While a package <strong>continually evolves</strong>, each <strong>package version</strong> is an <strong>immutable</strong> artifact that contains <strong>specific metadata and features</strong> associated with it at the time it was created. As a developer <strong>adds</strong>, <strong>removes</strong>, or <strong>changes</strong> the packaged metadata, they create many package versions.</p>
+  <h3>Installation</h3>
+  <p>A <strong>package version</strong> can be installed in a scratch, sandbox, trial, developer edition, or production org. It has a <strong>version number</strong>, and subscribers can install a new package version through a <strong>package upgrade</strong>.</p>
+</section>
+
+<!-- UNLOCKED PACKAGES — NAMESPACE AND REQUIREMENTS -->
+<section class="slide" id="unlocked-namespace-requirements" data-search="unlocked packages namespace isolation namespace-free seamless integration org metadata requirements Dev Hub Second-Generation Managed Packaging Salesforce CLI Salesforce DX project">
+  <div class="pgnum">Page 26 · Unlocked Packages — Namespace &amp; Requirements</div>
+  <h2>Unlocked Packages — Namespace &amp; Requirements</h2>
+  <p class="lede">Unlocked packages are <strong>designed for customers and partners</strong> to <strong>organize and deploy metadata</strong> and <strong>business logic</strong> using <strong>modular</strong> development.</p>
+  <h3>Namespace</h3>
+  <p>An unlocked package can include a <strong>namespace</strong> for <strong>isolation</strong> or be <strong>namespace-free</strong> for <strong>more seamless integration</strong> with org metadata.</p>
+  <h3>Requirements</h3>
+  <p>Development of unlocked packages requires enabling <strong>Dev Hub</strong> and <strong>Second-Generation Managed Packaging</strong> and installing <strong>Salesforce CLI</strong>. A <strong>Salesforce DX</strong> project is created for development.</p>
+  <div class="note">Unlocked packages can be <strong>namespace-free</strong>, unlike managed packages which always require a namespace. Namespace-free unlocked packages blend more naturally with org-specific metadata, which is often preferable for internal-only customization deployments.</div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 27 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic learning solutions educational technology training modules enrolled students learning experiences global education centers scalable modular development IP protection upgradeability collaboration managed unmanaged unlocked packages architect">
+  <div class="pgnum">Page 28 · Business Scenario — Cosmic Learning Solutions</div>
+  <h2>Business Scenario — Cosmic Learning Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Learning Solutions, a leader in educational technology, utilizes Salesforce to manage information about training modules and enrolled students. In order to enhance learning experiences, promote its products, and streamline administrative tasks across its global education centers, the company wants to build scalable Salesforce solutions using a modular development approach.</p>
+    <p style="margin-top:8px;">The company's Salesforce architect must recommend package development strategies for various requirements, considering implications related to aspects such as IP protection, upgradeability, and collaboration within the educational technology sector. Each strategy should cover the use cases and considerations related to the use of managed, unmanaged, or unlocked packages, based on the company's unique requirements.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 29 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 managed package appexchange apex classes create customize metadata components testing phase not certified sandbox apex code fails access metadata apex settings checkmarx code scanner security review">
+  <div class="pgnum">Page 30 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company has developed a managed package for AppExchange. It includes Apex classes to create and customize some metadata components. The package is in the testing phase and has not been certified yet. During testing in a sandbox, the Apex code fails. The architect needs to ensure that the Apex classes are able to access the metadata in the org. Once the testing is complete, the package will be submitted for Salesforce security review. However, the product manager is concerned about the errors from the Checkmarx code scanner and requires a suitable approach to proceed.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 deploy metadata non-certified package versions via apex apex settings page setup checkmarx code scanner reviewed false positive explanation submitted review">
+  <div class="pgnum">Page 31 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>To ensure that Apex classes in the managed package are able to access the metadata in the sandbox to perform operations, <strong>Deploy Metadata from Non-Certified Package Versions via Apex</strong> should be enabled on the <strong>Apex Settings</strong> page in Setup. With regard to the errors returned by the <strong>Checkmarx code scanner</strong>, they should be <strong>reviewed</strong> thoroughly. If there is no need to fix them, they should be marked as <strong>false positive</strong>, an explanation should be attached, and then the package should be submitted for review.</p>
+  </div>
+  <div class="note">This is an exact exam scenario: uncertified managed package + Apex metadata access failure. The answer is always the Apex Settings toggle, not a code change. Similarly, Checkmarx false positives must be explicitly marked and explained — you cannot simply ignore them and submit.</div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 two development teams learning management admin console second-generation managed packages 2GP apex code methods exposed namespaceAccessible only methods team A team B same namespace">
+  <div class="pgnum">Page 32 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Two development teams have started working on two separate projects. Team A is working on an application for learning management, while Team B is working on an admin console for managing various administrative tasks. Both teams will be using second-generation managed packages (managed 2GPs) for development. Team A needs to use certain Apex code that will be developed by Team B. The architect must ensure that Team A only uses the methods exposed by Team B and no other team is able to use the same Apex code.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 two second-generation packages same namespace namespaceAccessible annotation apex methods shared team A team B">
+  <div class="pgnum">Page 33 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p><strong>Two second-generation packages</strong> should be created with the <strong>same namespace</strong> for the given requirements. In the package being developed by team B, the <strong>@namespaceAccessible</strong> annotation should be added to the Apex methods that should be shared with team A.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the canonical use case for <strong>@namespaceAccessible</strong>: controlled, selective code sharing between 2GP packages in the same namespace without making the entire class globally accessible. The answer is not "use a global class" — that would expose the code to all orgs with the package installed. <strong>@namespaceAccessible</strong> scopes sharing to within the namespace boundary only.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 3 -->
+<section class="slide" id="requirement-3" data-search="requirement 3 Northern Lights Solutions acquired Salesforce partner AppExchange managed package development environments Developer Edition Partner Developer Edition sales analytics app unmanaged package deployed main org shortest time">
+  <div class="pgnum">Page 34 · Requirement 3</div>
+  <h2>Requirement 3</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company recently acquired a small business named Northern Lights Solutions, which became a Salesforce partner not long ago. Its development team needs to work on an AppExchange solution and would like the architect to recommend suitable development environments for creating a managed package for the solution. Also, the sales leadership team of Cosmic Learning Solutions recently had hands-on experience with a sales analytics app used by Northern Lights Solutions and would like to add it to the main Salesforce org in the shortest possible time.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 3 -->
+<section class="slide" id="solution-3" data-search="solution 3 Northern Lights Solutions Developer Edition Partner Developer Edition org managed package unmanaged package sales analytics deployed main Salesforce org Cosmic Learning Solutions">
+  <div class="pgnum">Page 35 · Solution 3</div>
+  <h2>Solution 3</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Northern Lights Solutions' development team can use a <strong>Developer Edition</strong> or <strong>Partner Developer Edition</strong> org to develop the managed package. An <strong>unmanaged package</strong> can be created for the sales analytics app used by Northern Lights Solutions and deployed in the main Salesforce org used by Cosmic Learning Solutions.</p>
+  </div>
+  <div class="note">The unmanaged package is the right choice here specifically because the goal is "shortest possible time" and the recipient may need to customize the components post-install. There is no ongoing upgrade relationship needed — just a fast, one-time distribution.</div>
+</section>
+
+<!-- REQUIREMENT 4 -->
+<section class="slide" id="requirement-4" data-search="requirement 4 three orgs different regions business processes standardized globally each region flexibility customize code change management unlocked packages modular source control metadata coverage report package versioning multi-level dependencies">
+  <div class="pgnum">Page 36 · Requirement 4</div>
+  <h2>Requirement 4</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company has three orgs in different regions. Its business processes are standardized but used globally, but each region needs the flexibility to be able to understand the standardized code and customize some of its aspects for the region. The architect needs to suggest a suitable package development model for this use case and provide best practices and considerations for change management.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 4 -->
+<section class="slide" id="solution-4" data-search="solution 4 unlocked packages deploy global code different Salesforce orgs customized unlocked package extensions agile efficient release cycle modular development process source control system metadata coverage report package versioning multi-level dependencies change management sandbox environments production">
+  <div class="pgnum">Page 37 · Solution 4</div>
+  <h2>Solution 4</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p><strong>Unlocked packages</strong> can be used to deploy the global code to different Salesforce orgs. Each region can be allowed to create its <strong>customized unlocked package extensions</strong>. For an <strong>agile and efficient release cycle</strong>, a <strong>modular development process</strong> should be utilized with a <strong>source control system</strong> as the source of truth for the metadata in unlocked packages. Developed packages should be tested in sandbox environments before installing to production. The <strong>metadata coverage report</strong> should be consulted to identify features supported by packages. <strong>Package versioning</strong> and the ability to <strong>specify multi-level dependencies</strong> should help with change management.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This multi-org scenario is analogous to a central bank with regional operations (e.g., district banks, international offices). Unlocked packages with regional extension packages provide global standardization with local flexibility — and every deployment is traceable via package versions in a source control system. Testing in sandbox before production mirrors the dev → staging → production pipeline governance that regulated organizations require.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 5 -->
+<section class="slide" id="requirement-5" data-search="requirement 5 release application installed partner Salesforce environments training modules publish flows Apex triggers business processes version control easy updates package upgrades IP protection namespace isolation">
+  <div class="pgnum">Page 38 · Requirement 5</div>
+  <h2>Requirement 5</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company wants to release an application that can be installed in partner Salesforce environments. The application is designed to allow the partners to publish training modules without leaving their Salesforce environment. The partners should be able to build on top of the application with flows and Apex triggers for integration with their own business processes. The architect needs to recommend a suitable mechanism for developing and releasing the application, considering the company wants to keep the application up to date in various environments.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 5 -->
+<section class="slide" id="solution-5" data-search="solution 5 managed package version control easy updates package upgrades keeping application up to date partner Salesforce environments IP protection namespace isolation conflicts partners existing customizations flows Apex triggers scalable distribution">
+  <div class="pgnum">Page 39 · Solution 5</div>
+  <h2>Solution 5</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The company should use a <strong>managed package</strong> for developing and releasing the application. Managed packages allow for <strong>version control</strong>, <strong>easy updates</strong>, and <strong>package upgrades</strong>, which are crucial for keeping the application up to date across partner Salesforce environments. Additionally, managed packages provide <strong>IP protection</strong> and <strong>namespace isolation</strong>, which helps prevent conflicts with the partners' existing customizations. Partners can still build on top of the application with flows and Apex triggers, making this a seamless and scalable solution for distribution.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The decision driver here is "distribute to <em>partner</em> orgs and keep up to date" — that is the managed package use case, not unlocked. Unlocked packages are for internal org-source management. Managed packages provide the upgrade path (push upgrades or subscriber self-upgrade) and IP protection needed when distributing to external parties. Partners can still extend with flows and triggers because managed packages allow subscriber-side additions on top of the package layer.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 6 -->
+<section class="slide" id="requirement-6" data-search="requirement 6 two second-generation managed packages same namespace OpportunityController OpportunityControllerTest Apex classes package A used only package B move classes package B organization control">
+  <div class="pgnum">Page 40 · Requirement 6</div>
+  <h2>Requirement 6</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A development team is using two second-generation managed packages for developing a custom application for managing opportunities. Both packages have the same namespace. Package A contains two Apex classes named OpportunityController and OpportunityControllerTest, but they are used only in package B. The architect needs to recommend a suitable approach for moving these classes to package B for better organization and control.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 6 -->
+<section class="slide" id="solution-6" data-search="solution 6 package B references Apex classes package A removed new package version package B Apex classes removed package A new version package A created">
+  <div class="pgnum">Page 41 · Solution 6</div>
+  <h2>Solution 6</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>In package B, any <strong>references to the Apex classes</strong> in package A should be <strong>removed</strong>, and a <strong>new package version</strong> should be created for package B. After removing all the references, the <strong>Apex classes should be removed</strong> from package A, and a <strong>new version of package A</strong> should be created.</p>
+  </div>
+  <div class="note">The order matters: remove the <em>references</em> from package B first (creating a new B version), then remove the <em>classes</em> from package A (creating a new A version). Reversing this order would cause a compile error in the new package B version because it would still reference classes that no longer exist in A.</div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more second-generation managed packages developer guide developing distributing unmanaged packages unlocked packages security review security considerations further reading trailhead">
+  <div class="pgnum">Page 42 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce documentation resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Second-Generation Managed Packages</li>
+    <li>Second-Generation Managed Packaging Developer Guide</li>
+    <li>Developing and Distributing Unmanaged Packages</li>
+    <li>Unlocked Packages</li>
+    <li>Prepare for the Security Review</li>
+    <li>Security Considerations</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary decision matrix managed unmanaged unlocked packages use cases considerations exam gotchas appexchange ISV namespace immutable versioning source-driven modular internal">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Packaging Strategy</h2>
+
+  <h3>Package Type Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>Managed (2GP)</th>
+        <th>Unmanaged</th>
+        <th>Unlocked</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Primary use case</strong></td>
+        <td>ISV distribution via AppExchange; multi-org upgrades</td>
+        <td>One-time distribution; open-source sharing; quick internal transfer</td>
+        <td>Internal modular org-source management; iterative release pipelines</td>
+      </tr>
+      <tr>
+        <td><strong>IP protection</strong></td>
+        <td>Yes — Apex code is obfuscated in subscriber orgs</td>
+        <td>No — all components are fully editable by installer</td>
+        <td>No — source is visible; designed for internal use</td>
+      </tr>
+      <tr>
+        <td><strong>Upgrade path</strong></td>
+        <td>Yes — push upgrades or subscriber self-upgrades</td>
+        <td>No — developer cannot change or upgrade after install</td>
+        <td>Yes — subscribers install new package versions</td>
+      </tr>
+      <tr>
+        <td><strong>Source-driven development</strong></td>
+        <td>Yes (2GP only; API- and CLI-first)</td>
+        <td>No — managed via Setup UI (Package Manager)</td>
+        <td>Yes — VCS is the source of truth, not the org</td>
+      </tr>
+      <tr>
+        <td><strong>Namespace required</strong></td>
+        <td>Yes</td>
+        <td>No</td>
+        <td>Optional (can be namespace-free)</td>
+      </tr>
+      <tr>
+        <td><strong>Multi-level dependencies</strong></td>
+        <td>Yes (declarative)</td>
+        <td>No</td>
+        <td>Yes (on managed and unlocked packages)</td>
+      </tr>
+      <tr>
+        <td><strong>Package version immutability</strong></td>
+        <td>Yes — each version is an immutable artifact</td>
+        <td>N/A — no versioning concept</td>
+        <td>Yes — each version is an immutable artifact</td>
+      </tr>
+      <tr>
+        <td><strong>Dev environment</strong></td>
+        <td>Developer Edition or Partner Developer Edition org; Dev Hub + scratch orgs</td>
+        <td>Any org with Package Manager access</td>
+        <td>Dev Hub + scratch orgs + Salesforce CLI</td>
+      </tr>
+      <tr>
+        <td><strong>Use for sandbox-to-prod migration?</strong></td>
+        <td>N/A (full deployment mechanism)</td>
+        <td><strong>No</strong> — explicitly a bad practice</td>
+        <td>Yes — preferred for internal metadata promotion</td>
+      </tr>
+      <tr>
+        <td><strong>AppExchange listing</strong></td>
+        <td>Yes — after security review</td>
+        <td>Not typically</td>
+        <td>No — for internal / partner use, not AppExchange</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Scenario Pattern Quick-Reference</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Scenario Signal</th><th>Package Type</th><th>Key Reason</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Distribute to external partner orgs, keep up to date</td><td><strong>Managed</strong></td><td>Push upgrades + IP protection + namespace isolation</td></tr>
+      <tr><td>AppExchange listing required</td><td><strong>Managed</strong></td><td>Only managed packages can be listed on AppExchange</td></tr>
+      <tr><td>One-time transfer, recipient will customize code</td><td><strong>Unmanaged</strong></td><td>Components are fully editable post-install</td></tr>
+      <tr><td>Fastest way to get an app into a new org</td><td><strong>Unmanaged</strong></td><td>Upload and share installation link — simplest path</td></tr>
+      <tr><td>Internal modular deployment across multiple orgs</td><td><strong>Unlocked</strong></td><td>Source-driven, versioned, no IP concern, flexible namespace</td></tr>
+      <tr><td>Organize existing metadata into modules</td><td><strong>Unlocked</strong></td><td>Can wrap existing org metadata; namespace-free option</td></tr>
+      <tr><td>Two 2GP packages share Apex code selectively</td><td><strong>Managed + same namespace + @namespaceAccessible</strong></td><td>Controls which methods are shared within the namespace</td></tr>
+      <tr><td>Uncertified managed package, Apex metadata access fails in sandbox</td><td><strong>Apex Settings toggle</strong></td><td>Enable "Deploy Metadata from Non-Certified Package Versions via Apex"</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Unmanaged packages are NOT for sandbox-to-production migration</strong> — use change sets, Salesforce CLI, or unlocked packages instead.</li>
+    <li><strong>Unmanaged package components are fully editable</strong> — the original developer has no control after install. This is a feature, not a bug, for open-source distribution.</li>
+    <li><strong>Managed 2GP is Salesforce's current recommendation</strong> over 1GP — it is source-driven, CLI-first, and supports namespace sharing across packages.</li>
+    <li><strong>@namespaceAccessible</strong> controls cross-package Apex sharing within the same namespace — not <code>global</code> access, which would expose code to all installs.</li>
+    <li><strong>Version number format is major.minor.patch.build</strong> — build values NEXT, LATEST, RELEASED have precise meanings; RELEASED refers to the most recently promoted version.</li>
+    <li><strong>Unlocked packages can be namespace-free</strong> — managed packages cannot. Namespace-free unlocked packages integrate seamlessly with org metadata, preferred for internal use.</li>
+    <li><strong>Removing components from a 2GP package requires version sequencing</strong>: remove references first (new version), then remove the component (another new version). Order matters to avoid compile errors.</li>
+    <li><strong>Unlocked package source of truth = VCS, not the org</strong> — direct org edits outside the package workflow are an anti-pattern.</li>
+    <li><strong>Checkmarx false positives must be marked and explained</strong> — you cannot submit for security review while leaving scanner errors unaddressed; they must be acknowledged with justification.</li>
+    <li><strong>Dev Hub is required for both managed 2GP and unlocked packages</strong> — it manages scratch orgs, namespaces, and package records.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a central bank platform engineer, package strategy is fundamentally a <strong>change-control and audit story</strong>. Managed 2GP and unlocked packages both produce immutable, versioned artifacts that satisfy the "every production deployment is traceable to a specific, reviewed, approved artifact" requirement of regulated change management. Unlocked packages are the right internal tool: source-driven (VCS is auditable), modular (teams own their domains), and versioned (rollback is deterministic — reinstall the prior version). Managed packages are right when distributing to external partners with IP protection and upgrade governance. Unmanaged packages should appear in your architecture only for fast one-time transfers where no ongoing control is needed — their lack of upgrade governance makes them unsuitable for anything on a regulated change-advisory board's radar.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

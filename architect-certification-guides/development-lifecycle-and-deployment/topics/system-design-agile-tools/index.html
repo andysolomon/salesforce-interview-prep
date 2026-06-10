@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design — Agile Tools — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>System Design — Agile Tools</h1>
+  <div class="sub">Explain the advantages of using agile tools to support an agile development process · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (23 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Agile Development Tools</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#advantages-overview">Advantages of Agile Tools — Overview</a></li>
+      <li><a href="#section-agile-dev-tools">Section: Agile Development Tools</a></li>
+      <li><a href="#agile-dev-tools-types">Two Types of Agile Tools</a></li>
+      <li><a href="#sfdx-for-agile">Salesforce DX for Agile Development</a></li>
+      <li><a href="#sfdx-advantages">Advantages of Salesforce DX</a></li>
+      <li><a href="#pm-tools-features-1">Agile Project Management Tools — Features (Part 1)</a></li>
+      <li><a href="#pm-tools-features-2">Agile Project Management Tools — Features (Part 2)</a></li>
+      <li><a href="#pm-tools-benefits-1">Benefits of Agile PM Tools — Part 1</a></li>
+      <li><a href="#pm-tools-benefits-2">Benefits of Agile PM Tools — Part 2</a></li>
+      <li><a href="#agile-accelerator">Agile Accelerator</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Communications Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1a">Solution 1 (Part 1)</a></li>
+      <li><a href="#solution-1b">Solution 1 (Part 2)</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover system design agile tools salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>System Design — Agile Tools</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Explain the advantages of using agile tools to support an agile development process · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents agile development tools business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#agile-dev-tools-types">Agile Development Tools</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives identify types tools agile development process salesforce dx features advantages project management tools business requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Identify the types of tools that can support an agile development process.</li>
+    <li>Identify the features and advantages of Salesforce DX in the context of agile development.</li>
+    <li>Identify the features and advantages of agile project management tools.</li>
+    <li>Describe the benefits of using an agile tool for the given business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction salesforce dx agile project management tools productivity collaboration salesforce cli scratch orgs dev hub agile accelerator task management sprint planning real-time collaboration">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In Salesforce development, leveraging agile tools like <strong>Salesforce DX</strong> and <strong>agile project management tools</strong> significantly enhances team productivity and project management. Salesforce DX streamlines the development lifecycle with features like <strong>Salesforce CLI</strong>, <strong>scratch orgs</strong>, and <strong>Dev Hub</strong>, supporting rapid iteration and quality assurance.</p>
+  <p>Agile project management tools, such as <strong>Agile Accelerator</strong>, facilitate <strong>task management</strong>, <strong>sprint planning</strong>, and <strong>real-time collaboration</strong>, allowing teams to adapt quickly and efficiently to changes. These tools are foundational in applying agile methodologies, ensuring teams can deliver superior Salesforce solutions swiftly and effectively.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a central bank, the pairing of Salesforce DX (source-driven development with full version history) and an agile project management tool (sprint tracking, burndown charts) directly supports the audit trail regulators expect: every change traceable to a user story, every deployment tied to a reviewed commit. This is not optional process overhead — it is evidence of controlled change management.</p>
+  </div>
+</section>
+
+<!-- ADVANTAGES OVERVIEW -->
+<section class="slide" id="advantages-overview" data-search="advantages agile tools overview agile development tools salesforce dx agile project management tools visibility collaboration scalability predictability centralized repository">
+  <div class="pgnum">Page 5 · Advantages of Agile Tools — Overview</div>
+  <h2>Advantages of Agile Tools — Overview</h2>
+  <p class="lede">Two categories of agile tools support the Salesforce development lifecycle, each offering distinct advantages.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Agile Development Tools</h4>
+      <p>Tools such as Salesforce DX and agile project management tools, such as Agile Accelerator, can be utilized to support an agile development process.</p>
+    </div>
+    <div class="card">
+      <h4>Agile Project Management Tools</h4>
+      <p>Agile project management tools offer various features that support the iterative and incremental nature of an agile development process.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce DX</h4>
+      <p>Salesforce DX is a suite of tools designed to streamline the entire development lifecycle, improving collaboration, efficiency, and quality.</p>
+    </div>
+    <div class="card">
+      <h4>Advantages of Agile Tools</h4>
+      <p>Agile tools offer advantages such as improved visibility, enhanced collaboration, centralized repository, scalability, and predictability.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: AGILE DEVELOPMENT TOOLS -->
+<section class="slide title-slide" id="section-agile-dev-tools" data-search="section agile development tools">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Agile Development Tools</h2>
+</section>
+
+<!-- TWO TYPES OF AGILE TOOLS -->
+<section class="slide" id="agile-dev-tools-types" data-search="agile development tools salesforce dx developer experience streamline development lifecycle collaboration efficiency quality project management tools collaborate effectively manage tasks deliver value faster better quality">
+  <div class="pgnum">Page 7 · Two Types of Agile Tools</div>
+  <h2>Agile Development Tools</h2>
+  <p class="lede">In Salesforce development, two types of <strong>agile tools</strong> can be utilized to enhance <strong>team productivity, collaboration, and project management</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Salesforce DX</h4>
+      <p>Salesforce DX (Developer Experience) is a set of tools used to <strong>streamline the entire development lifecycle</strong>, improving collaboration, efficiency, and quality.</p>
+    </div>
+    <div class="card">
+      <h4>Project Management Tools</h4>
+      <p>Agile project management tools enable teams to <strong>collaborate more effectively</strong>, <strong>manage tasks efficiently</strong>, and <strong>deliver value faster</strong> and with <strong>better quality</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked what tools support agile Salesforce development, give the two-category answer: Salesforce DX (developer toolchain — CLI, scratch orgs, Dev Hub, source-driven development) and agile project management tools (Jira, Agile Accelerator, Asana — backlog, sprints, boards). Architects are expected to distinguish the two and articulate why each is necessary; conflating them is a junior-level answer.</p>
+  </div>
+</section>
+
+<!-- SALESFORCE DX FOR AGILE DEVELOPMENT -->
+<section class="slide" id="sfdx-for-agile" data-search="salesforce dx agile development salesforce cli create manage environments synchronize source code execute tests deploy applications source-driven development version control system vcs scratch orgs temporary configurable disposable isolated automated testing continuous integration dev hub manage scratch orgs collaborative agile">
+  <div class="pgnum">Page 8 · Salesforce DX for Agile Development</div>
+  <h2>Salesforce DX for Agile Development</h2>
+  <p class="lede"><strong>Salesforce DX</strong> is designed to support an <strong>agile development process</strong>. Its features enable faster delivery, higher quality, and more efficient collaboration.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Salesforce CLI</h4>
+      <p>Salesforce CLI allows developers to <strong>create</strong> and <strong>manage</strong> Salesforce environments, <strong>synchronize source code</strong>, <strong>execute tests</strong>, and <strong>deploy applications</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Source-Driven Development</h4>
+      <p><strong>Changes</strong> can be managed and tracked in a <strong>version control system (VCS)</strong> before deploying to Salesforce environments, which <strong>enhances collaboration</strong> and <strong>version control practices</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Scratch Orgs</h4>
+      <p>Scratch orgs are <strong>temporary, configurable, and disposable</strong> Salesforce environments that support features like <strong>isolated development</strong>, <strong>automated testing</strong>, and <strong>continuous integration</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Dev Hub</h4>
+      <p>Dev Hub is the main Salesforce org that supports the <strong>collaborative and agile aspects</strong> of development by <strong>enabling the management of scratch orgs</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Source-driven development (VCS integration) is the linchpin for a regulated org: every metadata change lives in Git, reviewable via pull request, tied to a JIRA or Agile Accelerator ticket. The Fed's GitLab CI/CD pipeline relies on exactly this pattern — scratch orgs for isolated feature builds, automated test runs on commit, and Salesforce CLI for scripted deployment to successive environments (SIT → UAT → Prod) with full audit logs.</p>
+  </div>
+</section>
+
+<!-- ADVANTAGES OF SALESFORCE DX -->
+<section class="slide" id="sfdx-advantages" data-search="advantages salesforce dx enhanced developer productivity scratch orgs salesforce cli speeding up development testing cycles source-driven development better tracking changes collaboration fewer conflicts efficient rapid testing new features controlled environments continuous integration delivery dev hub adapt quickly changing requirements scale development efforts">
+  <div class="pgnum">Page 9 · Advantages of Salesforce DX</div>
+  <h2>Advantages of Salesforce DX</h2>
+  <p class="lede"><strong>Salesforce DX</strong> aligns well with agile development methodologies by providing tools that support <strong>rapid iteration</strong>, <strong>collaboration</strong>, and <strong>quality assurance</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Enhanced Developer Productivity</h4>
+      <p>Salesforce DX offers <strong>enhanced developer productivity</strong> through scratch orgs and Salesforce CLI. Developers can quickly spin up scratch orgs, <strong>speeding up development and testing cycles</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Better Change Tracking &amp; Collaboration</h4>
+      <p>Source-driven development facilitates <strong>better tracking of changes</strong> and <strong>collaboration</strong> among team members, leading to <strong>fewer conflicts</strong> and <strong>more efficient development processes</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Rapid Testing of New Features</h4>
+      <p>Scratch orgs allow for <strong>rapid testing of new features</strong> in a controlled environment, supporting agile practices like <strong>continuous integration and delivery</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Adaptability &amp; Scalability</h4>
+      <p>The configurability offered by Dev Hub and the ability to create and dispose of scratch orgs allows teams to <strong>adapt quickly to changing requirements</strong> and <strong>scale their development efforts</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Scratch orgs are temporary by design — they expire (default 7 days, max 30). This is an exam gotcha: scratch orgs cannot be used as long-lived environments for UAT or production validation. Use Developer Sandboxes or Partial/Full Copy sandboxes for those stages.</div>
+</section>
+
+<!-- AGILE PROJECT MANAGEMENT TOOLS — FEATURES PART 1 -->
+<section class="slide" id="pm-tools-features-1" data-search="agile project management tools jira agile accelerator asana features iterative incremental backlog management prioritization user stories tasks bugs product backlog add assign prioritize manage sprint planning assign tasks user stories sprint cycles realistic goals team capacity sprint duration board views kanban scrum boards track progress bottlenecks workflow">
+  <div class="pgnum">Page 10 · Agile Project Management Tools — Features (Part 1)</div>
+  <h2>Agile Project Management Tools — Features (Part 1)</h2>
+  <p class="lede">Agile project management tools, such as <strong>Jira</strong>, <strong>Agile Accelerator</strong>, and <strong>Asana</strong>, offer <strong>features</strong> that support the <strong>iterative and incremental nature</strong> of agile development.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Backlog Management</h4>
+      <p>Agile project management tools enable <strong>prioritization</strong> and <strong>organization</strong> of <strong>user stories, tasks, and bugs</strong> in a product backlog. Teams can <strong>add, assign, prioritize, and manage</strong> work items.</p>
+    </div>
+    <div class="card">
+      <h4>Sprint Planning</h4>
+      <p>They support the <strong>planning of work for each sprint</strong>, allowing teams to <strong>assign tasks and user stories</strong> to specific sprint cycles. This helps in <strong>setting realistic goals</strong> based on team capacity and sprint duration.</p>
+    </div>
+    <div class="card">
+      <h4>Board Views</h4>
+      <p>Teams can use <strong>Kanban/Scrum boards</strong> to <strong>track progress, identify bottlenecks</strong>, and <strong>manage workflow efficiently</strong>. These boards provide a visual representation of work items in various stages of development.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AGILE PROJECT MANAGEMENT TOOLS — FEATURES PART 2 -->
+<section class="slide" id="pm-tools-features-2" data-search="agile project management tools collaborative tools chat forums comments document sharing real-time communication alignment knowledge feedback reporting analytics project progress team performance delivery forecasts burndown charts work completed work remaining integration version control systems git continuous integration automate workflows">
+  <div class="pgnum">Page 11 · Agile Project Management Tools — Features (Part 2)</div>
+  <h2>Agile Project Management Tools — Features (Part 2)</h2>
+  <p class="lede">Agile project management tools, such as <strong>Jira</strong>, <strong>Agile Accelerator</strong>, and <strong>Asana</strong>, offer <strong>features</strong> that support the <strong>iterative and incremental nature</strong> of agile development.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Collaborative Tools</h4>
+      <p>Features like <strong>chat, forums, comments</strong>, and <strong>document sharing</strong> to facilitate real-time communication and collaboration. They ensure alignment and easy sharing of knowledge and feedback.</p>
+    </div>
+    <div class="card">
+      <h4>Reporting &amp; Analytics</h4>
+      <p>Teams can gain insights into <strong>project progress, team performance</strong>, and <strong>delivery forecasts</strong>. They can access <strong>burndown charts</strong> to view the <strong>amount of work completed</strong> and the <strong>total work remaining</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Integration</h4>
+      <p>These tools can be <strong>integrated</strong> with <strong>version control systems</strong> like Git, <strong>continuous integration tools</strong>, and other tools to streamline workflows and automate parts of the development process.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>If asked to compare Agile Accelerator to Jira, the key architect point is that Agile Accelerator runs natively inside Salesforce (no separate system, no data sync needed) and is free on AppExchange. For orgs where keeping work tracking inside the Salesforce trust boundary matters — as it would in a regulated environment — that is a meaningful differentiator. Jira requires integration to surface test/build status on user stories; Agile Accelerator does this natively.</p>
+  </div>
+</section>
+
+<!-- BENEFITS OF AGILE PM TOOLS PART 1 -->
+<section class="slide" id="pm-tools-benefits-1" data-search="benefits agile project management tools transparency flexibility real-time communication collaboration visibility productivity quality centralized communication project information distributed teams stakeholders improved visibility task status sprint progress project status decision-making streamlined workflows automation repetitive tasks prioritization continuous feedback retrospectives higher quality outcomes reduced risks">
+  <div class="pgnum">Page 12 · Benefits of Agile Project Management Tools (Part 1)</div>
+  <h2>Benefits of Agile Project Management Tools — Part 1</h2>
+  <p class="lede">Agile project management tools provide various benefits, including <strong>transparency</strong>, <strong>flexibility</strong>, and <strong>real-time communication</strong> across the development lifecycle.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Collaboration</h4>
+      <p><strong>Centralized communication</strong> and <strong>project information enhances collaboration</strong> among distributed teams and stakeholders, ensuring that everyone is on the same page.</p>
+    </div>
+    <div class="card">
+      <h4>Visibility</h4>
+      <p>Agile tools provide <strong>improved visibility</strong> into every aspect of the development process, including <strong>task status</strong>, <strong>sprint progress</strong>, and the overall <strong>project status</strong>, facilitating <strong>better decision-making</strong> and <strong>transparency</strong> with stakeholders.</p>
+    </div>
+    <div class="card">
+      <h4>Productivity</h4>
+      <p>Streamlined workflows, automation of repetitive tasks, and clear prioritization help teams <strong>work more efficiently</strong>, <strong>reducing time wasted</strong> on low-priority tasks and manual processes.</p>
+    </div>
+    <div class="card">
+      <h4>Quality</h4>
+      <p>Continuous feedback loops, regular retrospectives, and the ability to quickly adapt to changes lead to <strong>higher quality outcomes</strong> and <strong>reduced risks</strong> associated with project delays or misaligned expectations.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Visibility and collaboration are not just efficiency gains in a central bank context — they are control requirements. Regulators expect that all relevant stakeholders (technology, compliance, risk, business) have real-time access to project status. Agile tools that surface sprint progress and burndown charts to non-technical stakeholders fulfill the same role that status reports do in waterfall, but with greater frequency and accuracy.</p>
+  </div>
+</section>
+
+<!-- BENEFITS OF AGILE PM TOOLS PART 2 -->
+<section class="slide" id="pm-tools-benefits-2" data-search="benefits agile project management tools consolidation centralized platform project artifacts version control integration testing continuous integration automated test statuses build status committed code user stories scalability small large scale implementations adapt changing requirements priorities predictability cost estimates timelines sprints known duration scope informed decisions feature prioritization budget allocation">
+  <div class="pgnum">Page 13 · Benefits of Agile Project Management Tools (Part 2)</div>
+  <h2>Benefits of Agile Project Management Tools — Part 2</h2>
+  <p class="lede">Agile project management tools provide various benefits, including <strong>transparency</strong>, <strong>flexibility</strong>, and <strong>real-time communication</strong> across the development lifecycle.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Consolidation</h4>
+      <p>These tools offer a <strong>centralized platform</strong> for storing all <strong>project artifacts</strong>, including project documents. This consolidation <strong>facilitates easy access</strong> and <strong>version control</strong>, ensuring everyone works with the most current information.</p>
+    </div>
+    <div class="card">
+      <h4>Integration</h4>
+      <p>Integration with testing and continuous integration tools allow developers to <strong>see how changes affect user stories</strong>. They can view <strong>automated test statuses after code commits</strong> and the <strong>committed code's build status</strong> on user stories.</p>
+    </div>
+    <div class="card">
+      <h4>Scalability</h4>
+      <p>Whether working on small projects or managing large-scale Salesforce implementations, agile tools can <strong>scale to meet the needs of the team</strong>, providing the flexibility to <strong>adapt to changing requirements and priorities</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Predictability</h4>
+      <p><strong>Clear cost estimates and timelines</strong> offered by agile sprints, which have a known duration and scope, allow clients to <strong>make informed decisions</strong> regarding <strong>feature prioritization</strong> and <strong>budget allocation</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Predictability (sprint-based forecasting) is an architect-level selling point when convincing executives to adopt agile. Fixed sprint duration + known velocity = reliable release forecasts — the kind of commitment leadership and audit committees can hold the team to.</div>
+</section>
+
+<!-- AGILE ACCELERATOR -->
+<section class="slide" id="agile-accelerator" data-search="agile accelerator free agile project management tool appexchange marketplace backlog sprints user stories defects work manager kanban board epics themes reports dashboards projects programs portfolios accomplishments">
+  <div class="pgnum">Page 14 · Agile Accelerator</div>
+  <h2>Agile Accelerator</h2>
+  <p class="lede"><strong>Agile Accelerator</strong> is a free agile project management tool available in the <strong>AppExchange</strong> marketplace that allows <strong>managing backlog, sprints, user stories, defects, and more</strong>.</p>
+  <p>The tool provides a rich set of navigation tabs including: <strong>Work Manager</strong>, Sprints, Teams, <strong>Kanban Board</strong>, Product Tags, Epics, Themes, Reports, Dashboards, Projects, Programs, Portfolios, and Accomplishments. Work items are tracked with IDs, rank, subject, status, sprint, and assignee fields.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Key Capabilities</h4>
+      <p>Backlog management, sprint planning, Kanban/Scrum board views, reporting &amp; analytics, team management, and portfolio-level tracking — all natively within Salesforce.</p>
+    </div>
+    <div class="card">
+      <h4>Why It Matters</h4>
+      <p>Because it runs inside Salesforce, work items share the same platform as the org being developed, simplifying integration with CI/CD pipelines and keeping project data within the Salesforce trust boundary.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Agile Accelerator is the exam's preferred answer when the scenario calls for a native Salesforce agile tool. Mention it is free, available on AppExchange, and supports backlog, sprints, defects, and Kanban boards. Its native nature means no integration required to link work items to Salesforce metadata changes — a significant architectural simplification.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 15 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic communications telecommunications cloud-based solutions scrum agile development processes distributed teams synchronizing efforts managing workloads delivering high-quality software shorter timeframes architect benefits agile tools">
+  <div class="pgnum">Page 16 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Communications</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Communications, a leading provider of cloud-based solutions for the telecommunications industry, is on the verge of a major transformation. The company, known for its cutting-edge technologies and customer-centric products, is adopting Scrum to enhance its agile development processes. With teams spread across different continents, Cosmic Communications faces the challenge of synchronizing efforts, managing workloads efficiently, and delivering high-quality software within shorter timeframes demanded by the market. The Salesforce architect of the company needs to highlight the benefits of adopting agile tools for its development processes.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 17 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 scrum agile development support tool prioritization product backlog strategic business goals management sprint backlogs achievable goals clear priorities assignment work user stories tasks individual team members accountability transparency">
+  <div class="pgnum">Page 18 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>As the company adopts Scrum, the need for an agile development support tool becomes paramount. The tool must facilitate:</p>
+    <ul style="margin:8px 0 0 0;padding-left:20px;">
+      <li>Effective <strong>prioritization of the product backlog</strong> to align development efforts with strategic business goals.</li>
+      <li>Management of <strong>sprint backlogs</strong> to ensure that each sprint is planned with achievable goals and clear priorities.</li>
+      <li>Assignment of work, such as <strong>user stories or tasks</strong>, to individual team members, promoting <strong>accountability and transparency</strong> in the development process.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 1 -->
+<section class="slide" id="solution-1a" data-search="solution 1 part 1 agile project management tool product sprint backlog management work assignment visually organize prioritize product backlog plan sprints sprint backlog estimation allocation assign user stories tasks developers visibility accountability development lifecycle">
+  <div class="pgnum">Page 19 · Solution 1 (Part 1)</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The company should select an <strong>agile project management tool</strong> that features comprehensive <strong>product and sprint backlog management</strong> capabilities, alongside robust <strong>work assignment</strong> functionalities. This tool would enable the teams to:</p>
+    <ul style="margin:8px 0 0 0;padding-left:20px;">
+      <li><strong>Visually organize</strong> and <strong>prioritize</strong> the <strong>product backlog</strong>, ensuring that the most critical features are developed first.</li>
+      <li><strong>Plan sprints</strong> with a clear overview of the <strong>sprint backlog</strong>, allowing for better estimation and allocation of tasks.</li>
+      <li><strong>Assign user stories and tasks to developers</strong> directly within the tool, enhancing visibility and accountability across the development lifecycle.</li>
+    </ul>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve, work assignment with accountability is not just a productivity practice — it is an access and responsibility control. Being able to demonstrate that every work item was assigned to a named individual, reviewed by a lead, and closed with documented acceptance criteria satisfies internal audit questions about who approved what change and when. An agile tool that enforces this workflow becomes part of the change management evidence package.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 2 -->
+<section class="slide" id="solution-1b" data-search="solution 1 part 2 burndown charts amount work completed total work remaining sprint management chat comments communicate assignment user stories collaboration">
+  <div class="pgnum">Page 20 · Solution 1 (Part 2)</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution (continued)</h4>
+    <ul style="margin:4px 0 0 0;padding-left:20px;">
+      <li><strong>Access burndown charts</strong> to view the <strong>amount of work completed</strong> and the <strong>total work remaining</strong> for better sprint management.</li>
+      <li>Use features such as <strong>chat and comments to communicate</strong> important information such as assignment of user stories.</li>
+    </ul>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Burndown charts are the most visible agile metric in exam scenarios — they measure sprint health at a glance. An architect should be ready to explain that a burndown chart trending flat (no work burned) signals either blocked work, scope creep mid-sprint, or inaccurate estimation. The ability to surface this signal daily is why agile tools matter more than spreadsheets.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 development velocity quality consolidate project artifacts common repository single source of truth integrate agile issue tracker application testing continuous integration CI tools">
+  <div class="pgnum">Page 21 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Due to the growing pressure to increase development velocity while maintaining or improving quality, the company needs to:</p>
+    <ul style="margin:8px 0 0 0;padding-left:20px;">
+      <li>Consolidate project artifacts in a <strong>common repository</strong>, providing a <strong>single source of truth</strong> for all project-related information.</li>
+      <li>Integrate the <strong>agile issue tracker</strong> with <strong>application testing and continuous integration (CI) tools</strong>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 centralized platform consolidation project artifacts access information decision-making testing continuous integration CI tools automated test statuses build status committed code user stories streamlining development QA processes visibility resolving issues collaboration development QA teams">
+  <div class="pgnum">Page 22 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Most agile project management tools offer a <strong>centralized platform</strong> for the <strong>consolidation of all the project artifacts</strong>, improving access to information and facilitating better decision-making. Integrating the company's agile tool with <strong>testing and continuous integration (CI) tools</strong> would enable developers to see <strong>automated test statuses</strong> and the <strong>build status of committed code</strong> directly on the <strong>user stories</strong>, streamlining the development and QA processes. This visibility would assist in identifying and resolving issues more quickly and enhance collaboration between the development and QA teams.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>CI integration with the agile tool is the technical backbone of the Fed's controlled deployment pipeline: a developer commits code to GitLab, the CI pipeline runs automated Apex tests and static analysis, and the pass/fail status surfaces directly on the user story in the agile tracker. This creates an unbroken chain — business requirement → user story → code commit → test result → deployment — that change management auditors can follow end to end.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more how salesforce developer experience changes way you work set up salesforce dx tools learn salesforce agile practices agile accelerator further reading trailhead">
+  <div class="pgnum">Page 23 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>How Salesforce Developer Experience Changes the Way You Work</li>
+    <li>Set Up Salesforce DX Tools</li>
+    <li>Learn Salesforce Agile Practices</li>
+    <li>Agile Accelerator</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary agile tools salesforce dx agile accelerator scratch orgs dev hub source-driven development sprint backlog burndown charts ci cd integration exam gotchas decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — System Design: Agile Tools</h2>
+
+  <h3>Agile Tools Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Tool / Feature</th><th>Category</th><th>Key Advantage</th><th>Exam Trigger Phrase</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Salesforce CLI</strong></td>
+        <td>Salesforce DX</td>
+        <td>Create/manage environments, sync source, run tests, deploy</td>
+        <td>"automate deployment" / "command-line access"</td>
+      </tr>
+      <tr>
+        <td><strong>Scratch Orgs</strong></td>
+        <td>Salesforce DX</td>
+        <td>Temporary, configurable, disposable — isolated dev &amp; automated testing; no sandbox license consumed</td>
+        <td>"limited sandbox licenses" / "isolated testing"</td>
+      </tr>
+      <tr>
+        <td><strong>Dev Hub</strong></td>
+        <td>Salesforce DX</td>
+        <td>Central org that enables management of scratch orgs</td>
+        <td>"manage scratch orgs" / "enable DX"</td>
+      </tr>
+      <tr>
+        <td><strong>Source-Driven Development</strong></td>
+        <td>Salesforce DX</td>
+        <td>Tracks changes in VCS (Git) before deploying; fewer conflicts, full history</td>
+        <td>"version control" / "track changes"</td>
+      </tr>
+      <tr>
+        <td><strong>Agile Accelerator</strong></td>
+        <td>Project Management</td>
+        <td>Free native Salesforce tool; backlog, sprints, Kanban, defects — no integration needed</td>
+        <td>"native Salesforce agile tool" / "AppExchange"</td>
+      </tr>
+      <tr>
+        <td><strong>Backlog Management</strong></td>
+        <td>Project Management</td>
+        <td>Prioritize user stories, tasks, bugs in product backlog</td>
+        <td>"prioritize backlog" / "align with business goals"</td>
+      </tr>
+      <tr>
+        <td><strong>Sprint Planning</strong></td>
+        <td>Project Management</td>
+        <td>Plan, estimate, and assign work for each sprint</td>
+        <td>"sprint goals" / "achievable priorities"</td>
+      </tr>
+      <tr>
+        <td><strong>Burndown Charts</strong></td>
+        <td>Project Management</td>
+        <td>Visualize work completed vs. remaining; detect sprint health issues</td>
+        <td>"track progress" / "work remaining"</td>
+      </tr>
+      <tr>
+        <td><strong>CI Integration</strong></td>
+        <td>Project Management</td>
+        <td>Automated test status and build status surfaced on user stories</td>
+        <td>"integrate with CI" / "test status on stories"</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Benefits Summary — Agile Project Management Tools</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Benefit</th><th>What It Means</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Collaboration</strong></td><td>Centralized communication and project info keeps distributed teams aligned</td></tr>
+      <tr><td><strong>Visibility</strong></td><td>Real-time task status, sprint progress, and project status for better decisions</td></tr>
+      <tr><td><strong>Productivity</strong></td><td>Streamlined workflows and automation reduce time on low-priority/manual work</td></tr>
+      <tr><td><strong>Quality</strong></td><td>Continuous feedback loops and retrospectives drive higher-quality outcomes</td></tr>
+      <tr><td><strong>Consolidation</strong></td><td>Central repository for all project artifacts; single source of truth</td></tr>
+      <tr><td><strong>Integration</strong></td><td>CI/VCS linkage surfaces build/test status directly on user stories</td></tr>
+      <tr><td><strong>Scalability</strong></td><td>Works for small and large-scale Salesforce implementations alike</td></tr>
+      <tr><td><strong>Predictability</strong></td><td>Sprint-based forecasting gives clients reliable cost/timeline estimates</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Scratch orgs expire (default 7 days, max 30)</strong> — they are not suitable for UAT or long-running test environments. Use partial/full copy sandboxes for those.</li>
+    <li><strong>Dev Hub must be enabled before scratch orgs can be created</strong> — Dev Hub is the prerequisite, not an optional add-on.</li>
+    <li><strong>Agile Accelerator is free and native</strong> — when the scenario says "Salesforce-native agile tool" or mentions AppExchange, Agile Accelerator is the answer. Jira/Asana require integration.</li>
+    <li><strong>Burndown chart = sprint health metric</strong> — a flat burndown signals blocked work, scope creep, or bad estimates; an architect is expected to recognize and respond to this signal.</li>
+    <li><strong>Source-driven development ≠ change sets</strong> — DX/VCS-based deployments are the modern answer for version control and team collaboration; change sets are the legacy approach and are explicitly outclassed for multi-developer teams.</li>
+    <li><strong>CI integration with the agile tracker</strong> is the answer for "increase velocity while maintaining quality" — it surfaces automated test results and build status on user stories without manual status updates.</li>
+    <li><strong>Predictability via sprints</strong> enables budget/feature decisions by clients — agile is not just a dev methodology, it is a stakeholder communication mechanism.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve platform engineer, the highest-value elements of this deck are <strong>source-driven development</strong> (every change in Git, reviewable, auditable) and <strong>CI integration with the agile tracker</strong> (automated test results tied to user stories, no manual evidence needed). Together these form the technical spine of a compliant release pipeline: business requirement → backlog item → code commit → automated tests → build status on user story → deployment to successive environments → release approval. Agile Accelerator or Jira provides the workflow layer; Salesforce DX provides the toolchain layer. An architect at the Fed must be able to describe how these layers connect and why each control point matters to examiners.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

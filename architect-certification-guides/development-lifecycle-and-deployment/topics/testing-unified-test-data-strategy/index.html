@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing — Unified Test Data Strategy — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Testing — Unified Test Data Strategy</h1>
+  <div class="sub">Given a customer scenario, describe and recommend a unified test data strategy that utilizes representative data in a secure manner throughout the development lifecycle · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (19 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Unified Test Data Strategy</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#section-unified">Section: Unified Test Data Strategy</a></li>
+      <li><a href="#utds-overview">UTDS Overview Diagram</a></li>
+      <li><a href="#utds-representative-security">Representative Data &amp; Security</a></li>
+      <li><a href="#utds-creation-masking">Test Data Creation &amp; Masking</a></li>
+      <li><a href="#utds-mock-sandbox">Mock Data &amp; Sandbox Environments</a></li>
+      <li><a href="#utds-refresh-monitoring">Data Refresh &amp; Monitoring</a></li>
+      <li><a href="#test-data-management">Considerations for Test Data Management</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Wellness Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1 — Large Volume &amp; Deletion</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2 — Related Records &amp; Automation</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover testing unified test data strategy salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Testing — Unified Test Data Strategy</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a customer scenario, describe and recommend a unified test data strategy that utilizes representative data in a secure manner throughout the development lifecycle · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents unified test data strategy business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#utds-overview">Unified Test Data Strategy</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives define unified test data strategy elements considerations developing salesforce development test data management recommend suitable strategies technical requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Define a unified test data strategy and identify its elements.</li>
+    <li>Describe the considerations for developing a unified test data strategy for Salesforce development.</li>
+    <li>Identify the considerations for test data management in a unified test data strategy.</li>
+    <li>Recommend suitable test data strategies for the given technical requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction unified test data strategy consistent reliable secure test data development lifecycle data factory methods scripts data loader salesforce data mask mock data batch apex automated test data loading rest api composite requests sobject tree requests representative">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>A <strong>unified test data strategy</strong> is necessary to ensure the usage of <strong>consistent, reliable, and secure test data</strong> that is representative across all stages of the Salesforce development lifecycle.</p>
+  <p>For reliable test data generation, <strong>data factory methods</strong> and <strong>scripts</strong> can be used. Tools such as <strong>Data Loader</strong> can be used for bulk data operations in non-production environments. <strong>Salesforce Data Mask</strong> can be used to automatically mask sensitive production data in sandbox environments. <strong>Mock data</strong> that mimics production data shape and volume can be generated.</p>
+  <p><strong>Batch Apex</strong> can be used to delete test data on a regular basis. <strong>Automated test data loading</strong> can be used for reliable results and when no human oversight is required. Multiple related records can be inserted in a single call or transaction using <strong>REST API composite requests</strong> or <strong>sObject tree requests</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve, every environment that touches financial or personally identifiable data falls under strict access controls and audit requirements. The core principle — that test data must be representative yet never contain real production PII or financial records — is a direct regulatory obligation. Salesforce Data Mask and mock data generation are the two primary controls that satisfy this requirement and should be the first tools named when a Fed examiner asks how non-production environments are secured.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: UNIFIED TEST DATA STRATEGY -->
+<section class="slide title-slide" id="section-unified" data-search="section unified test data strategy">
+  <div class="pgnum" style="color:#cbd6e6">Page 5 · Section</div>
+  <h2>Unified Test Data Strategy</h2>
+</section>
+
+<!-- UTDS OVERVIEW DIAGRAM -->
+<section class="slide" id="utds-overview" data-search="unified test data strategy overview data masking salesforce data mask sandboxes data refresh representative secure test data test data creation considerations batch apex automated loading rest api composite sobject tree">
+  <div class="pgnum">Page 6 · UTDS Overview Diagram</div>
+  <h2>Unified Test Data Strategy — Overview</h2>
+  <p class="lede">A unified test data strategy spans five interconnected pillars, each addressing a distinct aspect of keeping test data representative and secure across the development lifecycle.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Representative &amp; Secure Test Data</h4>
+      <p>Test data should adhere to the regulations and accurately reflect the production environment's complexity and variability without exposing sensitive information.</p>
+    </div>
+    <div class="card">
+      <h4>Data Masking</h4>
+      <p><strong>Salesforce Data Mask</strong> can be utilized to automatically mask sensitive production data in sandbox environments to comply with regulations.</p>
+    </div>
+    <div class="card">
+      <h4>Sandboxes &amp; Data Refresh</h4>
+      <p>Different sandbox types can be utilized to test with representative data at various stages of the development lifecycle.</p>
+    </div>
+    <div class="card">
+      <h4>Test Data Creation</h4>
+      <p>Representative test data can be created by using data factory methods and scripts or using tools such as <strong>Bulk API</strong> for bulk data operations.</p>
+    </div>
+    <div class="card">
+      <h4>Considerations</h4>
+      <p>To delete a large volume of test data, a <strong>batch Apex job</strong> can be used. Automated test data loading can be used for reliable results. <strong>REST API composite requests</strong> and <strong>sObject tree requests</strong> can be used for inserting related records.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked to describe a unified test data strategy, frame it around these five pillars. An architect-altitude answer covers all five simultaneously rather than treating them as isolated decisions. Lead with the security dimension (masking, regulations) to signal that you understand the compliance context before discussing the mechanics of data creation and refresh.</p>
+  </div>
+</section>
+
+<!-- UTDS — REPRESENTATIVE DATA & SECURITY/COMPLIANCE -->
+<section class="slide" id="utds-representative-security" data-search="unified test data strategy representative data security compliance consistent reliable secure development lifecycle staging production GDPR HIPAA data masking anonymization pseudonymization PII personally identifiable information data protection regulations">
+  <div class="pgnum">Page 7 · Representative Data &amp; Security &amp; Compliance</div>
+  <h2>Unified Test Data Strategy — Representative Data &amp; Security</h2>
+  <p class="lede">A unified test data strategy ensures <strong>consistent, reliable, and secure test data</strong> is used across all stages of the development lifecycle, from development to testing, and staging to production.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Representative Data</h4>
+      <p>Test data should <strong>accurately</strong> reflect the <strong>production environment's complexity</strong> and <strong>variability</strong> without exposing <strong>sensitive information</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Security &amp; Compliance</h4>
+      <p>Test data should adhere to <strong>data protection regulations (e.g., GDPR, HIPAA, etc.)</strong>. <strong>Data masking</strong>, <strong>anonymization</strong>, or <strong>pseudonymization</strong> techniques should be implemented to secure sensitive and personally identifiable information (PII).</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For the Federal Reserve, the applicable regulations are not limited to GDPR and HIPAA — they include GLBA, OCC and Fed internal data governance policies, and IT examination frameworks (FFIEC). The requirement to mask or anonymize PII before it reaches any non-production environment is an examiner-visible control. Being able to demonstrate an automated, auditable mechanism (Salesforce Data Mask with a documented masking configuration) is stronger than a manual process, because it is repeatable and leaves an evidence trail.</p>
+  </div>
+</section>
+
+<!-- DEVELOPING A UTDS — TEST DATA CREATION & DATA MASKING -->
+<section class="slide" id="utds-creation-masking" data-search="developing unified test data strategy test data creation storage usage disposal policies data factory methods scripts data loader bulk data operations non-production environments data masking obscure sensitive data usability salesforce data mask sandbox">
+  <div class="pgnum">Page 8 · Developing a UTDS — Test Data Creation &amp; Data Masking</div>
+  <h2>Developing a Unified Test Data Strategy — Test Data Creation &amp; Masking</h2>
+  <p class="lede">For the development of a unified test data strategy, <strong>clear guidelines</strong> should be established for <strong>test data management</strong>, including <strong>test data creation</strong>, <strong>storage</strong>, <strong>usage</strong>, and <strong>disposal policies</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Test Data Creation</h4>
+      <p><strong>Data factory methods and scripts</strong> can be used to generate test data that mimics real-world scenarios. Tools such as <strong>Data Loader</strong> can be used for <strong>bulk data operations</strong> in non-production environments.</p>
+    </div>
+    <div class="card">
+      <h4>Data Masking</h4>
+      <p>Data masking techniques can be implemented to <strong>obscure sensitive data</strong> while maintaining its usability for testing purposes. <strong>Salesforce Data Mask</strong> can automatically mask data in sandbox environments.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Salesforce Data Mask is the canonical tool answer for this requirement. It should be called out by name in any Fed interview discussion about sandbox data security. The combination of documented masking configurations (which fields are masked, with which technique) plus an audit log of when masking jobs ran constitutes the evidence package that satisfies both internal audit and external examiner review. Data Loader for bulk creation in non-production environments is acceptable only when the source data is already masked or synthetic — never raw production records.</p>
+  </div>
+</section>
+
+<!-- DEVELOPING A UTDS — MOCK DATA & SANDBOX ENVIRONMENTS -->
+<section class="slide" id="utds-mock-sandbox" data-search="developing unified test data strategy mock data regulations prohibit production data testing mimics production data shape volume sandbox environments developer developer pro partial copy full representative data stages">
+  <div class="pgnum">Page 9 · Developing a UTDS — Mock Data &amp; Sandbox Environments</div>
+  <h2>Developing a Unified Test Data Strategy — Mock Data &amp; Sandbox Environments</h2>
+  <p class="lede">For the development of a unified test data strategy, <strong>clear guidelines</strong> should be established for <strong>test data management</strong>, including <strong>test data creation</strong>, <strong>storage</strong>, <strong>usage</strong>, and <strong>disposal policies</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Mock Data</h4>
+      <p>If regulations prohibit the use of production data for testing, <strong>mock data</strong> that <strong>mimics production data shape and volume</strong> can be generated.</p>
+    </div>
+    <div class="card">
+      <h4>Sandbox Environments</h4>
+      <p><strong>Different types of sandboxes (Developer, Developer Pro, Partial Copy, and Full)</strong> can be leveraged to <strong>manage and test with representative data</strong> at various stages.</p>
+    </div>
+  </div>
+  <div class="note">Know the four sandbox types and what each carries: Developer and Developer Pro have no production data copy; Partial Copy brings a sampled subset; Full copies all data. Only Partial Copy and Full can carry real (masked) production data into a lower environment. When regulations prohibit production data entirely, mock data is the answer regardless of sandbox type.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The exam frequently tests the distinction between "use Salesforce Data Mask on a refreshed sandbox" versus "generate mock data from scratch." The decision tree is: does the regulation allow any form of production data in lower environments (even masked)? If yes, use Data Mask on a Partial Copy or Full sandbox. If no, generate synthetic mock data that matches the production schema's shape and volume using data factory methods.</p>
+  </div>
+</section>
+
+<!-- DEVELOPING A UTDS — DATA REFRESH & MONITORING/AUDITING -->
+<section class="slide" id="utds-refresh-monitoring" data-search="developing unified test data strategy data refresh sandbox refreshing test data production representative sandbox refresh strategies monitoring auditing track usage access test data compliance data policies periodic audits validate adherence data protection regulations">
+  <div class="pgnum">Page 10 · Developing a UTDS — Data Refresh &amp; Monitoring</div>
+  <h2>Developing a Unified Test Data Strategy — Data Refresh &amp; Monitoring</h2>
+  <p class="lede">For the development of a unified test data strategy, <strong>clear guidelines</strong> should be established for <strong>test data management</strong>, including <strong>test data creation</strong>, <strong>storage</strong>, <strong>usage</strong>, and <strong>disposal policies</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Data Refresh</h4>
+      <p>Regularly <strong>refreshing test data</strong> in sandbox environments from production ensures that it remains representative. <strong>Sandbox refresh strategies</strong> can be used to manage <strong>how</strong> and <strong>when</strong> data is updated in test environments.</p>
+    </div>
+    <div class="card">
+      <h4>Monitoring &amp; Auditing</h4>
+      <p>Monitoring should be implemented to <strong>track usage</strong> and <strong>access to test data</strong>, ensuring <strong>compliance with data policies</strong>. <strong>Periodic audits</strong> should be conducted to validate adherence to the <strong>test data strategy</strong> and <strong>data protection regulations</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Monitoring and auditing of test data access is precisely what Fed examiners look for when reviewing a platform's data governance posture. At a central bank, "we refresh sandboxes from production and then mask them" is not sufficient on its own — you must also demonstrate that (a) the masking step always runs before any developer accesses the refreshed sandbox, and (b) there is an audit trail showing who accessed what test data and when. Salesforce Event Monitoring combined with a documented sandbox refresh runbook satisfies both requirements.</p>
+  </div>
+</section>
+
+<!-- CONSIDERATIONS FOR TEST DATA MANAGEMENT -->
+<section class="slide" id="test-data-management" data-search="considerations test data management unified test data strategy test data deletion apex batch job automation automated test data loading reliable results no human oversight related data multiple related records rest api composite request sobject tree request">
+  <div class="pgnum">Page 11 · Considerations for Test Data Management</div>
+  <h2>Considerations for Test Data Management</h2>
+  <p class="lede">Certain <strong>considerations</strong> are applicable for the management of <strong>test data in a unified test data strategy</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Test Data Deletion</h4>
+      <p>If test data needs to be <strong>deleted</strong> on a regular basis, an <strong>Apex batch job</strong> can be utilized.</p>
+    </div>
+    <div class="card">
+      <h4>Automation</h4>
+      <p><strong>Automated test data loading</strong> can be used for <strong>reliable</strong> results and when <strong>no human oversight</strong> is required.</p>
+    </div>
+    <div class="card">
+      <h4>Related Data</h4>
+      <p>To load <strong>multiple related records</strong> in a single call or transaction, <strong>REST API composite request</strong> or <strong>sObject tree request</strong> can be utilized.</p>
+    </div>
+  </div>
+  <div class="note">REST API composite request vs. sObject tree request: a composite request is a single POST representing a series of REST API requests (up to 25 sub-requests); an sObject tree request creates a collection of nested parent-child records with a single root record. Use sObject tree for hierarchical related records; use composite for mixed operations across multiple object types.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The architect-altitude answer for nightly test data cleanup is a scheduled Apex batch job — not a manual admin process or a sandbox refresh. Batch Apex processes records in chunks, handles governor limits gracefully, and can be scheduled via the Apex Scheduler or a cron expression, making it auditable and repeatable. This is the pattern to cite when asked how a team maintains a "fresh state" sandbox at scale.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 12 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic wellness healthcare solutions provider salesforce patient records appointments interactions global clinics hospitals patient care data privacy testing new features customizations real-world use cases patient confidentiality PHI HIPAA GDPR representative secure test data development lifecycle architect">
+  <div class="pgnum">Page 13 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Wellness</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Wellness, a rapidly expanding healthcare solutions provider, leverages Salesforce to manage patient records, appointments, and interactions across its global network of clinics and hospitals. As part of its commitment to provide exceptional patient care and ensure data privacy, the company faces the challenge of testing new Salesforce features and customizations with data that accurately reflects real-world use cases without compromising patient confidentiality.</p>
+    <p style="margin-top:8px;">Given the sensitive nature of healthcare data, including personal health information (PHI) that must comply with strict regulatory standards like HIPAA in the U.S. and GDPR in Europe, the company needs a strategic approach to manage test data in a representative and secure manner across its development lifecycle. The company's architect needs to recommend appropriate strategies for requirements related to the same.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The Cosmic Wellness scenario maps directly to the Fed's situation: a regulated institution handling sensitive records (financial data at the Fed; PHI here) must test against representative data without exposing real records in lower environments. The HIPAA/GDPR compliance requirement in this scenario mirrors GLBA and Fed IT security policies. Every solution recommended here — masking, mock data, batch deletion — is the same pattern you would apply in a central bank Salesforce environment.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 14 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 large customization project large data volume testing representative data performance defects development lifecycle regulations prohibit sensitive production data non-production environments delete 2 GB test data partial copy sandbox nightly fresh state">
+  <div class="pgnum">Page 15 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A Salesforce development team of the company is working on a large customization project and is in the process of refining its testing strategies. It would like to introduce large data volume testing using representative data to resolve performance defects earlier in the development lifecycle. However, <strong>regulations prohibit the use of sensitive production data in non-production environments</strong>. Furthermore, the team wants a suitable approach to <strong>delete 2 GB of test data in a partial copy sandbox every night</strong>, setting the sandbox to a fresh state for the next day's testing.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 salesforce data mask automatically mask sensitive production data sandbox environments generating loading mock data mimics production data shape volume batch apex job delete test data partial copy sandbox nightly scheduled">
+  <div class="pgnum">Page 16 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The development team can utilize <strong>Salesforce Data Mask</strong> to automatically mask sensitive production data in sandbox environments. Another option is <strong>generating and loading mock data</strong> that mimics production data shape and volume. To delete the test data in the partial copy sandbox every night, a <strong>batch Apex job</strong> can be executed at a specific time.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This is the highest-relevance scenario in the deck from a Fed examiner's perspective. The two-option structure is important: Salesforce Data Mask is preferred when a masked copy of production data is permissible and provides better representativeness; mock data generation is the fallback when regulations absolutely prohibit any production data — even masked — from leaving the production environment boundary. At the Fed, the latter is often the case for the most sensitive data categories. Document which approach is approved for each data classification in your test data policy.</p>
+  </div>
+  <div class="note">Batch Apex for 2 GB nightly deletion is the canonical exam answer. A sandbox refresh would accomplish the same goal but takes hours and consumes the sandbox's refresh allocation. Batch Apex is targeted, schedulable, and does not touch metadata — only the records you specify. It is the right tool for high-frequency, high-volume test data cleanup.</div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 small team developers custom application managing patient information testing stage insert test data multiple related objects patient interactions medical records appointment scheduling automated test data loads automated test data loading manual loading">
+  <div class="pgnum">Page 17 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A small team of Salesforce developers is working on a custom application for managing patient information. Various features of the application are already in the testing stage. The team wants a suitable strategy to <strong>insert test data that represents records of multiple related objects</strong> that mimic real patient interactions, medical records, and appointment scheduling. In addition, the team is considering <strong>automated test data loads</strong> and would like the architect's assistance in choosing automated test data loading over manual loading.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 rest api composite requests sobject tree requests multiple related objects single call transaction composite request single post series rest api requests sobject tree nested parent-child records single root record automated test data loading reliable results no human oversight">
+  <div class="pgnum">Page 18 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the loading of test data that represents records of multiple related objects, <strong>REST API composite requests</strong> or <strong>REST API sObject tree requests</strong> can be utilized. A composite request is a single POST request that represents a series of REST API requests. An sObject tree request comprises a collection of nested, parent-child records with a single root record. <strong>Automated test data loading</strong> is useful for <strong>reliable results</strong> and when <strong>no human oversight</strong> is required for loading test data.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The architect question here is choosing between composite and sObject tree. The decision rule: if you need to create a parent object and multiple levels of children (e.g., Patient → Medical Record → Appointment) in one atomic call, use sObject tree — it handles the full hierarchy. If you need to perform a mix of operations (insert Account, then insert Contact referencing that Account's new ID, then insert a Case) where each step may depend on the prior step's result, use composite requests with reference IDs. The exam distinguishes these by the word "hierarchy" vs. "cross-object dependency."</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Automated test data loading over manual loading is not just a convenience — it is a control. Automated loading is deterministic, version-controlled (the loading scripts live in source control), and leaves no room for an individual developer to manually insert real production data "just this once." At the Fed, any process that removes human discretion from a data-handling step strengthens the control posture and is easier to defend in an audit.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more secure sandbox data salesforce data mask common test utility classes test data creation batch apex composite sobject tree further reading trailhead">
+  <div class="pgnum">Page 19 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Secure Your Sandbox Data with Salesforce Data Mask</li>
+    <li>Common Test Utility Classes for Test Data Creation</li>
+    <li>Batch Apex</li>
+    <li>Composite</li>
+    <li>sObject Tree</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points unified test data strategy representative data security compliance test data creation masking mock data sandbox environments data refresh monitoring auditing considerations batch apex automation related data rest api composite sobject tree exam gotchas decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Unified Test Data Strategy</h2>
+
+  <h3>Core Pillars Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Pillar</th><th>Key Concern</th><th>Primary Tool / Approach</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Representative &amp; Secure Data</strong></td>
+        <td>Data must reflect production complexity without exposing PII</td>
+        <td>Data masking, anonymization, or pseudonymization; never raw production data in sandboxes</td>
+      </tr>
+      <tr>
+        <td><strong>Data Masking</strong></td>
+        <td>Automatically obscure sensitive fields in sandbox copies</td>
+        <td><strong>Salesforce Data Mask</strong> — automatically masks data on sandbox refresh; runs post-refresh before developer access</td>
+      </tr>
+      <tr>
+        <td><strong>Sandboxes &amp; Data Refresh</strong></td>
+        <td>Keep test data representative at each lifecycle stage</td>
+        <td>Developer / Developer Pro / Partial Copy / Full sandbox; scheduled refresh with masking step; sandbox refresh strategies</td>
+      </tr>
+      <tr>
+        <td><strong>Test Data Creation</strong></td>
+        <td>Generate realistic test data without production records</td>
+        <td>Data factory methods and scripts; <strong>Data Loader</strong> for bulk operations; <strong>mock data</strong> when production data prohibited</td>
+      </tr>
+      <tr>
+        <td><strong>Monitoring &amp; Auditing</strong></td>
+        <td>Demonstrate compliance to auditors</td>
+        <td>Track usage and access; periodic audits; Event Monitoring for access patterns; documented masking runbooks</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Test Data Management Considerations</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Need</th><th>Tool / Pattern</th><th>Key Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Nightly bulk deletion of test data</td>
+        <td><strong>Apex batch job</strong></td>
+        <td>Scheduled via Apex Scheduler; handles governor limits; targets only test records; does not consume sandbox refresh quota</td>
+      </tr>
+      <tr>
+        <td>Automated loading (no human oversight)</td>
+        <td><strong>Automated test data loading</strong></td>
+        <td>Deterministic, version-controllable, removes manual discretion; preferred over manual loading for audit defensibility</td>
+      </tr>
+      <tr>
+        <td>Insert multiple related records (hierarchy)</td>
+        <td><strong>REST API sObject tree request</strong></td>
+        <td>Single call; nested parent-child records with a single root record; ideal for Patient → Medical Record → Appointment patterns</td>
+      </tr>
+      <tr>
+        <td>Insert multiple related records (cross-object dependency)</td>
+        <td><strong>REST API composite request</strong></td>
+        <td>Single POST with up to 25 sub-requests; reference IDs allow later requests to reference IDs from earlier ones in the same call</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Scenario Pattern: Requirement → Solution</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Scenario Signal</th><th>Canonical Answer</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Regulations prohibit production data in sandboxes (any form)</td><td>Generate <strong>mock data</strong> that mimics production data shape and volume</td></tr>
+      <tr><td>Production data permitted but must be secured in sandboxes</td><td><strong>Salesforce Data Mask</strong> on sandbox refresh</td></tr>
+      <tr><td>Delete large volume of test data on a schedule</td><td><strong>Apex batch job</strong> scheduled at a specific time</td></tr>
+      <tr><td>Insert related parent-child record hierarchy in one call</td><td><strong>REST API sObject tree request</strong></td></tr>
+      <tr><td>Insert mixed operations across objects referencing new IDs</td><td><strong>REST API composite request</strong></td></tr>
+      <tr><td>Automated loading preferred over manual</td><td>Cite: reliable results, no human oversight required, deterministic, auditable</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Salesforce Data Mask ≠ Shield Platform Encryption.</strong> Data Mask obscures data in sandbox copies for testing safety. Shield Platform Encryption encrypts data at rest in production (and potentially other environments). These solve different problems.</li>
+    <li><strong>Mock data is the answer when regulations prohibit ALL production data</strong> — even masked data. If the rule is "no production data of any kind in non-production environments," Data Mask is not sufficient and mock data generation is the correct approach.</li>
+    <li><strong>Partial Copy sandbox carries a sampled subset of production data; Full sandbox carries all data.</strong> Developer and Developer Pro sandboxes do NOT copy production data. Know which sandbox types are relevant when the scenario mentions data volume or representativeness.</li>
+    <li><strong>Apex batch job for deletion ≠ sandbox refresh.</strong> A refresh resets the entire environment (metadata + data) and is rate-limited. A batch Apex deletion targets only test records and can run nightly without affecting metadata or consuming the refresh entitlement.</li>
+    <li><strong>sObject tree request</strong> is for a single hierarchy (one root, multiple levels of children). <strong>Composite request</strong> is for a series of independent REST API sub-requests that can reference each other by ID. Do not conflate them.</li>
+    <li><strong>Automated test data loading is both a quality control and an audit control</strong> — it eliminates the risk of a developer manually loading real data "just this once" and creates a version-controlled, repeatable evidence trail.</li>
+    <li>A unified test data strategy requires documented guidelines for creation, storage, usage, AND disposal — disposal (deletion policy) is frequently overlooked and is specifically called out in the deck.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve platform engineer, the unified test data strategy is one of the highest-visibility governance artifacts. Examiners specifically ask: "How do you ensure that production financial data never appears in your development or test environments?" The complete answer has three layers: (1) <strong>technical controls</strong> — Salesforce Data Mask running automatically post-refresh, with mock data generation as the fallback when masking is insufficient; (2) <strong>process controls</strong> — documented sandbox refresh runbooks, nightly batch Apex cleanup jobs, and version-controlled data loading scripts; and (3) <strong>audit controls</strong> — Event Monitoring to track test data access, periodic audits to validate adherence to the strategy, and masking job execution logs as evidence. All three layers together constitute a defensible, examiner-ready posture.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

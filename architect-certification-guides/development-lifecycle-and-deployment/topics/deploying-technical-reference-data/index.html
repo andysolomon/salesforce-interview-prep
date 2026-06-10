@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploying — Technical Reference Data — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Deploying — Technical Reference Data</h1>
+  <div class="sub">Given a scenario, describe approaches to manage and deploy technical reference data · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (19 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Technical Reference Data</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#trd-overview">Technical Reference Data — Overview</a></li>
+      <li><a href="#section-trd">Section: Technical Reference Data</a></li>
+      <li><a href="#trd-reference-usage">Reference &amp; Usage</a></li>
+      <li><a href="#trd-custom-metadata-picklists">Custom Metadata Types &amp; Picklists</a></li>
+      <li><a href="#trd-objects-deployment">Objects &amp; Deployment</a></li>
+      <li><a href="#trd-data-loader-governance">Data Loader, Governance &amp; Testing</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Health Innovations Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1a">Solution 1 (Part 1)</a></li>
+      <li><a href="#solution-1b">Solution 1 (Part 2)</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- PAGE 1: COVER -->
+<section class="slide title-slide" id="cover" data-search="cover deploying technical reference data salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Deploying — Technical Reference Data</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario, describe approaches to manage and deploy technical reference data · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- PAGE 2: TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents technical reference data business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#trd-reference-usage">Technical Reference Data</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- PAGE 3: LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives storing managing technical reference data salesforce considerations deploy approaches various technical requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the different ways of storing and managing technical reference data in Salesforce.</li>
+    <li>Identify the considerations related to the use of technical reference data.</li>
+    <li>Describe approaches to manage and deploy technical reference data for various technical requirements.</li>
+  </ul>
+</section>
+
+<!-- PAGE 4: INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction technical reference data categorize standardize consistency custom metadata types picklist configuration settings object relationships governor limits salesforce environments">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In Salesforce, <strong>technical reference data</strong> is used to categorize other data, standardize terminology, and ensure consistency across systems. It serves as a <strong>reference</strong> within applications, such as picklist values, configuration settings, or other standardized data sets.</p>
+  <p><strong>Custom Metadata Types</strong> are typically used to store and manage technical reference data that can be deployed across Salesforce environments.</p>
+  <p>Various considerations are applicable to the management and deployment of technical reference data. For example, when using Salesforce objects to store the data and use it in Apex, <strong>object relationships</strong> and <strong>governor limits</strong> should be considered.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a regulated institution, technical reference data (rate tables, product codes, service tier definitions) must move between environments in a controlled, auditable way. Custom Metadata Types are the preferred vehicle precisely because they travel with metadata deployments — subject to the same change-control review and GitLab CI/CD pipeline gates that govern code. Object-stored reference data requires a separate data-loading step, adding operational complexity and audit burden.</p>
+  </div>
+</section>
+
+<!-- PAGE 5: TECHNICAL REFERENCE DATA — OVERVIEW (3-part graphic) -->
+<section class="slide" id="trd-overview" data-search="technical reference data overview using custom metadata types considerations deployment source of truth governance data loading object relationships governor limits picklist configuration settings">
+  <div class="pgnum">Page 5 · Technical Reference Data — Overview</div>
+  <h2>Technical Reference Data</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>Using Technical Reference Data</h4>
+      <p>Technical reference data serves as a reference within applications, such as picklist values, configuration settings, or other standardized data sets. It is used for application functionality and not user-generated content.</p>
+    </div>
+    <div class="card">
+      <h4>Custom Metadata Types</h4>
+      <p>A custom metadata type and its records can be created to store and manage technical reference data such as configuration settings for an application. Metadata API or Change Sets can be used for deployment.</p>
+    </div>
+    <div class="card">
+      <h4>Considerations</h4>
+      <p>Important considerations for the management and deployment of technical reference data are related to the use of a source of truth, governance, data loading, object relationships, and governor limits.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 6: SECTION DIVIDER — TECHNICAL REFERENCE DATA -->
+<section class="slide title-slide" id="section-trd" data-search="section technical reference data">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Technical Reference Data</h2>
+</section>
+
+<!-- PAGE 7: REFERENCE & USAGE -->
+<section class="slide" id="trd-reference-usage" data-search="technical reference data reference usage categorize standardize consistency picklist values configuration settings application functionality not user-generated single source of truth version control salesforce">
+  <div class="pgnum">Page 7 · Technical Reference Data — Reference &amp; Usage</div>
+  <h2>Technical Reference Data</h2>
+  <p class="lede">Technical reference data refers to data used across the organization to categorize other data, standardize terminology, and ensure consistency across systems.</p>
+  <h3>Reference</h3>
+  <p>Technical reference data serves as a <strong>reference within applications</strong>, such as <strong>picklist values</strong>, <strong>configuration settings</strong>, or other standardized data sets.</p>
+  <h3>Usage</h3>
+  <p>Technical reference data are crucial for <strong>application functionality</strong> but <strong>not user-generated content</strong>.</p>
+  <h3>Data Management</h3>
+  <p>A <strong>single source of truth</strong> can be utilized to manage technical reference data to ensure consistency and accuracy. For example, <strong>Salesforce</strong> can store the data, while a <strong>version control system</strong> can store the metadata.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about managing reference data across environments, lead with the single-source-of-truth pattern: Salesforce as the data store, Git as the metadata store. This separation cleanly divides what gets deployed via Metadata API (the type structure) from what gets loaded via Data Loader (the records), and it maps directly to DevOps pipeline design questions.</p>
+  </div>
+</section>
+
+<!-- PAGE 8: CUSTOM METADATA TYPES & PICKLISTS -->
+<section class="slide" id="trd-custom-metadata-picklists" data-search="custom metadata types picklist values store manage technical reference data deployed across environments data consistency integrity restricting field values predefined options global picklist value set edited">
+  <div class="pgnum">Page 8 · Technical Reference Data — Custom Metadata Types &amp; Picklists</div>
+  <h2>Technical Reference Data</h2>
+  <p class="lede">Technical reference data refers to data used across the organization to categorize other data, standardize terminology, and ensure consistency across systems.</p>
+  <h3>Custom Metadata Types</h3>
+  <p>Custom Metadata Types can be leveraged to <strong>store and manage technical reference data</strong> that can be deployed across environments.</p>
+  <h3>Picklist Values</h3>
+  <p>Picklist values are used to <strong>ensure data consistency</strong> and <strong>integrity</strong> by <strong>restricting field values</strong> to a set of predefined options. Picklist values can be added or edited in a custom picklist field. A picklist field can also use values from a <strong>global picklist value set</strong>, which can be edited.</p>
+  <div class="note">Custom Metadata Types travel with the metadata deployment and do not require a separate data-loading step — unlike custom objects. This is the key exam differentiator when a question asks about deploying reference data "automatically" across environments.</div>
+</section>
+
+<!-- PAGE 9: OBJECTS & DEPLOYMENT -->
+<section class="slide" id="trd-objects-deployment" data-search="objects deployment salesforce objects store manage technical reference data object relationships governor limits Metadata API Change Sets complex large volume custom metadata types records">
+  <div class="pgnum">Page 9 · Technical Reference Data — Objects &amp; Deployment</div>
+  <h2>Technical Reference Data</h2>
+  <p class="lede">Technical reference data refers to data used across the organization to categorize other data, standardize terminology, and ensure consistency across systems.</p>
+  <h3>Objects</h3>
+  <p>Salesforce objects are often used to store and manage technical reference data. However, <strong>object relationships and limitations</strong>, such as <strong>governor limits</strong>, should be considered when using them in Apex.</p>
+  <h3>Deployment</h3>
+  <p><strong>Metadata API</strong> can be utilized for the deployment of complex or large volume of technical reference data like custom metadata types and records. <strong>Change Sets</strong> can be utilized for simple deployments.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a regulated environment, Metadata API–driven deployments (scripted, version-controlled, pipeline-gated) are strongly preferred over manual Change Sets for anything beyond trivial changes. Change Sets leave no audit trail in source control and cannot be reviewed as a diff. For Fed-grade change control, the deployment artifact should be a commit in GitLab — Metadata API supports that; Change Sets do not.</p>
+  </div>
+</section>
+
+<!-- PAGE 10: DATA LOADER, GOVERNANCE & TESTING -->
+<section class="slide" id="trd-data-loader-governance" data-search="data loader governance testing large volumes reference data salesforce object imported exported strict governance policies version control manage changes testing validation before deployment production">
+  <div class="pgnum">Page 10 · Technical Reference Data — Data Loader, Governance &amp; Testing</div>
+  <h2>Technical Reference Data</h2>
+  <p class="lede">Technical reference data refers to data used across the organization to categorize other data, standardize terminology, and ensure consistency across systems.</p>
+  <h3>Data Loader</h3>
+  <p>Large volumes of reference data in a Salesforce object can be <strong>imported or exported</strong> using <strong>Data Loader</strong>.</p>
+  <h3>Governance</h3>
+  <p><strong>Strict governance policies</strong> and <strong>version control</strong> can be implemented to manage changes to reference data effectively.</p>
+  <h3>Testing</h3>
+  <p><strong>Thorough testing</strong> and <strong>validation</strong> of reference data should be performed before deployment to production.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>All three pillars here — Data Loader (for bulk object-stored reference data), governance/version control, and pre-production validation — map directly to Federal Reserve IT change-management requirements. A data-load step that bypasses the deployment pipeline must still be documented, approved, and logged. Version-controlling Data Loader CSV files alongside metadata in Git closes that audit gap and enables rollback if a reference data change causes downstream failures.</p>
+  </div>
+</section>
+
+<!-- PAGE 11: SECTION DIVIDER — BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 11 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- PAGE 12: BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic health innovations digital health solutions patient management healthcare analytics customer engagement deployment methodology streamlined compliance healthcare industry reference data architect">
+  <div class="pgnum">Page 12 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Health Innovations</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Health Innovations, a provider of digital health solutions, is transitioning to an enhanced operational model in Salesforce to consolidate patient management, healthcare analytics, and customer engagement across its diverse service platforms. As the company expands its reach in the global healthcare market and undertakes more intricate projects with the need for regular updates, it faces the necessity to refine its deployment methodology. The goal is to achieve streamlined, flawless deployments that are in harmony with the company's strategic objectives and the stringent compliance standards of the healthcare industry.</p>
+    <p style="margin-top:8px;">The company's Salesforce architect is tasked with evaluating the current needs for managing and deploying technical reference data for various use cases. The architect's role involves identifying optimal approaches to manage and deploy technical reference data critical for the company's operations.</p>
+  </div>
+</section>
+
+<!-- PAGE 13: SECTION DIVIDER — REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 13 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- PAGE 14: REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 appexchange product multiple related custom objects business logic healthcare solutions records define business logic source of truth large volume data loading apex governor limits object relationships">
+  <div class="pgnum">Page 14 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company is looking to implement a large number of features using an AppExchange product. The product allows the use of multiple related custom objects to store and configure important business logic within a custom application used for healthcare solutions. An administrator can create records of the custom objects to define the necessary business logic. The architect needs to recommend a suitable source of truth for managing this reference data and provide any relevant considerations related to loading a large volume of this data and using the data in Apex.</p>
+  </div>
+</section>
+
+<!-- PAGE 15: SOLUTION 1 PART 1 -->
+<section class="slide" id="solution-1a" data-search="solution 1 part 1 salesforce source of truth custom objects production sandbox environments version control system git data loader large volume records circular relationships data integrity updates navigation related technical reference records loop">
+  <div class="pgnum">Page 15 · Solution 1 (Part 1)</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Salesforce can be used as the source of truth for the technical reference data stored in custom objects. The data can be stored in <strong>production and sandbox environments</strong>. For the metadata that defines the structure of these custom objects, a <strong>version control system</strong> such as Git can be used as the source of truth. <strong>Data Loader</strong> can be used to load a large volume of these records.</p>
+    <p style="margin-top:8px;">However, it is important to note that <strong>circular relationships</strong> become a concern in a data model that utilizes multiple related objects. It can lead to challenges in data integrity, updates, and navigation between related technical reference records. The records could indirectly reference each other in a loop, complicating updates and queries.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Using Git as the source of truth for object metadata structure while Salesforce stores the records creates a clean audit split: schema changes are code-reviewed and pipeline-approved; data changes (record loads) are tracked via Data Loader logs and CSV files committed to the repo. Circular relationships in a reference data model are not just a technical risk — they are an integrity risk that can produce inconsistent outputs, which is an audit finding waiting to happen in a regulated org.</p>
+  </div>
+</section>
+
+<!-- PAGE 16: SOLUTION 1 PART 2 -->
+<section class="slide" id="solution-1b" data-search="solution 1 part 2 governor limits depth nested relationships SOQL query apex transactions exceed limits excessive nesting user experience reference data multiple objects">
+  <div class="pgnum">Page 16 · Solution 1 (Part 2)</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Another important consideration is that Salesforce imposes governor limits on the <strong>depth of nested relationships</strong> that can be accessed in a single SOQL query in Apex. When managing technical reference data across multiple objects, it's important to ensure that Apex transactions do not exceed these limits. Excessive nesting can hinder the ability to effectively utilize the reference data, impacting user experience.</p>
+  </div>
+  <div class="note">SOQL relationship queries in Apex are limited in the depth of nested relationships that can be traversed in a single query. When an AppExchange product uses many related custom objects, architects must verify that data retrieval patterns stay within these limits — especially for bulk operations that could multiply the query depth impact.</div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about using object-stored reference data in Apex, give a two-part answer: (1) circular relationships break data integrity and make bulk-load ordering indeterminate, and (2) deeply nested SOQL traversals hit governor limits. The clean architect move is to flatten the model or use Custom Metadata Types (which avoid both issues) when object relationships are not truly needed for the use case.</p>
+  </div>
+</section>
+
+<!-- PAGE 17: REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 service department service centers independent business units customer service operations reference searchable web forms custom application service management storing technical reference data deployment approaches">
+  <div class="pgnum">Page 17 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company's service department recently started using Salesforce. It would like to store and manage service centers, which are independent business units where customer service operations are performed. They are only required for reference and should be searchable in various web forms on the company's website and a custom application used for service management. The architect needs to recommend approaches for storing the service centers as technical reference data and their deployment.</p>
+  </div>
+</section>
+
+<!-- PAGE 18: SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 custom metadata type service centers records store manage service teams searchable web forms custom application service management Metadata API Change Sets deploy custom metadata type records">
+  <div class="pgnum">Page 18 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>A <strong>custom metadata type</strong> can be defined in Salesforce for the service centers. <strong>Records</strong> of this custom metadata type can be created to store and manage various service teams that should be searchable on web forms and the custom application used for service management. <strong>Metadata API</strong> or <strong>Change Sets</strong> can be utilized to deploy the custom metadata type and its records.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This is the canonical use case for Custom Metadata Types: read-only reference data (service centers) that must be available across environments and searchable at runtime. Because CMT records deploy with the metadata package, there is no separate data-loading step — the deployment pipeline covers both type definition and data. For the Fed, this means a single, auditable deployment artifact in GitLab covers the entire change, satisfying change-control and segregation-of-duties requirements in one step.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When a scenario describes reference data that is "read-only for applications" and "must move between environments," the answer is almost always Custom Metadata Types. The distinguishing factor from Custom Settings is that CMT records deploy via Metadata API (source-trackable, pipeline-friendly); Custom Settings records do not deploy the same way. Know this distinction cold.</p>
+  </div>
+</section>
+
+<!-- PAGE 19: LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more custom metadata types basics execution governors limits trailhead further reading salesforce documentation">
+  <div class="pgnum">Page 19 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce documentation and Trailhead resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>What are Custom Metadata Types?</li>
+    <li>Custom Metadata Types Basics</li>
+    <li>Execution Governors and Limits</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points technical reference data custom metadata types picklist custom objects data loader governance testing deployment metadata api change sets governor limits circular relationships source of truth exam gotchas decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Deploying Technical Reference Data</h2>
+
+  <h3>Storage Mechanism Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Mechanism</th><th>Best For</th><th>Deployment Method</th><th>Key Consideration</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Custom Metadata Types</strong></td>
+        <td>Config settings, reference lookups, data that must deploy with metadata</td>
+        <td>Metadata API or Change Sets (records travel with deployment)</td>
+        <td>No separate data-loading step; source-trackable in Git</td>
+      </tr>
+      <tr>
+        <td><strong>Custom Objects</strong></td>
+        <td>Large-volume reference records with complex relationships</td>
+        <td>Schema via Metadata API; records via Data Loader</td>
+        <td>Watch for circular relationships and SOQL governor limits in Apex</td>
+      </tr>
+      <tr>
+        <td><strong>Picklist / Global Value Sets</strong></td>
+        <td>Field-level constrained values, standardized terminology</td>
+        <td>Metadata API or Change Sets</td>
+        <td>Global value sets allow reuse across multiple fields/objects</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Deployment Approach Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Approach</th><th>Use When</th><th>Auditability</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Metadata API</strong></td>
+        <td>Complex or large-volume deployments; CI/CD pipelines; Git-driven releases</td>
+        <td>High — commit-traceable, reviewable as diff</td>
+      </tr>
+      <tr>
+        <td><strong>Change Sets</strong></td>
+        <td>Simple deployments; small teams without DevOps tooling</td>
+        <td>Low — no source-control artifact; manual, point-in-time</td>
+      </tr>
+      <tr>
+        <td><strong>Data Loader</strong></td>
+        <td>Bulk-loading records into custom objects (not CMT records)</td>
+        <td>Medium — CSV logs; pair with version-controlled CSVs in Git for full traceability</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Key Considerations for Object-Stored Reference Data</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Circular Relationships</td>
+        <td>Data integrity failures, load-order issues, infinite loops in navigation</td>
+        <td>Flatten the data model; avoid bidirectional lookup chains</td>
+      </tr>
+      <tr>
+        <td>Governor Limits on SOQL nesting</td>
+        <td>Apex queries exceeding relationship depth limits; runtime errors at scale</td>
+        <td>Design queries to stay within limits; test with production-scale data volumes</td>
+      </tr>
+      <tr>
+        <td>Separate data-load step</td>
+        <td>Deployment pipeline gaps; reference data out of sync with metadata</td>
+        <td>Version-control Data Loader CSVs in Git; automate load as post-deploy step</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Custom Metadata Type records deploy with the metadata package</strong> — no separate data-load step is needed. This is the key differentiator from Custom Object records.</li>
+    <li><strong>Custom Settings records do NOT deploy via Metadata API</strong> the same way CMT records do — when a question asks about deployable reference data, the answer is Custom Metadata Types, not Custom Settings.</li>
+    <li><strong>Change Sets cannot be rolled back</strong> and leave no source-control artifact — Metadata API is the correct answer whenever auditability, repeatability, or pipeline integration is mentioned.</li>
+    <li><strong>Circular relationships in custom objects break Data Loader ordering</strong> — if Object A references Object B and B references A, you cannot load both in a single pass without placeholder records.</li>
+    <li><strong>Governor limits apply to SOQL relationship depth in Apex</strong> — deeply nested multi-object reference data models may be queryable in Setup but fail at runtime in Apex transactions.</li>
+    <li><strong>Data Loader is the answer for large-volume custom object records</strong>; it is not used for Custom Metadata Type records (those load via deployment tooling).</li>
+    <li><strong>A version control system stores metadata structure; Salesforce stores the data</strong> — the single-source-of-truth pattern splits these responsibilities deliberately for both object and CMT approaches.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve platform engineer, the entire reference data management topic reduces to one principle: <strong>every change to reference data must be traceable, reviewable, and reversible</strong>. Custom Metadata Types achieve this most cleanly because the type definition and its records travel together in a single Metadata API deployment that can be code-reviewed in GitLab, gated by an approval workflow, and rolled back by reverting a commit. Object-stored reference data is workable but requires additional discipline: schema changes via pipeline, record loads via version-controlled Data Loader scripts, and governance policies enforced through strict change-control procedures. Whichever mechanism is chosen, the deployment artifact in source control is the evidence package that satisfies examiners — the pipeline is the audit trail.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

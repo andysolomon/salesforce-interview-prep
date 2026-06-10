@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operating — Managing Common Release Artifacts — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Operating — Managing Common Release Artifacts</h1>
+  <div class="sub">Given a multi-org customer scenario, compare and contrast approaches for managing common release artifacts · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (22 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Managing Common Release Artifacts</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#overview">Managing Common Release Artifacts — Overview</a></li>
+      <li><a href="#section-artifacts">Section: Managing Common Release Artifacts</a></li>
+      <li><a href="#multi-org-architecture">Multi-Org Architecture &amp; Release Artifacts</a></li>
+      <li><a href="#source-driven-development">Source-Driven Development</a></li>
+      <li><a href="#metadata-api">Metadata API</a></li>
+      <li><a href="#package-based-development">Package Based Development</a></li>
+      <li><a href="#change-sets">Change Sets</a></li>
+      <li><a href="#additional-strategies">Additional Deployment Strategies</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Solutions Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#requirement-3">Requirement 3</a></li>
+      <li><a href="#solution-3">Solution 3</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover operating managing common release artifacts multi-org salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Operating — Managing Common Release Artifacts</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a multi-org customer scenario, compare and contrast approaches for managing common release artifacts · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents managing common release artifacts business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#multi-org-architecture">Managing Common Release Artifacts</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives describe approaches managing common release artifacts multi-org architecture recommend suitable strategies specific business requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the use of various approaches for managing common release artifacts in a multi-org architecture.</li>
+    <li>Recommend suitable strategies for managing common release artifacts for specific business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction managing common release artifacts multi-org architecture custom fields apex classes lightning components synchronize updates maintain consistency seamless operation source-driven development metadata api package-based deployments change sets">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>In today's complex Salesforce environments, architects often face the challenge of <strong>managing common release artifacts</strong> across multiple Salesforce orgs. In a <strong>multi-org architecture</strong>, various approaches can be utilized for managing these shared components, which include custom fields, Apex classes, Lightning components, etc.</p>
+  <p>Salesforce architects should have the knowledge and tools to efficiently <strong>synchronize updates</strong>, <strong>maintain consistency</strong>, and <strong>ensure the seamless operation of business processes</strong> across different Salesforce orgs. Strategies for managing common release artifacts include <strong>source-driven development</strong>, <strong>Metadata API-based deployments</strong>, <strong>package-based deployments</strong>, and the use of <strong>change sets</strong>.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a central bank with multiple Salesforce orgs (e.g., separate orgs per business line or regulatory boundary), having a single auditable source of truth for shared artifacts is a core control requirement. Drift between orgs — where one org's Apex class or configuration differs silently from another's — creates audit findings. The choice of deployment strategy (source-driven, Metadata API, packages, change sets) must be weighed against traceability and change-control obligations.</p>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<section class="slide" id="overview" data-search="managing common release artifacts overview source-driven development metadata api package-based development additional strategies git version control deploy retrieve zip file managed unmanaged unlocked packages salesforce cli rtm">
+  <div class="pgnum">Page 5 · Managing Common Release Artifacts — Overview</div>
+  <h2>Managing Common Release Artifacts</h2>
+  <p class="lede">Four primary strategies exist for managing and deploying common release artifacts across Salesforce orgs, each with distinct strengths and trade-offs.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Source-Driven Development</h4>
+      <p>A version control system (VCS) such as Git should be utilized as the <strong>source of truth</strong> for all artifacts, ensuring consistency across orgs.</p>
+    </div>
+    <div class="card">
+      <h4>Metadata API</h4>
+      <p>The <strong>deploy()</strong> and <strong>retrieve()</strong> calls of Metadata API can be used to retrieve and deploy release artifacts across Salesforce orgs.</p>
+    </div>
+    <div class="card">
+      <h4>Package-Based Development</h4>
+      <p>Managed, unmanaged, and unlocked packages can be created to deploy release artifacts or perform a <strong>metadata backup</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Additional Strategies</h4>
+      <p>Additional strategies include creating a .zip file, using Salesforce CLI commands, evaluating third-party solutions, and using a <strong>Requirements Traceability Matrix (RTM)</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: MANAGING COMMON RELEASE ARTIFACTS -->
+<section class="slide title-slide" id="section-artifacts" data-search="section managing common release artifacts">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Managing Common Release Artifacts</h2>
+</section>
+
+<!-- MULTI-ORG ARCHITECTURE & RELEASE ARTIFACTS -->
+<section class="slide" id="multi-org-architecture" data-search="multi-org architecture release artifacts code configurations metadata components data challenges consistency governance efficiency deployment methodologies tools best practices">
+  <div class="pgnum">Page 7 · Multi-Org Architecture &amp; Release Artifacts</div>
+  <h2>Multi-Org Architecture &amp; Release Artifacts</h2>
+  <p class="lede">When a company uses <strong>multi-org architecture</strong>, managing <strong>common release artifacts</strong> across multiple orgs presents certain challenges.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Artifacts</h4>
+      <p>Common release artifacts that need to be synchronized across orgs include <strong>code</strong>, <strong>configurations</strong>, <strong>metadata components</strong>, and <strong>data</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Challenges</h4>
+      <p>Managing common release artifacts across multiple orgs presents challenges in ensuring <strong>consistency</strong>, <strong>governance</strong>, and <strong>efficiency</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Approaches</h4>
+      <p>Managing release artifacts in a multi-org architecture requires understanding of <strong>deployment methodologies</strong>, <strong>tools</strong>, and <strong>best practices</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about multi-org challenges, anchor your answer to the three dimensions on this slide: consistency (same artifact version in every org), governance (who approves and tracks changes), and efficiency (how fast and reliably changes propagate). Then map each dimension to a specific tool or practice — VCS for consistency, change control process for governance, CI/CD pipeline for efficiency.</p>
+  </div>
+</section>
+
+<!-- SOURCE-DRIVEN DEVELOPMENT -->
+<section class="slide" id="source-driven-development" data-search="source-driven development version control system vcs git source of truth version tracking branching merging salesforce dx metadata api collaborative development resolve conflicts cicd jenkins circle ci travis ci automate build test deployment consistent deployments">
+  <div class="pgnum">Page 8 · Source-Driven Development</div>
+  <h2>Source-Driven Development</h2>
+  <p class="lede">A <strong>version control system (VCS)</strong> such as Git should be utilized as the <strong>source of truth</strong> for all artifacts, ensuring consistency across orgs.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>VCS at the Core</h4>
+      <p>A VCS should be at the <strong>core</strong> of the release management process. It allows for <strong>version tracking</strong>, <strong>branching</strong>, and <strong>merging</strong> of development work across different orgs.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce DX, Git &amp; Metadata API</h4>
+      <p><strong>Salesforce DX</strong>, <strong>Git</strong>, and the <strong>Metadata API</strong> can be used for maintaining consistency and governance across orgs, enabling <strong>collaborative development</strong> and helping to <strong>resolve conflicts in shared artifacts</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>CI/CD Integration</h4>
+      <p><strong>CI/CD tools</strong> like Jenkins, Circle CI, and Travis CI can be integrated with Salesforce DX to automate the <strong>build, test, and deployment processes</strong>, ensuring consistent deployments across orgs.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For a central bank, source-driven development is the highest-assurance deployment strategy because every artifact change is traceable to a commit, author, and timestamp. CI/CD pipelines add automated testing gates before production deployment — exactly the kind of pre-approval control that regulators and internal audit look for. Branching strategies (e.g., GitFlow) also enforce segregation of duties between developers and release managers.</p>
+  </div>
+</section>
+
+<!-- METADATA API -->
+<section class="slide" id="metadata-api" data-search="metadata api deploy retrieve release artifacts direct control metadata components heavily customized metadata salesforce cli project retrieve start project deploy start zip file project manifest package.xml xml components folders">
+  <div class="pgnum">Page 9 · Metadata API</div>
+  <h2>Metadata API</h2>
+  <p class="lede">The <strong>deploy()</strong> and <strong>retrieve()</strong> calls in Metadata API can be used to <strong>retrieve and deploy release artifacts</strong> across Salesforce orgs.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Direct Control</h4>
+      <p>Deployments based on Metadata API provide <strong>direct control</strong> over specific metadata components and are suitable for orgs with <strong>heavily customized metadata</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Salesforce CLI Commands</h4>
+      <p><strong>Salesforce CLI</strong> commands can be used to retrieve and deploy artifacts. The <strong><em>project retrieve start</em></strong> command is used to retrieve components. The <strong><em>project deploy start</em></strong> command is used to deploy components.</p>
+    </div>
+    <div class="card">
+      <h4>Zip File Deployment</h4>
+      <p>The deploy() and retrieve() calls are used to deploy and retrieve a <strong>.zip file</strong>. The .zip file contains a <strong>project manifest (package.xml)</strong> that lists what to retrieve or deploy and <strong>XML components</strong> organized into folders.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The exam distinguishes between Metadata API methods precisely. Know that <code>project retrieve start</code> pulls metadata from an org into local source format, and <code>project deploy start</code> pushes it. The .zip + package.xml pattern is used when direct org access is unavailable — the package.xml manifest is the human-readable change list that gets handed to a release management team. This is the canonical answer for Requirement 1 in the scenario section.</p>
+  </div>
+</section>
+
+<!-- PACKAGE BASED DEVELOPMENT -->
+<section class="slide" id="package-based-development" data-search="package based development packages deploy release artifacts metadata backup collection of metadata versioning managed packages unmanaged packages unlocked packages salesforce dx rollback restoring data deployment issues system bugs specialized solutions">
+  <div class="pgnum">Page 10 · Package Based Development</div>
+  <h2>Package Based Development</h2>
+  <p class="lede"><strong>Packages</strong> can be created to <strong>deploy release artifacts</strong> or perform a <strong>metadata backup</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Package Fundamentals</h4>
+      <p>A package encapsulates a <strong>collection of metadata</strong> for easy deployment and supports <strong>versioning</strong> for iterative development. It can be distributed to <strong>other Salesforce users and orgs</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Package Types</h4>
+      <p><strong>Managed packages</strong> are less flexible for updates post-deployment. <strong>Unmanaged packages</strong> cannot be upgraded. <strong>Unlocked packages</strong> require the use of Salesforce DX.</p>
+    </div>
+    <div class="card">
+      <h4>Backup &amp; Rollback</h4>
+      <p>An unmanaged package can be created for <strong>metadata backup</strong>, the <strong>rollback</strong> of metadata changes and <strong>restoring</strong> data efficiently in the event of deployment issues or system bugs often requires <strong>more specialized solutions</strong>.</p>
+    </div>
+  </div>
+  <div class="note">Unlocked packages are the modern, modular packaging option — they support source-driven development and can be versioned and upgraded, unlike unmanaged packages. Choose unlocked packages when you need the flexibility of modular releases with version control integration.</div>
+</section>
+
+<!-- CHANGE SETS -->
+<section class="slide" id="change-sets" data-search="change sets deploy release artifacts connected orgs simple intuitive small deployments no additional tools administrators associated same production org lacks sophistication complex dependencies limitations">
+  <div class="pgnum">Page 11 · Change Sets</div>
+  <h2>Change Sets</h2>
+  <p class="lede">Change Sets can be utilized to <strong>deploy release artifacts</strong> between <strong>connected orgs</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Small Deployments</h4>
+      <p>Change Sets offer a <strong>simple and intuitive</strong> method for small deployments and require <strong>no additional tools or setup</strong>. They can be easily used by Salesforce administrators.</p>
+    </div>
+    <div class="card">
+      <h4>Considerations</h4>
+      <p>Using Change Sets is limited to orgs <strong>associated with the same production org</strong> (e.g., sandbox to production). It <strong>lacks the sophistication</strong> needed for managing <strong>complex dependencies</strong>.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Change Sets are the correct answer only for small, simple deployments between sandboxes and their associated production org. The exam frequently tests whether candidates know the limitations: no version control integration, no automated testing gates, no support for cross-org deployments (e.g., between two separate production orgs). For complex multi-org scenarios, Metadata API or source-driven development is always the stronger answer.</p>
+  </div>
+</section>
+
+<!-- ADDITIONAL DEPLOYMENT STRATEGIES -->
+<section class="slide" id="additional-strategies" data-search="additional deployment strategies release artifacts zip file package.xml xml components project deploy validate project deploy quick third-party appexchange metadata rollback data recovery industry regulations requirements traceability matrix rtm documentation code components">
+  <div class="pgnum">Page 12 · Additional Deployment Strategies for Release Artifacts</div>
+  <h2>Additional Deployment Strategies for Release Artifacts</h2>
+  <p class="lede">Additional strategies can be employed for <strong>managing deployments</strong>, <strong>data integrity</strong>, and <strong>system integration</strong> in Salesforce environments.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Zip File Deployment</h4>
+      <p>For the deployment of artifacts when there is no direct access to the org, a <strong>.zip file containing a package.xml file</strong> and <strong>XML components</strong> can be utilized.</p>
+    </div>
+    <div class="card">
+      <h4>Validate Before Deploy</h4>
+      <p>Deployment of artifacts can be <strong>validated</strong> prior to actual deployment using the Salesforce CLI <strong><em>project deploy validate</em></strong> command. The <strong><em>project deploy quick</em></strong> command quickly deploys a validated deployment.</p>
+    </div>
+    <div class="card">
+      <h4>Third-Party &amp; AppExchange</h4>
+      <p><strong>Third-party and AppExchange products</strong> can be evaluated to implement metadata rollback and data recovery to comply with <strong>industry regulations</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Requirements Traceability Matrix</h4>
+      <p>Comprehensive documentation, such as a <strong>Requirements Traceability Matrix</strong>, can be used to trace the development and purpose of <strong>code components</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The validate-then-quick-deploy pattern is especially valuable in regulated environments: running a full validation (including all Apex tests) in production without committing changes gives the release manager an auditable proof-of-deployability before the actual deployment window. This separates the approval gate from the execution step — a classic segregation of duties control. Third-party backup and rollback tools are often required to meet RTO/RPO obligations under financial regulators.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 13 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic solutions global enterprise multiple salesforce orgs business units shared release artifacts custom fields apex classes lightning components crm project management development lifecycle consistency source-driven development metadata api package-based deployment change sets">
+  <div class="pgnum">Page 14 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Solutions, a global enterprise that offers various types of technology solutions, operates using multiple Salesforce orgs to cater to its diverse business units. Each org utilizes shared release artifacts, including custom fields, Apex classes, and Lightning components, vital for its CRM and project management processes. With the aim to streamline the development lifecycle and ensure consistency across all orgs, the company enlists the expertise of a Salesforce architect.</p>
+    <p style="margin-top:8px;">The architect is tasked with devising strategies to address specific requirements for managing common release artifacts efficiently while accommodating the unique needs of each org. The architect must explore approaches such as source-driven development, using Metadata API, package-based deployment, and using change sets.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 15 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 consultant customization project security concerns no direct access production org release management team deployment communication metadata components validation deployment salesforce cli zip file package.xml">
+  <div class="pgnum">Page 16 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A Salesforce consultant has been working on a customization project, but due to security concerns, the company cannot provide the consultant with <strong>direct access to the production org</strong> that requires the new features. A dedicated release management team will be responsible for performing the deployment to production. The architect needs to recommend suitable approaches for the proper <strong>communication of metadata components</strong> to the release management team as well as their <strong>validation and final deployment</strong> to the production environment using Salesforce CLI.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>This scenario maps directly to a central bank's segregation of duties requirement: the developer who builds a change must not be the same person who deploys it to production. The .zip + package.xml hand-off is the auditable artifact that the release management team validates before touching the production org — creating a clear approval record that satisfies change control policy.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 retrieve metadata api zip file project manifest package.xml xml components release management team project deploy validate project deploy quick validate deployment actual deployment salesforce cli">
+  <div class="pgnum">Page 17 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The consultant can use the <strong>retrieve()</strong> call of <strong>Metadata API</strong> for this requirement. They should retrieve all the project metadata and create a <strong>.zip file</strong> containing a <strong>project manifest (package.xml)</strong> file with all the associated metadata and send it to the release management team. The project manifest lists what to retrieve or deploy. <strong>One or more XML components</strong> are organized into folders in the .zip file. After receiving the .zip file, the release management team can use the <strong><em>project deploy validate</em></strong> command to validate the metadata deployment. After successful validation, it can use the <strong><em>project deploy quick</em></strong> command for the actual deployment.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The two-step deploy pattern — <em>project deploy validate</em> first, then <em>project deploy quick</em> — is the canonical exam answer for "how do you safely deploy when you cannot afford a failed production deployment." Validation runs all Apex tests and checks component integrity without committing; quick deploy then executes the pre-validated bundle, skipping the re-run of tests and drastically reducing the deployment window.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 developer apex class existing functionality purpose unknown different developer different salesforce org two years ago comprehensive documentation requirements traceability matrix purpose class">
+  <div class="pgnum">Page 18 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A developer would like to utilize an existing Apex class for a new functionality but is <strong>unsure of its purpose</strong>. The class was defined by a different developer for a project that went live two years ago in a <strong>different Salesforce org</strong>. Comprehensive documentation is still maintained for that project. The architect must suggest a suitable approach to determine the <strong>purpose of the class</strong>.</p>
+  </div>
+  <div class="note">This scenario highlights why maintaining comprehensive project documentation — including a Requirements Traceability Matrix — is not optional overhead. Code artifacts outlive their original authors and cross org boundaries; without an RTM, the provenance and intent of any artifact becomes archaeology.</div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 requirements traceability matrix rtm purpose apex class project specifications artifacts requirements related apex class demonstrates requirements met documentation">
+  <div class="pgnum">Page 19 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Considering the project's documentation is still available, the developer can leverage the <strong>Requirements Traceability Matrix (RTM)</strong> to determine the purpose of the Apex class. It contains project specifications and artifacts, shows how requirements are related to the artifacts (such as an Apex class), and demonstrates that requirements have been met.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>For a Federal Reserve Bank environment, the RTM is not just a developer convenience — it is a compliance artifact. It provides the evidence trail that a given code component was built to satisfy a documented, approved requirement. During audits or incident reviews, regulators will ask: "Why does this code exist and what requirement authorized it?" The RTM answers that question directly.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 3 -->
+<section class="slide" id="requirement-3" data-search="requirement 3 salesforce devops production org europe rollback metadata deployment data backup restore deployment issues bugs outages downstream environments industry regulations compliance recover roll back">
+  <div class="pgnum">Page 20 · Requirement 3</div>
+  <h2>Requirement 3</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company is rolling out new infrastructure and strategies based on Salesforce DevOps for its production org in Europe. The new infrastructure should facilitate the <strong>rollback of metadata</strong> after a deployment and <strong>data backup and restore</strong> to help recover from deployment issues, bugs, or outages in the downstream environments. To remain <strong>compliant with industry regulations</strong>, the company must implement an appropriate strategy to recover and roll back from issues as soon as possible.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Rollback of metadata changes and data restore are two distinct problems. Native Salesforce (unmanaged packages) covers metadata backup, but efficient data restore and metadata rollback under regulatory time pressure typically requires third-party or AppExchange solutions. Know that this is the boundary where native tooling is insufficient and specialized products enter the picture.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 3 -->
+<section class="slide" id="solution-3" data-search="solution 3 third-party appexchange solutions metadata backup unmanaged package rollback metadata changes restoring data deployment issues system bugs specialized solutions industry regulations compliance">
+  <div class="pgnum">Page 21 · Solution 3</div>
+  <h2>Solution 3</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The company should <strong>evaluate third-party and AppExchange solutions</strong> for this use case. Although Salesforce offers the creation of a metadata backup using an <strong>unmanaged package</strong>, the rollback of metadata changes and restoring data efficiently in the event of deployment issues or system bugs often requires <strong>more specialized solutions</strong>.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>European regulatory environments (e.g., DORA — Digital Operational Resilience Act) impose strict requirements for recoverability, with mandated RTO and RPO targets. A regulated financial institution must have a tested, documented backup and rollback plan — an ad-hoc unmanaged package is not an auditable disaster-recovery strategy. Third-party solutions provide automated backups, point-in-time restore, and the audit logs that regulators require.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more what is a package develop deploy metadata api deploying retrieving metadata zip file back up metadata protect restore customizations project commands trailhead resources">
+  <div class="pgnum">Page 22 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Trailhead and Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>What is a Package?</li>
+    <li>Develop and Deploy Using Metadata API</li>
+    <li>Deploying and Retrieving Metadata with the Zip File</li>
+    <li>Back Up Metadata to Protect and Restore Your Customizations</li>
+    <li>project Commands</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points managing common release artifacts multi-org source-driven development metadata api package-based change sets additional strategies decision matrix exam gotchas">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Managing Common Release Artifacts</h2>
+
+  <h3>Strategy Comparison Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Strategy</th><th>Best For</th><th>Key Tools</th><th>Limitations</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Source-Driven Development</strong></td>
+        <td>Teams wanting full version control, CI/CD automation, and cross-org governance</td>
+        <td>Git, Salesforce DX, Metadata API, Jenkins/Circle CI/Travis CI</td>
+        <td>Requires DevOps tooling setup; higher upfront investment</td>
+      </tr>
+      <tr>
+        <td><strong>Metadata API (.zip)</strong></td>
+        <td>Deployments without direct org access; hand-off to release management teams</td>
+        <td>deploy()/retrieve(), package.xml, project deploy validate, project deploy quick</td>
+        <td>Manual; no built-in version control; requires Salesforce CLI knowledge</td>
+      </tr>
+      <tr>
+        <td><strong>Package-Based Development</strong></td>
+        <td>Modular, versioned artifact distribution; metadata backup (unmanaged packages)</td>
+        <td>Managed, Unmanaged, Unlocked packages; Salesforce DX (for unlocked)</td>
+        <td>Managed packages are inflexible post-deployment; rollback/restore needs specialized tools</td>
+      </tr>
+      <tr>
+        <td><strong>Change Sets</strong></td>
+        <td>Simple, small deployments by admins between sandboxes and their production org</td>
+        <td>Salesforce Setup UI only</td>
+        <td>Same-production-org only; no version control; cannot handle complex dependencies</td>
+      </tr>
+      <tr>
+        <td><strong>Third-Party / AppExchange</strong></td>
+        <td>Metadata rollback and data recovery under regulatory compliance requirements</td>
+        <td>AppExchange backup/restore products</td>
+        <td>Cost; vendor dependency; must be evaluated against org-specific requirements</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>CLI Command Quick Reference</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Command</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>project retrieve start</strong></td><td>Retrieve metadata components from an org into local source format</td></tr>
+      <tr><td><strong>project deploy start</strong></td><td>Deploy metadata components from local source to an org</td></tr>
+      <tr><td><strong>project deploy validate</strong></td><td>Validate a deployment (runs Apex tests, checks integrity) without committing changes</td></tr>
+      <tr><td><strong>project deploy quick</strong></td><td>Execute a previously validated deployment without re-running tests; reduces deployment window</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Scenario Pattern: Matching Requirement to Strategy</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Requirement Signal</th><th>Canonical Strategy</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>No direct production org access; hand-off to release team</td><td>Metadata API .zip + package.xml → project deploy validate → project deploy quick</td></tr>
+      <tr><td>Determine purpose of an existing Apex class across orgs</td><td>Requirements Traceability Matrix (RTM)</td></tr>
+      <tr><td>Metadata rollback + data recovery under regulatory compliance</td><td>Evaluate third-party / AppExchange solutions (native unmanaged package is insufficient)</td></tr>
+      <tr><td>Full version control, CI/CD, cross-org governance</td><td>Source-Driven Development (Git + Salesforce DX + CI/CD tools)</td></tr>
+      <tr><td>Simple admin-led small deployment between sandbox and production</td><td>Change Sets</td></tr>
+      <tr><td>Modular, versioned artifact distribution to multiple orgs</td><td>Unlocked Packages (requires Salesforce DX)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Change Sets only work between orgs connected to the same production org</strong> — they cannot deploy across two separate production orgs. For true multi-org scenarios, use Metadata API or source-driven development.</li>
+    <li><strong>project deploy validate does not commit changes</strong> — it runs all Apex tests and checks component integrity in production. Only <em>project deploy quick</em> actually deploys. This two-step pattern is critical for zero-downtime deployments.</li>
+    <li><strong>Unmanaged packages ≠ rollback solution</strong> — they can back up metadata, but efficient rollback and data restore under compliance pressure requires third-party/AppExchange tools.</li>
+    <li><strong>The RTM is the answer when documentation is available</strong> — if comprehensive project documentation exists, the RTM is the fastest way to trace an artifact's purpose and the requirements it fulfills.</li>
+    <li><strong>Unlocked packages require Salesforce DX</strong> — they are the modern modular packaging option. Managed packages are distribution-oriented (AppExchange ISVs); unmanaged are non-upgradeable snapshots.</li>
+    <li><strong>CI/CD tools (Jenkins, Circle CI, Travis CI) integrate with Salesforce DX</strong> — not with Change Sets. If the scenario mentions automation or consistent deployments across orgs, source-driven development with CI/CD is the answer.</li>
+    <li>The RTM serves double duty: it traces requirements-to-artifacts AND provides the compliance evidence that a code component was built to satisfy an approved requirement — critical for audit.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a central bank with multiple Salesforce orgs, the highest-priority controls are: (1) <strong>Source of truth in VCS</strong> — every artifact must be traceable to a version-controlled commit with author and timestamp; (2) <strong>Segregation of duties via release management</strong> — developers hand off .zip artifacts with package.xml manifests to a separate release team who validates and deploys; (3) <strong>Compliance-grade rollback</strong> — native unmanaged package backup is insufficient for RTO/RPO obligations, requiring specialized AppExchange or third-party tools; (4) <strong>RTM as audit evidence</strong> — every code component must be traceable to an approved, documented requirement. The validate-then-quick-deploy pattern and the RTM together create the paper trail that satisfies change-control audits and regulatory examinations.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operating — Direct Changes in Production — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Operating — Direct Changes in Production</h1>
+  <div class="sub">Given a detailed customer environment scenario, explain the implications of incorporating a request directly in a production environment · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (20 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Direct Changes in Production</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#incorporating-overview">Incorporating Requests Directly in Production</a></li>
+      <li><a href="#section-direct">Section: Direct Changes in Production</a></li>
+      <li><a href="#changes-sandbox-accuracy">Changes in Sandbox &amp; Accuracy</a></li>
+      <li><a href="#changes-coding-high-low">Coding, High &amp; Low Impact Changes</a></li>
+      <li><a href="#changes-direct-double-communication">Direct Changes, Double-Checking &amp; Communication</a></li>
+      <li><a href="#changes-phased-training">Phased Release &amp; Training</a></li>
+      <li><a href="#implications">Implications of Direct Changes</a></li>
+      <li><a href="#strategies">Strategies for Direct Changes</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Cloud Solutions Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1">Requirement 1</a></li>
+      <li><a href="#solution-1">Solution 1</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover operating direct changes production salesforce development lifecycle deployment architect focusonforce">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Operating — Direct Changes in Production</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a detailed customer environment scenario, explain the implications of incorporating a request directly in a production environment · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents direct changes production business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#changes-sandbox-accuracy">Direct Changes in Production</a></li>
+    <li><a class="toc-link" href="#business-scenario">Business Scenario</a></li>
+    <li><a class="toc-link" href="#requirement-1">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives identify considerations making changes directly production environment describe implications direct changes strategies suitable approaches company requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Identify the considerations for making changes directly in a production environment.</li>
+    <li>Describe the implications of making direct changes in production.</li>
+    <li>Describe the strategies that can be utilized for making direct changes in production.</li>
+    <li>Recommend suitable approaches for making direct changes in production for a company's requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction urgent updates production environment operational stability security compliance critical considerations implications strategies best practices thorough testing stakeholder communication compliance industry standards">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Organizations leveraging Salesforce must navigate the delicate balance of implementing <strong>urgent updates in their production environment</strong> against the backdrop of <strong>ensuring operational stability and security compliance</strong>. It is important to understand the <strong>critical considerations and implications</strong> of directly incorporating requests in a production environment.</p>
+  <p>Appropriate <strong>strategies</strong> must be adopted for addressing immediate issues in Salesforce-driven operations. Salesforce architects need to make informed decisions about making changes directly in production. Urgent fixes should enhance system functionality without compromising data integrity or user experience. Furthermore, <strong>best practices</strong> should be considered for managing direct changes in production, emphasizing the importance of thorough testing, stakeholder communication, and compliance with industry standards.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At a central bank, every change to a production system — even a low-impact field addition — sits within a formal change-management process. The tension described here (urgency vs. stability) is the core of any regulated institution's change-control policy. "Urgent updates" must still be traceable, authorized, and documented; skipping those steps is an audit finding, not a shortcut.</p>
+  </div>
+</section>
+
+<!-- INCORPORATING REQUESTS DIRECTLY IN PRODUCTION — OVERVIEW -->
+<section class="slide" id="incorporating-overview" data-search="incorporating requests directly production changes sandbox risk-free testing extensive testing system-wide operations implications errors conflicts concurrent updates integrations regulatory compliance risks strategies hotfixes review authorization release management tools">
+  <div class="pgnum">Page 5 · Incorporating Requests Directly in Production</div>
+  <h2>Incorporating Requests Directly in Production</h2>
+  <p class="lede">Four lenses frame the decision to make a change directly in production versus in a sandbox.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Changes in Sandbox</h4>
+      <p>A sandbox is a risk-free testing environment that should be used for changes that require extensive testing or could impact system-wide operations, such as new workflow steps.</p>
+    </div>
+    <div class="card">
+      <h4>Changes in Production</h4>
+      <p>Direct changes in production should be approached with caution by utilizing steps such as double-checking, clear communication, phased release, and training.</p>
+    </div>
+    <div class="card">
+      <h4>Implications</h4>
+      <p>Implications of direct changes in production include the possibility of errors, conflicts with other concurrent updates or integrations, and regulatory and compliance risks.</p>
+    </div>
+    <div class="card">
+      <h4>Strategies</h4>
+      <p>Certain strategies can be utilized for direct changes in production, including a dedicated process for hotfixes, review and authorization, and using release management tools.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The exam frequently presents a scenario and asks which type of change can or cannot be made directly in production. Know the hard rule: Apex code (and other metadata requiring a sandbox deploy) can never be written or edited directly in production. Low-impact declarative changes (custom fields, picklist values, reports, dashboards) can be made in production with precautionary steps.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: DIRECT CHANGES IN PRODUCTION -->
+<section class="slide title-slide" id="section-direct" data-search="section direct changes production">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Direct Changes in Production</h2>
+</section>
+
+<!-- DIRECT CHANGES IN PRODUCTION — SANDBOX, ACCURACY, ASSESSMENT -->
+<section class="slide" id="changes-sandbox-accuracy" data-search="direct changes production production org live data sandbox environments development testing changes do not affect live data disrupt business operations risk-free testing safe simulation accuracy mirror production tools functionality accurate testing assessment nature change potential impacts">
+  <div class="pgnum">Page 7 · Direct Changes in Production — Sandbox, Accuracy &amp; Assessment</div>
+  <h2>Direct Changes in Production</h2>
+  <p class="lede">Organizations typically have a <strong>production org with live data</strong> and <strong>one or more sandbox environments</strong> for development and testing, ensuring <strong>changes do not affect live data</strong> or <strong>disrupt business operations</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Risk-Free Testing</h4>
+      <p>A sandbox serves as a <strong>risk-free testing environment</strong>, separate from the live production org, which enables <strong>safe simulation of changes</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Accuracy</h4>
+      <p>Sandboxes <strong>mirror the production org's tools and functionality</strong> and <strong>facilitate accurate testing and development</strong> without risking live environment integrity.</p>
+    </div>
+    <div class="card">
+      <h4>Assessment</h4>
+      <p>Before making a change in a sandbox or directly in the live environment, the <strong>nature of the change</strong> and its <strong>potential impacts</strong> should be assessed.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>A central bank's sandbox strategy is a control in its own right. Auditors expect evidence that changes were tested in an environment that mirrors production metadata (not just a partial copy) before being promoted. Sandbox type selection — Developer, Developer Pro, Partial, Full — should be part of the formal change ticket, not an ad hoc decision.</p>
+  </div>
+</section>
+
+<!-- DIRECT CHANGES IN PRODUCTION — CODING, HIGH IMPACT, LOW IMPACT -->
+<section class="slide" id="changes-coding-high-low" data-search="direct changes production coding changes require sandbox code cannot written directly production org high impact changes extensive testing system-wide operations workflow steps global feature implementations low impact changes custom fields picklist values reports dashboards precautionary steps">
+  <div class="pgnum">Page 8 · Direct Changes in Production — Coding, High &amp; Low Impact Changes</div>
+  <h2>Direct Changes in Production</h2>
+  <p class="lede">Organizations typically have a <strong>production org with live data</strong> and <strong>one or more sandbox environments</strong> for development and testing, ensuring <strong>changes do not affect live data</strong> or <strong>disrupt business operations</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Coding Changes</h4>
+      <p>Coding changes <strong>require a sandbox</strong> since code cannot be written directly in a production org.</p>
+    </div>
+    <div class="card">
+      <h4>High Impact Changes</h4>
+      <p>For changes that require <strong>extensive testing</strong> or <strong>could impact system-wide operations</strong>, such as new workflow steps or global feature implementations, sandboxes should be used for development and testing.</p>
+    </div>
+    <div class="card">
+      <h4>Low Impact Changes</h4>
+      <p>Many low impact changes, such as <strong>new custom fields</strong>, <strong>picklist values</strong>, <strong>reports</strong>, and <strong>dashboards</strong>, can be made in production after taking precautionary steps to avoid any unforeseen changes.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This slide contains a hard exam fact: Apex code cannot be written directly in a production org — ever. Any scenario that asks whether a developer can "quickly fix a bug directly in production" has one correct answer: no. The fix must go through a sandbox and be deployed via a change set or deployment tool.</p>
+  </div>
+</section>
+
+<!-- DIRECT CHANGES IN PRODUCTION — DIRECT CHANGES, DOUBLE-CHECKING, CLEAR COMMUNICATION -->
+<section class="slide" id="changes-direct-double-communication" data-search="direct changes production caution steps ensure adoption avoid negative impacts double-checking unwanted direct indirect impact no one else using change clear communication clearly communicated team users not surprised">
+  <div class="pgnum">Page 9 · Direct Changes in Production — Caution, Double-Checking &amp; Communication</div>
+  <h2>Direct Changes in Production</h2>
+  <p class="lede">Organizations typically have a <strong>production org with live data</strong> and <strong>one or more sandbox environments</strong> for development and testing, ensuring <strong>changes do not affect live data</strong> or <strong>disrupt business operations</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Direct Changes</h4>
+      <p>Direct changes in the production org should be approached with <strong>caution</strong>. <strong>Steps</strong> should be taken to <strong>ensure adoption</strong> and <strong>avoid negative impacts</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Double-Checking</h4>
+      <p>Thorough double-checking should be performed to make sure that the <strong>change does not have any unwanted direct</strong> or <strong>indirect impact</strong> and <strong>no one else is using the change</strong> for other purposes.</p>
+    </div>
+    <div class="card">
+      <h4>Clear Communication</h4>
+      <p>Changes should be <strong>clearly communicated to the team</strong> before they are made. Users in the organization <strong>should not be surprised</strong> with changes.</p>
+    </div>
+  </div>
+  <div class="note">Double-checking for indirect dependencies is especially important in mature orgs with many automations — a picklist value rename, for example, can silently break formula fields, workflow criteria, and report filters that reference the old value.</div>
+</section>
+
+<!-- DIRECT CHANGES IN PRODUCTION — PHASED RELEASE & TRAINING -->
+<section class="slide" id="changes-phased-training" data-search="direct changes production phased release validated admins superusers change requester released rest organization training user training get users on board explaining change how best apply">
+  <div class="pgnum">Page 10 · Direct Changes in Production — Phased Release &amp; Training</div>
+  <h2>Direct Changes in Production</h2>
+  <p class="lede">Organizations typically have a <strong>production org with live data</strong> and <strong>one or more sandbox environments</strong> for development and testing, ensuring <strong>changes do not affect live data</strong> or <strong>disrupt business operations</strong>.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Phased Release</h4>
+      <p>The change should be <strong>validated</strong> by other <strong>admins</strong>, <strong>superusers</strong>, or the <strong>change requester</strong> before it is released to the rest of the organization.</p>
+    </div>
+    <div class="card">
+      <h4>Training</h4>
+      <p>User training can be provided to <strong>get users on board</strong> with the change, <strong>explaining the change</strong> and <strong>how best to apply it</strong>.</p>
+    </div>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Phased release and superuser validation are lightweight change-control practices that satisfy segregation of duties even for low-impact production changes. At a central bank, even a picklist addition should have at least a second pair of eyes sign off before general availability — this is exactly the kind of lightweight control that bridges the gap between "too small for a full change ticket" and "completely uncontrolled."</p>
+  </div>
+</section>
+
+<!-- IMPLICATIONS OF DIRECT CHANGES IN PRODUCTION -->
+<section class="slide" id="implications" data-search="implications direct changes production before making direct change errors bypass critical testing harder diagnose rectify users conflicts concurrent updates integrations unexpected behavior system failures regulatory compliance risks data security user privacy rigorous validation">
+  <div class="pgnum">Page 11 · Implications of Direct Changes in Production</div>
+  <h2>Implications of Direct Changes in Production</h2>
+  <p class="lede">Before making a <strong>direct change</strong> in production, the <strong>implications</strong> should be considered.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Errors</h4>
+      <p>Direct modifications <strong>bypass critical testing</strong>, leading to errors that are <strong>harder to diagnose</strong> and <strong>rectify</strong> without affecting users.</p>
+    </div>
+    <div class="card">
+      <h4>Conflicts</h4>
+      <p>Changes might <strong>conflict with other concurrent updates or integrations</strong>, causing <strong>unexpected behavior</strong> or <strong>system failures</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Risks</h4>
+      <p><strong>Regulatory and compliance risks</strong> may increase if changes impact <strong>data security</strong> or <strong>user privacy</strong> without undergoing rigorous validation.</p>
+    </div>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The three implications — errors, conflicts, risks — map to three exam question patterns: (1) why is direct production change dangerous operationally? (errors bypass testing); (2) what technical risk exists in a busy org? (conflicts with concurrent changes/integrations); (3) what risk matters most in regulated industries? (regulatory and compliance exposure when changes touch data security without validation).</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Regulatory and compliance risk is not abstract at a central bank. Any change that touches access controls, encryption settings, or data visibility without a documented approval trail is a potential SR 11-7 or OCC finding. The cost of a direct-production shortcut can be a formal supervisory action — far exceeding the cost of doing it through proper channels.</p>
+  </div>
+</section>
+
+<!-- STRATEGIES FOR DIRECT CHANGES IN PRODUCTION -->
+<section class="slide" id="strategies" data-search="strategies direct changes production hotfixes dedicated process emergency criteria emergency change warranting direct production updates review collaboration developers QA team stakeholders reviewed authorized execution release management tools deployment tools sandbox refresh cycles plan execute changes methodically">
+  <div class="pgnum">Page 12 · Strategies for Direct Changes in Production</div>
+  <h2>Strategies for Direct Changes in Production</h2>
+  <p class="lede">Certain <strong>strategies</strong> can be utilized for making <strong>direct changes</strong> in production.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Hotfixes</h4>
+      <p>A <strong>dedicated process</strong> can be established for <strong>emergency hotfixes</strong>, including criteria for what constitutes an emergency change warranting direct production updates.</p>
+    </div>
+    <div class="card">
+      <h4>Review</h4>
+      <p>Close collaboration should be fostered between <strong>developers, QA team, and stakeholders</strong> to ensure changes are thoroughly <strong>reviewed and authorized</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>Execution</h4>
+      <p>Salesforce's <strong>release management tools</strong>, including deployment tools, and <strong>sandbox refresh cycles</strong> should be utilized to plan and execute changes methodically.</p>
+    </div>
+  </div>
+  <div class="note">The hotfix process requires pre-defined criteria — not every urgent request qualifies. A documented threshold (e.g., P1/Sev-1 impacting revenue or data integrity) prevents "emergency" from becoming a loophole that bypasses normal change control for convenience.</div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 13 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic cloud solutions cloud services salesforce streamline operations customer interactions critical issues production environment service delivery client satisfaction brand damage data inconsistencies urgent resolve disrupting ongoing services salesforce architect immediate fixes minimal operational impact security compliance standards meticulous approach urgency testing stakeholder communication direct changes production implications">
+  <div class="pgnum">Page 14 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Cloud Solutions</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Cloud Solutions, specializing in comprehensive cloud services, leverages Salesforce to streamline its operations and customer interactions. The company is facing critical issues in its production environment that are impacting service delivery and client satisfaction. These issues can cause significant brand damage and data inconsistencies. With an urgent need to resolve them without disrupting ongoing services, the company seeks the guidance of a Salesforce architect. The architect's role is pivotal in devising a strategy that includes immediate fixes in the production environment, ensuring minimal operational impact while maintaining the highest security and compliance standards. The architect must recommend a meticulous approach for resolving the issues while balancing the urgency of fixes with the need for thorough testing and stakeholder communication. The implications of making direct changes in production must be considered.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 15 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 -->
+<section class="slide" id="requirement-1" data-search="requirement 1 developer serious defect production thousands customer account records incorrect data brand damage salesforce consultant replacing defective text field new picklist field directly production page layout modified architect urgent assistance">
+  <div class="pgnum">Page 16 · Requirement 1</div>
+  <h2>Requirement 1</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>A developer has discovered a serious defect in production. Thousands of customer account records will be affected, resulting in incorrect data and causing major brand damage. A Salesforce consultant has suggested replacing the defective text field with a new picklist field directly in production. The page layout will also need to be modified accordingly. The architect needs to provide urgent assistance to resolve the issue.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 -->
+<section class="slide" id="solution-1" data-search="solution 1 architect collaborate closely consultant review implement changes production environment pragmatic approach real-time problem-solving damage control minimizing impact brand changes made thoughtfully oversight picklist field page layout low impact direct production">
+  <div class="pgnum">Page 17 · Solution 1</div>
+  <h2>Solution 1</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>The architect should <strong>collaborate closely with the consultant</strong> to <strong>review</strong> and <strong>implement</strong> the changes carefully in the production environment. This pragmatic approach allows for real-time problem-solving and damage control, minimizing the impact on the brand while ensuring that changes are made thoughtfully and with oversight.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This scenario tests whether you know that replacing a text field with a picklist field and modifying a page layout are both declarative (non-code) changes — they fall into the low-impact category and can be made directly in production. The key architect behavior is oversight and collaboration, not necessarily routing through a sandbox. The exam rewards recognizing this distinction.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Even for a low-impact direct-production change at a regulated institution, the architect's presence as a second reviewer satisfies segregation of duties. The "thoughtfully and with oversight" language is not just good practice — at the Fed it is a control requirement. Document who reviewed, who approved, and what was changed, even for a picklist field addition.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 strict regulatory environment dedicated teams development quality assurance security release management agile development methodology four-week sprints severe production issue start sprint bug apex class deployed production two months dozens users architect recommend suitable approach address bug">
+  <div class="pgnum">Page 18 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company operates in a strict regulatory environment with dedicated teams for development, quality assurance, security, and release management. One of the Salesforce development teams is midway through a large enterprise project. It follows the agile development methodology and has four-week sprints. A severe production issue has been identified at the start of a sprint. The root cause is a bug in an Apex class deployed to production two months ago. Dozens of users use the production org regularly. The architect needs to recommend a suitable approach to address the bug.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 serious production issue bug apex code scope effect existing data investigating potential data impacts severity corrective actions hotfix branch swift isolation resolution bug current sprint workflow stakeholder approval regulatory environment compliance transparency apex code cannot written updated directly production">
+  <div class="pgnum">Page 19 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>Since the serious production issue is tied to a bug in Apex code, understanding the scope and effect of the bug on existing data is crucial. <strong>Investigating potential data impacts</strong> would help assess the severity of the issue and effectively plan the necessary corrective actions. A <strong>hotfix branch</strong> should be created for the swift isolation and resolution of the bug without disrupting the current sprint's workflow. However, due to the strict regulatory environment, <strong>stakeholder approval</strong> should be obtained for implementing the hotfix to ensure compliance and transparency. Also, it is important to note that <strong>Apex code cannot be written or updated directly in production</strong>.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>This is the canonical contrast to Solution 1: an Apex bug cannot be fixed directly in production — full stop. The correct approach is hotfix branch + stakeholder approval + deployment via sandbox. In a regulated agile team, a hotfix branch isolates the fix from the active sprint, preventing sprint contamination while enabling the rapid deployment path. Know this three-step pattern cold.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a strict regulatory environment, "stakeholder approval" is not a formality — it is the authorization record that satisfies change-control audit requirements. The hotfix must have a change ticket, an approver, and a deployment log. The fact that Apex code cannot go directly to production is also a built-in platform control that regulators appreciate: it forces the four-eyes principle by requiring a sandbox intermediate step and a deployment action.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more salesforce sandbox managing changes production salesforce deployment best practices difference between salesforce production sandbox trailhead further reading">
+  <div class="pgnum">Page 20 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce and Trailhead resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Salesforce Sandbox – Managing Changes in Production</li>
+    <li>Salesforce Deployment Best Practices</li>
+    <li>The Difference between Salesforce Production &amp; Sandbox</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points direct changes production implications strategies sandbox coding high impact low impact errors conflicts regulatory risks hotfixes review execution exam gotchas decision matrix">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Direct Changes in Production</h2>
+
+  <h3>Change-Type Decision Matrix</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Change Type</th><th>Can Be Made Directly in Production?</th><th>Required Approach</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Apex code (classes, triggers, VF pages)</strong></td>
+        <td>No — never</td>
+        <td>Develop in sandbox; deploy via change set or deployment tool with stakeholder approval</td>
+      </tr>
+      <tr>
+        <td><strong>High-impact declarative changes</strong> (workflow rules, global features, new workflow steps)</td>
+        <td>No — use sandbox</td>
+        <td>Develop and test in sandbox first; promote through ALM pipeline</td>
+      </tr>
+      <tr>
+        <td><strong>Low-impact declarative changes</strong> (custom fields, picklist values, reports, dashboards, page layouts)</td>
+        <td>Yes — with precautions</td>
+        <td>Double-check dependencies, communicate to team, phase release via superusers/admins, provide training</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Implications Quick Reference</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Implication</th><th>Root Cause</th><th>Why It Matters</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Errors</strong></td>
+        <td>Bypassed testing</td>
+        <td>Harder to diagnose and fix in live environment without disrupting users</td>
+      </tr>
+      <tr>
+        <td><strong>Conflicts</strong></td>
+        <td>Concurrent updates or integrations</td>
+        <td>Can cause unexpected behavior or system failures in integrated orgs</td>
+      </tr>
+      <tr>
+        <td><strong>Regulatory &amp; Compliance Risks</strong></td>
+        <td>No rigorous validation</td>
+        <td>Changes touching data security or privacy without approval trail create audit exposure</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Strategies Summary</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Strategy</th><th>Key Elements</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Hotfixes</strong></td>
+        <td>Dedicated emergency process; defined criteria for what qualifies as an emergency; hotfix branch isolates fix from active sprint</td>
+      </tr>
+      <tr>
+        <td><strong>Review &amp; Authorization</strong></td>
+        <td>Developer + QA + stakeholder collaboration; changes must be reviewed and authorized before production deployment</td>
+      </tr>
+      <tr>
+        <td><strong>Execution</strong></td>
+        <td>Use Salesforce release management tools, deployment tools, and sandbox refresh cycles to execute changes methodically</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Apex code cannot be written or updated directly in production</strong> — this is a hard platform constraint, not just a best practice. Any scenario suggesting a developer "fix the bug in production" is wrong.</li>
+    <li><strong>Picklist fields, custom fields, reports, and dashboards</strong> are low-impact changes that can be made in production — but only after double-checking dependencies and communicating to the team.</li>
+    <li><strong>Phased release</strong> means having admins, superusers, or the change requester validate the change before it goes to all users — it is not the same as a full sandbox-to-production promotion cycle.</li>
+    <li><strong>Double-checking for indirect impact</strong> is critical: renaming a picklist value can silently break formulas, workflow criteria, and report filters that reference the old value.</li>
+    <li><strong>In a regulatory environment, stakeholder approval is mandatory</strong> for hotfixes — even when urgent. The approval is the audit record; skipping it turns a hotfix into a compliance violation.</li>
+    <li><strong>Hotfix branch ≠ hotfix in production</strong>: a hotfix branch is created in version control (or a sandbox), the fix is developed there, then deployed. It is not synonymous with editing production directly.</li>
+    <li><strong>The architect's role during a direct production change</strong> is oversight, not execution — ensure changes are reviewed, thoughtfully made, and documented.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a central bank platform engineer, the highest-risk pattern is an "urgent" fix that bypasses all controls. The platform's own constraint (no direct Apex editing in production) is an ally — it forces the four-eyes / sandbox-deploy path for all code changes. For declarative changes, the architect must supply the control discipline: double-check, communicate, phase, document. Every production change — regardless of size — should leave an audit trail: who requested it, who reviewed it, who approved it, and what changed. That trail is the evidence package regulators and senior leadership require during audits and incident post-mortems.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>

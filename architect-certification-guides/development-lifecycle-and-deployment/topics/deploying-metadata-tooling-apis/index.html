@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploying — Metadata &amp; Tooling APIs — Salesforce Study Guide</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1a2233; --muted:#5b6b80; --navy:#22344c; --accent:#1589ee; --code-bg:#f1f5fb; --code-border:#d6e0ee; --highlight:#fff7d6; --rule:#e3e8f0; --green:#4bca81; --orange:#f4a261; }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.topbar{background:var(--navy);color:white;padding:14px 24px;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,0,0,0.1)}
+  header.topbar h1{margin:0;font-size:18px;font-weight:600}
+  header.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+  header.topbar .actions{margin-top:8px;font-size:12px}
+  header.topbar .actions a{color:white;text-decoration:none;border:1px solid rgba(255,255,255,0.3);padding:3px 10px;border-radius:4px;margin-right:6px}
+  header.topbar .actions a:hover{background:rgba(255,255,255,0.1)}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 80px)}
+  aside.sidebar{background:var(--panel);border-right:1px solid var(--rule);padding:20px 0;overflow-y:auto;position:sticky;top:80px;height:calc(100vh - 80px)}
+  .search{margin:0 16px 16px}
+  .search input{width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:white}
+  nav.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 16px 6px;font-weight:600}
+  nav.toc ul{list-style:none;padding:0;margin:0 0 8px}
+  nav.toc li a{display:block;padding:5px 16px 5px 22px;color:var(--ink);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+  nav.toc li a:hover{background:var(--code-bg);color:var(--accent)}
+  nav.toc li a.active{border-left-color:var(--accent);background:var(--code-bg);color:var(--accent);font-weight:500}
+  main{padding:28px 40px 80px;max-width:920px;width:100%}
+  section.slide{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 28px;margin-bottom:24px;scroll-margin-top:120px}
+  section.slide.title-slide{background:var(--navy);color:white;text-align:center;padding:56px 28px}
+  section.slide.title-slide h2{color:white;margin:0;font-size:32px;border:none}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  section.slide h2{margin:4px 0 14px;font-size:22px;color:var(--navy);border-bottom:2px solid var(--accent);padding-bottom:6px;display:inline-block}
+  section.slide .lede{font-size:14.5px;color:var(--muted);margin:0 0 16px}
+  section.slide h3{color:var(--navy);font-size:14px;text-transform:uppercase;letter-spacing:0.6px;margin:18px 0 6px}
+  section.slide ul,section.slide ol{margin:8px 0 12px;padding-left:22px}
+  section.slide li{margin:4px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0 14px}
+  .card{background:var(--code-bg);border:1px solid var(--code-border);border-radius:6px;padding:12px 14px}
+  .card h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.7px;color:var(--accent)}
+  .card p{margin:0;font-size:13.5px}
+  pre.code{background:#fbfcfe;border:1px solid var(--code-border);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:10px 0 12px;color:#1a2233}
+  pre.code .c{color:#6a8b8c;font-style:italic}
+  pre.code .k{color:#1a64c7;font-weight:600}
+  pre.code .s{color:#c14a4a}
+  pre.code .a{color:#b14b7d}
+  pre.code .t{color:#1a8b8d}
+  .note{background:var(--highlight);border-left:3px solid #e6c548;padding:8px 12px;margin:8px 0 12px;font-size:13.5px}
+  .interview{background:#eaf6ff;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .interview h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--accent);letter-spacing:0.8px}
+  .interview p{margin:0;font-size:13.5px}
+  .fed{background:#f0f7f0;border-left:3px solid var(--green);padding:10px 14px;margin:14px 0 4px;border-radius:0 6px 6px 0}
+  .fed h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:#2e8b57;letter-spacing:0.8px}
+  .fed p{margin:0;font-size:13.5px}
+  .scenario{background:#f5f7fb;border:1px solid var(--code-border);border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .scenario h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--orange);letter-spacing:0.8px}
+  .scenario p{margin:0;font-size:13.5px}
+  .sln{background:#effaf2;border:1px solid #c6e7d2;border-radius:6px;padding:12px 16px;margin:10px 0 12px}
+  .sln h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.8px}
+  .sln p{margin:4px 0;font-size:13.5px}
+  a.toc-link{text-decoration:none;color:var(--accent)}
+  a.toc-link:hover{text-decoration:underline}
+  table.dttable{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:12.5px}
+  table.dttable th,table.dttable td{border:1px solid var(--code-border);padding:6px 10px;text-align:left;vertical-align:top}
+  table.dttable th{background:var(--code-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}aside.sidebar{position:static;height:auto}main{padding:20px}}
+</style>
+<link rel="stylesheet" href="../../../../theme.css">
+</head>
+<body>
+<header class="topbar">
+  <div style="font-size:12px;opacity:0.75;margin-bottom:4px;">
+    <a href="../../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Study</a>
+    ·
+    <a href="../../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Architect Certification Guides</a>
+    ·
+    <a href="../../index.html" style="color:white;text-decoration:none;opacity:0.75;">Development Lifecycle &amp; Deployment</a>
+    · Topic
+  </div>
+  <h1>Deploying — Metadata &amp; Tooling APIs</h1>
+  <div class="sub">Given a scenario, describe the capabilities, limitations, and considerations when using the Metadata and Tooling APIs for deployment · Salesforce Development Lifecycle &amp; Deployment Architect</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (29 slides)</a></div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="search"><input id="filter" type="search" placeholder="Filter sections…" aria-label="Filter sections"></div>
+  <nav class="toc" id="toc">
+    <h3>Overview</h3>
+    <ul>
+      <li><a href="#cover">Cover</a></li>
+      <li><a href="#toc-slide">Table of Contents</a></li>
+      <li><a href="#learning-objectives">Learning Objectives</a></li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#api-overview">Metadata &amp; Tooling APIs Overview</a></li>
+    </ul>
+    <h3>Metadata API</h3>
+    <ul>
+      <li><a href="#section-metadata-api">Section: Metadata API</a></li>
+      <li><a href="#metadata-capabilities-1">Capabilities — Operations &amp; Methods</a></li>
+      <li><a href="#metadata-capabilities-2">Capabilities — Access &amp; Types</a></li>
+      <li><a href="#metadata-capabilities-3">Capabilities — Local File System &amp; Scratch Org</a></li>
+      <li><a href="#metadata-capabilities-4">Capabilities — Deployment &amp; Large Changes</a></li>
+      <li><a href="#metadata-considerations-1">Considerations — Export, Migration &amp; CRUD</a></li>
+      <li><a href="#metadata-considerations-2">Considerations — Zip File &amp; Manifest</a></li>
+      <li><a href="#metadata-considerations-3">Considerations — Deletion &amp; Custom Metadata Types</a></li>
+      <li><a href="#metadata-limitations">Limitations</a></li>
+    </ul>
+    <h3>Tooling API</h3>
+    <ul>
+      <li><a href="#section-tooling-api">Section: Tooling API</a></li>
+      <li><a href="#tooling-capabilities-1">Capabilities — SOQL, Tools &amp; Modules</a></li>
+      <li><a href="#tooling-capabilities-2">Capabilities — Retrieving &amp; Managing Metadata</a></li>
+      <li><a href="#tooling-considerations">Considerations — REST &amp; SOAP</a></li>
+      <li><a href="#tooling-limitations">Limitations</a></li>
+    </ul>
+    <h3>Business Scenario</h3>
+    <ul>
+      <li><a href="#section-business">Section: Business Scenario</a></li>
+      <li><a href="#business-scenario">Cosmic Food Innovations Scenario</a></li>
+    </ul>
+    <h3>Requirements &amp; Solutions</h3>
+    <ul>
+      <li><a href="#section-requirements">Section: Requirements &amp; Solutions</a></li>
+      <li><a href="#requirement-1-part1">Requirement 1 (Part 1)</a></li>
+      <li><a href="#requirement-1-part2">Requirement 1 (Part 2)</a></li>
+      <li><a href="#solution-1-part1">Solution 1 (Part 1)</a></li>
+      <li><a href="#solution-1-part2">Solution 1 (Part 2)</a></li>
+      <li><a href="#requirement-2">Requirement 2</a></li>
+      <li><a href="#solution-2">Solution 2</a></li>
+      <li><a href="#learn-more">Learn More</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="#cheatsheet">Cheatsheet</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<main>
+
+<!-- COVER -->
+<section class="slide title-slide" id="cover" data-search="cover deploying metadata tooling apis salesforce development lifecycle deployment architect focusonforce capabilities limitations considerations">
+  <div class="pgnum" style="color:#cbd6e6">Page 1 · Cover</div>
+  <h2>Deploying — Metadata &amp; Tooling APIs</h2>
+  <p style="opacity:0.85;max-width:680px;margin:18px auto 0;">Given a scenario, describe the capabilities, limitations, and considerations when using the Metadata and Tooling APIs for deployment · Salesforce Development Lifecycle &amp; Deployment Architect</p>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="slide" id="toc-slide" data-search="table of contents metadata api tooling api business scenario requirements solutions">
+  <div class="pgnum">Page 2 · Table of Contents</div>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a class="toc-link" href="#section-metadata-api">Metadata API</a></li>
+    <li><a class="toc-link" href="#section-tooling-api">Tooling API</a></li>
+    <li><a class="toc-link" href="#section-business">Business Scenario</a></li>
+    <li><a class="toc-link" href="#section-requirements">Requirements &amp; Solutions</a></li>
+  </ol>
+</section>
+
+<!-- LEARNING OBJECTIVES -->
+<section class="slide" id="learning-objectives" data-search="learning objectives metadata api tooling api capabilities considerations limitations appropriate use business requirements">
+  <div class="pgnum">Page 3 · Learning Objectives</div>
+  <h2>After studying this topic, you should be able to:</h2>
+  <ul>
+    <li>Describe the capabilities, considerations, and limitations of Metadata API.</li>
+    <li>Describe the capabilities, considerations, and limitations of Tooling API.</li>
+    <li>Describe the appropriate use of Metadata or Tooling API and any related considerations for the given business requirements.</li>
+  </ul>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="slide" id="introduction" data-search="introduction metadata tooling api metadata operations retrieving deploying exporting deleting 10000 files 39 mb maximum file size soql queries rest soap entitydefinition fielddefinition">
+  <div class="pgnum">Page 4 · Introduction</div>
+  <h2>Introduction</h2>
+  <p>Salesforce allows the use of <strong>Metadata</strong> and <strong>Tooling APIs</strong> to perform operations that involve metadata. Metadata API can be used to move metadata between orgs during the development process. It supports operations such as <strong>retrieving, deploying, exporting, and deleting metadata</strong>.</p>
+  <p><strong>Up to 10,000 files</strong> can be retrieved or deployed using Metadata API. Moreover, the <strong>maximum file size</strong> of a deployed .zip file is <strong>39 MB</strong>.</p>
+  <p><strong>Tooling API</strong> can be used when <strong>fine-grained access</strong> to an org's metadata is required. It supports the use of <strong>SOQL queries</strong> to retrieve smaller pieces of metadata. <strong>REST resources</strong> and <strong>SOAP calls</strong> can be used to access Tooling API functionality. Certain SOQL and SOSL operations are not supported for the EntityDefinition and FieldDefinition objects.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>At the Federal Reserve Bank of Chicago, both APIs power the deployment pipeline: Metadata API drives the bulk promotion of approved changes from sandbox to production (governed by GitLab CI/CD pipelines and change-control approval gates), while Tooling API supports developer tooling that queries field definitions and Apex code coverage without touching the full metadata tree. Understanding which API to use — and its hard limits — is a foundational deployment-mechanics question.</p>
+  </div>
+</section>
+
+<!-- API OVERVIEW (Page 5) -->
+<section class="slide" id="api-overview" data-search="metadata tooling apis overview capabilities considerations limitations destructivechanges xml 10000 files 39 mb entitydefinition fielddefinition soql sosl rest soap fine-grained access custom field definitions error-free save warnings">
+  <div class="pgnum">Page 5 · Metadata &amp; Tooling APIs Overview</div>
+  <h2>Metadata &amp; Tooling APIs</h2>
+  <p class="lede">Side-by-side summary of capabilities, considerations, and limitations for both APIs.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Metadata API Capabilities</h4>
+      <p>Metadata API can be used to perform metadata operations, such as moving metadata between organizations.</p>
+    </div>
+    <div class="card">
+      <h4>Tooling API Capabilities</h4>
+      <p>Tooling API is used for fine-grained access to an org's metadata. For example, it can be used to retrieve custom field definitions.</p>
+    </div>
+    <div class="card">
+      <h4>Metadata API Considerations</h4>
+      <p>Various considerations apply to the use of Metadata API, such as using the destructiveChanges.xml file for deleting components.</p>
+    </div>
+    <div class="card">
+      <h4>Tooling API Considerations</h4>
+      <p>REST resources and SOAP calls can be used to access Tooling API functionality. Error-free save operations can be allowed to complete with warnings.</p>
+    </div>
+    <div class="card">
+      <h4>Metadata API Limitations</h4>
+      <p>Up to 10,000 files can be retrieved or deployed at once. The maximum file size of a .zip file is 39 MB.</p>
+    </div>
+    <div class="card">
+      <h4>Tooling API Limitations</h4>
+      <p>Certain SOQL and SOSL operations are not supported for the EntityDefinition and FieldDefinition objects.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: METADATA API -->
+<section class="slide title-slide" id="section-metadata-api" data-search="section metadata api">
+  <div class="pgnum" style="color:#cbd6e6">Page 6 · Section</div>
+  <h2>Metadata API</h2>
+</section>
+
+<!-- METADATA CAPABILITIES 1: OPERATIONS & METHODS -->
+<section class="slide" id="metadata-capabilities-1" data-search="capabilities metadata api metadata operations deploy retrieve create update delete customization information methods deploy() retrieve() source push pull changes source tracking moving metadata between orgs development process customizations tools manage metadata model">
+  <div class="pgnum">Page 7 · Capabilities of Metadata API — Operations &amp; Methods</div>
+  <h2>Capabilities of Metadata API</h2>
+  <p class="lede">Metadata API is used to <strong>perform metadata operations</strong>, such as <strong>moving metadata between orgs</strong> during the development process.</p>
+  <h3>Metadata Operations</h3>
+  <p>Metadata API can be used to <strong>deploy, retrieve, create, update, or delete</strong> customization information.</p>
+  <h3>Methods</h3>
+  <p>Metadata can be moved using <strong>deploy()</strong> and <strong>retrieve()</strong> calls. The other method is using <strong>source push</strong> and <strong>pull commands</strong> that move only <strong>changes in metadata</strong> and use <strong>source tracking</strong>.</p>
+  <h3>Customizations &amp; Tools</h3>
+  <p>Metadata API can be used to <strong>develop customizations</strong> and <strong>build tools</strong> that manage the metadata model.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>In a GitLab CI/CD pipeline at a regulated institution, the deploy() call is the workhorse of the production promotion step — executed only after merge-request approval and change-control sign-off. Source push/pull (source-tracking mode) is restricted to scratch org development; production deployments use explicit deploy() calls so every artifact is traceable to an approved package.xml manifest.</p>
+  </div>
+</section>
+
+<!-- METADATA CAPABILITIES 2: ACCESS & TYPES -->
+<section class="slide" id="metadata-capabilities-2" data-search="capabilities metadata api access salesforce extensions visual studio code salesforce cli types components metadata type defines structure application metadata component instance mycustomobject_c customobject">
+  <div class="pgnum">Page 8 · Capabilities of Metadata API — Access &amp; Types</div>
+  <h2>Capabilities of Metadata API</h2>
+  <p class="lede">Metadata API is used to <strong>perform metadata operations</strong>, such as <strong>moving metadata between orgs</strong> during the development process.</p>
+  <h3>Access</h3>
+  <p><strong>Salesforce Extensions for Visual Studio Code</strong> or <strong>Salesforce CLI</strong> can be used to access Metadata API functionality.</p>
+  <h3>Types &amp; Components</h3>
+  <p>Metadata API works with <strong>metadata types</strong> and <strong>components</strong>. A <strong>metadata type</strong> defines the structure of application metadata. A <strong>metadata component</strong> is an instance of a metadata type.</p>
+  <h3>Example</h3>
+  <p><strong>MyCustomObject_c</strong> component is an instance of the <strong>CustomObject</strong> metadata type.</p>
+  <div class="note">The type/component distinction is a frequent exam question: the type is the schema definition (e.g., CustomObject), the component is the specific instance (e.g., MyCustomObject__c). Mixing them up is a common mistake.</div>
+</section>
+
+<!-- METADATA CAPABILITIES 3: LOCAL FILE SYSTEM & SCRATCH ORG -->
+<section class="slide" id="metadata-capabilities-3" data-search="capabilities metadata api local file system production shareable repository scratch org local changes development testing integration points sandboxes integrating collaborating">
+  <div class="pgnum">Page 9 · Capabilities of Metadata API — Local File System &amp; Scratch Org</div>
+  <h2>Capabilities of Metadata API</h2>
+  <p class="lede">Metadata API is used to <strong>perform metadata operations</strong>, such as <strong>moving metadata between orgs</strong> during the development process.</p>
+  <h3>Local File System</h3>
+  <p>Metadata can be moved from <strong>production to the local file system</strong> for development. It can then be pushed to a <strong>shareable repository</strong>.</p>
+  <h3>Scratch Org</h3>
+  <p>Local changes can be <strong>moved to and from a scratch org</strong>. The scratch org can be used along with the local file system for <strong>development</strong> and <strong>testing</strong>.</p>
+  <h3>Integration Points</h3>
+  <p>During development, metadata can be <strong>moved to sandboxes</strong> for <strong>integrating</strong> changes, testing, and collaborating with the team.</p>
+</section>
+
+<!-- METADATA CAPABILITIES 4: DEPLOYMENT & LARGE CHANGES -->
+<section class="slide" id="metadata-capabilities-4" data-search="capabilities metadata api deployment source control git production final step development lifecycle production-level changes merging splitting orgs large changes more suitable deploying large changes">
+  <div class="pgnum">Page 10 · Capabilities of Metadata API — Deployment &amp; Large Changes</div>
+  <h2>Capabilities of Metadata API</h2>
+  <p class="lede">Metadata API is used to <strong>perform metadata operations</strong>, such as <strong>moving metadata between orgs</strong> during the development process.</p>
+  <h3>Deployment</h3>
+  <p>Metadata can be <strong>moved from a source control system such as Git into production</strong> in the final step of the development lifecycle.</p>
+  <h3>Production-Level Changes</h3>
+  <p>Metadata can be <strong>moved for production-level changes</strong>, such as merging or splitting orgs.</p>
+  <h3>Large Changes</h3>
+  <p>Metadata API is more suitable than other APIs for <strong>deploying large changes</strong> to an org.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>When asked about deployment strategy, the key differentiator is scale: Metadata API is the right tool for large, multi-component releases promoted from Git into production. Tooling API is the right tool when you need programmatic, fine-grained access to individual metadata items (e.g., a custom field definition) from an external application. Confusing the two is a common exam trap.</p>
+  </div>
+</section>
+
+<!-- METADATA CONSIDERATIONS 1: EXPORT, MIGRATION & CRUD -->
+<section class="slide" id="metadata-considerations-1" data-search="metadata api considerations export xml metadata files retrieve() call migration modification configuration changes migrated between environments existing changes modified deploy() crud-based development programmatically manage customizations">
+  <div class="pgnum">Page 11 · Metadata API Considerations — Export, Migration &amp; CRUD</div>
+  <h2>Metadata API Considerations</h2>
+  <p class="lede">Various considerations apply to the use of <strong>Metadata API calls</strong> to <strong>manage customizations</strong>.</p>
+  <h3>Export</h3>
+  <p>Customizations can be exported as <strong>XML metadata files</strong> using the <strong>retrieve()</strong> call.</p>
+  <h3>Migration &amp; Modification</h3>
+  <p>Configuration changes can be <strong>migrated between environments</strong> and <strong>existing changes can be modified</strong> using the <strong>deploy()</strong> and <strong>retrieve()</strong> calls.</p>
+  <h3>CRUD-Based Development</h3>
+  <p>Customizations can be managed <strong>programmatically</strong> using <strong>CRUD-based metadata calls</strong>.</p>
+</section>
+
+<!-- METADATA CONSIDERATIONS 2: ZIP FILE & MANIFEST -->
+<section class="slide" id="metadata-considerations-2" data-search="metadata api considerations zip file deploy() retrieve() project manifest package.xml components organized folders manifest file fullname types members name version api version number">
+  <div class="pgnum">Page 12 · Metadata API Considerations — Zip File &amp; Manifest</div>
+  <h2>Metadata API Considerations</h2>
+  <p class="lede">Various considerations apply to the use of <strong>Metadata API calls</strong> to <strong>manage customizations</strong>.</p>
+  <h3>Zip File</h3>
+  <p>The <strong>deploy()</strong> and <strong>retrieve()</strong> calls are used to deploy and retrieve a .zip file. The file has a <strong>project manifest (package.xml)</strong> that lists what to retrieve or deploy, and <strong>one or more XML components</strong> organized into folders.</p>
+  <h3>Manifest File</h3>
+  <p>These elements can be defined in a <strong>package.xml file</strong>:</p>
+  <ol>
+    <li><strong>&lt;fullName&gt;</strong> contains the name of the server-side package.</li>
+    <li><strong>&lt;types&gt;</strong> contains the metadata type name and the named members.</li>
+    <li><strong>&lt;members&gt;</strong> contains the fullName of the component.</li>
+    <li><strong>&lt;name&gt;</strong> contains the metadata type.</li>
+    <li><strong>&lt;version&gt;</strong> contains the API version number that's used when the .zip file is retrieved or deployed.</li>
+  </ol>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>The package.xml manifest is a core deployment artifact: every deploy() call is scoped by it. Know the five elements cold — examiners often ask which element specifies "what API version is this deployment targeting?" (answer: &lt;version&gt;) or "which element lists the individual components?" (answer: &lt;members&gt;).</p>
+  </div>
+</section>
+
+<!-- METADATA CONSIDERATIONS 3: DELETION & CUSTOM METADATA TYPES -->
+<section class="slide" id="metadata-considerations-3" data-search="metadata api considerations deletion deploy() call destructive changes manifest file components removed delete only add destructivechanges.xml custom metadata types custometadata type defined customobject suffix __mdt custommetadata record">
+  <div class="pgnum">Page 13 · Metadata API Considerations — Deletion &amp; Custom Metadata Types</div>
+  <h2>Metadata API Considerations</h2>
+  <p class="lede">Various considerations apply to the use of <strong>Metadata API calls</strong> to <strong>manage customizations</strong>.</p>
+  <h3>Deletion</h3>
+  <p>Components can be deleted with the <strong>deploy()</strong> call using a <strong>destructive changes manifest file</strong> that lists the components to be removed. A deployment can <strong>only delete components</strong> or <strong>delete and add components</strong>.</p>
+  <h3>Destructive Changes</h3>
+  <p><strong>Deleting</strong> components uses the <strong>same procedure</strong> as <strong>deploying</strong> components, but a delete manifest file named <strong>destructiveChanges.xml</strong> needs to be included. The file lists the <strong>components to delete</strong>.</p>
+  <h3>Custom Metadata Types</h3>
+  <p>A <strong>custom metadata type</strong> is defined as a <strong>CustomObject</strong> and has a suffix of <strong>__mdt</strong>. <strong>CustomMetadata</strong> represents a <strong>record</strong> of a custom metadata type.</p>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Automated deletion via destructiveChanges.xml is a high-risk operation in a regulated org — it permanently removes metadata from production. At the Fed, this file would require explicit change-control approval (separate from the add/update deploy request), an impact assessment signed off by the release manager, and a rollback plan documented before execution. The same deploy() call, but with a mandatory approval gate around it.</p>
+  </div>
+</section>
+
+<!-- METADATA API LIMITATIONS -->
+<section class="slide" id="metadata-limitations" data-search="metadata api limitations number of files 10000 appexchange 35000 file size 39 mb 400 mb uncompressed unzipped unsupported types cannot be deployed retrieved manually">
+  <div class="pgnum">Page 14 · Metadata API Limitations</div>
+  <h2>Metadata API Limitations</h2>
+  <p class="lede">Certain <strong>limitations</strong> are applicable to the use of Metadata API.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>Number of Files</h4>
+      <p>Up to <strong>10,000 files</strong> can be deployed or retrieved at once using the Metadata API. The limit for AppExchange files is <strong>35,000</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>File Size</h4>
+      <p>The <strong>maximum file size</strong> of a deployed or retrieved .zip file is <strong>39 MB</strong>. The size limit is <strong>400 MB</strong> if the files are uncompressed in an unzipped folder.</p>
+    </div>
+    <div class="card">
+      <h4>Unsupported Types</h4>
+      <p>Some metadata types <strong>cannot be deployed or retrieved</strong> with Metadata API. Changes to these types need to be performed <strong>manually</strong>.</p>
+    </div>
+  </div>
+  <div class="note">The 10,000-file and 39 MB limits are high-frequency exam numbers — memorize them. The AppExchange limit (35,000) and the uncompressed limit (400 MB) are secondary but distinguishing details. "Unsupported types must be changed manually" is also a common correct answer in scenario questions.</div>
+</section>
+
+<!-- SECTION DIVIDER: TOOLING API -->
+<section class="slide title-slide" id="section-tooling-api" data-search="section tooling api">
+  <div class="pgnum" style="color:#cbd6e6">Page 15 · Section</div>
+  <h2>Tooling API</h2>
+</section>
+
+<!-- TOOLING CAPABILITIES 1: SOQL, TOOLS & MODULES -->
+<section class="slide" id="tooling-capabilities-1" data-search="capabilities tooling api fine-grained access soql capabilities retrieving smaller pieces metadata performance interactive applications existing tools new features functionality lightning platform modules dynamic modules specialized development tools">
+  <div class="pgnum">Page 16 · Capabilities of Tooling API — SOQL, Tools &amp; Modules</div>
+  <h2>Capabilities of Tooling API</h2>
+  <p class="lede">Tooling API can be used for <strong>fine-grained access</strong> to an org's metadata.</p>
+  <h3>SOQL</h3>
+  <p>Tooling API has <strong>SOQL capabilities</strong> that allow <strong>retrieving smaller pieces of metadata</strong>, which improve performance and make it suitable for developing interactive applications.</p>
+  <h3>Existing Tools</h3>
+  <p>Using Tooling API, <strong>new features and functionality</strong> can be added to existing Lightning Platform tools.</p>
+  <h3>Modules &amp; Tools</h3>
+  <p><strong>Dynamic modules</strong> for Lightning Platform development and <strong>specialized development tools</strong> for a specific application or service can be built.</p>
+</section>
+
+<!-- TOOLING CAPABILITIES 2: RETRIEVING & MANAGING METADATA -->
+<section class="slide" id="tooling-capabilities-2" data-search="capabilities tooling api retrieving metadata object fields properties managing metadata custom fields validation rules working copies apex classes triggers visualforce pages components static resource files apex code tests anonymous apex execute test results code coverage">
+  <div class="pgnum">Page 17 · Capabilities of Tooling API — Retrieving &amp; Managing Metadata</div>
+  <h2>Capabilities of Tooling API</h2>
+  <p class="lede">Tooling API can be used for <strong>fine-grained access</strong> to an org's metadata.</p>
+  <h3>Retrieving Metadata</h3>
+  <p>Tooling API can be used to retrieve metadata, such as an <strong>object's fields</strong> and its <strong>properties</strong>.</p>
+  <h3>Managing Metadata</h3>
+  <p>Tooling API can be used to manage metadata such as <strong>custom fields</strong>, <strong>validation rules</strong>, and <strong>working copies</strong> of Apex classes, triggers, Visualforce pages, components, and static resource files.</p>
+  <h3>Apex Code &amp; Tests</h3>
+  <p><strong>Anonymous Apex code</strong> can be executed, Apex tests can be <strong>executed</strong>, test <strong>results</strong> can be managed, and <strong>code coverage results</strong> can be accessed.</p>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Tooling API's ability to execute anonymous Apex and access code coverage results makes it the foundation of CI/CD quality gates — automated pipelines can query test results and enforce a minimum coverage threshold before promoting to production. This is the architect-level answer when asked how to enforce Apex test quality programmatically.</p>
+  </div>
+</section>
+
+<!-- TOOLING CONSIDERATIONS -->
+<section class="slide" id="tooling-considerations" data-search="tooling api considerations rest resources soap calls query soql query statement execute query object criteria soap calls query() create() retrieve() delete() search() update() upsert() compile apex class sandbox save operations warnings ignoresavewarnings http request">
+  <div class="pgnum">Page 18 · Tooling API Considerations — REST &amp; SOAP</div>
+  <h2>Tooling API Considerations</h2>
+  <p class="lede">Considerations for the use of Tooling API are related to <strong>REST resources</strong> and <strong>SOAP calls</strong>.</p>
+  <h3>REST Resources</h3>
+  <p>Various REST resources are available for querying Tooling API objects. For example, <strong>/query/?q=SOQL_Query_Statement</strong> can be used to execute a query against an object and return data based on the specified criteria.</p>
+  <h3>SOAP Calls</h3>
+  <p>Tooling API functionality uses SOAP calls such as <strong>query()</strong>, <strong>create()</strong>, <strong>retrieve()</strong>, <strong>delete()</strong>, <strong>search()</strong>, <strong>update()</strong>, <strong>upsert()</strong>, etc. For example, the create() call can be used to compile an Apex class in a sandbox org.</p>
+  <h3>Save Operations with Warnings</h3>
+  <p>Error-free save operations can be allowed to complete <strong>with warnings</strong> by specifying the header <strong>ignoreSaveWarnings</strong> in the HTTP request.</p>
+</section>
+
+<!-- TOOLING API LIMITATIONS -->
+<section class="slide" id="tooling-limitations" data-search="tooling api limitations soql operations entitydefinition fielddefinition count() group by limit limit offset or not includes sosl operations multiple wildcards or not operators crud operations active orgs unsupported apexclass apexcomponent apexpage customfield customobject">
+  <div class="pgnum">Page 19 · Tooling API Limitations</div>
+  <h2>Tooling API Limitations</h2>
+  <p class="lede">Certain <strong>limitations</strong> are applicable to the use of Tooling API.</p>
+  <div class="cards">
+    <div class="card">
+      <h4>SOQL Operations</h4>
+      <p>Some Tooling API objects, such as <strong>EntityDefinition</strong> and <strong>FieldDefinition</strong>, do not support these SOQL operations: <strong>COUNT()</strong>, <strong>GROUP BY</strong>, <strong>LIMIT</strong>, <strong>LIMIT OFFSET</strong>, <strong>OR</strong>, <strong>NOT</strong>, and <strong>INCLUDES</strong>.</p>
+    </div>
+    <div class="card">
+      <h4>SOSL Operations</h4>
+      <p><strong>EntityDefinition</strong> and <strong>FieldDefinition</strong> do not support certain <strong>SOSL operations</strong>, such as using multiple wildcards in a search term and using the <strong>OR</strong> or <strong>NOT</strong> operators.</p>
+    </div>
+    <div class="card">
+      <h4>CRUD Operations</h4>
+      <p>CRUD operations in active orgs are <strong>unsupported</strong> for <strong>ApexClass</strong>, <strong>ApexComponent</strong>, <strong>ApexPage</strong>, <strong>CustomField</strong>, and <strong>CustomObject</strong>.</p>
+    </div>
+  </div>
+  <div class="note">The CRUD limitation on active-org objects (ApexClass, ApexComponent, ApexPage, CustomField, CustomObject) is a high-yield exam gotcha. Tooling API CRUD is for working copies and sandbox operations — not direct manipulation of live production metadata objects.</div>
+</section>
+
+<!-- SECTION DIVIDER: BUSINESS SCENARIO -->
+<section class="slide title-slide" id="section-business" data-search="section business scenario">
+  <div class="pgnum" style="color:#cbd6e6">Page 20 · Section</div>
+  <h2>Business Scenario</h2>
+</section>
+
+<!-- BUSINESS SCENARIO -->
+<section class="slide" id="business-scenario" data-search="business scenario cosmic food innovations food beverage industry supply chain customer relationship management sales cloud service cloud custom salesforce apps change sets deployment metadata tooling apis architect deployment methodologies">
+  <div class="pgnum">Page 21 · Business Scenario</div>
+  <h2>Business Scenario — Cosmic Food Innovations</h2>
+  <p class="lede">Read the business scenario below and determine the most appropriate solutions for the company's requirements.</p>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>Cosmic Food Innovations, a prominent leader in the food and beverage industry, is on the brink of revolutionizing supply chain and customer relationship management through enhanced Salesforce capabilities. The enterprise leverages Sales Cloud for tracking customer interactions, Service Cloud for customer service, and custom Salesforce apps tailored to unique business processes in the food sector. With operations spanning across continents and a commitment to delivering top-notch products, the CTO of the company would like to refine the metadata deployment methodologies used by the development team to ensure seamless and efficient updates to applications. Its developers currently use Change Sets for deployments. The company's Salesforce architect is tasked with evaluating the current deployment approaches and identifying the optimal mix of tools and methods to meet varied business needs using Metadata and Tooling APIs.</p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER: REQUIREMENTS & SOLUTIONS -->
+<section class="slide title-slide" id="section-requirements" data-search="section requirements solutions">
+  <div class="pgnum" style="color:#cbd6e6">Page 22 · Section</div>
+  <h2>Requirements &amp; Solutions</h2>
+</section>
+
+<!-- REQUIREMENT 1 PART 1 -->
+<section class="slide" id="requirement-1-part1" data-search="requirement 1 part 1 deployment strategy salesforce extensions vs code custom lightning web components custom metadata types reports dashboards rollback previous versions major release">
+  <div class="pgnum">Page 23 · Requirement 1 (Part 1)</div>
+  <h2>Requirement 1 (Part 1)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The Salesforce development team of the company is currently facing the following challenges:</p>
+    <ol>
+      <li>The team needs an appropriate deployment strategy before starting to use Salesforce Extensions for VS Code for developing certain custom Lightning web components that will utilize various custom metadata types.</li>
+      <li>The executives are complaining that reports and dashboards roll back to previous versions after each major release. The architect needs to suggest how to stop rollbacks.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- REQUIREMENT 1 PART 2 -->
+<section class="slide" id="requirement-1-part2" data-search="requirement 1 part 2 remove newly deployed features automate process deleting deployed components manually deployment script api version 58.0 apex class standard object api version 59.0 better control changes production org automate">
+  <div class="pgnum">Page 24 · Requirement 1 (Part 2)</div>
+  <h2>Requirement 1 (Part 2)</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <ol start="3">
+      <li>Sometimes developers need to remove newly deployed features and would like to automate the process instead of deleting the deployed components manually.</li>
+      <li>A developer has obtained a deployment script that uses API version 58.0. She needs to deploy a new Apex class that uses a standard object that was introduced in API version 59.0. The architect must provide any related considerations.</li>
+      <li>The company wants better control over changes made in the production org and automate them.</li>
+    </ol>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>Requirements 3, 4, and 5 map directly to Fed concerns: automating component deletion (destructiveChanges.xml in CI/CD rather than ad-hoc manual clicks), API version mismatches as a deployment failure vector that must be caught in the pipeline before reaching production, and the prohibition on direct production changes — all three are explicit controls in a change-management framework. "No changes directly in production" is a segregation-of-duties requirement in regulated environments.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 1 -->
+<section class="slide" id="solution-1-part1" data-search="solution 1 part 1 retrieve() metadata api scratch org deploy() sandbox customobject custommetadata custom metadata types records salesforce cli reports dashboards exported daily xml files merged development branch next release">
+  <div class="pgnum">Page 25 · Solution 1 (Part 1)</div>
+  <h2>Solution 1 (Part 1)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>1) The development team can use the <strong>retrieve()</strong> Metadata API call to retrieve existing metadata for development in a scratch org. Once development and testing are complete, the updated metadata can be deployed to a sandbox environment using the <strong>deploy()</strong> call for quality assurance. <strong>CustomObject</strong> and <strong>CustomMetadata</strong> should be included for the deployment of custom metadata types and records. <strong>Salesforce CLI</strong> commands can be utilized for both the calls.</p>
+    <p>2) To stop rollbacks of reports and dashboards, the metadata should be <strong>exported</strong> daily as <strong>XML files</strong> and <strong>merged</strong> into the development branch before the next release.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 1 PART 2 -->
+<section class="slide" id="solution-1-part2" data-search="solution 1 part 2 destructivechanges.xml package.xml delete deployed components fail api version 58.0 59.0 no changes production org metadata api automate deployments">
+  <div class="pgnum">Page 26 · Solution 1 (Part 2)</div>
+  <h2>Solution 1 (Part 2)</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>3) To delete the deployed components, a developer can use the <strong>destructiveChanges.xml</strong> file along with <strong>package.xml</strong>. The destructiveChanges.xml file should list the components that should be deleted. The procedure for deleting components is the same as the one used for deploying components.</p>
+    <p>4) The deployment script would <strong>fail</strong> because it would not recognize the new object introduced in API version 59.0. It would be necessary to use a script that uses <strong>API version 59.0 or later</strong>.</p>
+    <p>5) <strong>No changes</strong> should be allowed <strong>directly</strong> in the production org, and <strong>Metadata API</strong> should be used to automate deployments.</p>
+  </div>
+  <div class="interview">
+    <h4>Interview angle</h4>
+    <p>Item 4 (API version mismatch) is a precision trap: the script does not throw a vague error — it specifically fails to recognize a new standard object because it was introduced in a later API version. The fix is not to change the object reference; it is to update the script's API version. Item 5 ("no direct production changes") is the canonical governance answer and aligns with every regulated-org deployment standard.</p>
+  </div>
+</section>
+
+<!-- REQUIREMENT 2 -->
+<section class="slide" id="requirement-2" data-search="requirement 2 new production org europe custom applications huge volume metadata external java application retrieving smaller pieces metadata custom field definitions limitations metadata api deployment">
+  <div class="pgnum">Page 27 · Requirement 2</div>
+  <h2>Requirement 2</h2>
+  <div class="scenario">
+    <h4>Scenario</h4>
+    <p>The company recently set up a new production org for its operations in Europe. It would like to deploy various custom applications to this new org. However, this requires deploying a huge volume of metadata. Furthermore, a developer has been tasked with working on an external Java application that allows retrieving and making changes to smaller pieces of metadata, such as custom field definitions. The architect must suggest suitable strategies for these use cases and also provide any limitations of Metadata API that should be considered for deployment to the new production org.</p>
+  </div>
+</section>
+
+<!-- SOLUTION 2 -->
+<section class="slide" id="solution-2" data-search="solution 2 metadata dependencies logical groupings metadata components deployed right order 10000 files retrieved deployed 39 mb tooling api soql queries smaller pieces salesforce metadata custom field definitions rest resources soap calls">
+  <div class="pgnum">Page 28 · Solution 2</div>
+  <h2>Solution 2</h2>
+  <div class="sln">
+    <h4>Solution</h4>
+    <p>For the successful deployment of a huge volume of metadata to the new production org, <strong>metadata dependencies</strong> should be identified, <strong>logical groupings</strong> should be created, and the <strong>metadata components</strong> should be <strong>deployed in the right order</strong>. However, when using Metadata API, it is necessary to consider that only <strong>up to 10,000 files</strong> can be <strong>retrieved or deployed at once</strong> and the <strong>maximum size</strong> of a <strong>deployed .zip file is 39 MB</strong>.</p>
+    <p>The external Java application should make use of <strong>Tooling API</strong>, utilizing <strong>SOQL queries</strong> to retrieve and make changes to smaller pieces of Salesforce metadata, such as custom field definitions. REST resources or SOAP calls can be used for the operations.</p>
+  </div>
+  <div class="fed">
+    <h4>Fed angle</h4>
+    <p>The large-volume deployment scenario (new production org, huge metadata volume) is directly analogous to a Fed org consolidation or a new regional entity build-out. The dependency ordering requirement is not just a technical concern — it is a deployment risk management concern. If dependencies are deployed out of order, validation failures can roll back the entire deployment, creating an unplanned outage. Dependency mapping and phased deployment batches are the architectural controls that prevent this.</p>
+  </div>
+</section>
+
+<!-- LEARN MORE -->
+<section class="slide" id="learn-more" data-search="learn more understanding metadata api introducing tooling api get to know salesforce platform apis trailhead further reading">
+  <div class="pgnum">Page 29 · Learn More</div>
+  <h2>Learn More</h2>
+  <p class="lede">Recommended Salesforce resources to deepen your understanding of the topics in this deck.</p>
+  <ul>
+    <li>Understanding Metadata API</li>
+    <li>Introducing Tooling API</li>
+    <li>Get to Know the Salesforce Platform APIs</li>
+  </ul>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="slide" id="cheatsheet" data-search="cheatsheet summary key points metadata api tooling api capabilities limitations considerations package.xml destructivechanges.xml 10000 39mb exam traps decision matrix api vs tooling comparison">
+  <div class="pgnum">Reference · Cheatsheet</div>
+  <h2>Cheatsheet — Metadata &amp; Tooling APIs</h2>
+
+  <h3>API Comparison: When to Use Which</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Dimension</th><th>Metadata API</th><th>Tooling API</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Primary Use Case</strong></td>
+        <td>Moving metadata between orgs; large-scale deployments</td>
+        <td>Fine-grained, programmatic access to individual metadata items</td>
+      </tr>
+      <tr>
+        <td><strong>Access Methods</strong></td>
+        <td>deploy() / retrieve() calls; source push/pull; Salesforce CLI / VS Code extensions</td>
+        <td>REST resources (/query/?q=…); SOAP calls (query, create, retrieve, delete, search, update, upsert)</td>
+      </tr>
+      <tr>
+        <td><strong>Best For</strong></td>
+        <td>Full-release deployments, production-level changes, org merges/splits, Git-to-prod pipelines</td>
+        <td>Interactive tooling, external apps, querying field definitions, code coverage, anonymous Apex execution</td>
+      </tr>
+      <tr>
+        <td><strong>Scale</strong></td>
+        <td>Up to 10,000 files; 39 MB zip (400 MB uncompressed)</td>
+        <td>No file-count limit but restricted to smaller, targeted queries</td>
+      </tr>
+      <tr>
+        <td><strong>Key Limitation</strong></td>
+        <td>Some metadata types unsupported (manual change required); AppExchange limit is 35,000</td>
+        <td>EntityDefinition &amp; FieldDefinition: no COUNT(), GROUP BY, LIMIT, OR, NOT, INCLUDES; CRUD blocked in active orgs for ApexClass, ApexPage, CustomField, CustomObject</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Metadata API Limits — Numbers to Memorize</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Limit</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Max files per deploy/retrieve</td><td>10,000 (standard); 35,000 (AppExchange)</td></tr>
+      <tr><td>Max .zip file size (compressed)</td><td>39 MB</td></tr>
+      <tr><td>Max .zip file size (uncompressed)</td><td>400 MB</td></tr>
+    </tbody>
+  </table>
+
+  <h3>package.xml Elements</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Element</th><th>Contains</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>&lt;fullName&gt;</code></td><td>Name of the server-side package</td></tr>
+      <tr><td><code>&lt;types&gt;</code></td><td>Metadata type name and named members</td></tr>
+      <tr><td><code>&lt;members&gt;</code></td><td>fullName of the component</td></tr>
+      <tr><td><code>&lt;name&gt;</code></td><td>Metadata type</td></tr>
+      <tr><td><code>&lt;version&gt;</code></td><td>API version number used for the .zip retrieve/deploy</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Scenario Pattern: Requirements-to-Solution Mapping</h3>
+  <table class="dttable">
+    <thead>
+      <tr><th>Requirement</th><th>Correct Tool / Approach</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Develop LWCs with custom metadata types using VS Code</td><td>retrieve() to scratch org → develop → deploy() to sandbox → Salesforce CLI; include CustomObject + CustomMetadata in package.xml</td></tr>
+      <tr><td>Stop reports/dashboards rolling back after releases</td><td>Export metadata as XML files daily; merge into development branch before next release</td></tr>
+      <tr><td>Automate component deletion</td><td>destructiveChanges.xml + package.xml via deploy() call</td></tr>
+      <tr><td>API version mismatch (script v58, object v59)</td><td>Deployment fails — must update script to API version 59.0 or later</td></tr>
+      <tr><td>No direct production changes</td><td>Use Metadata API to automate all deployments; prohibit manual production changes</td></tr>
+      <tr><td>Huge volume of metadata to new org</td><td>Identify dependencies, create logical groupings, deploy in correct order; batch to respect 10,000-file / 39 MB limits</td></tr>
+      <tr><td>External Java app for smaller metadata pieces (custom fields)</td><td>Tooling API via SOQL queries; REST resources or SOAP calls</td></tr>
+    </tbody>
+  </table>
+
+  <h3>High-Yield Exam Gotchas</h3>
+  <ul>
+    <li><strong>Tooling API CRUD is blocked in active orgs</strong> for ApexClass, ApexComponent, ApexPage, CustomField, and CustomObject — this is a Tooling API limitation, not a permission issue.</li>
+    <li><strong>destructiveChanges.xml uses the same deploy() call</strong> as regular deployments — there is no separate "delete" API call; the distinction is the manifest file included.</li>
+    <li><strong>Custom metadata type vs. Custom metadata record:</strong> the type is CustomObject (suffix __mdt); the record is CustomMetadata. Both must be in package.xml for a complete deployment.</li>
+    <li><strong>API version in package.xml &lt;version&gt;</strong> must be equal to or greater than the API version that introduced any object referenced in the deployment — a lower version silently fails to recognize newer standard objects.</li>
+    <li><strong>Source push/pull uses source tracking</strong> — it only moves changed metadata, and it requires a source-tracking-enabled org (scratch org or source-tracking sandbox). deploy() / retrieve() do not require source tracking.</li>
+    <li><strong>Unsupported metadata types cannot be deployed with Metadata API</strong> — the only recourse is a manual UI change. This is a planning consideration for any large migration.</li>
+    <li><strong>Reports and dashboards rolling back</strong> signals they were not included in the source-controlled package.xml — the fix is to export them as XML and merge them into the branch, not to rebuild them post-deploy.</li>
+  </ul>
+
+  <div class="fed">
+    <h4>Fed angle — Tying it together</h4>
+    <p>For a Federal Reserve platform engineer, every bullet in this deck has a compliance corollary. The "no direct production changes" principle is a segregation-of-duties control. The destructiveChanges.xml approval gate is a change-risk control. The dependency-ordered deployment strategy prevents unplanned outages — a business-continuity concern. API version discipline is a regression-prevention control. And the choice between Metadata API (bulk, auditable, Git-driven) and Tooling API (targeted, programmatic, tool-building) maps to the two deployment contexts at a regulated institution: batch release promotions governed by the change-control board, and continuous developer tooling used to inspect and validate the org's state. An architect who can articulate this distinction — in the context of CI/CD pipelines, deployment approvals, and audit trails — is demonstrating exactly the posture that senior leadership and examiners want to see.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const sections = links.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  const allSections = Array.from(document.querySelectorAll('section.slide'));
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    if (!q) { allSections.forEach(s => s.style.display = ''); links.forEach(l => l.style.display = ''); return; }
+    allSections.forEach(s => {
+      const hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.style.display = hay.toLowerCase().includes(q) ? '' : 'none';
+    });
+    links.forEach(l => {
+      const target = document.querySelector(l.getAttribute('href'));
+      l.style.display = (target && target.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>
