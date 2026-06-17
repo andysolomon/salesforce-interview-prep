@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integration Architect — Online References</title>
+<link rel="stylesheet" href="../../theme.css">
+<style>
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;background:#f7f8fa;color:#1a2233}
+  .topbar{background:#22344c;color:white;padding:18px 24px}.topbar a{color:white;text-decoration:none;opacity:.82}.topbar h1{margin:4px 0 2px;font-size:22px}.sub{font-size:13px;opacity:.82}
+  main{max-width:980px;margin:28px auto;padding:0 24px 80px}.lede{color:#5b6b80;max-width:760px}
+  h2{color:#22344c;font-size:16px;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid #1589ee;display:inline-block;padding-bottom:6px;margin:28px 0 14px}
+  .grid{display:grid;gap:14px}.card{background:#fff;border:1px solid #e3e8f0;border-radius:8px;padding:18px 20px}.card h3{margin:0 0 6px;color:#22344c;font-size:16px}.card p{margin:6px 0;color:#1a2233}.card .why{color:#5b6b80;font-size:13px}.card a{color:#1589ee;font-weight:600;text-decoration:none}.card a:hover{text-decoration:underline}
+  .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pill{font-size:11px;text-transform:uppercase;letter-spacing:.5px;background:#eef6ff;color:#1469b0;border:1px solid #cfe6fb;border-radius:999px;padding:3px 8px}
+  table{width:100%;border-collapse:collapse;background:white;border:1px solid #e3e8f0;border-radius:8px;overflow:hidden}th,td{border:1px solid #e3e8f0;padding:10px 12px;text-align:left;vertical-align:top}th{background:#f1f5fb;color:#22344c;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div><a href="../../index.html">Study</a> · <a href="index.html">Architect Certification Guides · Integration</a> · References</div>
+  <h1>Integration Architect — Online References</h1>
+  <div class="sub">Companion links for the Integration Architect PDF decks</div>
+</header>
+<main>
+  <p class="lede">Use these as the source-of-truth layer behind the decks: first select the integration pattern, then validate layer/timing/direction/security, then choose the correct Salesforce auth primitive.</p>
+
+  <h2>Decision framework</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://architect.salesforce.com/docs/architect/fundamentals/guide/integration-patterns.html" target="_blank" rel="noopener">Salesforce Architect: Integration Patterns</a></h3>
+      <p>Canonical pattern catalog: Remote Process Invocation — Request/Reply, Remote Process Invocation — Fire-and-Forget, Batch Data Synchronization, Remote Call-In, UI Update Based on Data Changes, and Data Virtualization.</p>
+      <p class="why"><strong>Use for interviews:</strong> anchor answers in pattern selection: type, timing, direction, volume, transactionality, failure handling, and whether Salesforce or the remote system initiates the exchange.</p>
+      <div class="pills"><span class="pill">pattern selection</span><span class="pill">sync vs async</span><span class="pill">data/process/virtual</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/app-integration-patterns/app-integration-patterns-2" target="_blank" rel="noopener">Trailhead: Practice the Layer Approach</a></h3>
+      <p>Breaks integration evaluation into layers and dimensions: UI, business process, data; plus volume, timing, direction, security requirements, error handling/recovery, and coupling.</p>
+      <p class="why"><strong>Use for interviews:</strong> this is the cleanest verbal structure for walking from vague requirements to an architecture recommendation.</p>
+      <div class="pills"><span class="pill">layers</span><span class="pill">requirements</span><span class="pill">tradeoffs</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/blogs/developer-relations/2014/11/salesforce-integration-architecture" target="_blank" rel="noopener">Developer Blog: Integration Architecture for the Salesforce Platform</a></h3>
+      <p>Enterprise architecture framing for Salesforce integrations: align business strategy to technical capabilities, support both batch and real-time services, define SLAs, and standardize integration use cases through architecture governance.</p>
+      <p class="why"><strong>Use for interviews:</strong> distinguish pattern choice from integration architecture. The pattern is the car; the architecture is the highway, security zone, middleware, SLA, and governance model.</p>
+      <div class="pills"><span class="pill">enterprise architecture</span><span class="pill">SLAs</span><span class="pill">middleware</span></div>
+    </article>
+  </div>
+
+  <h2>Outbound callouts and endpoint management</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_callouts_named_credentials.htm" target="_blank" rel="noopener">Apex Developer Guide: Named Credentials as Callout Endpoints</a></h3>
+      <p>Named Credentials keep endpoint URL and authentication configuration out of Apex, let code use <code>callout:CredentialName/path</code>, avoid separate Remote Site Settings, and support different endpoint URLs per org.</p>
+      <p class="why"><strong>Use for interviews:</strong> say “I avoid hard-coded endpoints/secrets; I use Named Credentials + External Credentials so deployments are environment-portable and auth is centrally governed.”</p>
+      <div class="pills"><span class="pill">named credentials</span><span class="pill">apex callouts</span><span class="pill">environment portability</span></div>
+    </article>
+  </div>
+
+  <h2>Authentication, authorization, and connected apps</h2>
+  <table>
+    <thead><tr><th>Reference</th><th>When to use it</th><th>Interview hook</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_authenticate.htm&type=5" target="_blank" rel="noopener">Authenticate Apps with OAuth</a></td>
+        <td>Baseline concepts for app authentication against Salesforce APIs.</td>
+        <td>Separate identity, authorization scope, token lifetime, and client trust model.</td>
+      </tr>
+      <tr>
+        <td><a href="https://developer.salesforce.com/docs/atlas.en-us.202.0.api_rest.meta/api_rest/intro_understanding_authentication.htm" target="_blank" rel="noopener">REST API: Understanding Authentication</a></td>
+        <td>REST API authentication basics: Connected App setup, OAuth endpoints, OAuth flows, and access token use.</td>
+        <td>Before API calls, define the connected app and flow, then protect tokens and scope access to the integration’s real needs.</td>
+      </tr>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_oauth_flows.htm&type=5" target="_blank" rel="noopener">OAuth Flows</a></td>
+        <td>Choose the right OAuth flow for user, server-to-server, device, web, or integration contexts.</td>
+        <td>Don’t pick “OAuth” generically — pick the flow based on actor, interactivity, and secret handling.</td>
+      </tr>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.connected_app_overview.htm&type=5" target="_blank" rel="noopener">Connected Apps Overview</a></td>
+        <td>Configure and govern integrations that need Salesforce API access or SSO/mobile policies.</td>
+        <td>Connected Apps are the control plane for API access: scopes, policies, IP/session controls, and admin approval.</td>
+      </tr>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.remoteaccess_terminology.htm&type=5" target="_blank" rel="noopener">Connected App / OAuth Terminology</a></td>
+        <td>Clarify terms such as client, resource owner, authorization server, scopes, tokens, callback URL, and connected app policies.</td>
+        <td>Use precise vocabulary: authentication proves identity; authorization grants scoped access; a connected app governs the client.</td>
+      </tr>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.sso_provider_openid_connect.htm&type=5" target="_blank" rel="noopener">OpenID Connect SSO Provider</a></td>
+        <td>Use OIDC when Salesforce participates in standards-based single sign-on with identity claims over OAuth-style flows.</td>
+        <td>OIDC answers “who is the user?”; OAuth answers “what can this app access?”</td>
+      </tr>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.identity_provider_about.htm&type=5" target="_blank" rel="noopener">Salesforce as Identity Provider</a></td>
+        <td>When Salesforce authenticates users and provides identity assertions/tokens to service providers.</td>
+        <td>Be explicit whether Salesforce is IdP or SP; it changes where users authenticate and where trust is configured.</td>
+      </tr>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.sso_jit_about.htm&type=5" target="_blank" rel="noopener">Just-in-Time Provisioning</a></td>
+        <td>Create or update users during SSO based on incoming identity attributes.</td>
+        <td>JIT turns identity claims into user lifecycle automation, but requires attribute mapping and governance.</td>
+      </tr>
+      <tr>
+        <td><a href="https://trailhead.salesforce.com/content/learn/modules/identity_basics/identity_basics_protocols" target="_blank" rel="noopener">Trailhead: Identity Protocols</a></td>
+        <td>Plain-English comparison of SAML, OAuth 2.0, and OpenID Connect plus IdP/SP terminology.</td>
+        <td>SAML is classic SSO, OAuth delegates API access, OIDC adds identity to OAuth-style flows.</td>
+      </tr>
+      <tr>
+        <td><a href="https://trailhead.salesforce.com/content/learn/modules/identity_basics/identity_basics_product" target="_blank" rel="noopener">Trailhead: Salesforce Identity</a></td>
+        <td>Identity product features: SSO, external client apps, social sign-on, MFA, My Domain, centralized user management, and App Launcher.</td>
+        <td>Identity architecture is user experience plus security policy: right people, right access, right time.</td>
+      </tr>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.overview_security.htm&type=5" target="_blank" rel="noopener">Security Overview</a></td>
+        <td>Broader security posture reference for protecting access, sessions, credentials, users, and org configuration.</td>
+        <td>Security requirements should become concrete controls: MFA, session policy, IP ranges, least privilege, monitoring, and audit.</td>
+      </tr>
+      <tr>
+        <td><a href="https://help.salesforce.com/s/articleView?id=xcloud.security_keys_about.htm&type=5" target="_blank" rel="noopener">Security Keys</a></td>
+        <td>Understand stronger authentication factors and phishing-resistant auth options.</td>
+        <td>For high-trust integrations/users, mention MFA/security keys and least-privilege connected app policy.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Data classification, privacy, and regulatory constraints</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=platform.data_classification_intro.htm&type=5" target="_blank" rel="noopener">Salesforce Help: Data Classification</a></h3>
+      <p>Use field-level metadata to document sensitivity and compliance intent, including whether a field contains public, internal, confidential, restricted, or mission-critical data.</p>
+      <p class="why"><strong>Use for interviews:</strong> tie integration design to data classification before choosing transport, storage, masking, encryption, retention, or logging behavior.</p>
+      <div class="pills"><span class="pill">classification</span><span class="pill">field metadata</span><span class="pill">PII</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=xcloud.data_protection_and_privacy.htm&type=5" target="_blank" rel="noopener">Salesforce Help: Data Protection and Privacy</a></h3>
+      <p>Salesforce privacy capabilities and guidance for consent, deletion, portability, preference management, and personal data handling across clouds.</p>
+      <p class="why"><strong>Use for interviews:</strong> explain that privacy requirements become lifecycle requirements: collect, classify, protect, disclose, delete/export, audit.</p>
+      <div class="pills"><span class="pill">privacy lifecycle</span><span class="pill">deletion</span><span class="pill">consent</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://admin.salesforce.com/blog/2021/protect-user-pii-data-with-enhanced-personal-information-management" target="_blank" rel="noopener">Admin Blog: Enhanced Personal Information Management</a></h3>
+      <p>How Salesforce protects User-object personal information for external users and lets admins define which fields are considered personal information.</p>
+      <p class="why"><strong>Use for interviews:</strong> call out that PII is not just contact data in business objects; User records and external/community identities also need visibility design.</p>
+      <div class="pills"><span class="pill">external users</span><span class="pill">PII visibility</span><span class="pill">user data</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://engineering.salesforce.com/scaling-the-compliance-peak-9f549aaa272/" target="_blank" rel="noopener">Salesforce Engineering: Scaling the Compliance Peak</a></h3>
+      <p>Regulated-industry compliance framing: Salesforce provides infrastructure, networking, application security, and Shield capabilities, but compliance is shared responsibility.</p>
+      <p class="why"><strong>Use for interviews:</strong> name the shared-responsibility boundary: Salesforce platform controls plus customer-owned access model, backup, monitoring, policy, and configuration.</p>
+      <div class="pills"><span class="pill">regulated industries</span><span class="pill">Shield</span><span class="pill">shared responsibility</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://medium.com/salesforce-architects/5-considerations-for-localized-regulated-data-in-salesforce-84eb738d1aa2" target="_blank" rel="noopener">Salesforce Architects: Localized, Regulated Data</a></h3>
+      <p>Architecture considerations for global privacy laws, data residency, local processing restrictions, jurisdiction-specific categories, and legal interpretation.</p>
+      <p class="why"><strong>Use for interviews:</strong> for regional or regulated data, ask where the data is stored, processed, viewed, replicated, logged, and backed up — not just where the primary record lives.</p>
+      <div class="pills"><span class="pill">data residency</span><span class="pill">regional law</span><span class="pill">regulated data</span></div>
+    </article>
+  </div>
+
+  <h2>Events, APIs, and implementation options</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/platform_events_basics?trailmix_creator_id=strailhead&trailmix_slug=architect-integration-architecture" target="_blank" rel="noopener">Trailhead: Platform Events Basics</a></h3>
+      <p>Event-driven integration fundamentals for publishing and subscribing to business events inside and outside Salesforce.</p>
+      <p class="why"><strong>Use for interviews:</strong> choose Platform Events when systems need loose coupling, near-real-time notification, replay, and asynchronous processing rather than blocking request/reply.</p>
+      <div class="pills"><span class="pill">events</span><span class="pill">async</span><span class="pill">pub/sub</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/change-data-capture?trailmix_creator_id=strailhead&trailmix_slug=architect-integration-architecture" target="_blank" rel="noopener">Trailhead: Change Data Capture</a></h3>
+      <p>Change events for record creates, updates, deletes, undeletes, and gap-aware data synchronization from Salesforce to subscribers.</p>
+      <p class="why"><strong>Use for interviews:</strong> use CDC when the integration is about data-change propagation, not arbitrary business-event semantics.</p>
+      <div class="pills"><span class="pill">CDC</span><span class="pill">data sync</span><span class="pill">change events</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/app-integration-patterns?trail_id=explore-integration-patterns-and-practices&trailmix_creator_id=strailhead&trailmix_slug=architect-integration-architecture" target="_blank" rel="noopener">Trailhead: Application Integration Patterns</a></h3>
+      <p>Guided Salesforce pattern selection across layers, timing, direction, volume, security, error handling, recovery, and coupling.</p>
+      <p class="why"><strong>Use for interviews:</strong> restate the requirement in pattern language before naming a technology.</p>
+      <div class="pills"><span class="pill">patterns</span><span class="pill">layers</span><span class="pill">selection</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_upsert.htm" target="_blank" rel="noopener">REST API: Upsert Records</a></h3>
+      <p>Use external IDs with REST upsert to make inbound writes idempotent and avoid duplicate records during retries.</p>
+      <p class="why"><strong>Use for interviews:</strong> every integration write path should discuss idempotency, retry behavior, and external identifiers.</p>
+      <div class="pills"><span class="pill">REST API</span><span class="pill">upsert</span><span class="pill">idempotency</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/api_basics/api_basics_overview" target="_blank" rel="noopener">Trailhead: API Basics</a></h3>
+      <p>Intro to APIs as contracts between systems: requests, responses, resources, and integration design vocabulary.</p>
+      <p class="why"><strong>Use for interviews:</strong> define the API contract, ownership, versioning, and error semantics before implementation.</p>
+      <div class="pills"><span class="pill">API basics</span><span class="pill">contracts</span><span class="pill">resources</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/external-services/get-started-with-external-services" target="_blank" rel="noopener">Trailhead: External Services</a></h3>
+      <p>Declarative integration with OpenAPI-described external services, making external actions available to Flow and automation.</p>
+      <p class="why"><strong>Use for interviews:</strong> consider External Services when admins need declarative reuse of external capabilities without custom Apex.</p>
+      <div class="pills"><span class="pill">External Services</span><span class="pill">OpenAPI</span><span class="pill">Flow</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=ind.v_dev_t_which_salesforce_api_to_use_when_663740.htm&type=5" target="_blank" rel="noopener">Salesforce Help: Which API to Use When</a></h3>
+      <p>Decision support for choosing REST, SOAP, Bulk, Pub/Sub, Metadata, Tooling, Composite, and other Salesforce APIs.</p>
+      <p class="why"><strong>Use for interviews:</strong> map the API to volume, latency, transactionality, metadata vs data, and synchronous vs asynchronous needs.</p>
+      <div class="pills"><span class="pill">API selection</span><span class="pill">Bulk</span><span class="pill">Composite</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=platform.integrate_what_is_api.htm&type=5" target="_blank" rel="noopener">Salesforce Help: What Is an API?</a></h3>
+      <p>Baseline API concepts for integrations and data exchange with Salesforce.</p>
+      <p class="why"><strong>Use for interviews:</strong> keep API discussions grounded in contract, authentication, authorization, limits, and lifecycle ownership.</p>
+      <div class="pills"><span class="pill">API fundamentals</span><span class="pill">integration</span></div>
+    </article>
+  </div>
+
+  <h2>B2C integration approaches</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/b2c-integration-approaches/b2c-explore-integration-approaches" target="_blank" rel="noopener">Trailhead: Explore B2C Integration Approaches</a></h3>
+      <p>Patterns and approaches for B2C Commerce and customer-facing integration scenarios.</p>
+      <p class="why"><strong>Use for interviews:</strong> customer-facing integrations emphasize availability, latency, burst traffic, consistency windows, and failure isolation.</p>
+      <div class="pills"><span class="pill">B2C</span><span class="pill">commerce</span><span class="pill">availability</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/b2c-integration-approaches/b2c-ensure-integration-security" target="_blank" rel="noopener">Trailhead: Ensure Integration Security</a></h3>
+      <p>Security considerations for customer-facing integrations, including protecting data, systems, and transaction flows.</p>
+      <p class="why"><strong>Use for interviews:</strong> security is not a bolt-on; it shapes endpoint exposure, auth mechanism, data minimization, logging, and operational monitoring.</p>
+      <div class="pills"><span class="pill">security</span><span class="pill">B2C</span><span class="pill">risk</span></div>
+    </article>
+  </div>
+
+  <h2>MuleSoft, External Services, and outbound integration</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/trails/great-integrations-mulesoft" target="_blank" rel="noopener">Trailhead: Build Great Integrations with MuleSoft</a></h3>
+      <p>MuleSoft integration trail for API-led connectivity, reusable APIs, orchestration, transformation, and enterprise integration governance.</p>
+      <p class="why"><strong>Use for interviews:</strong> position MuleSoft when the need is enterprise-scale mediation, orchestration, reuse, transformation, monitoring, and decoupling across many systems.</p>
+      <div class="pills"><span class="pill">MuleSoft</span><span class="pill">API-led</span><span class="pill">middleware</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=platform.enhanced_external_services_considerations.htm&type=5" target="_blank" rel="noopener">Enhanced External Services Considerations</a></h3>
+      <p>Design considerations and limits for exposing OpenAPI-described external operations declaratively inside Salesforce.</p>
+      <p class="why"><strong>Use for interviews:</strong> External Services are powerful for Flow/admin reuse, but still require API contract quality, auth design, limits awareness, and failure handling.</p>
+      <div class="pills"><span class="pill">External Services</span><span class="pill">OpenAPI</span><span class="pill">Flow</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/projects/use-external-services-with-a-flow" target="_blank" rel="noopener">Project: Use External Services with Flow</a></h3>
+      <p>Hands-on flow for registering an external service and invoking it declaratively.</p>
+      <p class="why"><strong>Use for interviews:</strong> call out when a low-code integration option is appropriate versus custom Apex or middleware.</p>
+      <div class="pills"><span class="pill">Flow</span><span class="pill">declarative integration</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/apex_integration_services/apex_integration_rest_callouts?trailmix_creator_id=strailhead&trailmix_slug=architect-integration-architecture" target="_blank" rel="noopener">Apex Integration Services: REST Callouts</a></h3>
+      <p>Build outbound REST integrations from Apex with HTTP requests, responses, JSON, and test callout patterns.</p>
+      <p class="why"><strong>Use for interviews:</strong> choose Apex callouts when business logic must originate in Salesforce code and the transaction boundaries/limits are acceptable.</p>
+      <div class="pills"><span class="pill">Apex</span><span class="pill">REST callouts</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/apex_integration_services/apex_integration_soap_callouts?trailmix_creator_id=strailhead&trailmix_slug=architect-integration-architecture" target="_blank" rel="noopener">Apex Integration Services: SOAP Callouts</a></h3>
+      <p>SOAP callout implementation patterns for WSDL-based integrations.</p>
+      <p class="why"><strong>Use for interviews:</strong> SOAP is still relevant for enterprise systems with WSDL contracts, strict schemas, and established service interfaces.</p>
+      <div class="pills"><span class="pill">Apex</span><span class="pill">SOAP</span><span class="pill">WSDL</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_om_outboundmessaging_understanding.htm" target="_blank" rel="noopener">Outbound Messaging</a></h3>
+      <p>Workflow/Flow-compatible outbound SOAP message pattern for notifying external endpoints about record changes.</p>
+      <p class="why"><strong>Use for interviews:</strong> know the difference between outbound messaging, Apex callouts, Platform Events, and CDC before choosing a push mechanism.</p>
+      <div class="pills"><span class="pill">outbound messaging</span><span class="pill">SOAP</span><span class="pill">record changes</span></div>
+    </article>
+  </div>
+
+  <h2>Limits, performance, and scalability</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_api.htm" target="_blank" rel="noopener">Platform API Limits</a></h3>
+      <p>Reference for API request limits and platform integration capacity constraints.</p>
+      <p class="why"><strong>Use for interviews:</strong> scale design must include API budget, concurrency, batching, backoff, caching, and operational monitoring.</p>
+      <div class="pills"><span class="pill">API limits</span><span class="pill">capacity</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_bulkapi.htm" target="_blank" rel="noopener">Bulk API Limits</a></h3>
+      <p>Bulk API limits and constraints for high-volume data operations.</p>
+      <p class="why"><strong>Use for interviews:</strong> use Bulk API for high-volume async loads, not latency-sensitive single-record interactions.</p>
+      <div class="pills"><span class="pill">Bulk API</span><span class="pill">LDV</span><span class="pill">async</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_callouts_timeouts.htm" target="_blank" rel="noopener">Apex Callout Limits and Timeouts</a></h3>
+      <p>Callout timeouts, transaction limits, and cumulative timeout constraints for Apex outbound integrations.</p>
+      <p class="why"><strong>Use for interviews:</strong> long-running dependencies should push you toward async patterns, continuations, middleware, events, or retries rather than blocking Apex.</p>
+      <div class="pills"><span class="pill">callout limits</span><span class="pill">timeouts</span><span class="pill">Apex</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/large-data-volumes" target="_blank" rel="noopener">Trailhead: Large Data Volumes</a></h3>
+      <p>LDV concepts that affect integration design, query selectivity, indexing, data lifecycle, and batch processing.</p>
+      <p class="why"><strong>Use for interviews:</strong> volume changes the architecture: indexes, selective queries, archival, async processing, and API choice all become first-class decisions.</p>
+      <div class="pills"><span class="pill">LDV</span><span class="pill">data scale</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/scalability-with-salesforce/understand-scalability-at-salesforce" target="_blank" rel="noopener">Understand Scalability at Salesforce</a></h3>
+      <p>Salesforce scalability principles and shared-resource design mindset.</p>
+      <p class="why"><strong>Use for interviews:</strong> design for scale by reducing contention, smoothing load, and respecting multitenant limits.</p>
+      <div class="pills"><span class="pill">scalability</span><span class="pill">architecture</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/scalability-with-salesforce/manage-data-at-scale-with-salesforce" target="_blank" rel="noopener">Manage Data at Scale with Salesforce</a></h3>
+      <p>Data-management practices for growth, performance, and maintainability.</p>
+      <p class="why"><strong>Use for interviews:</strong> integration scale is also data-model and lifecycle scale.</p>
+      <div class="pills"><span class="pill">data management</span><span class="pill">scale</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/scalability-with-salesforce/test-platform-performance-at-scale" target="_blank" rel="noopener">Test Platform Performance at Scale</a></h3>
+      <p>Performance testing practices for validating design assumptions before production load.</p>
+      <p class="why"><strong>Use for interviews:</strong> prove the design with volume tests, realistic data shapes, concurrency, and failure scenarios.</p>
+      <div class="pills"><span class="pill">performance testing</span><span class="pill">scale validation</span></div>
+    </article>
+  </div>
+
+  <h2>Monitoring, errors, and resilience</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=xcloud.monitoring_admin.htm&type=5" target="_blank" rel="noopener">Security and Monitoring Admin</a></h3>
+      <p>Monitoring and admin controls for tracking activity, health, and security-relevant behavior.</p>
+      <p class="why"><strong>Use for interviews:</strong> production integrations need observability: logs, event monitoring, alerts, dead-letter/retry paths, and ownership.</p>
+      <div class="pills"><span class="pill">monitoring</span><span class="pill">operations</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=xcloud.technical_requirements_measuring_ept.htm&type=5" target="_blank" rel="noopener">Measure Experienced Page Time (EPT)</a></h3>
+      <p>Salesforce performance metric guidance for understanding client-perceived page performance.</p>
+      <p class="why"><strong>Use for interviews:</strong> performance monitoring should distinguish user-experienced latency from backend API or integration latency.</p>
+      <div class="pills"><span class="pill">EPT</span><span class="pill">performance</span><span class="pill">UX latency</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_eventlogfile.htm" target="_blank" rel="noopener">EventLogFile Object</a></h3>
+      <p>Object reference for Event Monitoring log files used to analyze user, API, and security activity.</p>
+      <p class="why"><strong>Use for interviews:</strong> Event Monitoring gives post-event evidence for usage, access, API consumption, and investigation workflows.</p>
+      <div class="pills"><span class="pill">EventLogFile</span><span class="pill">audit</span><span class="pill">logs</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_eventlogfile_supportedeventtypes.htm" target="_blank" rel="noopener">Supported EventLogFile Event Types</a></h3>
+      <p>Catalog of supported event types available through Event Monitoring logs.</p>
+      <p class="why"><strong>Use for interviews:</strong> choose monitoring signals intentionally: API usage, login, report exports, URI, Apex execution, and other relevant event families.</p>
+      <div class="pills"><span class="pill">event types</span><span class="pill">monitoring signals</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=xcloud.real_time_event_monitoring_overview.htm&type=5" target="_blank" rel="noopener">Real-Time Event Monitoring Overview</a></h3>
+      <p>Overview of real-time monitoring events for security and operational visibility.</p>
+      <p class="why"><strong>Use for interviews:</strong> use real-time monitoring when detection and response cannot wait for batch log analysis.</p>
+      <div class="pills"><span class="pill">real-time monitoring</span><span class="pill">security events</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/blogs/2020/05/introduction-to-real-time-event-monitoring" target="_blank" rel="noopener">Introduction to Real-Time Event Monitoring</a></h3>
+      <p>Developer-oriented introduction to Real-Time Event Monitoring and event-driven security visibility.</p>
+      <p class="why"><strong>Use for interviews:</strong> describe monitoring as a streaming detection pipeline, not just a report someone checks later.</p>
+      <div class="pills"><span class="pill">real-time events</span><span class="pill">streaming</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/event_monitoring" target="_blank" rel="noopener">Trailhead: Event Monitoring</a></h3>
+      <p>Event Monitoring learning module for log-based visibility into user behavior and org activity.</p>
+      <p class="why"><strong>Use for interviews:</strong> know which integration and security questions can be answered from event logs.</p>
+      <div class="pills"><span class="pill">Trailhead</span><span class="pill">event logs</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.platform_events.meta/platform_events/platform_events_objects_monitoring.htm" target="_blank" rel="noopener">Monitor Platform Event Publishing and Delivery</a></h3>
+      <p>Monitoring objects and guidance for Platform Event publish/delivery operations.</p>
+      <p class="why"><strong>Use for interviews:</strong> event-driven integrations still need metrics for publish success, delivery, replay, subscribers, and back pressure.</p>
+      <div class="pills"><span class="pill">Platform Events</span><span class="pill">delivery monitoring</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=xcloud.real_time_event_monitoring_details.htm&type=5" target="_blank" rel="noopener">Real-Time Event Monitoring Details</a></h3>
+      <p>Detailed reference for real-time event monitoring event types and operational use.</p>
+      <p class="why"><strong>Use for interviews:</strong> pair detection with response: alert routing, owner, severity, runbook, and evidence retention.</p>
+      <div class="pills"><span class="pill">runbooks</span><span class="pill">detection</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/realtime-event-monitoring" target="_blank" rel="noopener">Trailhead: Real-Time Event Monitoring</a></h3>
+      <p>Hands-on learning for near-real-time security and activity monitoring.</p>
+      <p class="why"><strong>Use for interviews:</strong> real-time event monitoring supports proactive operations for high-risk integrations.</p>
+      <div class="pills"><span class="pill">Trailhead</span><span class="pill">real-time</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.238.0.api_streaming.meta/api_streaming/streaming_handling_errors.htm" target="_blank" rel="noopener">Streaming API Error Handling</a></h3>
+      <p>Error-handling considerations for Streaming API clients and subscriptions.</p>
+      <p class="why"><strong>Use for interviews:</strong> subscribers must handle disconnects, replay, backoff, and missed-event recovery.</p>
+      <div class="pills"><span class="pill">Streaming API</span><span class="pill">errors</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.change_data_capture.meta/change_data_capture/cdc_other_events_gap.htm" target="_blank" rel="noopener">CDC Gap Events</a></h3>
+      <p>How Change Data Capture represents event gaps and recovery conditions.</p>
+      <p class="why"><strong>Use for interviews:</strong> CDC consumers need a resync strategy when gaps occur; event-driven does not mean failure-free.</p>
+      <div class="pills"><span class="pill">CDC</span><span class="pill">gap handling</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.238.0.api_asynch.meta/api_asynch/asynch_api_reference_errors.htm" target="_blank" rel="noopener">Bulk / Async API Errors</a></h3>
+      <p>Error references for asynchronous API operations.</p>
+      <p class="why"><strong>Use for interviews:</strong> high-volume integrations need partial-failure handling, row-level error capture, replay, and reconciliation.</p>
+      <div class="pills"><span class="pill">Bulk API</span><span class="pill">partial failures</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.238.0.api_rest.meta/api_rest/errorcodes.htm" target="_blank" rel="noopener">REST API Error Codes</a></h3>
+      <p>REST API error code reference for building robust clients.</p>
+      <p class="why"><strong>Use for interviews:</strong> distinguish retryable, validation, auth, limit, and conflict errors in the client design.</p>
+      <div class="pills"><span class="pill">REST API</span><span class="pill">error codes</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_concepts_errorhandling.htm" target="_blank" rel="noopener">SOAP API Error Handling</a></h3>
+      <p>SOAP API error concepts and response handling.</p>
+      <p class="why"><strong>Use for interviews:</strong> integration contracts must define how errors are represented and what the consumer should do next.</p>
+      <div class="pills"><span class="pill">SOAP API</span><span class="pill">errors</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/blogs/2017/09/error-handling-best-practices-lightning-apex" target="_blank" rel="noopener">Error Handling Best Practices in Lightning and Apex</a></h3>
+      <p>Best practices for surfacing, handling, and logging errors across Apex and Lightning experiences.</p>
+      <p class="why"><strong>Use for interviews:</strong> user-facing and system-facing errors need different handling, but both need traceability and safe messages.</p>
+      <div class="pills"><span class="pill">Apex</span><span class="pill">UX errors</span><span class="pill">logging</span></div>
+    </article>
+  </div>
+
+  <h2>Secrets, encryption, and integration security</h2>
+  <div class="grid">
+    <article class="card">
+      <h3><a href="https://trailhead.salesforce.com/content/learn/modules/secure-secrets-storage/protect-secrets-using-platform-features" target="_blank" rel="noopener">Protect Secrets Using Platform Features</a></h3>
+      <p>How to avoid hard-coded secrets and use platform features for protected credential storage.</p>
+      <p class="why"><strong>Use for interviews:</strong> secrets belong in managed platform controls, not Apex, custom metadata, logs, or deployment scripts.</p>
+      <div class="pills"><span class="pill">secrets</span><span class="pill">secure storage</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_callouts_named_credentials.htm" target="_blank" rel="noopener">Named Credentials as Callout Endpoints</a></h3>
+      <p>Centralized endpoint and authentication management for Apex callouts.</p>
+      <p class="why"><strong>Use for interviews:</strong> Named Credentials + External Credentials are the default answer for governed outbound auth.</p>
+      <div class="pills"><span class="pill">Named Credentials</span><span class="pill">outbound auth</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/docs/atlas.en-us.change_data_capture.meta/change_data_capture/cdc_security_considerations.htm" target="_blank" rel="noopener">CDC Security Considerations</a></h3>
+      <p>Security implications of publishing and consuming change events.</p>
+      <p class="why"><strong>Use for interviews:</strong> event payloads can leak sensitive data if field access, consumers, retention, and downstream logging are not governed.</p>
+      <div class="pills"><span class="pill">CDC</span><span class="pill">event security</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=xcloud.connected_app_create_api_integration.htm&type=5" target="_blank" rel="noopener">Create a Connected App for API Integration</a></h3>
+      <p>Configuration path for Connected Apps used by API integrations.</p>
+      <p class="why"><strong>Use for interviews:</strong> define scopes, callback, policies, token behavior, admin approval, and monitoring before granting API access.</p>
+      <div class="pills"><span class="pill">Connected Apps</span><span class="pill">API integration</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://developer.salesforce.com/blogs/2021/12/encryption-and-signature-techniques-in-apex" target="_blank" rel="noopener">Encryption and Signature Techniques in Apex</a></h3>
+      <p>Apex cryptography patterns for encryption, hashing, signatures, and integrity verification.</p>
+      <p class="why"><strong>Use for interviews:</strong> use crypto for integrity/confidentiality requirements, but prefer platform-managed credentials and established protocols where possible.</p>
+      <div class="pills"><span class="pill">Apex crypto</span><span class="pill">signatures</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=xcloud.security_pe_concepts.htm&type=5" target="_blank" rel="noopener">Platform Encryption Concepts</a></h3>
+      <p>Shield Platform Encryption concepts and data-protection implications.</p>
+      <p class="why"><strong>Use for interviews:</strong> encryption helps with confidentiality, but it must be balanced against search, integration, key management, and operational requirements.</p>
+      <div class="pills"><span class="pill">Platform Encryption</span><span class="pill">Shield</span></div>
+    </article>
+    <article class="card">
+      <h3><a href="https://help.salesforce.com/s/articleView?id=xcloud.security_secure_your_org.htm&type=5" target="_blank" rel="noopener">Secure Your Org</a></h3>
+      <p>Salesforce security controls and practices for strengthening org posture.</p>
+      <p class="why"><strong>Use for interviews:</strong> integration security depends on the org security baseline: least privilege, MFA, session policies, monitoring, and auditability.</p>
+      <div class="pills"><span class="pill">org security</span><span class="pill">least privilege</span></div>
+    </article>
+  </div>
+
+  <h2>Fast answer template</h2>
+  <div class="card">
+    <p><strong>“I’d start by classifying the integration:</strong> layer, direction, timing, volume, and ownership of the transaction. Then I classify the data: public/internal/confidential/restricted, PII, residency, retention, consent, and audit requirements. If Salesforce initiates a real-time process, I evaluate request/reply and its callout/governor limits; if it can be decoupled, I prefer events/queues/fire-and-forget. For external systems calling Salesforce, I look at Remote Call-In, REST/SOAP/Bulk/Composite API fit, API limits, idempotency with external IDs/upsert, and retry strategy. For data-change propagation, I compare Platform Events and CDC. For production readiness, I require monitoring, retry/dead-letter behavior, partial-failure handling, and resync plans. For auth and secrets, I avoid secrets in code, use Connected Apps/OAuth for inbound API access, and Named Credentials/External Credentials for outbound callouts.”</p>
+  </div>
+</main>
+<script src="../../theme.js"></script>
+</body>
+</html>

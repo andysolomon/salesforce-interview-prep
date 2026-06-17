@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build resilience for system updates — Salesforce Interview Prep</title>
+<link rel="stylesheet" href="../../../../theme.css">
+<style>
+  body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;background:#f7f8fa;color:#1a2233}
+  .topbar{background:#22344c;color:white;padding:14px 24px;position:sticky;top:0;z-index:10}
+  .topbar a{color:white;text-decoration:none;opacity:.85}
+  .topbar h1{margin:4px 0 2px;font-size:20px}
+  .sub{font-size:12px;opacity:.78}
+  .actions{margin-top:8px;font-size:12px}
+  .actions a{border:1px solid rgba(255,255,255,.35);border-radius:4px;padding:3px 10px}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+  aside{background:white;border-right:1px solid #e3e8f0;padding:18px;position:sticky;top:72px;height:calc(100vh - 72px);overflow:auto}
+  input{width:100%;padding:8px 10px;border:1px solid #d6e0ee;border-radius:6px;margin-bottom:12px}
+  nav ul{list-style:none;margin:0;padding:0} nav a{display:block;padding:5px 0;color:#22344c;text-decoration:none;font-size:13px}
+  main{max-width:920px;padding:28px 40px 80px}
+  .slide{background:white;border:1px solid #e3e8f0;border-radius:8px;padding:22px 28px;margin-bottom:22px;scroll-margin-top:96px}
+  .pgnum{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#5b6b80;font-weight:700}
+  h2{color:#22344c;font-size:22px;border-bottom:2px solid #1589ee;display:inline-block;padding-bottom:6px}
+  .raw-text p{margin:5px 0;white-space:pre-wrap}
+  .pdf-viewer{width:100%;height:75vh;border:1px solid #d6e0ee;border-radius:8px;background:white}
+  @media(max-width:900px){.layout{display:block}aside{position:static;height:auto}main{padding:20px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="crumbs"><a href="../../../../index.html">Study</a> · <a href="../../index.html">Architect Certification Guides · Integration</a> · Topic</div>
+  <h1>Build resilience for system updates</h1>
+  <div class="sub">Imported from a root PDF for Salesforce study/interview prep</div>
+  <div class="actions"><a href="slides.pdf" target="_blank" rel="noopener">Download original PDF (28 slides)</a></div>
+</header>
+<div class="layout">
+  <aside>
+    <input id="filter" placeholder="Filter extracted text…" aria-label="Filter slides">
+    <nav><ul></ul></nav>
+  </aside>
+  <main id="slides"><section class="slide"><h2>PDF imported</h2><p>No extractable text was found because this PDF appears to be image-based. Use the embedded viewer below or the PDF link above.</p><iframe class="pdf-viewer" src="slides.pdf" title="Original PDF"></iframe></section></main>
+</div>
+<script>
+const input=document.getElementById('filter');
+input.addEventListener('input',()=>{
+  const q=input.value.toLowerCase();
+  document.querySelectorAll('.slide').forEach(s=>{s.style.display=s.textContent.toLowerCase().includes(q)?'':'none'});
+});
+</script>
+<script src="../../../../theme.js"></script>
+</body>
+</html>
